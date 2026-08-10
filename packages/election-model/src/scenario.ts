@@ -124,12 +124,74 @@ export interface ThirdPartyShiftBounds {
   towardMaximumPoints: number;
 }
 
+interface BehaviorBaselineProfile {
+  denominator: number;
+  capacity: number;
+  turnoutWeights: number[];
+  turnoutCapacities: number[];
+}
+
 export type TwoPartyResult = {
   harrisVotes: number;
   trumpVotes: number;
 };
 
 type ThirdPartyVoteKey = "steinVotes" | "oliverVotes" | "residualOtherVotes";
+
+const behaviorBaselineProfileCache = new WeakMap<
+  readonly BehaviorModelUnit[],
+  BehaviorBaselineProfile
+>();
+const behaviorBaselineIndexCache = new WeakMap<
+  readonly BehaviorModelUnit[],
+  ReadonlyMap<string, BehaviorModelUnit>
+>();
+
+function behaviorBaselineProfile(
+  baselineUnits: readonly BehaviorModelUnit[],
+): BehaviorBaselineProfile {
+  const cached = behaviorBaselineProfileCache.get(baselineUnits);
+  if (cached) return cached;
+
+  let denominator = 0;
+  let capacity = 0;
+  const turnoutWeights = new Array<number>(baselineUnits.length);
+  const turnoutCapacities = new Array<number>(baselineUnits.length);
+  for (let index = 0; index < baselineUnits.length; index += 1) {
+    const unit = baselineUnits[index];
+    if (unit.harrisVotes + unit.trumpVotes + unit.otherVotes !== unit.totalVotes) {
+      throw new Error(`${unit.id} baseline votes do not reconcile`);
+    }
+    if (unit.steinVotes + unit.oliverVotes + unit.residualOtherVotes !== unit.otherVotes) {
+      throw new Error(`${unit.id} third-party votes do not reconcile`);
+    }
+    if (!Number.isSafeInteger(unit.turnoutCapacity) || unit.turnoutCapacity < 0) {
+      throw new Error(`${unit.id} has invalid turnout capacity`);
+    }
+    const turnoutWeight = unit.turnoutDenominator ?? 0;
+    turnoutWeights[index] = turnoutWeight;
+    turnoutCapacities[index] = unit.turnoutCapacity;
+    denominator += turnoutWeight;
+    capacity += unit.turnoutCapacity;
+  }
+
+  const profile = { denominator, capacity, turnoutWeights, turnoutCapacities };
+  behaviorBaselineProfileCache.set(baselineUnits, profile);
+  return profile;
+}
+
+function behaviorBaselineIndex(
+  baselineUnits: readonly BehaviorModelUnit[],
+) {
+  const cached = behaviorBaselineIndexCache.get(baselineUnits);
+  if (cached) return cached;
+  const index = new Map(baselineUnits.map((unit) => [unit.id, unit]));
+  if (index.size !== baselineUnits.length) {
+    throw new Error("Behavior baseline contains duplicate unit identifiers");
+  }
+  behaviorBaselineIndexCache.set(baselineUnits, index);
+  return index;
+}
 
 function thirdPartyVoteKey(candidate: ThirdPartyCandidate): ThirdPartyVoteKey {
   if (candidate === "stein") return "steinVotes";
@@ -219,16 +281,20 @@ export function deriveBehaviorContributions(
   baselineUnits: readonly BehaviorModelUnit[],
   scenarioUnits: readonly BehaviorScenarioUnit[],
 ): BehaviorContribution[] {
-  const baselineById = new Map(baselineUnits.map((unit) => [unit.id, unit]));
-  if (baselineById.size !== baselineUnits.length) {
-    throw new Error("Behavior baseline contains duplicate unit identifiers");
-  }
+  const baselineById = behaviorBaselineIndex(baselineUnits);
   if (scenarioUnits.length !== baselineUnits.length) {
     throw new Error("Behavior contribution inputs must contain the same units");
   }
 
-  const contributions = scenarioUnits.map((unit) => {
-    const baseline = baselineById.get(unit.id);
+  let sameOrder = true;
+  for (let index = 0; index < scenarioUnits.length; index += 1) {
+    if (scenarioUnits[index].id !== baselineUnits[index].id) {
+      sameOrder = false;
+      break;
+    }
+  }
+  const contributions = scenarioUnits.map((unit, index) => {
+    const baseline = sameOrder ? baselineUnits[index] : baselineById.get(unit.id);
     if (!baseline) throw new Error(`Scenario unit ${unit.id} is missing from the baseline`);
     const harrisDelta = unit.harrisVotes - baseline.harrisVotes;
     const trumpDelta = unit.trumpVotes - baseline.trumpVotes;
@@ -243,10 +309,12 @@ export function deriveBehaviorContributions(
       marginDelta: harrisDelta - trumpDelta,
     };
   });
-  const scenarioIds = new Set(scenarioUnits.map((unit) => unit.id));
-  if (scenarioIds.size !== scenarioUnits.length
-    || baselineUnits.some((unit) => !scenarioIds.has(unit.id))) {
-    throw new Error("Behavior contribution inputs must contain each unit exactly once");
+  if (!sameOrder) {
+    const scenarioIds = new Set(scenarioUnits.map((unit) => unit.id));
+    if (scenarioIds.size !== scenarioUnits.length
+      || baselineUnits.some((unit) => !scenarioIds.has(unit.id))) {
+      throw new Error("Behavior contribution inputs must contain each unit exactly once");
+    }
   }
   return contributions;
 }
@@ -282,6 +350,9 @@ export function allocateCappedProportionally(
   const capacityTotal = capacities.reduce((sum, capacity) => sum + capacity, 0);
   if (requiredTotal > capacityTotal) {
     throw new Error(`Required allocation ${requiredTotal} exceeds capacity ${capacityTotal}`);
+  }
+  if (weights.every((weight, index) => weight === capacities[index])) {
+    return proportionalAllocation(weights, requiredTotal);
   }
   const allocation = weights.map(() => 0);
   let remaining = requiredTotal;
@@ -338,28 +409,13 @@ export function applyBehaviorScenario(
     throw new Error("Third-party Harris exchange share must be between zero and one");
   }
 
-  for (const unit of baselineUnits) {
-    if (unit.harrisVotes + unit.trumpVotes + unit.otherVotes !== unit.totalVotes) {
-      throw new Error(`${unit.id} baseline votes do not reconcile`);
-    }
-    if (unit.steinVotes + unit.oliverVotes + unit.residualOtherVotes !== unit.otherVotes) {
-      throw new Error(`${unit.id} third-party votes do not reconcile`);
-    }
-    if (!Number.isSafeInteger(unit.turnoutCapacity) || unit.turnoutCapacity < 0) {
-      throw new Error(`${unit.id} has invalid turnout capacity`);
-    }
-  }
-
-  const denominator = baselineUnits.reduce(
-    (sum, unit) => sum + (unit.turnoutDenominator ?? 0),
-    0,
-  );
-  const capacity = baselineUnits.reduce((sum, unit) => sum + unit.turnoutCapacity, 0);
+  const baselineProfile = behaviorBaselineProfile(baselineUnits);
+  const { denominator, capacity } = baselineProfile;
   const requestedVotes = Math.round(denominator * settings.turnoutIncreasePoints / 100);
   const addedVotes = Math.min(requestedVotes, capacity);
   const turnoutAllocation = allocateCappedProportionally(
-    baselineUnits.map((unit) => unit.turnoutDenominator ?? 0),
-    baselineUnits.map((unit) => unit.turnoutCapacity),
+    baselineProfile.turnoutWeights,
+    baselineProfile.turnoutCapacities,
     addedVotes,
   );
   const harrisTurnoutTotal = Math.round(addedVotes * settings.addedVoterHarrisShare);
@@ -393,24 +449,22 @@ export function applyBehaviorScenario(
     0,
   );
   const selectedVoteKey = thirdPartyVoteKey(settings.thirdPartyCandidate);
-  const preThirdPartyTotals = afterPreference.reduce(
-    (sum, unit) => ({
-      harrisVotes: sum.harrisVotes + unit.harrisVotes,
-      trumpVotes: sum.trumpVotes + unit.trumpVotes,
-      steinVotes: sum.steinVotes + unit.steinVotes,
-      oliverVotes: sum.oliverVotes + unit.oliverVotes,
-      residualOtherVotes: sum.residualOtherVotes + unit.residualOtherVotes,
-      totalVotes: sum.totalVotes + unit.totalVotes,
-    }),
-    {
-      harrisVotes: 0,
-      trumpVotes: 0,
-      steinVotes: 0,
-      oliverVotes: 0,
-      residualOtherVotes: 0,
-      totalVotes: 0,
-    },
-  );
+  const preThirdPartyTotals = {
+    harrisVotes: 0,
+    trumpVotes: 0,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
+    totalVotes: 0,
+  };
+  for (const unit of afterPreference) {
+    preThirdPartyTotals.harrisVotes += unit.harrisVotes;
+    preThirdPartyTotals.trumpVotes += unit.trumpVotes;
+    preThirdPartyTotals.steinVotes += unit.steinVotes;
+    preThirdPartyTotals.oliverVotes += unit.oliverVotes;
+    preThirdPartyTotals.residualOtherVotes += unit.residualOtherVotes;
+    preThirdPartyTotals.totalVotes += unit.totalVotes;
+  }
   const requestedCandidateDelta = Math.round(
     scenarioBallots * settings.thirdPartyShiftPoints / 100,
   );
@@ -514,26 +568,24 @@ export function applyBehaviorScenario(
       netHarrisGain: unit.harrisVotes - baselineUnits[index].harrisVotes,
     }));
   }
-  const totals = units.reduce(
-    (sum, unit) => ({
-      harrisVotes: sum.harrisVotes + unit.harrisVotes,
-      trumpVotes: sum.trumpVotes + unit.trumpVotes,
-      steinVotes: sum.steinVotes + unit.steinVotes,
-      oliverVotes: sum.oliverVotes + unit.oliverVotes,
-      residualOtherVotes: sum.residualOtherVotes + unit.residualOtherVotes,
-      otherVotes: sum.otherVotes + unit.otherVotes,
-      totalVotes: sum.totalVotes + unit.totalVotes,
-    }),
-    {
-      harrisVotes: 0,
-      trumpVotes: 0,
-      steinVotes: 0,
-      oliverVotes: 0,
-      residualOtherVotes: 0,
-      otherVotes: 0,
-      totalVotes: 0,
-    },
-  );
+  const totals = {
+    harrisVotes: 0,
+    trumpVotes: 0,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
+    otherVotes: 0,
+    totalVotes: 0,
+  };
+  for (const unit of units) {
+    totals.harrisVotes += unit.harrisVotes;
+    totals.trumpVotes += unit.trumpVotes;
+    totals.steinVotes += unit.steinVotes;
+    totals.oliverVotes += unit.oliverVotes;
+    totals.residualOtherVotes += unit.residualOtherVotes;
+    totals.otherVotes += unit.otherVotes;
+    totals.totalVotes += unit.totalVotes;
+  }
 
   for (const unit of units) {
     if ([

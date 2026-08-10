@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.9 compact demographic runtime
+**Status:** v0.10 replay and performance hardening
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.9 makes the Pennsylvania demographic foundation substantially lighter without changing its semantic data contract or deterministic results. The official importer emits storage schema 3 with a self-describing fixed-order VTD row encoding. The browser loader reconstructs the same expanded model records only after validating field order, official alphanumeric GEOIDs, demographic reconciliation, source-link coverage, mapped vote totals, and turnout capacity. The artifact falls from 5,712,538 bytes to 874,568 bytes while retaining every VTD, demographic cell, candidate total, and crosswalk count. Existing v0.8 scenario links remain compatible because the semantic dataset and engine are unchanged.
+Version 0.10 turns the scenario-sharing audit into a checked-in browser contract and profiles the Pennsylvania runtime before multi-state expansion. Playwright now proves the canonical complex replay, official alphanumeric VTD restoration, and fail-closed future-version behavior through visible application outcomes. The deterministic engine caches immutable baseline validation and indexes, avoids unnecessary allocation objects, and keeps the same largest-remainder ordering and scenario results. On repeated runs on the current development machine, the complex Pennsylvania scenario median falls from about 100 ms to roughly 75 ms and contribution derivation from about 16 ms to under 2 ms. The remaining scenario cost makes a Web Worker boundary an entry condition for multiple detailed states.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

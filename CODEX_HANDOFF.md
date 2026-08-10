@@ -21,8 +21,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.9.0`, compact demographic runtime
-- Previous release commit: `8cc0a06 Add versioned scenario sharing`
+- Release: `0.10.0`, replay and performance hardening
+- Previous release commit: `f764815 Compact Pennsylvania demographic runtime`
 - Remote: none configured
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -149,6 +149,15 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Raw browser payload falls from 5,712,538 bytes to 874,568 bytes, an 84.7 percent reduction. A local gzip profile falls from 437,995 to about 229,618 bytes.
 - Artifact SHA-256 is `639341193ee9b44d25a1712d2e02979f54db41a312baa7df992db44df0e790f0`.
 - Semantic scenario dataset `us2024-pa-vtd2020-v2` remains unchanged because decoded data and deterministic results are unchanged.
+
+### v0.10 replay and performance hardening
+
+- Playwright is a checked-in development dependency with three full browser replays in `tests/browser/scenario-replay.spec.ts`.
+- The browser contract verifies the compact artifact response, canonical Pennsylvania R +5.8 result, ALEPPO VTD inspector, official alphanumeric VTD `4200300A000`, and visible certified-baseline fallback for future URL schema 99.
+- `scripts/profile-pennsylvania-runtime.mjs` measures JSON parse, validated decode, model-unit conversion, full three-operation scenario calculation, contribution derivation, and retained heap.
+- The engine caches validation and indexes by immutable baseline-array identity, uses numeric largest-remainder ranking, and removes per-unit accumulator object churn without changing allocation ordering or outputs.
+- Repeated local profile medians: scenario calculation about 100 ms to roughly 75 ms; contribution audit about 16 ms to under 2 ms. Validated decode ranges around 25 to 45 ms and retained expanded runtime heap is about 13 MiB on this machine.
+- URL schema, semantic dataset, and deterministic engine versions remain unchanged because results are unchanged.
 
 ## 4. Demographic source and limitations
 
@@ -334,18 +343,32 @@ v0.9 additionally changes:
 - `docs/decisions/0012-compact-demographic-runtime.md`
 - release documentation and package metadata
 
+v0.10 additionally changes:
+
+- `package.json` and `package-lock.json`
+- `packages/election-model/src/invariants.ts`
+- `packages/election-model/src/scenario.ts`
+- `src/App.tsx`
+- `playwright.config.ts`
+- `tests/browser/scenario-replay.spec.ts`
+- `scripts/profile-pennsylvania-runtime.mjs`
+- `docs/decisions/0013-browser-replay-and-runtime-profile.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.9:
+CLI verification for v0.10:
 
 - `npm test`: 29 tests pass.
+- `npm run test:browser`: 3 browser replays pass.
+- `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
 - Vite emits the existing warning that the deck.gl Atlas chunk exceeds 500 kB after minification. This is a performance item, not a build failure.
 
 Browser verification:
 
-- v0.9 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
+- v0.10 retains the v0.9 desktop and mobile layout behavior; the release contains no design changes beyond the visible version label.
 - The compact artifact loads successfully and enables behavior controls without changing the canonical complex scenario.
 - That scenario still produces Pennsylvania R+5.8 and the same ALEPPO VTD candidate ledger and contribution audit.
 - Official alphanumeric VTD `4200300A000` restores from a shared URL as Pittsburgh Ward 15 District 09 and opens the correct inspector.
@@ -378,7 +401,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 ## 9. Known issues and deliberate omissions
 
 1. **Only Pennsylvania is production-detailed.** Other states remain state-level only.
-2. **The demographic artifact is now 875 KB, but decoding expands 9,178 VTD objects on the main thread.** This is acceptable for Pennsylvania; profile or move decoding/model work to a worker before loading several states at once.
+2. **The demographic artifact is 875 KB, but decoding and scenarios still run on the main thread.** Repeated local medians are about 25 to 45 ms for validated decode and roughly 75 ms for a complex 9,140-unit scenario. Add a Web Worker boundary before loading several detailed states at once.
 3. **The deck.gl chunk is about 1.6 MB minified.** It is already lazy, but further code splitting or bundle review is warranted.
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
 5. **No CVAP or 2024 eligibility estimate exists.** The UI correctly discloses the 2020 VAP limitation.
@@ -390,20 +413,25 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-Do not jump directly to a national demographic simulator. The next phase is:
+Do not jump directly to a national demographic simulator. The next phase is the reusable multi-state platform:
 
-1. Add a checked-in golden browser test for the canonical share URL, compact-data load, county/VTD restoration, and future-version fallback.
-2. Profile main-thread decode and scenario computation before choosing a second production-detailed state.
-3. Design a separately switchable uncertainty layer only after the runtime artifact and sharing contract are stable. It must use a fixed seed and documented calibration; the deterministic scenario remains the default.
+1. Extract Pennsylvania-specific loading, geography, assumptions, and election rules behind a typed state manifest.
+2. Move detailed-state decode/scenario work behind a Web Worker contract while retaining deterministic URL replay and stale-result cancellation.
+3. Add one second production-detailed battleground using certified county and VTD/precinct data through that manifest.
+4. Aggregate only loaded, version-compatible state scenarios nationally and expose the resulting path to 270.
+5. Design uncertainty only after the multi-state deterministic contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 
-The immediate next product task after v0.9 is item 1: turn the manual canonical-link browser audit into a repeatable repository test.
+The immediate next engineering task after v0.10 is items 1 and 2 together: define the state manifest and worker message contract before importing another state's data.
 
 ## 11. Commands
 
 ```bash
 npm install
+npm run test:browser:install
 npm run dev
 npm test
+npm run test:browser
+npm run profile:pa
 npm run lint
 npm run build
 ```

@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.9 compact demographic runtime
+## Current release: v0.10 replay and performance hardening
 
 The current build provides:
 
@@ -23,6 +23,8 @@ The current build provides:
 - Explicit data and engine compatibility checks with certified-baseline fallback for malformed or unsupported links.
 - A self-describing Pennsylvania VTD row format that reduces the demographic browser artifact from 5.71 MB to 875 KB without removing modeled or audited fields.
 - Fail-closed runtime decoding that verifies field order, GEOIDs, demographic cells, mapped votes, coverage counts, and turnout capacity before enabling controls.
+- Checked-in Playwright replays for the canonical complex scenario, an official alphanumeric VTD, and unsupported-future-version fallback.
+- A reproducible Pennsylvania runtime profiler plus allocation hot-path improvements that preserve the engine's exact integer results.
 - Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
@@ -76,12 +78,19 @@ Coverage is explicit:
 - 158 linked VTDs excluded from turnout because mapped 2024 ballots exceed the older 2020 VAP denominator.
 - 140 Census VTDs with no mapped 2024 result.
 
+## Reliability and runtime profile
+
+The browser suite opens the real application, waits for the compact demographic artifact, and verifies visible scenario outcomes rather than private component state. It locks the canonical replay to Pennsylvania R +5.8 and the ALEPPO VTD inspector, verifies `4200300A000`, and proves that a future URL schema fails closed to the certified baseline.
+
+The local profiler covers JSON parsing, fail-closed decoding, model-unit conversion, a complex three-operation scenario, and its contribution audit. On repeated runs on the current Windows development machine, the scenario median fell from about 100 ms to roughly 75 ms and the contribution audit from about 16 ms to under 2 ms. These measurements are diagnostic, not cross-device performance guarantees. A Web Worker boundary remains required before multiple detailed states are active together.
+
 ## Run locally
 
 Requirements: Node.js 22.12 or newer.
 
 ```bash
 npm install
+npm run test:browser:install
 npm run dev
 ```
 
@@ -91,6 +100,8 @@ The local application runs at `http://127.0.0.1:4173`.
 
 ```bash
 npm test
+npm run test:browser
+npm run profile:pa
 npm run lint
 npm run build
 ```
@@ -108,7 +119,8 @@ public/data/pa/2024/                Runtime Pennsylvania result and geometry art
 public/data/pa/2020/                Runtime P.L. 94-171 VTD demographic artifact
 data-sources/pennsylvania/           Small auditable source registries and crosswalks
 scripts/                             Reproducible import and geometry pipelines
-tests/                               Reconciliation and model invariants
+tests/                               Model invariants and browser scenario replays
+playwright.config.ts                 Browser-test server and Chromium configuration
 docs/decisions/                      Architecture and data decisions
 ```
 
@@ -157,10 +169,11 @@ npm run data:pa:demographics -- \
 - `docs/decisions/0010-selected-geography-inspector.md`
 - `docs/decisions/0011-versioned-scenario-urls.md`
 - `docs/decisions/0012-compact-demographic-runtime.md`
+- `docs/decisions/0013-browser-replay-and-runtime-profile.md`
 
 ## Next increment
 
-Add a checked-in golden browser replay for the canonical shared scenario, including county/VTD restoration and future-version fallback, before expanding the behavior model to another state.
+Extract a manifest-driven state runtime and move detailed-state scenario computation behind a Web Worker boundary. Only then add the second production-detailed battleground and national cross-state aggregation.
 
 ## Primary sources
 

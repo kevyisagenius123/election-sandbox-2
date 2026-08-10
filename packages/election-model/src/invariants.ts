@@ -35,11 +35,14 @@ export function largestRemainder(values: number[], requiredTotal: number) {
   }
 
   const ranked = values
-    .map((value, index) => ({ index, remainder: value - floors[index] }))
-    .sort((a, b) => b.remainder - a.remainder || a.index - b.index);
+    .map((_, index) => index)
+    .sort((left, right) => (
+      (values[right] - floors[right]) - (values[left] - floors[left])
+      || left - right
+    ));
 
   for (let index = 0; index < remaining; index += 1) {
-    floors[ranked[index].index] += 1;
+    floors[ranked[index]] += 1;
   }
   return floors;
 }

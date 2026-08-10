@@ -1,6 +1,6 @@
 {
   "name": "election-sandbox-2",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -11,8 +11,11 @@
     "build": "tsc --noEmit && vite build",
     "data:pa:demographics": "node scripts/import-pennsylvania-2020-pl94-demographics.mjs",
     "data:pa:geometry": "node scripts/build-pennsylvania-vtd-geometry.mjs",
+    "profile:pa": "node --experimental-strip-types --expose-gc scripts/profile-pennsylvania-runtime.mjs",
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:browser": "playwright test",
+    "test:browser:install": "playwright install chromium",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -26,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
+    "@playwright/test": "^1.62.1",
     "@types/d3-geo": "^3.1.1",
     "@types/geojson": "^7946.0.16",
     "@types/node": "22.19.19",
