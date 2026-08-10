@@ -46,9 +46,11 @@ type AtlasMapSceneProps = {
   scenarioPennsylvaniaVtds: ReadonlyMap<string, BehaviorScenarioUnit>;
   activeStateCode: string | null;
   activeCountyFips: string | null;
+  activePrecinctGeoid: string | null;
   viewMode: ViewMode;
   onActiveStateChange: (code: string | null) => void;
   onActiveCountyChange: (fips: string | null) => void;
+  onActivePrecinctChange: (geoid: string | null) => void;
 };
 
 type VoteResult = Pick<StatewidePresidentialResult, "harrisVotes" | "trumpVotes" | "totalVotes">;
@@ -71,9 +73,11 @@ export function AtlasMapScene({
   scenarioPennsylvaniaVtds,
   activeStateCode,
   activeCountyFips,
+  activePrecinctGeoid,
   viewMode,
   onActiveStateChange,
   onActiveCountyChange,
+  onActivePrecinctChange,
 }: AtlasMapSceneProps) {
   const shellRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
@@ -92,7 +96,6 @@ export function AtlasMapScene({
     error: string | null;
   }>({ countyFips: null, county: null, error: null });
   const [hoveredPrecinctGeoid, setHoveredPrecinctGeoid] = useState<string | null>(null);
-  const [selectedPrecinctGeoid, setSelectedPrecinctGeoid] = useState<string | null>(null);
   const [heightMode, setHeightMode] = useState<"ballots" | "flat">("ballots");
   const precinctCounty = activeCountyFips && precinctLoad.countyFips === activeCountyFips
     ? precinctLoad.county
@@ -245,6 +248,7 @@ export function AtlasMapScene({
 
     setCountyRaised(false);
     setHoveredCountyFips(null);
+    onActivePrecinctChange(null);
     onActiveCountyChange(null);
     onActiveStateChange(code);
     animateCamera(destinationForBounds(bounds, {
@@ -254,14 +258,14 @@ export function AtlasMapScene({
       maxZoom: 2.25,
       rotationX: 58,
     }));
-  }, [animateCamera, destinationForBounds, onActiveCountyChange, onActiveStateChange]);
+  }, [animateCamera, destinationForBounds, onActiveCountyChange, onActivePrecinctChange, onActiveStateChange]);
 
   const openCounty = useCallback((fips: string) => {
     const countyFeature = activeCounties.find((item) => featureFips(item, 5) === fips);
     if (!countyFeature) return;
     setHoveredCountyFips(null);
     setHoveredPrecinctGeoid(null);
-    setSelectedPrecinctGeoid(null);
+    onActivePrecinctChange(null);
     onActiveCountyChange(fips);
     animateCamera(destinationForBounds(featureBounds(countyFeature), {
       widthRatio: 0.72,
@@ -270,12 +274,12 @@ export function AtlasMapScene({
       maxZoom: 6.8,
       rotationX: 55,
     }), 720);
-  }, [activeCounties, animateCamera, destinationForBounds, onActiveCountyChange]);
+  }, [activeCounties, animateCamera, destinationForBounds, onActiveCountyChange, onActivePrecinctChange]);
 
   const closeCounty = useCallback(() => {
     if (!activeStateFeature) return;
     setHoveredPrecinctGeoid(null);
-    setSelectedPrecinctGeoid(null);
+    onActivePrecinctChange(null);
     onActiveCountyChange(null);
     animateCamera(destinationForBounds(featureBounds(activeStateFeature), {
       widthRatio: 0.72,
@@ -284,7 +288,7 @@ export function AtlasMapScene({
       maxZoom: 2.25,
       rotationX: 58,
     }), 680);
-  }, [activeStateFeature, animateCamera, destinationForBounds, onActiveCountyChange]);
+  }, [activeStateFeature, animateCamera, destinationForBounds, onActiveCountyChange, onActivePrecinctChange]);
 
   const closeState = useCallback(() => {
     if (closeTimerRef.current != null) window.clearTimeout(closeTimerRef.current);
@@ -292,13 +296,13 @@ export function AtlasMapScene({
       setCountyRaised(false);
       setHoveredCountyFips(null);
       setHoveredPrecinctGeoid(null);
-      setSelectedPrecinctGeoid(null);
+      onActivePrecinctChange(null);
       onActiveCountyChange(null);
       onActiveStateChange(null);
       closeTimerRef.current = null;
     }, 260);
     animateCamera(nationalDestination());
-  }, [animateCamera, nationalDestination, onActiveCountyChange, onActiveStateChange]);
+  }, [animateCamera, nationalDestination, onActiveCountyChange, onActivePrecinctChange, onActiveStateChange]);
 
   useEffect(() => {
     if (!activeStateCode) return;
@@ -547,7 +551,7 @@ export function AtlasMapScene({
         onClick: (info: PickingInfo) => {
           const item = info.object as Feature | undefined;
           const properties = item?.properties as unknown as PrecinctResultProperties | undefined;
-          if (properties) setSelectedPrecinctGeoid(properties.geoid);
+          if (properties) onActivePrecinctChange(properties.geoid);
         },
       });
       return [precinctLayer];
@@ -569,6 +573,7 @@ export function AtlasMapScene({
     maxPrecinctVotes,
     openCounty,
     openState,
+    onActivePrecinctChange,
     precinctCounty,
     precinctElevationUnit,
     scenarioByCode,
@@ -583,7 +588,7 @@ export function AtlasMapScene({
   const inspectedActualCounty = inspectedCountyFips ? actualCountyByFips.get(inspectedCountyFips) : undefined;
   const inspectedScenarioCounty = inspectedCountyFips ? scenarioCountyByFips.get(inspectedCountyFips) : undefined;
   const inspectedScenarioMargin = inspectedScenarioCounty ? signedMargin(inspectedScenarioCounty) : null;
-  const inspectedPrecinctGeoid = hoveredPrecinctGeoid ?? selectedPrecinctGeoid;
+  const inspectedPrecinctGeoid = hoveredPrecinctGeoid ?? activePrecinctGeoid;
   const inspectedActualPrecinct = inspectedPrecinctGeoid
     ? precinctCounty?.features.features.find(
       (item) => item.properties.geoid === inspectedPrecinctGeoid,
@@ -605,6 +610,10 @@ export function AtlasMapScene({
         layers={layers}
         onClick={(info) => {
           if (info.object) return;
+          if (activeCountyFips) {
+            onActivePrecinctChange(null);
+            return;
+          }
           if (activeStateCode && !activeCountyFips) closeState();
         }}
         onViewStateChange={({ viewState: next, interactionState }) => {

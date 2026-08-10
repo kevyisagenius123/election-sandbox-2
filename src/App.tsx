@@ -8,12 +8,14 @@ import {
   type StatewidePresidentialResult,
   type ThirdPartyCandidate,
 } from "../packages/election-model/src/scenario.ts";
+import { GeographyInspector } from "./components/GeographyInspector.tsx";
 import {
   loadPennsylvaniaDemographicFoundation,
   scenarioVtdMap,
   toBehaviorModelUnits,
   type PennsylvaniaDemographicFoundation,
 } from "./data/paDemographics.ts";
+import { buildCountyInspector, buildVtdInspector } from "./data/paInspector.ts";
 import { states2024 } from "./data/states.ts";
 import {
   pennsylvaniaCounties2024,
@@ -30,6 +32,7 @@ interface ContributionRow {
   name: string;
   context: string;
   countyFips: string;
+  vtdGeoid: string | null;
   marginDelta: number;
 }
 
@@ -90,6 +93,7 @@ function normalizeBidirectionalSlider(value: number, minimum: number, maximum: n
 export function App() {
   const [selectedStateCode, setSelectedStateCode] = useState<string | null>(null);
   const [selectedCountyFips, setSelectedCountyFips] = useState<string | null>(null);
+  const [selectedVtdGeoid, setSelectedVtdGeoid] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("scenario");
   const [behaviorEditorMode, setBehaviorEditorMode] = useState<BehaviorEditorMode>("turnout");
   const [turnoutIncreasePoints, setTurnoutIncreasePoints] = useState(0);
@@ -289,6 +293,7 @@ export function App() {
         name: countyNames.get(countyFips) ?? countyFips,
         context: "County total",
         countyFips,
+        vtdGeoid: null,
         marginDelta,
       }))
       .filter((row) => row.marginDelta !== 0)
@@ -304,6 +309,7 @@ export function App() {
           name: vtd?.displayName ?? vtd?.censusName ?? contribution.geometryId!,
           context: countyNames.get(countyFips) ?? countyFips,
           countyFips,
+          vtdGeoid: contribution.geometryId!,
           marginDelta: contribution.marginDelta,
         };
       })
@@ -325,6 +331,44 @@ export function App() {
   const selectedScenarioCounty = scenarioPennsylvaniaCounties.find(
     (county) => county.fips === selectedCountyFips,
   );
+  const selectedVtd = useMemo(
+    () => selectedVtdGeoid
+      ? demographicFoundation?.vtds.find((vtd) => vtd.geoid === selectedVtdGeoid)
+      : undefined,
+    [demographicFoundation, selectedVtdGeoid],
+  );
+  const selectedVtdScenario = selectedVtdGeoid
+    ? scenarioPennsylvaniaVtds.get(selectedVtdGeoid)
+    : undefined;
+  const selectedInspector = useMemo(() => {
+    if (!demographicFoundation || !behaviorScenario) return null;
+    if (selectedVtd) {
+      return buildVtdInspector(
+        selectedVtd,
+        selectedVtdScenario,
+        selectedActualCounty?.name ?? "Pennsylvania",
+        thirdPartyCandidate,
+      );
+    }
+    if (selectedActualCounty && selectedScenarioCounty) {
+      return buildCountyInspector(
+        selectedActualCounty,
+        selectedScenarioCounty,
+        demographicFoundation,
+        behaviorScenario.units,
+        thirdPartyCandidate,
+      );
+    }
+    return null;
+  }, [
+    behaviorScenario,
+    demographicFoundation,
+    selectedActualCounty,
+    selectedScenarioCounty,
+    selectedVtd,
+    selectedVtdScenario,
+    thirdPartyCandidate,
+  ]);
   const paFlipped = paScenario.harrisVotes > paScenario.trumpVotes;
   const scenarioChanged = turnoutIncreasePoints !== 0
     || effectivePreferenceShiftPoints !== 0
@@ -353,28 +397,46 @@ export function App() {
   ) * 100;
   const thirdPartyScenarioVotes = thirdPartyStartingVotes
     + (behaviorScenario?.thirdParty.realizedCandidateDelta ?? 0);
-  const readoutActualMargin = selectedActualCounty
-    ? margin(selectedActualCounty)
+  const readoutActualMargin = selectedVtd
+    ? selectedVtd.baselineVotes.totalVotes > 0
+      ? margin(selectedVtd.baselineVotes)
+      : null
+    : selectedActualCounty
+      ? margin(selectedActualCounty)
     : selectedStateCode
       ? margin(selectedActual)
       : ((actualNational.harrisVotes - actualNational.trumpVotes) / actualNational.totalVotes) * 100;
-  const readoutScenarioMargin = selectedScenarioCounty
-    ? margin(selectedScenarioCounty)
+  const readoutScenarioMargin = selectedVtd
+    ? selectedVtdScenario && selectedVtdScenario.totalVotes > 0
+      ? margin(selectedVtdScenario)
+      : null
+    : selectedScenarioCounty
+      ? margin(selectedScenarioCounty)
     : selectedStateCode
       ? margin(selectedScenario)
       : ((scenarioNational.harrisVotes - scenarioNational.trumpVotes) / scenarioNational.totalVotes) * 100;
-  const readoutShift = readoutScenarioMargin - readoutActualMargin;
-  const selectedGeographyName = selectedActualCounty?.name
+  const readoutShift = readoutActualMargin == null || readoutScenarioMargin == null
+    ? null
+    : readoutScenarioMargin - readoutActualMargin;
+  const selectedGeographyName = selectedVtd?.displayName
+    ?? selectedActualCounty?.name
     ?? (selectedStateCode ? selectedActual.name : "United States");
 
   function selectState(code: string | null) {
+    setSelectedVtdGeoid(null);
     setSelectedStateCode(code);
     if (code !== "PA") setSelectedCountyFips(null);
   }
 
   function selectNation() {
+    setSelectedVtdGeoid(null);
     setSelectedCountyFips(null);
     setSelectedStateCode(null);
+  }
+
+  function selectCounty(fips: string | null) {
+    setSelectedVtdGeoid(null);
+    setSelectedCountyFips(fips);
   }
 
   function resetScenario() {
@@ -390,6 +452,7 @@ export function App() {
   function focusContribution(row: ContributionRow) {
     setSelectedStateCode("PA");
     setSelectedCountyFips(row.countyFips);
+    setSelectedVtdGeoid(row.vtdGeoid);
   }
 
   function chooseThirdPartyCandidate(candidate: ThirdPartyCandidate) {
@@ -414,7 +477,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Pennsylvania behavior lab · v0.6</div>
+        <div className="build-status"><span />Pennsylvania behavior lab · v0.7</div>
       </header>
 
       <div className="workbench" id="top">
@@ -464,8 +527,9 @@ export function App() {
               <span className="overline">Geographic scope</span>
               <div className="breadcrumb">
                 <button onClick={selectNation} type="button">United States</button>
-                {selectedStateCode && <><span>/</span>{selectedCountyFips ? <button onClick={() => setSelectedCountyFips(null)} type="button">{selectedActual.name}</button> : <strong>{selectedActual.name}</strong>}</>}
-                {selectedActualCounty && <><span>/</span><strong>{selectedActualCounty.name}</strong></>}
+                {selectedStateCode && <><span>/</span>{selectedCountyFips ? <button onClick={() => selectCounty(null)} type="button">{selectedActual.name}</button> : <strong>{selectedActual.name}</strong>}</>}
+                {selectedActualCounty && <><span>/</span>{selectedVtd ? <button onClick={() => setSelectedVtdGeoid(null)} type="button">{selectedActualCounty.name}</button> : <strong>{selectedActualCounty.name}</strong>}</>}
+                {selectedVtd && <><span>/</span><strong>{selectedVtd.displayName}</strong></>}
               </div>
             </div>
             <div className="segmented" aria-label="Map comparison mode">
@@ -486,10 +550,12 @@ export function App() {
             <Suspense fallback={<div className="map-loading"><span /> Preparing the election terrain</div>}>
               <AtlasMapScene
                 activeCountyFips={selectedCountyFips}
+                activePrecinctGeoid={selectedVtdGeoid}
                 activeStateCode={selectedStateCode}
                 actualPennsylvaniaCounties={pennsylvaniaCounties2024}
                 actualStates={states2024}
-                onActiveCountyChange={setSelectedCountyFips}
+                onActiveCountyChange={selectCounty}
+                onActivePrecinctChange={setSelectedVtdGeoid}
                 onActiveStateChange={selectState}
                 scenarioPennsylvaniaCounties={scenarioPennsylvaniaCounties}
                 scenarioPennsylvaniaVtds={scenarioPennsylvaniaVtds}
@@ -504,14 +570,18 @@ export function App() {
                 <strong>{selectedGeographyName}</strong>
               </div>
               <div className="readout-margin">
-                <span>Actual</span><strong>{formatMargin(readoutActualMargin)}</strong>
+                <span>Actual</span><strong>{readoutActualMargin == null ? "NO RETURN" : formatMargin(readoutActualMargin)}</strong>
               </div>
               <div className="readout-arrow" aria-hidden="true">→</div>
               <div className="readout-margin">
-                <span>Scenario</span><strong>{formatMargin(readoutScenarioMargin)}</strong>
+                <span>Scenario</span><strong>{readoutScenarioMargin == null ? "NO RETURN" : formatMargin(readoutScenarioMargin)}</strong>
               </div>
-              <div className={`shift-chip ${readoutShift > 0.05 ? "toward-dem" : ""}`}>
-                {Math.abs(readoutShift) < 0.05 ? "No change" : `${readoutShift > 0 ? "+" : ""}${readoutShift.toFixed(1)} pts D`}
+              <div className={`shift-chip ${readoutShift != null && readoutShift > 0.05 ? "toward-dem" : ""}`}>
+                {readoutShift == null
+                  ? "Unavailable"
+                  : Math.abs(readoutShift) < 0.05
+                    ? "No change"
+                    : `${readoutShift > 0 ? "+" : ""}${readoutShift.toFixed(1)} pts D`}
               </div>
             </div>
           </div>
@@ -549,6 +619,13 @@ export function App() {
               <strong>{formatMargin(((scenarioNational.harrisVotes - scenarioNational.trumpVotes) / scenarioNational.totalVotes) * 100)}</strong>
             </div>
           </section>
+
+          {selectedInspector && (
+            <GeographyInspector
+              model={selectedInspector}
+              onClearVtd={() => setSelectedVtdGeoid(null)}
+            />
+          )}
 
           <section className="assumption-card">
             <div className="card-heading">
@@ -936,7 +1013,7 @@ export function App() {
           <a href="https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html" rel="noreferrer" target="_blank">Census 2020 P.L. 94-171 P4</a>
         </div>
         <div><span className="overline">Actual national vote</span><strong>{formatNumber(actualNational.totalVotes)} ballots</strong></div>
-        <div><span className="overline">Product status</span><strong>Pennsylvania multi-candidate lab · not a forecast</strong></div>
+        <div><span className="overline">Product status</span><strong>Pennsylvania geography audit · not a forecast</strong></div>
       </footer>
     </main>
   );

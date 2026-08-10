@@ -20,6 +20,10 @@ import {
   toReportingUnitResult,
 } from "../packages/election-model/src/scenario.ts";
 import { states2024 } from "../src/data/states.ts";
+import {
+  buildCountyInspector,
+  buildVtdInspector,
+} from "../src/data/paInspector.ts";
 
 const pennsylvaniaCountyDocument = JSON.parse(readFileSync(
   new URL("../src/data/pa-2024-counties.json", import.meta.url),
@@ -551,6 +555,7 @@ test("behavior contributions reconcile exactly and preserve Republican direction
 
 test("Pennsylvania Census VTD demographics reconcile and preserve unavailable coverage", () => {
   const foundation = pennsylvaniaDemographicFoundation;
+  assert.equal(foundation.schemaVersion, 2);
   assert.equal(foundation.source.archiveSha256, "2d33a7dab29c8dd5692bbde203d253e06eebbc44fcbaa96b1caa958d454026ae");
   assert.equal(foundation.vtds.length, 9_178);
   assert.equal(foundation.join.mappedElectionGeometryCount, 9_038);
@@ -559,6 +564,24 @@ test("Pennsylvania Census VTD demographics reconcile and preserve unavailable co
   assert.equal(foundation.totals.statewideDemographics.votingAgePopulation, 10_353_548);
   assert.equal(foundation.totals.turnoutCapacity, 3_281_256);
   assert.deepEqual(foundation.totals.certifiedVotes, pennsylvaniaCountyDocument.totals);
+  assert.equal(
+    foundation.vtds
+      .reduce((sum, vtd) => sum + vtd.exactSourceUnitCount, 0),
+    8_636,
+  );
+  assert.equal(
+    foundation.vtds
+      .reduce((sum, vtd) => sum + vtd.canonicalSourceUnitCount, 0),
+    451,
+  );
+  assert.ok(foundation.vtds
+    .filter((vtd) => !vtd.hasMappedResult)
+    .every((vtd) => (
+      vtd.resultMatchMethod === null
+      && vtd.sourceUnitCount === 0
+      && vtd.exactSourceUnitCount === 0
+      && vtd.canonicalSourceUnitCount === 0
+    )));
 
   for (const vtd of foundation.vtds) {
     assert.equal(
@@ -570,6 +593,82 @@ test("Pennsylvania Census VTD demographics reconcile and preserve unavailable co
       vtd.votingAgePopulation,
     );
   }
+});
+
+test("selected-geography inspectors preserve county, VTD, and unavailable distinctions", () => {
+  const foundation = pennsylvaniaDemographicFoundation;
+  const units = [
+    ...foundation.vtds
+      .filter((vtd) => vtd.hasMappedResult)
+      .map((vtd) => ({
+        id: `vtd-${vtd.geoid}`,
+        countyFips: vtd.countyFips,
+        geometryId: vtd.geoid,
+        ...vtd.baselineVotes,
+        turnoutDenominator: vtd.denominatorStatus === "available"
+          ? vtd.votingAgePopulation
+          : null,
+        turnoutCapacity: vtd.denominatorStatus === "available"
+          ? vtd.turnoutCapacity
+          : 0,
+      })),
+    ...foundation.residualUnits.map((unit) => ({
+      ...unit,
+      geometryId: null,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    })),
+  ];
+  const scenario = applyBehaviorScenario(units, {
+    ...noThirdPartyChange,
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: 0,
+  });
+  const adams = pennsylvaniaCountyDocument.counties.find((county) => county.fips === "42001");
+  assert.ok(adams);
+  const countyInspector = buildCountyInspector(
+    adams,
+    { ...adams, netHarrisGain: 0 },
+    foundation,
+    scenario.units,
+    "stein",
+  );
+  const adamsSummary = foundation.counties.find((county) => county.countyFips === "42001");
+  assert.ok(adamsSummary);
+  assert.equal(countyInspector.kind, "county");
+  assert.equal(countyInspector.votingAgePopulation, 83_005);
+  assert.equal(countyInspector.coverage.mappedBallots, adamsSummary.mappedVotes.totalVotes);
+  assert.equal(countyInspector.coverage.officialBallots, adams.totalVotes);
+  assert.equal(countyInspector.operations.marginDelta, 0);
+
+  const exactVtd = foundation.vtds.find(
+    (vtd) => vtd.resultMatchMethod === "exact_vtd_identifier",
+  );
+  assert.ok(exactVtd);
+  const exactInspector = buildVtdInspector(
+    exactVtd,
+    scenario.units.find((unit) => unit.geometryId === exactVtd.geoid),
+    "Adams County",
+    "stein",
+  );
+  assert.equal(exactInspector.coverage.resultMatchMethod, "exact_vtd_identifier");
+  assert.ok(exactInspector.coverage.sourceUnitCount > 0);
+  assert.equal(exactInspector.actualVotes.totalVotes, exactInspector.scenarioVotes.totalVotes);
+
+  const unmatchedVtd = foundation.vtds.find((vtd) => !vtd.hasMappedResult);
+  assert.ok(unmatchedVtd);
+  const unavailableInspector = buildVtdInspector(
+    unmatchedVtd,
+    undefined,
+    "Pennsylvania",
+    "stein",
+  );
+  assert.equal(unavailableInspector.denominatorStatus, "no_mapped_2024_result");
+  assert.equal(unavailableInspector.coverage.resultMatchMethod, null);
+  assert.equal(unavailableInspector.turnoutRatePct, null);
+  assert.equal(unavailableInspector.actualVotes.totalVotes, 0);
+  assert.equal(unavailableInspector.scenarioVotes.totalVotes, 0);
 });
 
 test("zero-change Pennsylvania behavior model returns the certified baseline exactly", () => {

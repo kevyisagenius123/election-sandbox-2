@@ -16,6 +16,10 @@ export interface PennsylvaniaVtdDemographicRecord {
   nonHispanicAsian: number;
   nonHispanicOther: number;
   hasMappedResult: boolean;
+  resultMatchMethod: "exact_vtd_identifier" | "exact_canonical_name" | "mixed" | null;
+  sourceUnitCount: number;
+  exactSourceUnitCount: number;
+  canonicalSourceUnitCount: number;
   baselineVotes: {
     harrisVotes: number;
     trumpVotes: number;
@@ -30,6 +34,22 @@ export interface PennsylvaniaVtdDemographicRecord {
     | "available"
     | "ballots_exceed_2020_vap"
     | "no_mapped_2024_result";
+}
+
+export interface PennsylvaniaCountyDemographicSummary {
+  countyFips: string;
+  vtdCount: number;
+  mappedVtdCount: number;
+  demographics: {
+    votingAgePopulation: number;
+    hispanicAnyRace: number;
+    nonHispanicWhite: number;
+    nonHispanicBlack: number;
+    nonHispanicAsian: number;
+    nonHispanicOther: number;
+  };
+  mappedVotes: PennsylvaniaVtdDemographicRecord["baselineVotes"];
+  turnoutCapacity: number;
 }
 
 export interface PennsylvaniaResidualModelUnit {
@@ -86,6 +106,7 @@ export interface PennsylvaniaDemographicFoundation {
       noMappedResultVtdCount: number;
     };
   };
+  counties: PennsylvaniaCountyDemographicSummary[];
   vtds: PennsylvaniaVtdDemographicRecord[];
   residualUnits: PennsylvaniaResidualModelUnit[];
 }

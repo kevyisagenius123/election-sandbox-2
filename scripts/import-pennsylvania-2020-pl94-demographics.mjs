@@ -137,16 +137,33 @@ const reportingUnitById = new Map(
 );
 
 const votesByGeometry = new Map();
+const resultLinkByGeometry = new Map();
 const matchedReportingUnitIds = new Set();
 for (const match of vtdCrosswalk.matchedGeometry) {
   const votes = emptyVotes();
+  const matchMethods = new Set();
   for (const linkedUnit of match.reportingUnits) {
     const unit = reportingUnitById.get(linkedUnit.reportingUnitId);
     if (!unit) throw new Error(`Crosswalk references missing unit ${linkedUnit.reportingUnitId}`);
     matchedReportingUnitIds.add(unit.id);
+    matchMethods.add(linkedUnit.matchMethod);
     addVotes(votes, unit);
   }
   votesByGeometry.set(match.geometryId, votes);
+  const exactSourceUnitCount = match.reportingUnits.filter(
+    (unit) => unit.matchMethod === "exact_vtd_identifier",
+  ).length;
+  const canonicalSourceUnitCount = match.reportingUnits.length - exactSourceUnitCount;
+  resultLinkByGeometry.set(match.geometryId, {
+    resultMatchMethod: matchMethods.size > 1
+      ? "mixed"
+      : matchMethods.has("exact_vtd_identifier")
+        ? "exact_vtd_identifier"
+        : "exact_canonical_name",
+    sourceUnitCount: match.reportingUnits.length,
+    exactSourceUnitCount,
+    canonicalSourceUnitCount,
+  });
 }
 
 const residualUnits = reportingDocument.reportingUnits
@@ -216,10 +233,15 @@ await eachLine(SEGMENT_TWO_PATH, (line) => {
 
   const baselineVotes = votesByGeometry.get(geography.geoid) ?? emptyVotes();
   const hasMappedResult = votesByGeometry.has(geography.geoid);
+  const resultLink = resultLinkByGeometry.get(geography.geoid);
   vtds.push({
     ...geography,
     ...demographics,
     hasMappedResult,
+    resultMatchMethod: resultLink?.resultMatchMethod ?? null,
+    sourceUnitCount: resultLink?.sourceUnitCount ?? 0,
+    exactSourceUnitCount: resultLink?.exactSourceUnitCount ?? 0,
+    canonicalSourceUnitCount: resultLink?.canonicalSourceUnitCount ?? 0,
     baselineVotes,
     turnoutCapacity: hasMappedResult
       ? Math.max(0, demographics.votingAgePopulation - baselineVotes.totalVotes)
@@ -310,7 +332,7 @@ const source = {
   table: "P4: Hispanic or Latino, and not Hispanic or Latino by race for the population 18 years and over",
   archiveFile: basename(ARCHIVE_PATH),
   archiveSha256,
-  pipelineVersion: "pa-pl94-vtd-demographics-v1",
+  pipelineVersion: "pa-pl94-vtd-demographics-v2",
   licenseStatus: "review_required",
   limitations: [
     "The denominator is the 2020 population age 18 and over, not citizen voting-age population or a 2024 eligible-voter estimate.",
@@ -321,7 +343,7 @@ const source = {
 };
 
 const document = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   generatedAt: GENERATED_AT,
   electionId: "2024-president-pa",
   source,

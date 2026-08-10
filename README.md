@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.6 named third-party exchange
+## Current release: v0.7 selected-geography inspector
 
 The current build provides:
 
@@ -18,6 +18,7 @@ The current build provides:
 - A user-defined Harris/Trump source split for every third-party ballot exchange.
 - Candidate-share bounds derived only from available ballots, with no arbitrary interface ceiling.
 - Exact county and mapped-VTD contribution rankings using the change in the Harris minus Trump vote margin.
+- A selected county and VTD inspector with certified-to-scenario candidate ledgers, VAP, turnout capacity, operation contributions, result coverage, and crosswalk quality.
 - Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
@@ -36,6 +37,12 @@ The model runs three deliberately separate operations:
 The contribution panel ranks the counties or mapped VTDs that most changed the state result. Contribution is defined as the scenario change in `Harris votes - Trump votes`. That definition lets all three operations reconcile in the same unit while retaining their separate meanings.
 
 The model is deterministic and integer-reconciled. With all three operations set to zero, it reproduces Pennsylvania's certified result exactly. Third-party exchanges are counterfactual ballot transfers, not an estimate of which candidate those voters historically preferred.
+
+## Selected-geography inspector
+
+Selecting a Pennsylvania county or pinning a mapped VTD opens an audit panel. It separates certified candidate totals from the scenario, reports the 2020 Census VAP denominator and usable turnout capacity, and attributes the local change to turnout, two-party transfer, and third-party exchange operations.
+
+County coverage compares VTD-linked ballots with the official county total. VTD match quality distinguishes exact Census identifiers, unique canonical-name links, mixed links, and polygons with no matched return. Unmatched polygons show an explicit unavailable state. The inspector never assigns non-terrain residual ballots to a polygon.
 
 The turnout denominator is not citizen voting-age population and is not a 2024 eligible-voter estimate. Census data do not reveal candidate preference. These controls are transparent counterfactual assumptions, not a forecast or a claim about individual voters.
 
@@ -124,10 +131,11 @@ npm run data:pa:demographics -- \
 - `docs/decisions/0007-pennsylvania-demographic-denominator.md`
 - `docs/decisions/0008-bidirectional-preference-and-contributions.md`
 - `docs/decisions/0009-named-third-party-exchange.md`
+- `docs/decisions/0010-selected-geography-inspector.md`
 
 ## Next increment
 
-Add selected-geography source and denominator inspection, then shareable versioned scenario URLs. The URL schema must include dataset and engine versions so a shared scenario replays deterministically.
+Add shareable versioned scenario URLs. The URL schema must include dataset and engine versions so a shared scenario replays deterministically without a backend.
 
 ## Primary sources
 

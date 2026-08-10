@@ -21,8 +21,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.6.0`, named third-party exchange
-- Last completed release commit before v0.6: `0e356c9 Add bidirectional preference and contribution tracing`
+- Release: `0.7.0`, selected-geography inspector
+- Last completed release commit before v0.7: `1e0ecb9 Add named third-party exchange modeling`
 - Remote: none configured
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -116,6 +116,18 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Contribution tracing continues to measure `change in Harris - Trump`, while the third-party panel separately displays exchanged ballot volume.
 - Increasing residual Other produces counterfactual geography where source major-party ballots were located. It does not fabricate a historical county allocation for the certified statewide residual.
 - County contribution accounting separately discloses margin movement confined to the statewide-only residual instead of falsely assigning it to all 67 counties.
+
+### v0.7 selected-geography inspector
+
+- County and VTD selection is now shared application state instead of a renderer-only VTD pin.
+- Contribution rows can open and pin the same VTD shown by the map and breadcrumb.
+- The inspector compares certified and scenario totals for Harris, Trump, Stein, Oliver, and residual Other/write-in.
+- It reports 2020 VAP, 2024 ballots divided by that denominator, usable turnout capacity, and denominator status.
+- It audits local turnout additions, two-party transfer direction, third-party exchange, ballot change, and Harris-minus-Trump contribution.
+- County coverage distinguishes official totals from mapped VTD ballots and explicit residual units.
+- VTD coverage distinguishes exact-ID, canonical-name, mixed, and unmatched links.
+- Unmatched VTDs display unavailable results and retain zero turnout capacity.
+- The P.L. 94-171 runtime artifact advances to schema version 2 and pipeline version `pa-pl94-vtd-demographics-v2`.
 
 ## 4. Demographic source and limitations
 
@@ -265,11 +277,25 @@ v0.6 additionally changes:
 - `docs/decisions/0009-named-third-party-exchange.md`
 - release documentation and package metadata
 
+v0.7 additionally changes:
+
+- `src/components/GeographyInspector.tsx`
+- `src/data/paInspector.ts`
+- `src/App.tsx`
+- `src/map/AtlasMapScene.tsx`
+- `src/styles.css`
+- `src/data/paDemographics.ts`
+- `scripts/import-pennsylvania-2020-pl94-demographics.mjs`
+- regenerated Pennsylvania demographic artifacts and registry hash
+- `tests/election-model.test.mjs`
+- `docs/decisions/0010-selected-geography-inspector.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.6:
+CLI verification for v0.7:
 
-- `npm test`: 20 tests pass.
+- `npm test`: 21 tests pass.
 - `npm run lint`: passes.
 - `npm run build`: passes.
 - `npm audit --omit=dev`: 0 vulnerabilities.
@@ -277,7 +303,7 @@ CLI verification for v0.6:
 
 Browser verification:
 
-- v0.6 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
+- v0.7 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
 - Stein +1.5 points with a 65 percent Harris source exchanges 105.9K ballots and updates county contributions.
 - Switching candidates resets movement to zero; the Oliver negative endpoint reaches exactly zero Oliver votes.
 - Residual Other/write-in at its 100 percent Harris-source positive endpoint reaches the exact available capacity without negative votes.
@@ -285,6 +311,8 @@ Browser verification:
 - Residual-only movement is labeled as having no honest county placement, including the balanced-exchange case where ballot changes net to no Harris-minus-Trump margin movement.
 - Reset restores the exact baseline, and both irregularly bounded sliders now expose a genuine DOM value of zero.
 - The browser console contains no application errors.
+- County and VTD inspector cards update from live scenario controls and contribution-row selection.
+- Returning from a pinned VTD to its county clears only the VTD selection and preserves county context.
 - Desktop 1440 by 900: national and Pennsylvania layouts have no horizontal overflow.
 - Full Republican preference endpoint: Harris reaches zero without negative votes; Pennsylvania displays R+98.7.
 - Full Democratic preference endpoint: Trump reaches zero without negative votes; Pennsylvania displays D+98.7 and flips its 19 EV.
@@ -314,13 +342,12 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 Do not jump directly to a national demographic simulator. After v0.6 verification, the next phase is:
 
-1. Add a compact source-and-denominator inspector for a selected county or VTD, including baseline ballots, VAP, capacity, denominator status, match quality, and named candidate totals where available.
-2. Add a shareable, versioned scenario encoding in the URL. It must include dataset and engine versions and preserve exact deterministic replay without a backend.
-3. Add regression tests for URL round-tripping.
-4. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
-5. Only after those are stable, design a separately switchable uncertainty layer with a fixed seed and documented calibration. The deterministic scenario must remain the default and must not change.
+1. Add a shareable, versioned scenario encoding in the URL. It must include dataset and engine versions, selected geography, and preserve exact deterministic replay without a backend.
+2. Add regression tests for URL round-tripping and safe fallback from unknown future versions.
+3. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
+4. Only after those are stable, design a separately switchable uncertainty layer with a fixed seed and documented calibration. The deterministic scenario must remain the default and must not change.
 
-The immediate next product task after v0.6 is item 1: selected-geography source and denominator inspection.
+The immediate next product task after v0.7 is item 1: versioned scenario URLs.
 
 ## 11. Commands
 

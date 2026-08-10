@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.6 named third-party exchange
+**Status:** v0.7 selected-geography inspector
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.6 implements the first multi-candidate behavior and explanation slice in Pennsylvania. A versioned 2020 Census P.L. 94-171 voting-age-population denominator is joined to the existing VTD geometry, and the editor exposes separate ordered turnout, two-party preference, and named third-party exchange operations. Preference spans its complete mathematically feasible Republican-to-Democratic range. Stein, Oliver, and residual Other/write-in movement uses an explicit Harris/Trump ballot source share and candidate-capacity bounds rather than an arbitrary interface ceiling. Exact county and VTD contribution rankings explain where the resulting major-party margin moved. The baseline, every integer allocation, and the aggregate state result reconcile exactly. Demographic candidate preference remains out of scope because the Census source does not observe it.
+Version 0.7 completes the first inspectable multi-candidate behavior slice in Pennsylvania. The editor exposes separate ordered turnout, two-party preference, and named third-party exchange operations. Preference and third-party movement use exact ballot-capacity bounds rather than arbitrary interface ceilings. County and VTD contribution rankings explain where the major-party margin moved. Selecting either geography opens a source and denominator inspector with certified-to-scenario candidate totals, 2020 Census VAP, usable turnout capacity, operation-level contributions, result coverage, and the audited crosswalk method. Unmatched geometry and non-terrain residuals remain explicit. The baseline, every integer allocation, and every aggregate result reconcile exactly.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 
