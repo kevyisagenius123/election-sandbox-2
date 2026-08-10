@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.11 multi-state runtime foundation
+**Status:** v0.12 Michigan audited data foundation
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.11 establishes the runtime boundary required for multiple production-detailed states. A typed manifest now owns Pennsylvania's election metadata, data and engine compatibility, runtime artifact, precinct geometry, and source registries. A dedicated Web Worker fetches and validates the compact artifact, builds model units, and calculates deterministic scenarios away from the interface thread. Requests are versioned by monotonically increasing identifiers, queued changes are coalesced, stale responses cannot replace newer settings, and URL publication waits for the matching result. GitHub Actions now runs the model, lint, build, and browser contracts on every main-branch push and pull request. Pennsylvania's canonical R +5.8 replay and every compatibility version remain unchanged.
+Version 0.12 selects Michigan as the second production-detailed state after a checksum-verified source, exact-cycle geometry, and demographic audit. The official result package reconciles all 5,664,186 presidential votes. The deterministic crosswalk links 4,339 of 4,340 official 2024 precinct polygons and 99.9979 percent of votes cast in geographic precinct units, while central count, corrections, and 114 unmatched votes stay explicitly off-map. The compact demographic artifact bridges 4,268 polygons to 2020 P.L. 94-171 VAP, including documented registered-voter-weighted splits where multiple 2024 precincts share one Census VTD. Runtime and interface integration remain the next increment; Pennsylvania behavior and design are unchanged.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.11.0`, multi-state runtime foundation
+- Release: `0.12.0`, Michigan audited data foundation
 - Previous release commit: `4dd04fd Harden scenario replay and runtime performance`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
@@ -44,7 +44,7 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Editorial three-column desktop layout and stacked mobile layout.
 - National 3D state terrain with Actual, Scenario, and Shift modes.
 - State click removes the national layer and transitions into state context.
-- Only Pennsylvania has verified county and VTD results. Other states stay neutral below the state layer.
+- Pennsylvania is the only state currently exposed through detailed runtime and interface adapters. Michigan now has verified county, precinct, exact-cycle geometry, and demographic artifacts, but remains intentionally unregistered until its loader is implemented.
 
 ### Pennsylvania election foundation
 
@@ -171,6 +171,20 @@ A local Vite server may still be running on port 4173; check rather than startin
 - `.github/workflows/verify.yml` runs model tests, lint, build, and Playwright browser replay for pushes to `main` and pull requests.
 - URL schema `1`, dataset `us2024-pa-vtd2020-v2`, and engine `pa-behavior-v1` remain unchanged because deterministic results are unchanged.
 
+### v0.12 Michigan audited data foundation
+
+- Michigan is selected as the second production-detailed battleground after passing the official source and exact-cycle geometry audit.
+- The checksum-verified `2024GEN.zip` importer reconciles 5,664,186 presidential votes, all 12 named candidates, all 83 counties, and 4,434 raw reporting-unit keys.
+- Sixty-five AVCB or central-count units remain explicit non-geographic model units.
+- Twenty-two raw statistical-adjustment units include negative candidate corrections. Their positive statewide net is retained as one explicit non-geographic normalized unit: Harris 95, Trump 290, Other 724, total 1,109.
+- The official 2024 Michigan precinct layer contains 4,340 polygons. The deterministic crosswalk links 4,339 polygons and 4,339 of 4,347 geographic result units.
+- Crosswalk coverage is 99.9979 percent of votes in geographic precinct units and 97.4829 percent of all statewide votes. Eight unmatched geographic units contain 114 votes.
+- No central-count unit, statistical correction, or unmatched result is assigned to arbitrary terrain.
+- The official Census `mi2020.pl.zip` archive is checksum verified and Table P4 is parsed for all 4,805 2020 VTDs.
+- Michigan's official `VTDST` bridge maps 4,050 precinct polygons directly. Another 218 polygons share a 2020 VTD and receive deterministic integer P4 allocations weighted by official 2024 registered voters. Seventy-two polygons have no valid 2020 VTD bridge.
+- The compact `mi-precinct-row-v1` artifact reconstructs the certified baseline from 4,340 geometry rows plus 74 residual units and exposes 2,058,704 ballots of fail-closed turnout capacity.
+- This release adds data pipelines, generated artifacts, provenance registries, artifact tests, and decision 0015. It does not yet register Michigan in the worker or change the visible workbench.
+
 ## 4. Demographic source and limitations
 
 Official archive:
@@ -252,6 +266,12 @@ scripts/build-pennsylvania-vtd-geometry.mjs
   -> VTD projection, crosswalk, simplification, and sharding
 scripts/import-pennsylvania-2020-pl94-demographics.mjs
   -> P.L. 94-171 fixed-width ingestion and exact VTD join
+scripts/import-michigan-2024.mjs
+  -> official tab-delimited results, central-count classification, and adjustment normalization
+scripts/build-michigan-2024-precinct-geometry.mjs
+  -> exact-cycle precinct crosswalk, projection, simplification, and county sharding
+scripts/import-michigan-2020-pl94-demographics.mjs
+  -> P.L. 94-171 VTD bridge and registered-voter-weighted split allocation
 ```
 
 All interactive calculations are client-side. Large official source archives are build inputs, not runtime dependencies and not committed.
@@ -382,16 +402,38 @@ v0.11 additionally changes:
 - `docs/decisions/0014-manifest-driven-worker-runtime.md`
 - release documentation and package metadata
 
+v0.12 additionally adds or changes:
+
+- `scripts/import-michigan-2024.mjs`
+- `scripts/build-michigan-2024-precinct-geometry.mjs`
+- `scripts/import-michigan-2020-pl94-demographics.mjs`
+- `src/data/mi-2024-counties.json`
+- `public/data/mi/2024/reporting-units.json`
+- `public/data/mi/2024/precinct-geometry-manifest.json`
+- 83 files under `public/data/mi/2024/precincts/`
+- `public/data/mi/2020/precinct-demographics.json`
+- three registries/crosswalks under `data-sources/michigan/`
+- `docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md`
+- artifact reconciliation coverage in `tests/election-model.test.mjs`
+- `package.json`, `package-lock.json`, `README.md`, `PRODUCT_AND_ENGINEERING_PLAN.md`, and this handoff
+
 ## 8. Verification state
 
-CLI verification for v0.11:
+CLI verification for v0.12:
 
-- `npm test`: 30 tests pass.
+- `npm test`: 31 tests pass, including Michigan artifact reconciliation.
 - `npm run test:browser`: 4 browser replays pass.
 - `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
 - Vite emits the existing warning that the deck.gl Atlas chunk exceeds 500 kB after minification. This is a performance item, not a build failure.
+
+Michigan pipeline verification:
+
+- Result import: 12 candidates, 83 counties, 4,413 normalized model units, exact 5,664,186-vote baseline.
+- Geometry build: 4,339 of 4,340 polygons and 4,339 of 4,347 geographic units linked; 114 geographic votes remain unpainted.
+- Demographic build: 4,050 direct VTD bridges, 218 weighted-split polygons, 72 unavailable bridges, 74 residual model units, exact certified reconstruction.
+- Compact Michigan runtime artifact: 628,735 bytes.
 
 Browser verification:
 
@@ -427,7 +469,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 9. Known issues and deliberate omissions
 
-1. **Only Pennsylvania is production-detailed.** Other states remain state-level only.
+1. **Only Pennsylvania is visible as production-detailed.** Michigan's production data artifacts exist, but its runtime loader, manifest registration, active-state adapters, URL contract, map drilldown, and inspector are not implemented yet.
 2. **The worker removes decoding and scenario calculation from the interface thread, but the expanded foundation is still cloned back for map and inspector use.** Measure retained memory and transfer cost again when the second detailed state is added; load detailed states on demand rather than retaining every state automatically.
 3. **The deck.gl chunk is about 1.6 MB minified.** It is already lazy, but further code splitting or bundle review is warranted.
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
@@ -440,16 +482,18 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-Do not jump directly to a national demographic simulator. The next phase is the second production-detailed battleground:
+Michigan has passed the source, geometry, and demographic audit. Do not repeat discovery or rebuild the artifacts unless a source changes. The next engineering phase is runtime and interface integration:
 
-1. Audit candidate states for official 2024 reporting-unit results, stable precinct or VTD geometry, demographic denominators, and redistribution terms.
-2. Select one state whose data can pass the same reconciliation and provenance standards as Pennsylvania.
-3. Add its loader implementation and manifest entry without adding state-specific conditionals to the worker protocol.
-4. Generalize the current Pennsylvania aggregation and inspector adapters to operate on the active detailed-state manifest.
-5. Aggregate only loaded, version-compatible state scenarios nationally and expose the resulting path to 270.
-6. Design uncertainty only after the multi-state deterministic contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
+1. Implement a strict `mi-precinct-row-v1` decoder that returns the shared detailed-state foundation contract and validates field order, demographic sums, model-unit reconstruction, denominator counts, and sorted unique geometry IDs.
+2. Replace the Pennsylvania foundation type in the worker protocol with a discriminated shared detailed-state foundation. Dispatch through a loader registry keyed by `manifest.runtime.loader`; do not add `if stateCode === "MI"` calculation logic.
+3. Register Michigan in `src/data/detailedStateManifest.ts` only after the decoder tests pass. Use a new multi-state data version while retaining deterministic engine semantics.
+4. Generalize county result, precinct loader, contribution, and inspector adapters around the active manifest. Preserve the current Pennsylvania UI exactly.
+5. Let Michigan state selection load its county terrain, then remove the parent county layer when its exact 2024 precinct shard opens. Use `PRECINCTID` as the selected reporting-geography identifier.
+6. Extend the URL codec to validate geography through the active manifest rather than Pennsylvania regex constants.
+7. Add browser replays for Michigan baseline, a direct VTD bridge, a registered-voter-weighted split, an unavailable denominator, and rapid stale-response rejection.
+8. Aggregate only loaded, version-compatible detailed-state scenarios nationally and expose the path to 270 after Pennsylvania and Michigan both pass replay.
 
-The immediate next engineering task after v0.11 is item 1: perform the source and geometry audit before choosing the second state.
+Uncertainty remains deferred until the deterministic multi-state contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 
 ## 11. Commands
 
@@ -474,3 +518,12 @@ npm run data:pa:demographics -- \
 ```
 
 The importer rejects any archive whose checksum does not match the documented source registry.
+
+Rebuild Michigan from the audited official inputs:
+
+```bash
+npm run data:mi:results -- <2024GEN-directory> <2024GEN.zip>
+npm run data:mi:geometry -- public/data/mi/2024/reporting-units.json <2024-precincts.geojson>
+npm run data:mi:demographics -- \
+  <migeo2020.pl> <mi000022020.pl> <mi2020.pl.zip> <2024-precincts.geojson>
+```

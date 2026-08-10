@@ -73,6 +73,82 @@ const pennsylvaniaDemographicRegistry = JSON.parse(readFileSync(
   new URL("../data-sources/pennsylvania/2020-pl94-vtd-demographics.json", import.meta.url),
   "utf8",
 ));
+const michiganCountyDocument = JSON.parse(readFileSync(
+  new URL("../src/data/mi-2024-counties.json", import.meta.url),
+  "utf8",
+));
+const michiganReportingUnitDocument = JSON.parse(readFileSync(
+  new URL("../public/data/mi/2024/reporting-units.json", import.meta.url),
+  "utf8",
+));
+const michiganGeometryManifest = JSON.parse(readFileSync(
+  new URL("../public/data/mi/2024/precinct-geometry-manifest.json", import.meta.url),
+  "utf8",
+));
+const michiganCrosswalk = JSON.parse(readFileSync(
+  new URL("../data-sources/michigan/2024-precinct-crosswalk.json", import.meta.url),
+  "utf8",
+));
+const michiganDemographicArtifactBytes = readFileSync(
+  new URL("../public/data/mi/2020/precinct-demographics.json", import.meta.url),
+);
+const michiganDemographicDocument = JSON.parse(michiganDemographicArtifactBytes.toString("utf8"));
+const michiganDemographicRegistry = JSON.parse(readFileSync(
+  new URL("../data-sources/michigan/2020-pl94-precinct-demographics.json", import.meta.url),
+  "utf8",
+));
+
+test("Michigan source, geometry, and demographic artifacts reconcile exactly", () => {
+  const expected = {
+    harrisVotes: 2_736_533,
+    trumpVotes: 2_816_636,
+    steinVotes: 44_607,
+    oliverVotes: 22_440,
+    residualOtherVotes: 43_970,
+    otherVotes: 111_017,
+    totalVotes: 5_664_186,
+  };
+  assert.deepEqual(michiganCountyDocument.totals, expected);
+  assert.equal(michiganCountyDocument.counties.length, 83);
+  assert.equal(michiganReportingUnitDocument.reportingUnits.length, 4_413);
+  assert.equal(
+    michiganReportingUnitDocument.reportingUnits.filter((unit) => unit.type === "precinct").length,
+    4_347,
+  );
+  assert.equal(
+    michiganReportingUnitDocument.reportingUnits.filter((unit) => unit.type === "central_count_bucket").length,
+    65,
+  );
+  assert.ok(michiganReportingUnitDocument.reportingUnits.every((unit) => (
+    ["harrisVotes", "trumpVotes", "steinVotes", "oliverVotes", "residualOtherVotes", "otherVotes", "totalVotes"]
+      .every((key) => Number.isSafeInteger(unit[key]) && unit[key] >= 0)
+  )));
+  assert.deepEqual(michiganReportingUnitDocument.totals, expected);
+
+  assert.equal(michiganGeometryManifest.totals.geometryFeatureCount, 4_340);
+  assert.equal(michiganGeometryManifest.totals.matchedGeometryFeatureCount, 4_339);
+  assert.equal(michiganGeometryManifest.totals.unmatchedGeometryFeatureCount, 1);
+  assert.equal(michiganGeometryManifest.totals.matchedReportingUnitCount, 4_339);
+  assert.equal(michiganGeometryManifest.totals.unmatchedReportingUnitCount, 8);
+  assert.equal(michiganGeometryManifest.totals.resultVoteCoveragePct, 99.9979);
+  assert.equal(michiganGeometryManifest.totals.statewideVoteCoveragePct, 97.4829);
+  assert.equal(
+    michiganCrosswalk.unmatchedReportingUnits.reduce((sum, unit) => sum + unit.totalVotes, 0),
+    114,
+  );
+
+  assert.equal(michiganDemographicDocument.precinctRows.length, 4_340);
+  assert.equal(michiganDemographicDocument.residualUnits.length, 74);
+  assert.equal(michiganDemographicDocument.join.directVtdBridgeCount, 4_050);
+  assert.equal(michiganDemographicDocument.join.weightedSplitGeometryCount, 218);
+  assert.equal(michiganDemographicDocument.join.unavailableDemographicGeometryCount, 72);
+  assert.equal(michiganDemographicDocument.totals.turnoutCapacity, 2_058_704);
+  assert.deepEqual(michiganDemographicDocument.totals.certifiedVotes, expected);
+  assert.equal(
+    createHash("sha256").update(michiganDemographicArtifactBytes).digest("hex"),
+    michiganDemographicRegistry.artifact.sha256,
+  );
+});
 
 test("Pennsylvania is registered through a versioned detailed-state manifest", () => {
   const manifest = getDetailedStateManifest("PA");

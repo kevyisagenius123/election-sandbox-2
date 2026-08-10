@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T00:00:00.000Z",
+  "source": {
+    "id": "census-2020-pl94-mi-vtd-p4",
+    "publisher": "United States Census Bureau",
+    "title": "2020 Census Redistricting Data (P.L. 94-171), Table P4",
+    "sourceUrl": "https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/Michigan/mi2020.pl.zip",
+    "documentationUrl": "https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html",
+    "retrievedAt": "2026-08-10",
+    "geographyVintage": "2020 Census voting districts",
+    "table": "P4: Hispanic or Latino, and not Hispanic or Latino by race for the population 18 years and over",
+    "archiveFile": "mi2020.pl.zip",
+    "archiveSha256": "971bd53abeb1d905bb9b09bfe4dc1afe8514a916f24d285b289e0f66ec5cfb62",
+    "pipelineVersion": "mi-pl94-2024-precinct-demographics-v1",
+    "licenseStatus": "review_required",
+    "limitations": [
+      "The denominator is 2020 population age 18 and over, not citizen voting-age population or a 2024 eligible-voter estimate.",
+      "Michigan's official 2024 VTDST field is an approximation to 2020 Census VTD geography; 72 precinct polygons have no matching 2020 VTD record.",
+      "When two or three 2024 precinct polygons share one 2020 VTD, integer P4 counts are split by official 2024 registered-voter counts.",
+      "The registered-voter-weighted split is a documented modeling allocation, not a Census tabulation for the 2024 precinct.",
+      "Candidate preference is not observed in Census data and is never inferred from these aggregate counts."
+    ]
+  },
+  "geometrySourceSha256": "bbc331967ac5e2e1293e581bcdd9c0fa7c5c556faa1b6caaa5d984720be90c4b",
+  "artifact": {
+    "path": "public/data/mi/2020/precinct-demographics.json",
+    "schemaVersion": 1,
+    "encoding": "mi-precinct-row-v1",
+    "rowCount": 4340,
+    "sha256": "2072a732924b5b6dec8da1822bfc8e4eb042e0c3fa22a411eed8d790ae5151e0",
+    "byteSize": 628735
+  },
+  "join": {
+    "method": "official_2024_vtdst_to_2020_census_vtd_with_registered_voter_weighted_split",
+    "demographicVintage": "2020",
+    "geometryVintage": "2024",
+    "electionVintage": "2024",
+    "geometryFeatureCount": 4340,
+    "directVtdBridgeCount": 4050,
+    "weightedSplitGeometryCount": 218,
+    "unavailableDemographicGeometryCount": 72,
+    "mappedElectionGeometryCount": 4339,
+    "resultReportingUnitCoveragePct": 99.9979,
+    "statewidePaintedVoteCoveragePct": 97.4829
+  },
+  "totals": {
+    "statewideDemographics": {
+      "votingAgePopulation": 7914602,
+      "hispanicAnyRace": 367645,
+      "nonHispanicWhite": 5928796,
+      "nonHispanicBlack": 1021516,
+      "nonHispanicAsian": 258756,
+      "nonHispanicOther": 337889
+    },
+    "matchedDemographics": {
+      "votingAgePopulation": 6998065,
+      "hispanicAnyRace": 317723,
+      "nonHispanicWhite": 5303617,
+      "nonHispanicBlack": 849442,
+      "nonHispanicAsian": 229452,
+      "nonHispanicOther": 297831
+    },
+    "mappedVotes": {
+      "harrisVotes": 2605332,
+      "trumpVotes": 2808105,
+      "steinVotes": 43809,
+      "oliverVotes": 22251,
+      "residualOtherVotes": 42115,
+      "otherVotes": 108175,
+      "totalVotes": 5521612
+    },
+    "residualVotes": {
+      "harrisVotes": 131201,
+      "trumpVotes": 8531,
+      "steinVotes": 798,
+      "oliverVotes": 189,
+      "residualOtherVotes": 1855,
+      "otherVotes": 2842,
+      "totalVotes": 142574
+    },
+    "certifiedVotes": {
+      "harrisVotes": 2736533,
+      "trumpVotes": 2816636,
+      "steinVotes": 44607,
+      "oliverVotes": 22440,
+      "residualOtherVotes": 43970,
+      "otherVotes": 111017,
+      "totalVotes": 5664186
+    },
+    "turnoutCapacity": 2058704,
+    "denominatorStatus": {
+      "availablePrecinctCount": 3426,
+      "ballotsExceed2020VapPrecinctCount": 841,
+      "demographicBridgeUnavailablePrecinctCount": 72,
+      "noMappedResultPrecinctCount": 1
+    }
+  }
+}

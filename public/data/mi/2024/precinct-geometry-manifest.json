@@ -1,0 +1,2709 @@
+{
+  "schemaVersion": 1,
+  "electionId": "2024-president",
+  "stateCode": "MI",
+  "stateFips": "26",
+  "generatedAt": "2026-08-10",
+  "geometrySource": {
+    "id": "mi-gis-2024-voting-precincts",
+    "publisher": "State of Michigan, Bureau of Elections",
+    "title": "2024 Voting Precincts",
+    "sourceUrl": "https://gisagocss.state.mi.us/arcgis/rest/services/OpenData/boundaries/MapServer/9",
+    "metadataUrl": "https://www.arcgis.com/sharing/rest/content/items/02d40893317d46569017beeb14f9c63e/info/metadata/metadata.xml?format=default&output=html",
+    "vintage": "2024-11-05",
+    "retrievedAt": "2026-08-10",
+    "checksumSha256": "bbc331967ac5e2e1293e581bcdd9c0fa7c5c556faa1b6caaa5d984720be90c4b",
+    "licenseStatus": "verified",
+    "limitations": [
+      "Three documented jurisdiction-name defects are corrected by stable PRECINCTID.",
+      "The stable PRECINCTID supplies the precinct suffix where several display attributes are inconsistent.",
+      "Eight result units, totaling 114 votes, have no unique polygon and remain explicitly unpainted.",
+      "Central-count units and the statewide statistical-adjustment bucket are never assigned to precinct polygons."
+    ]
+  },
+  "projection": "geoAlbersUsa().scale(1300).translate([487.5, 305]), then OrbitView Y-axis inversion",
+  "quantization": 50000,
+  "simplificationQuantile": 0.18,
+  "totals": {
+    "resultReportingUnitCount": 4347,
+    "matchedReportingUnitCount": 4339,
+    "unmatchedReportingUnitCount": 8,
+    "exactOfficialWardKeyCount": 3822,
+    "uniqueOfficialPrecinctKeyCount": 517,
+    "geometryFeatureCount": 4340,
+    "matchedGeometryFeatureCount": 4339,
+    "unmatchedGeometryFeatureCount": 1,
+    "resultVotes": {
+      "harrisVotes": 2605381,
+      "trumpVotes": 2808169,
+      "otherVotes": 108176,
+      "totalVotes": 5521726
+    },
+    "matchedVotes": {
+      "harrisVotes": 2605332,
+      "trumpVotes": 2808105,
+      "otherVotes": 108175,
+      "totalVotes": 5521612
+    },
+    "resultVoteCoveragePct": 99.9979,
+    "statewideVoteCoveragePct": 97.4829
+  },
+  "counties": [
+    {
+      "countyFips": "26001",
+      "resultReportingUnitCount": 12,
+      "matchedReportingUnitCount": 12,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 11,
+      "uniqueOfficialPrecinctKeyCount": 1,
+      "geometryFeatureCount": 12,
+      "matchedGeometryFeatureCount": 12,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2140,
+        "trumpVotes": 5257,
+        "otherVotes": 86,
+        "totalVotes": 7483
+      },
+      "matchedVotes": {
+        "harrisVotes": 2140,
+        "trumpVotes": 5257,
+        "otherVotes": 86,
+        "totalVotes": 7483
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        691.969,
+        440.151,
+        702.263,
+        449.214
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26001.topo.json",
+      "byteSize": 28643
+    },
+    {
+      "countyFips": "26003",
+      "resultReportingUnitCount": 9,
+      "matchedReportingUnitCount": 9,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 9,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 9,
+      "matchedGeometryFeatureCount": 9,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2075,
+        "trumpVotes": 3116,
+        "otherVotes": 67,
+        "totalVotes": 5258
+      },
+      "matchedVotes": {
+        "harrisVotes": 2075,
+        "trumpVotes": 3116,
+        "otherVotes": 67,
+        "totalVotes": 5258
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        636.986,
+        471.696,
+        656.473,
+        485.612
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26003.topo.json",
+      "byteSize": 58313
+    },
+    {
+      "countyFips": "26005",
+      "resultReportingUnitCount": 44,
+      "matchedReportingUnitCount": 44,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 44,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 45,
+      "matchedGeometryFeatureCount": 44,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 25637,
+        "trumpVotes": 45205,
+        "otherVotes": 1047,
+        "totalVotes": 71889
+      },
+      "matchedVotes": {
+        "harrisVotes": 25637,
+        "trumpVotes": 45205,
+        "otherVotes": 1047,
+        "totalVotes": 71889
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        659.598,
+        388.353,
+        671.679,
+        397.55
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26005.topo.json",
+      "byteSize": 70606
+    },
+    {
+      "countyFips": "26007",
+      "resultReportingUnitCount": 17,
+      "matchedReportingUnitCount": 17,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 17,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 17,
+      "matchedGeometryFeatureCount": 17,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6038,
+        "trumpVotes": 10967,
+        "otherVotes": 208,
+        "totalVotes": 17213
+      },
+      "matchedVotes": {
+        "harrisVotes": 6038,
+        "trumpVotes": 10967,
+        "otherVotes": 208,
+        "totalVotes": 17213
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        691.087,
+        447.988,
+        702.534,
+        456.921
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26007.topo.json",
+      "byteSize": 81522
+    },
+    {
+      "countyFips": "26009",
+      "resultReportingUnitCount": 16,
+      "matchedReportingUnitCount": 16,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 16,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 16,
+      "matchedGeometryFeatureCount": 16,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6330,
+        "trumpVotes": 10341,
+        "otherVotes": 212,
+        "totalVotes": 16883
+      },
+      "matchedVotes": {
+        "harrisVotes": 6330,
+        "trumpVotes": 10341,
+        "otherVotes": 212,
+        "totalVotes": 16883
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        667.165,
+        444.216,
+        676.684,
+        453.291
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26009.topo.json",
+      "byteSize": 33956
+    },
+    {
+      "countyFips": "26011",
+      "resultReportingUnitCount": 15,
+      "matchedReportingUnitCount": 15,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 15,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 15,
+      "matchedGeometryFeatureCount": 15,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2662,
+        "trumpVotes": 6379,
+        "otherVotes": 117,
+        "totalVotes": 9158
+      },
+      "matchedVotes": {
+        "harrisVotes": 2662,
+        "trumpVotes": 6379,
+        "otherVotes": 117,
+        "totalVotes": 9158
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        689.509,
+        426.329,
+        701.801,
+        433.025
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26011.topo.json",
+      "byteSize": 57835
+    },
+    {
+      "countyFips": "26013",
+      "resultReportingUnitCount": 6,
+      "matchedReportingUnitCount": 6,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 6,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 6,
+      "matchedGeometryFeatureCount": 6,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1488,
+        "trumpVotes": 2779,
+        "otherVotes": 65,
+        "totalVotes": 4332
+      },
+      "matchedVotes": {
+        "harrisVotes": 1488,
+        "trumpVotes": 2779,
+        "otherVotes": 65,
+        "totalVotes": 4332
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        611.978,
+        475.493,
+        622.983,
+        488.483
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26013.topo.json",
+      "byteSize": 40614
+    },
+    {
+      "countyFips": "26015",
+      "resultReportingUnitCount": 24,
+      "matchedReportingUnitCount": 24,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 20,
+      "uniqueOfficialPrecinctKeyCount": 4,
+      "geometryFeatureCount": 24,
+      "matchedGeometryFeatureCount": 24,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 12391,
+        "trumpVotes": 25650,
+        "otherVotes": 584,
+        "totalVotes": 38625
+      },
+      "matchedVotes": {
+        "harrisVotes": 12391,
+        "trumpVotes": 25650,
+        "otherVotes": 584,
+        "totalVotes": 38625
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        670.771,
+        389.686,
+        679.477,
+        398.486
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26015.topo.json",
+      "byteSize": 36413
+    },
+    {
+      "countyFips": "26017",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 40,
+      "unmatchedReportingUnitCount": 1,
+      "exactOfficialWardKeyCount": 40,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 40,
+      "matchedGeometryFeatureCount": 40,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 25767,
+        "trumpVotes": 34792,
+        "otherVotes": 772,
+        "totalVotes": 61331
+      },
+      "matchedVotes": {
+        "harrisVotes": 25734,
+        "trumpVotes": 34740,
+        "otherVotes": 771,
+        "totalVotes": 61245
+      },
+      "resultVoteCoveragePct": 99.8598,
+      "bounds": [
+        689.971,
+        417.032,
+        699.037,
+        428.267
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26017.topo.json",
+      "byteSize": 93148
+    },
+    {
+      "countyFips": "26019",
+      "resultReportingUnitCount": 13,
+      "matchedReportingUnitCount": 13,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 13,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 13,
+      "matchedGeometryFeatureCount": 13,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5780,
+        "trumpVotes": 6895,
+        "otherVotes": 171,
+        "totalVotes": 12846
+      },
+      "matchedVotes": {
+        "harrisVotes": 5780,
+        "trumpVotes": 6895,
+        "otherVotes": 171,
+        "totalVotes": 12846
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        654.589,
+        436.01,
+        662.039,
+        442.512
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26019.topo.json",
+      "byteSize": 23062
+    },
+    {
+      "countyFips": "26021",
+      "resultReportingUnitCount": 58,
+      "matchedReportingUnitCount": 58,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 58,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 58,
+      "matchedGeometryFeatureCount": 58,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 38323,
+        "trumpVotes": 44975,
+        "otherVotes": 1190,
+        "totalVotes": 84488
+      },
+      "matchedVotes": {
+        "harrisVotes": 38323,
+        "trumpVotes": 44975,
+        "otherVotes": 1190,
+        "totalVotes": 84488
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        651.921,
+        372.452,
+        662.102,
+        384.438
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26021.topo.json",
+      "byteSize": 99748
+    },
+    {
+      "countyFips": "26023",
+      "resultReportingUnitCount": 21,
+      "matchedReportingUnitCount": 21,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 21,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 21,
+      "matchedGeometryFeatureCount": 21,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5910,
+        "trumpVotes": 14847,
+        "otherVotes": 330,
+        "totalVotes": 21087
+      },
+      "matchedVotes": {
+        "harrisVotes": 5910,
+        "trumpVotes": 14847,
+        "otherVotes": 330,
+        "totalVotes": 21087
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        676.705,
+        375.131,
+        685.324,
+        383.124
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26023.topo.json",
+      "byteSize": 32309
+    },
+    {
+      "countyFips": "26025",
+      "resultReportingUnitCount": 56,
+      "matchedReportingUnitCount": 56,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 56,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 56,
+      "matchedGeometryFeatureCount": 56,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 28988,
+        "trumpVotes": 38606,
+        "otherVotes": 911,
+        "totalVotes": 68505
+      },
+      "matchedVotes": {
+        "harrisVotes": 28988,
+        "trumpVotes": 38606,
+        "otherVotes": 911,
+        "totalVotes": 68505
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        675.714,
+        382.206,
+        686.411,
+        391.254
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26025.topo.json",
+      "byteSize": 97664
+    },
+    {
+      "countyFips": "26027",
+      "resultReportingUnitCount": 21,
+      "matchedReportingUnitCount": 21,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 18,
+      "uniqueOfficialPrecinctKeyCount": 3,
+      "geometryFeatureCount": 21,
+      "matchedGeometryFeatureCount": 21,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 9050,
+        "trumpVotes": 18505,
+        "otherVotes": 316,
+        "totalVotes": 27871
+      },
+      "matchedVotes": {
+        "harrisVotes": 9050,
+        "trumpVotes": 18505,
+        "otherVotes": 316,
+        "totalVotes": 27871
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        661.253,
+        373.456,
+        669.62,
+        381.292
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26027.topo.json",
+      "byteSize": 37921
+    },
+    {
+      "countyFips": "26029",
+      "resultReportingUnitCount": 20,
+      "matchedReportingUnitCount": 20,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 20,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 20,
+      "matchedGeometryFeatureCount": 20,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7197,
+        "trumpVotes": 10183,
+        "otherVotes": 281,
+        "totalVotes": 17661
+      },
+      "matchedVotes": {
+        "harrisVotes": 7197,
+        "trumpVotes": 10183,
+        "otherVotes": 281,
+        "totalVotes": 17661
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        658.739,
+        451.31,
+        677.788,
+        466.97
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26029.topo.json",
+      "byteSize": 100836
+    },
+    {
+      "countyFips": "26031",
+      "resultReportingUnitCount": 22,
+      "matchedReportingUnitCount": 22,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 22,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 22,
+      "matchedGeometryFeatureCount": 22,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5543,
+        "trumpVotes": 10653,
+        "otherVotes": 227,
+        "totalVotes": 16423
+      },
+      "matchedVotes": {
+        "harrisVotes": 5543,
+        "trumpVotes": 10653,
+        "otherVotes": 227,
+        "totalVotes": 16423
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        676.015,
+        454.112,
+        685.305,
+        467.731
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26031.topo.json",
+      "byteSize": 42711
+    },
+    {
+      "countyFips": "26033",
+      "resultReportingUnitCount": 19,
+      "matchedReportingUnitCount": 19,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 19,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 19,
+      "matchedGeometryFeatureCount": 19,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6796,
+        "trumpVotes": 11249,
+        "otherVotes": 320,
+        "totalVotes": 18365
+      },
+      "matchedVotes": {
+        "harrisVotes": 6796,
+        "trumpVotes": 11249,
+        "otherVotes": 320,
+        "totalVotes": 18365
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        665.595,
+        472.295,
+        695.797,
+        489.038
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26033.topo.json",
+      "byteSize": 93661
+    },
+    {
+      "countyFips": "26035",
+      "resultReportingUnitCount": 19,
+      "matchedReportingUnitCount": 19,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 19,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 19,
+      "matchedGeometryFeatureCount": 19,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5273,
+        "trumpVotes": 11772,
+        "otherVotes": 243,
+        "totalVotes": 17288
+      },
+      "matchedVotes": {
+        "harrisVotes": 5273,
+        "trumpVotes": 11772,
+        "otherVotes": 243,
+        "totalVotes": 17288
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        674.663,
+        422.083,
+        683.369,
+        430.842
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26035.topo.json",
+      "byteSize": 29252
+    },
+    {
+      "countyFips": "26037",
+      "resultReportingUnitCount": 33,
+      "matchedReportingUnitCount": 33,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 33,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 33,
+      "matchedGeometryFeatureCount": 33,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 22450,
+        "trumpVotes": 26751,
+        "otherVotes": 785,
+        "totalVotes": 49986
+      },
+      "matchedVotes": {
+        "harrisVotes": 22450,
+        "trumpVotes": 26751,
+        "otherVotes": 785,
+        "totalVotes": 49986
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        681.491,
+        398.934,
+        690.203,
+        407.733
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26037.topo.json",
+      "byteSize": 48242
+    },
+    {
+      "countyFips": "26039",
+      "resultReportingUnitCount": 9,
+      "matchedReportingUnitCount": 9,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 9,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 9,
+      "matchedGeometryFeatureCount": 9,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2752,
+        "trumpVotes": 5613,
+        "otherVotes": 111,
+        "totalVotes": 8476
+      },
+      "matchedVotes": {
+        "harrisVotes": 2752,
+        "trumpVotes": 5613,
+        "otherVotes": 111,
+        "totalVotes": 8476
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        676.684,
+        438.299,
+        685.257,
+        446.986
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26039.topo.json",
+      "byteSize": 26030
+    },
+    {
+      "countyFips": "26041",
+      "resultReportingUnitCount": 22,
+      "matchedReportingUnitCount": 22,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 22,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 22,
+      "matchedGeometryFeatureCount": 22,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7462,
+        "trumpVotes": 14109,
+        "otherVotes": 303,
+        "totalVotes": 21874
+      },
+      "matchedVotes": {
+        "harrisVotes": 7462,
+        "trumpVotes": 14109,
+        "otherVotes": 303,
+        "totalVotes": 21874
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        634.113,
+        456.866,
+        648.895,
+        472.629
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26041.topo.json",
+      "byteSize": 137056
+    },
+    {
+      "countyFips": "26043",
+      "resultReportingUnitCount": 15,
+      "matchedReportingUnitCount": 15,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 15,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 15,
+      "matchedGeometryFeatureCount": 15,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4763,
+        "trumpVotes": 10324,
+        "otherVotes": 225,
+        "totalVotes": 15312
+      },
+      "matchedVotes": {
+        "harrisVotes": 4763,
+        "trumpVotes": 10324,
+        "otherVotes": 225,
+        "totalVotes": 15312
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        621.834,
+        460.814,
+        630.362,
+        472.959
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26043.topo.json",
+      "byteSize": 37332
+    },
+    {
+      "countyFips": "26045",
+      "resultReportingUnitCount": 44,
+      "matchedReportingUnitCount": 44,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 40,
+      "uniqueOfficialPrecinctKeyCount": 4,
+      "geometryFeatureCount": 44,
+      "matchedGeometryFeatureCount": 44,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 31056,
+        "trumpVotes": 33102,
+        "otherVotes": 1050,
+        "totalVotes": 65208
+      },
+      "matchedVotes": {
+        "harrisVotes": 31056,
+        "trumpVotes": 33102,
+        "otherVotes": 1050,
+        "totalVotes": 65208
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        678.519,
+        390.567,
+        687.263,
+        399.394
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26045.topo.json",
+      "byteSize": 64591
+    },
+    {
+      "countyFips": "26047",
+      "resultReportingUnitCount": 22,
+      "matchedReportingUnitCount": 22,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 22,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 22,
+      "matchedGeometryFeatureCount": 22,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10005,
+        "trumpVotes": 12465,
+        "otherVotes": 378,
+        "totalVotes": 22848
+      },
+      "matchedVotes": {
+        "harrisVotes": 10005,
+        "trumpVotes": 12465,
+        "otherVotes": 378,
+        "totalVotes": 22848
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        670.491,
+        455.2,
+        677.353,
+        467.328
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26047.topo.json",
+      "byteSize": 51623
+    },
+    {
+      "countyFips": "26049",
+      "resultReportingUnitCount": 156,
+      "matchedReportingUnitCount": 156,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 155,
+      "uniqueOfficialPrecinctKeyCount": 1,
+      "geometryFeatureCount": 156,
+      "matchedGeometryFeatureCount": 156,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 114670,
+        "trumpVotes": 105303,
+        "otherVotes": 3295,
+        "totalVotes": 223268
+      },
+      "matchedVotes": {
+        "harrisVotes": 114670,
+        "trumpVotes": 105303,
+        "otherVotes": 3295,
+        "totalVotes": 223268
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        695.992,
+        401.015,
+        704.835,
+        412.006
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26049.topo.json",
+      "byteSize": 201629
+    },
+    {
+      "countyFips": "26051",
+      "resultReportingUnitCount": 17,
+      "matchedReportingUnitCount": 17,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 17,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 17,
+      "matchedGeometryFeatureCount": 17,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4501,
+        "trumpVotes": 10809,
+        "otherVotes": 178,
+        "totalVotes": 15488
+      },
+      "matchedVotes": {
+        "harrisVotes": 4501,
+        "trumpVotes": 10809,
+        "otherVotes": 178,
+        "totalVotes": 15488
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        682.395,
+        423.04,
+        690.439,
+        431.746
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26051.topo.json",
+      "byteSize": 26304
+    },
+    {
+      "countyFips": "26053",
+      "resultReportingUnitCount": 10,
+      "matchedReportingUnitCount": 10,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 10,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 10,
+      "matchedGeometryFeatureCount": 10,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3385,
+        "trumpVotes": 4803,
+        "otherVotes": 107,
+        "totalVotes": 8295
+      },
+      "matchedVotes": {
+        "harrisVotes": 3385,
+        "trumpVotes": 4803,
+        "otherVotes": 107,
+        "totalVotes": 8295
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        585.331,
+        467.838,
+        608.39,
+        481.971
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26053.topo.json",
+      "byteSize": 50434
+    },
+    {
+      "countyFips": "26055",
+      "resultReportingUnitCount": 39,
+      "matchedReportingUnitCount": 39,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 39,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 39,
+      "matchedGeometryFeatureCount": 39,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 30339,
+        "trumpVotes": 31423,
+        "otherVotes": 998,
+        "totalVotes": 62760
+      },
+      "matchedVotes": {
+        "harrisVotes": 30339,
+        "trumpVotes": 31423,
+        "otherVotes": 998,
+        "totalVotes": 62760
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        661.446,
+        436.594,
+        669.801,
+        448.016
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26055.topo.json",
+      "byteSize": 63542
+    },
+    {
+      "countyFips": "26057",
+      "resultReportingUnitCount": 21,
+      "matchedReportingUnitCount": 21,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 21,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 21,
+      "matchedGeometryFeatureCount": 21,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6682,
+        "trumpVotes": 12894,
+        "otherVotes": 272,
+        "totalVotes": 19848
+      },
+      "matchedVotes": {
+        "harrisVotes": 6682,
+        "trumpVotes": 12894,
+        "otherVotes": 272,
+        "totalVotes": 19848
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        680.416,
+        406.829,
+        689.166,
+        415.607
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26057.topo.json",
+      "byteSize": 33409
+    },
+    {
+      "countyFips": "26059",
+      "resultReportingUnitCount": 26,
+      "matchedReportingUnitCount": 26,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 26,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 26,
+      "matchedGeometryFeatureCount": 26,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5875,
+        "trumpVotes": 18631,
+        "otherVotes": 322,
+        "totalVotes": 24828
+      },
+      "matchedVotes": {
+        "harrisVotes": 5875,
+        "trumpVotes": 18631,
+        "otherVotes": 322,
+        "totalVotes": 24828
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        684.464,
+        374.623,
+        693.224,
+        384.074
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26059.topo.json",
+      "byteSize": 41020
+    },
+    {
+      "countyFips": "26061",
+      "resultReportingUnitCount": 29,
+      "matchedReportingUnitCount": 29,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 26,
+      "uniqueOfficialPrecinctKeyCount": 3,
+      "geometryFeatureCount": 29,
+      "matchedGeometryFeatureCount": 29,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7881,
+        "trumpVotes": 11181,
+        "otherVotes": 312,
+        "totalVotes": 19374
+      },
+      "matchedVotes": {
+        "harrisVotes": 7881,
+        "trumpVotes": 11181,
+        "otherVotes": 312,
+        "totalVotes": 19374
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        607.439,
+        475.115,
+        618.384,
+        495.467
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26061.topo.json",
+      "byteSize": 78421
+    },
+    {
+      "countyFips": "26063",
+      "resultReportingUnitCount": 31,
+      "matchedReportingUnitCount": 31,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 31,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 31,
+      "matchedGeometryFeatureCount": 31,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5442,
+        "trumpVotes": 12938,
+        "otherVotes": 219,
+        "totalVotes": 18599
+      },
+      "matchedVotes": {
+        "harrisVotes": 5442,
+        "trumpVotes": 12938,
+        "otherVotes": 219,
+        "totalVotes": 18599
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        701.455,
+        422.039,
+        716.094,
+        432.408
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26063.topo.json",
+      "byteSize": 168234
+    },
+    {
+      "countyFips": "26065",
+      "resultReportingUnitCount": 105,
+      "matchedReportingUnitCount": 103,
+      "unmatchedReportingUnitCount": 2,
+      "exactOfficialWardKeyCount": 103,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 103,
+      "matchedGeometryFeatureCount": 103,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 94542,
+        "trumpVotes": 50564,
+        "otherVotes": 2906,
+        "totalVotes": 148012
+      },
+      "matchedVotes": {
+        "harrisVotes": 94542,
+        "trumpVotes": 50564,
+        "otherVotes": 2906,
+        "totalVotes": 148012
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        686.208,
+        391.499,
+        694.848,
+        400.431
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26065.topo.json",
+      "byteSize": 125616
+    },
+    {
+      "countyFips": "26067",
+      "resultReportingUnitCount": 27,
+      "matchedReportingUnitCount": 27,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 23,
+      "uniqueOfficialPrecinctKeyCount": 4,
+      "geometryFeatureCount": 27,
+      "matchedGeometryFeatureCount": 27,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 11338,
+        "trumpVotes": 22179,
+        "otherVotes": 504,
+        "totalVotes": 34021
+      },
+      "matchedVotes": {
+        "harrisVotes": 11338,
+        "trumpVotes": 22179,
+        "otherVotes": 504,
+        "totalVotes": 34021
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        673.708,
+        398.023,
+        682.42,
+        406.829
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26067.topo.json",
+      "byteSize": 46427
+    },
+    {
+      "countyFips": "26069",
+      "resultReportingUnitCount": 18,
+      "matchedReportingUnitCount": 18,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 17,
+      "uniqueOfficialPrecinctKeyCount": 1,
+      "geometryFeatureCount": 18,
+      "matchedGeometryFeatureCount": 18,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5344,
+        "trumpVotes": 10155,
+        "otherVotes": 232,
+        "totalVotes": 15731
+      },
+      "matchedVotes": {
+        "harrisVotes": 5344,
+        "trumpVotes": 10155,
+        "otherVotes": 232,
+        "totalVotes": 15731
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        693.003,
+        432.321,
+        702.41,
+        441.404
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26069.topo.json",
+      "byteSize": 46777
+    },
+    {
+      "countyFips": "26071",
+      "resultReportingUnitCount": 12,
+      "matchedReportingUnitCount": 12,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 12,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 12,
+      "matchedGeometryFeatureCount": 12,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2441,
+        "trumpVotes": 4501,
+        "otherVotes": 85,
+        "totalVotes": 7027
+      },
+      "matchedVotes": {
+        "harrisVotes": 2441,
+        "trumpVotes": 4501,
+        "otherVotes": 85,
+        "totalVotes": 7027
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        607.847,
+        464.923,
+        622.453,
+        476.194
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26071.topo.json",
+      "byteSize": 42941
+    },
+    {
+      "countyFips": "26073",
+      "resultReportingUnitCount": 23,
+      "matchedReportingUnitCount": 23,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 23,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 23,
+      "matchedGeometryFeatureCount": 23,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 14011,
+        "trumpVotes": 16320,
+        "otherVotes": 504,
+        "totalVotes": 30835
+      },
+      "matchedVotes": {
+        "harrisVotes": 14011,
+        "trumpVotes": 16320,
+        "otherVotes": 504,
+        "totalVotes": 30835
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        675.555,
+        414.224,
+        684.296,
+        423.04
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26073.topo.json",
+      "byteSize": 31308
+    },
+    {
+      "countyFips": "26075",
+      "resultReportingUnitCount": 59,
+      "matchedReportingUnitCount": 59,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 57,
+      "uniqueOfficialPrecinctKeyCount": 2,
+      "geometryFeatureCount": 59,
+      "matchedGeometryFeatureCount": 59,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 32348,
+        "trumpVotes": 50199,
+        "otherVotes": 1279,
+        "totalVotes": 83826
+      },
+      "matchedVotes": {
+        "harrisVotes": 32348,
+        "trumpVotes": 50199,
+        "otherVotes": 1279,
+        "totalVotes": 83826
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        685.313,
+        383.307,
+        695.997,
+        392.511
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26075.topo.json",
+      "byteSize": 83272
+    },
+    {
+      "countyFips": "26077",
+      "resultReportingUnitCount": 105,
+      "matchedReportingUnitCount": 105,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 105,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 105,
+      "matchedGeometryFeatureCount": 105,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 84501,
+        "trumpVotes": 58671,
+        "otherVotes": 2474,
+        "totalVotes": 145646
+      },
+      "matchedVotes": {
+        "harrisVotes": 84501,
+        "trumpVotes": 58671,
+        "otherVotes": 2474,
+        "totalVotes": 145646
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        668.017,
+        381.292,
+        676.705,
+        390.101
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26077.topo.json",
+      "byteSize": 129530
+    },
+    {
+      "countyFips": "26079",
+      "resultReportingUnitCount": 13,
+      "matchedReportingUnitCount": 13,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 13,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 13,
+      "matchedGeometryFeatureCount": 13,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3206,
+        "trumpVotes": 8149,
+        "otherVotes": 174,
+        "totalVotes": 11529
+      },
+      "matchedVotes": {
+        "harrisVotes": 3206,
+        "trumpVotes": 8149,
+        "otherVotes": 174,
+        "totalVotes": 11529
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        669.041,
+        437.434,
+        677.55,
+        446.14
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26079.topo.json",
+      "byteSize": 22832
+    },
+    {
+      "countyFips": "26081",
+      "resultReportingUnitCount": 240,
+      "matchedReportingUnitCount": 240,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 239,
+      "uniqueOfficialPrecinctKeyCount": 1,
+      "geometryFeatureCount": 240,
+      "matchedGeometryFeatureCount": 240,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 192668,
+        "trumpVotes": 172720,
+        "otherVotes": 6334,
+        "totalVotes": 371722
+      },
+      "matchedVotes": {
+        "harrisVotes": 192668,
+        "trumpVotes": 172720,
+        "otherVotes": 6334,
+        "totalVotes": 371722
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        665.457,
+        397.125,
+        674.649,
+        409.905
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26081.topo.json",
+      "byteSize": 298960
+    },
+    {
+      "countyFips": "26083",
+      "resultReportingUnitCount": 5,
+      "matchedReportingUnitCount": 5,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 5,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 5,
+      "matchedGeometryFeatureCount": 5,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 690,
+        "trumpVotes": 896,
+        "otherVotes": 25,
+        "totalVotes": 1611
+      },
+      "matchedVotes": {
+        "harrisVotes": 690,
+        "trumpVotes": 896,
+        "otherVotes": 25,
+        "totalVotes": 1611
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        600.443,
+        493.526,
+        627.822,
+        517.434
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26083.topo.json",
+      "byteSize": 211685
+    },
+    {
+      "countyFips": "26085",
+      "resultReportingUnitCount": 15,
+      "matchedReportingUnitCount": 15,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 15,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 15,
+      "matchedGeometryFeatureCount": 15,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2298,
+        "trumpVotes": 4523,
+        "otherVotes": 94,
+        "totalVotes": 6915
+      },
+      "matchedVotes": {
+        "harrisVotes": 2298,
+        "trumpVotes": 4523,
+        "otherVotes": 94,
+        "totalVotes": 6915
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        659.24,
+        420.431,
+        667.876,
+        429.163
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26085.topo.json",
+      "byteSize": 23134
+    },
+    {
+      "countyFips": "26087",
+      "resultReportingUnitCount": 33,
+      "matchedReportingUnitCount": 33,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 33,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 33,
+      "matchedGeometryFeatureCount": 33,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 16338,
+        "trumpVotes": 38398,
+        "otherVotes": 703,
+        "totalVotes": 55439
+      },
+      "matchedVotes": {
+        "harrisVotes": 16338,
+        "trumpVotes": 38398,
+        "otherVotes": 703,
+        "totalVotes": 55439
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        703.644,
+        404.272,
+        712.474,
+        415.101
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26087.topo.json",
+      "byteSize": 48221
+    },
+    {
+      "countyFips": "26089",
+      "resultReportingUnitCount": 13,
+      "matchedReportingUnitCount": 13,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 13,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 13,
+      "matchedGeometryFeatureCount": 13,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 9406,
+        "trumpVotes": 8035,
+        "otherVotes": 244,
+        "totalVotes": 17685
+      },
+      "matchedVotes": {
+        "harrisVotes": 9406,
+        "trumpVotes": 8035,
+        "otherVotes": 244,
+        "totalVotes": 17685
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        655.436,
+        442.153,
+        665.014,
+        458.748
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26089.topo.json",
+      "byteSize": 66472
+    },
+    {
+      "countyFips": "26091",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 41,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 39,
+      "uniqueOfficialPrecinctKeyCount": 2,
+      "geometryFeatureCount": 41,
+      "matchedGeometryFeatureCount": 41,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 20787,
+        "trumpVotes": 33463,
+        "otherVotes": 762,
+        "totalVotes": 55012
+      },
+      "matchedVotes": {
+        "harrisVotes": 20787,
+        "trumpVotes": 33463,
+        "otherVotes": 762,
+        "totalVotes": 55012
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        692.152,
+        375.758,
+        703.137,
+        385.511
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26091.topo.json",
+      "byteSize": 61355
+    },
+    {
+      "countyFips": "26093",
+      "resultReportingUnitCount": 73,
+      "matchedReportingUnitCount": 73,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 73,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 73,
+      "matchedGeometryFeatureCount": 73,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 49503,
+        "trumpVotes": 81217,
+        "otherVotes": 1728,
+        "totalVotes": 132448
+      },
+      "matchedVotes": {
+        "harrisVotes": 49503,
+        "trumpVotes": 81217,
+        "otherVotes": 1728,
+        "totalVotes": 132448
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        693.56,
+        392.492,
+        702.683,
+        401.57
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26093.topo.json",
+      "byteSize": 108873
+    },
+    {
+      "countyFips": "26095",
+      "resultReportingUnitCount": 4,
+      "matchedReportingUnitCount": 4,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 4,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 4,
+      "matchedGeometryFeatureCount": 4,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 769,
+        "trumpVotes": 2170,
+        "otherVotes": 46,
+        "totalVotes": 2985
+      },
+      "matchedVotes": {
+        "harrisVotes": 769,
+        "trumpVotes": 2170,
+        "otherVotes": 46,
+        "totalVotes": 2985
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        656.033,
+        475.591,
+        666.899,
+        488.156
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26095.topo.json",
+      "byteSize": 11995
+    },
+    {
+      "countyFips": "26097",
+      "resultReportingUnitCount": 14,
+      "matchedReportingUnitCount": 14,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 14,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 14,
+      "matchedGeometryFeatureCount": 14,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2675,
+        "trumpVotes": 4477,
+        "otherVotes": 87,
+        "totalVotes": 7239
+      },
+      "matchedVotes": {
+        "harrisVotes": 2675,
+        "trumpVotes": 4477,
+        "otherVotes": 87,
+        "totalVotes": 7239
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        657.098,
+        466.329,
+        685.19,
+        476.92
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26097.topo.json",
+      "byteSize": 195331
+    },
+    {
+      "countyFips": "26099",
+      "resultReportingUnitCount": 309,
+      "matchedReportingUnitCount": 308,
+      "unmatchedReportingUnitCount": 1,
+      "exactOfficialWardKeyCount": 308,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 308,
+      "matchedGeometryFeatureCount": 308,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 214977,
+        "trumpVotes": 284661,
+        "otherVotes": 9419,
+        "totalVotes": 509057
+      },
+      "matchedVotes": {
+        "harrisVotes": 214977,
+        "trumpVotes": 284661,
+        "otherVotes": 9419,
+        "totalVotes": 509057
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        710.538,
+        395.286,
+        717.68,
+        406.257
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26099.topo.json",
+      "byteSize": 350113
+    },
+    {
+      "countyFips": "26101",
+      "resultReportingUnitCount": 16,
+      "matchedReportingUnitCount": 16,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 16,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 16,
+      "matchedGeometryFeatureCount": 16,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6309,
+        "trumpVotes": 8748,
+        "otherVotes": 240,
+        "totalVotes": 15297
+      },
+      "matchedVotes": {
+        "harrisVotes": 6309,
+        "trumpVotes": 8748,
+        "otherVotes": 240,
+        "totalVotes": 15297
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        653.645,
+        428.069,
+        662.833,
+        436.594
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26101.topo.json",
+      "byteSize": 27746
+    },
+    {
+      "countyFips": "26103",
+      "resultReportingUnitCount": 29,
+      "matchedReportingUnitCount": 29,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 25,
+      "uniqueOfficialPrecinctKeyCount": 4,
+      "geometryFeatureCount": 29,
+      "matchedGeometryFeatureCount": 29,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 20866,
+        "trumpVotes": 17459,
+        "otherVotes": 684,
+        "totalVotes": 39009
+      },
+      "matchedVotes": {
+        "harrisVotes": 20866,
+        "trumpVotes": 17459,
+        "otherVotes": 684,
+        "totalVotes": 39009
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        621.049,
+        467.076,
+        637.703,
+        488.657
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26103.topo.json",
+      "byteSize": 97187
+    },
+    {
+      "countyFips": "26105",
+      "resultReportingUnitCount": 24,
+      "matchedReportingUnitCount": 24,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 24,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 24,
+      "matchedGeometryFeatureCount": 24,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6973,
+        "trumpVotes": 10830,
+        "otherVotes": 253,
+        "totalVotes": 18056
+      },
+      "matchedVotes": {
+        "harrisVotes": 6973,
+        "trumpVotes": 10830,
+        "otherVotes": 253,
+        "totalVotes": 18056
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        651.873,
+        419.86,
+        660.167,
+        428.382
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26105.topo.json",
+      "byteSize": 50801
+    },
+    {
+      "countyFips": "26107",
+      "resultReportingUnitCount": 20,
+      "matchedReportingUnitCount": 20,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 20,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 20,
+      "matchedGeometryFeatureCount": 20,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7686,
+        "trumpVotes": 14444,
+        "otherVotes": 356,
+        "totalVotes": 22486
+      },
+      "matchedVotes": {
+        "harrisVotes": 7686,
+        "trumpVotes": 14444,
+        "otherVotes": 356,
+        "totalVotes": 22486
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        667.876,
+        413.393,
+        676.524,
+        422.083
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26107.topo.json",
+      "byteSize": 28561
+    },
+    {
+      "countyFips": "26109",
+      "resultReportingUnitCount": 19,
+      "matchedReportingUnitCount": 19,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 15,
+      "uniqueOfficialPrecinctKeyCount": 4,
+      "geometryFeatureCount": 19,
+      "matchedGeometryFeatureCount": 19,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4256,
+        "trumpVotes": 8647,
+        "otherVotes": 157,
+        "totalVotes": 13060
+      },
+      "matchedVotes": {
+        "harrisVotes": 4256,
+        "trumpVotes": 8647,
+        "otherVotes": 157,
+        "totalVotes": 13060
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        627.098,
+        446.981,
+        636.652,
+        467.412
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26109.topo.json",
+      "byteSize": 69925
+    },
+    {
+      "countyFips": "26111",
+      "resultReportingUnitCount": 34,
+      "matchedReportingUnitCount": 34,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 33,
+      "uniqueOfficialPrecinctKeyCount": 1,
+      "geometryFeatureCount": 34,
+      "matchedGeometryFeatureCount": 34,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 20926,
+        "trumpVotes": 28571,
+        "otherVotes": 790,
+        "totalVotes": 50287
+      },
+      "matchedVotes": {
+        "harrisVotes": 20926,
+        "trumpVotes": 28571,
+        "otherVotes": 790,
+        "totalVotes": 50287
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        683.369,
+        415.136,
+        691.36,
+        424.153
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26111.topo.json",
+      "byteSize": 52133
+    },
+    {
+      "countyFips": "26113",
+      "resultReportingUnitCount": 17,
+      "matchedReportingUnitCount": 17,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 17,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 17,
+      "matchedGeometryFeatureCount": 17,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1945,
+        "trumpVotes": 7066,
+        "otherVotes": 141,
+        "totalVotes": 9152
+      },
+      "matchedVotes": {
+        "harrisVotes": 1945,
+        "trumpVotes": 7066,
+        "otherVotes": 141,
+        "totalVotes": 9152
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        669.802,
+        429.576,
+        678.469,
+        438.299
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26113.topo.json",
+      "byteSize": 25294
+    },
+    {
+      "countyFips": "26115",
+      "resultReportingUnitCount": 63,
+      "matchedReportingUnitCount": 63,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 63,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 63,
+      "matchedGeometryFeatureCount": 63,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 32613,
+        "trumpVotes": 57402,
+        "otherVotes": 1329,
+        "totalVotes": 91344
+      },
+      "matchedVotes": {
+        "harrisVotes": 32613,
+        "trumpVotes": 57402,
+        "otherVotes": 1329,
+        "totalVotes": 91344
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        701.905,
+        377.4,
+        711.982,
+        386.826
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26115.topo.json",
+      "byteSize": 103454
+    },
+    {
+      "countyFips": "26117",
+      "resultReportingUnitCount": 27,
+      "matchedReportingUnitCount": 27,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 27,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 27,
+      "matchedGeometryFeatureCount": 27,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10368,
+        "trumpVotes": 23946,
+        "otherVotes": 531,
+        "totalVotes": 34845
+      },
+      "matchedVotes": {
+        "harrisVotes": 10368,
+        "trumpVotes": 23946,
+        "otherVotes": 531,
+        "totalVotes": 34845
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        668.744,
+        405.929,
+        681.491,
+        414.677
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26117.topo.json",
+      "byteSize": 39190
+    },
+    {
+      "countyFips": "26119",
+      "resultReportingUnitCount": 9,
+      "matchedReportingUnitCount": 9,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 9,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 9,
+      "matchedGeometryFeatureCount": 9,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1702,
+        "trumpVotes": 4599,
+        "otherVotes": 90,
+        "totalVotes": 6391
+      },
+      "matchedVotes": {
+        "harrisVotes": 1702,
+        "trumpVotes": 4599,
+        "otherVotes": 90,
+        "totalVotes": 6391
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        683.402,
+        446.986,
+        691.969,
+        455.787
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26119.topo.json",
+      "byteSize": 18793
+    },
+    {
+      "countyFips": "26121",
+      "resultReportingUnitCount": 53,
+      "matchedReportingUnitCount": 53,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 46,
+      "uniqueOfficialPrecinctKeyCount": 7,
+      "geometryFeatureCount": 53,
+      "matchedGeometryFeatureCount": 53,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 46028,
+        "trumpVotes": 47733,
+        "otherVotes": 1420,
+        "totalVotes": 95181
+      },
+      "matchedVotes": {
+        "harrisVotes": 46028,
+        "trumpVotes": 47733,
+        "otherVotes": 1420,
+        "totalVotes": 95181
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        654.084,
+        404.225,
+        665.668,
+        412.538
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26121.topo.json",
+      "byteSize": 77665
+    },
+    {
+      "countyFips": "26123",
+      "resultReportingUnitCount": 29,
+      "matchedReportingUnitCount": 29,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 29,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 29,
+      "matchedGeometryFeatureCount": 29,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 8131,
+        "trumpVotes": 20630,
+        "otherVotes": 440,
+        "totalVotes": 29201
+      },
+      "matchedVotes": {
+        "harrisVotes": 8131,
+        "trumpVotes": 20630,
+        "otherVotes": 440,
+        "totalVotes": 29201
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        660.168,
+        408.595,
+        669.176,
+        421.262
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26123.topo.json",
+      "byteSize": 45872
+    },
+    {
+      "countyFips": "26125",
+      "resultReportingUnitCount": 498,
+      "matchedReportingUnitCount": 497,
+      "unmatchedReportingUnitCount": 1,
+      "exactOfficialWardKeyCount": 466,
+      "uniqueOfficialPrecinctKeyCount": 31,
+      "geometryFeatureCount": 497,
+      "matchedGeometryFeatureCount": 497,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 419519,
+        "trumpVotes": 337791,
+        "otherVotes": 14835,
+        "totalVotes": 772145
+      },
+      "matchedVotes": {
+        "harrisVotes": 419513,
+        "trumpVotes": 337783,
+        "otherVotes": 14835,
+        "totalVotes": 772131
+      },
+      "resultVoteCoveragePct": 99.9982,
+      "bounds": [
+        700.98,
+        393.646,
+        712.223,
+        405.231
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26125.topo.json",
+      "byteSize": 637627
+    },
+    {
+      "countyFips": "26127",
+      "resultReportingUnitCount": 17,
+      "matchedReportingUnitCount": 17,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 17,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 17,
+      "matchedGeometryFeatureCount": 17,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5085,
+        "trumpVotes": 9547,
+        "otherVotes": 238,
+        "totalVotes": 14870
+      },
+      "matchedVotes": {
+        "harrisVotes": 5085,
+        "trumpVotes": 9547,
+        "otherVotes": 238,
+        "totalVotes": 14870
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        652.392,
+        411.941,
+        660.971,
+        420.431
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26127.topo.json",
+      "byteSize": 31354
+    },
+    {
+      "countyFips": "26129",
+      "resultReportingUnitCount": 17,
+      "matchedReportingUnitCount": 17,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 17,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 17,
+      "matchedGeometryFeatureCount": 17,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3578,
+        "trumpVotes": 8879,
+        "otherVotes": 165,
+        "totalVotes": 12622
+      },
+      "matchedVotes": {
+        "harrisVotes": 3578,
+        "trumpVotes": 8879,
+        "otherVotes": 165,
+        "totalVotes": 12622
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        685.257,
+        431.314,
+        694.05,
+        440.151
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26129.topo.json",
+      "byteSize": 26656
+    },
+    {
+      "countyFips": "26131",
+      "resultReportingUnitCount": 11,
+      "matchedReportingUnitCount": 11,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 11,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 11,
+      "matchedGeometryFeatureCount": 11,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1313,
+        "trumpVotes": 2479,
+        "otherVotes": 49,
+        "totalVotes": 3841
+      },
+      "matchedVotes": {
+        "harrisVotes": 1313,
+        "trumpVotes": 2479,
+        "otherVotes": 49,
+        "totalVotes": 3841
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        593.31,
+        472.739,
+        609.389,
+        488.968
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26131.topo.json",
+      "byteSize": 32147
+    },
+    {
+      "countyFips": "26133",
+      "resultReportingUnitCount": 18,
+      "matchedReportingUnitCount": 18,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 18,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 18,
+      "matchedGeometryFeatureCount": 18,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3326,
+        "trumpVotes": 9639,
+        "otherVotes": 219,
+        "totalVotes": 13184
+      },
+      "matchedVotes": {
+        "harrisVotes": 3326,
+        "trumpVotes": 9639,
+        "otherVotes": 219,
+        "totalVotes": 13184
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        666.97,
+        421.262,
+        675.555,
+        430.017
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26133.topo.json",
+      "byteSize": 31001
+    },
+    {
+      "countyFips": "26135",
+      "resultReportingUnitCount": 7,
+      "matchedReportingUnitCount": 7,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 7,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 7,
+      "matchedGeometryFeatureCount": 7,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1414,
+        "trumpVotes": 3716,
+        "otherVotes": 62,
+        "totalVotes": 5192
+      },
+      "matchedVotes": {
+        "harrisVotes": 1414,
+        "trumpVotes": 3716,
+        "otherVotes": 62,
+        "totalVotes": 5192
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        684.274,
+        439.139,
+        693.003,
+        447.988
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26135.topo.json",
+      "byteSize": 20343
+    },
+    {
+      "countyFips": "26137",
+      "resultReportingUnitCount": 13,
+      "matchedReportingUnitCount": 13,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 13,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 13,
+      "matchedGeometryFeatureCount": 13,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5052,
+        "trumpVotes": 10693,
+        "otherVotes": 226,
+        "totalVotes": 15971
+      },
+      "matchedVotes": {
+        "harrisVotes": 5052,
+        "trumpVotes": 10693,
+        "otherVotes": 226,
+        "totalVotes": 15971
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        675.835,
+        446.14,
+        684.274,
+        454.745
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26137.topo.json",
+      "byteSize": 27147
+    },
+    {
+      "countyFips": "26139",
+      "resultReportingUnitCount": 101,
+      "matchedReportingUnitCount": 101,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 101,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 101,
+      "matchedGeometryFeatureCount": 101,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 69653,
+        "trumpVotes": 106133,
+        "otherVotes": 2721,
+        "totalVotes": 178507
+      },
+      "matchedVotes": {
+        "harrisVotes": 69653,
+        "trumpVotes": 106133,
+        "otherVotes": 2721,
+        "totalVotes": 178507
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        657.996,
+        396.368,
+        666.871,
+        407.024
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26139.topo.json",
+      "byteSize": 135323
+    },
+    {
+      "countyFips": "26141",
+      "resultReportingUnitCount": 16,
+      "matchedReportingUnitCount": 16,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 16,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 16,
+      "matchedGeometryFeatureCount": 16,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3036,
+        "trumpVotes": 5568,
+        "otherVotes": 138,
+        "totalVotes": 8742
+      },
+      "matchedVotes": {
+        "harrisVotes": 3036,
+        "trumpVotes": 5568,
+        "otherVotes": 138,
+        "totalVotes": 8742
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        684.024,
+        454.98,
+        698.876,
+        464.692
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26141.topo.json",
+      "byteSize": 46792
+    },
+    {
+      "countyFips": "26143",
+      "resultReportingUnitCount": 13,
+      "matchedReportingUnitCount": 13,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 13,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 13,
+      "matchedGeometryFeatureCount": 13,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5290,
+        "trumpVotes": 10582,
+        "otherVotes": 201,
+        "totalVotes": 16073
+      },
+      "matchedVotes": {
+        "harrisVotes": 5290,
+        "trumpVotes": 10582,
+        "otherVotes": 201,
+        "totalVotes": 16073
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        677.55,
+        430.395,
+        686.261,
+        439.139
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26143.topo.json",
+      "byteSize": 22097
+    },
+    {
+      "countyFips": "26145",
+      "resultReportingUnitCount": 76,
+      "matchedReportingUnitCount": 76,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 76,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 76,
+      "matchedGeometryFeatureCount": 76,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 49515,
+        "trumpVotes": 52912,
+        "otherVotes": 1419,
+        "totalVotes": 103846
+      },
+      "matchedVotes": {
+        "harrisVotes": 49515,
+        "trumpVotes": 52912,
+        "otherVotes": 1419,
+        "totalVotes": 103846
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        688.121,
+        407.971,
+        699.847,
+        418.546
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26145.topo.json",
+      "byteSize": 106734
+    },
+    {
+      "countyFips": "26147",
+      "resultReportingUnitCount": 64,
+      "matchedReportingUnitCount": 63,
+      "unmatchedReportingUnitCount": 1,
+      "exactOfficialWardKeyCount": 60,
+      "uniqueOfficialPrecinctKeyCount": 3,
+      "geometryFeatureCount": 63,
+      "matchedGeometryFeatureCount": 63,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 30844,
+        "trumpVotes": 64277,
+        "otherVotes": 1403,
+        "totalVotes": 96524
+      },
+      "matchedVotes": {
+        "harrisVotes": 30844,
+        "trumpVotes": 64277,
+        "otherVotes": 1403,
+        "totalVotes": 96524
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        711.458,
+        397.812,
+        721.535,
+        412.933
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26147.topo.json",
+      "byteSize": 150418
+    },
+    {
+      "countyFips": "26149",
+      "resultReportingUnitCount": 23,
+      "matchedReportingUnitCount": 23,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 23,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 23,
+      "matchedGeometryFeatureCount": 23,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 9452,
+        "trumpVotes": 19403,
+        "otherVotes": 452,
+        "totalVotes": 29307
+      },
+      "matchedVotes": {
+        "harrisVotes": 9452,
+        "trumpVotes": 19403,
+        "otherVotes": 452,
+        "totalVotes": 29307
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        668.909,
+        374.192,
+        677.53,
+        382.206
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26149.topo.json",
+      "byteSize": 48228
+    },
+    {
+      "countyFips": "26151",
+      "resultReportingUnitCount": 30,
+      "matchedReportingUnitCount": 30,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 30,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 30,
+      "matchedGeometryFeatureCount": 30,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5956,
+        "trumpVotes": 17080,
+        "otherVotes": 302,
+        "totalVotes": 23338
+      },
+      "matchedVotes": {
+        "harrisVotes": 5956,
+        "trumpVotes": 17080,
+        "otherVotes": 302,
+        "totalVotes": 23338
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        707.868,
+        411.47,
+        719.45,
+        424.465
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26151.topo.json",
+      "byteSize": 54906
+    },
+    {
+      "countyFips": "26153",
+      "resultReportingUnitCount": 9,
+      "matchedReportingUnitCount": 9,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 9,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 9,
+      "matchedGeometryFeatureCount": 9,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1631,
+        "trumpVotes": 3196,
+        "otherVotes": 71,
+        "totalVotes": 4898
+      },
+      "matchedVotes": {
+        "harrisVotes": 1631,
+        "trumpVotes": 3196,
+        "otherVotes": 71,
+        "totalVotes": 4898
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        645.162,
+        463.601,
+        657.758,
+        481.445
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26153.topo.json",
+      "byteSize": 36864
+    },
+    {
+      "countyFips": "26155",
+      "resultReportingUnitCount": 31,
+      "matchedReportingUnitCount": 31,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 31,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 31,
+      "matchedGeometryFeatureCount": 31,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 15335,
+        "trumpVotes": 24718,
+        "otherVotes": 632,
+        "totalVotes": 40685
+      },
+      "matchedVotes": {
+        "harrisVotes": 15335,
+        "trumpVotes": 24718,
+        "otherVotes": 632,
+        "totalVotes": 40685
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        689.135,
+        399.992,
+        697.419,
+        408.967
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26155.topo.json",
+      "byteSize": 44237
+    },
+    {
+      "countyFips": "26157",
+      "resultReportingUnitCount": 26,
+      "matchedReportingUnitCount": 26,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 26,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 26,
+      "matchedGeometryFeatureCount": 26,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 8560,
+        "trumpVotes": 21764,
+        "otherVotes": 391,
+        "totalVotes": 30715
+      },
+      "matchedVotes": {
+        "harrisVotes": 8560,
+        "trumpVotes": 21764,
+        "otherVotes": 391,
+        "totalVotes": 30715
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        698.687,
+        411.464,
+        709.169,
+        423.421
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26157.topo.json",
+      "byteSize": 50966
+    },
+    {
+      "countyFips": "26159",
+      "resultReportingUnitCount": 33,
+      "matchedReportingUnitCount": 32,
+      "unmatchedReportingUnitCount": 1,
+      "exactOfficialWardKeyCount": 32,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 32,
+      "matchedGeometryFeatureCount": 32,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 17175,
+        "trumpVotes": 23407,
+        "otherVotes": 587,
+        "totalVotes": 41169
+      },
+      "matchedVotes": {
+        "harrisVotes": 17165,
+        "trumpVotes": 23403,
+        "otherVotes": 587,
+        "totalVotes": 41155
+      },
+      "resultVoteCoveragePct": 99.966,
+      "bounds": [
+        658.499,
+        380.533,
+        668.909,
+        389.269
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26159.topo.json",
+      "byteSize": 51415
+    },
+    {
+      "countyFips": "26161",
+      "resultReportingUnitCount": 120,
+      "matchedReportingUnitCount": 120,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 113,
+      "uniqueOfficialPrecinctKeyCount": 7,
+      "geometryFeatureCount": 120,
+      "matchedGeometryFeatureCount": 120,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 157152,
+        "trumpVotes": 58844,
+        "otherVotes": 5546,
+        "totalVotes": 221542
+      },
+      "matchedVotes": {
+        "harrisVotes": 157152,
+        "trumpVotes": 58844,
+        "otherVotes": 5546,
+        "totalVotes": 221542
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        695.006,
+        384.508,
+        705.784,
+        393.98
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26161.topo.json",
+      "byteSize": 192003
+    },
+    {
+      "countyFips": "26163",
+      "resultReportingUnitCount": 848,
+      "matchedReportingUnitCount": 847,
+      "unmatchedReportingUnitCount": 1,
+      "exactOfficialWardKeyCount": 413,
+      "uniqueOfficialPrecinctKeyCount": 434,
+      "geometryFeatureCount": 847,
+      "matchedGeometryFeatureCount": 847,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 405975,
+        "trumpVotes": 280683,
+        "otherVotes": 28502,
+        "totalVotes": 715160
+      },
+      "matchedVotes": {
+        "harrisVotes": 405975,
+        "trumpVotes": 280683,
+        "otherVotes": 28502,
+        "totalVotes": 715160
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        704.534,
+        385.585,
+        715.747,
+        395.86
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26163.topo.json",
+      "byteSize": 837620
+    },
+    {
+      "countyFips": "26165",
+      "resultReportingUnitCount": 20,
+      "matchedReportingUnitCount": 20,
+      "unmatchedReportingUnitCount": 0,
+      "exactOfficialWardKeyCount": 20,
+      "uniqueOfficialPrecinctKeyCount": 0,
+      "geometryFeatureCount": 20,
+      "matchedGeometryFeatureCount": 20,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6224,
+        "trumpVotes": 12968,
+        "otherVotes": 284,
+        "totalVotes": 19476
+      },
+      "matchedVotes": {
+        "harrisVotes": 6224,
+        "trumpVotes": 12968,
+        "otherVotes": 284,
+        "totalVotes": 19476
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        662.039,
+        428.698,
+        670.676,
+        437.434
+      ],
+      "dataUrl": "./data/mi/2024/precincts/26165.topo.json",
+      "byteSize": 36897
+    }
+  ]
+}

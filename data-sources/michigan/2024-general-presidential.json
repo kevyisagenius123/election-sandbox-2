@@ -1,0 +1,259 @@
+{
+  "id": "mi-2024-presidential-source-package",
+  "sources": [
+    {
+      "id": "mi-boe-2024-general-precinct-results",
+      "publisher": "Michigan Department of State, Bureau of Elections",
+      "title": "2024 Michigan Precinct-Level General Election Results",
+      "sourceUrl": "https://mvic.sos.state.mi.us/votehistory/",
+      "retrievedAt": "2026-08-10",
+      "checksumSha256": "64f9285bbe94565ff8685d90fccb283a72f04f849bc3b16873af26e9ae34294a",
+      "licenseStatus": "review_required",
+      "limitations": [
+        "Precinct numbers at or above 900 and AVCB-labeled units are non-geographic central-count buckets.",
+        "The 22 locale-code 9999 units contain negative candidate corrections and are normalized into one explicit statewide statistical-adjustment bucket whose net candidate values remain non-negative.",
+        "No non-geographic unit is assigned to a precinct polygon."
+      ]
+    }
+  ],
+  "pipelineVersion": "mi-2024-import-v1",
+  "sourceFiles": {
+    "2024city.txt": "0f518694222b5e5103f98bb9d07b4c81777a2b47d1c61f3a1167c23943d50d89",
+    "2024name.txt": "01c368c75b7317649ceee701dc7c216c981980ae03d35da1c59a640afc7bb4ac",
+    "2024offc.txt": "781d21491cf147c517603c25c4aad071f57e6fad2bbfa76f92a3c960d10a5f63",
+    "2024vote.txt": "407cad8735c5698f9f6886441841bea3cdcf6d98e9695b50642dffbb64a45e14",
+    "county.txt": "90ad5bb7f35f13cf8ce417a105bdcb1b87f61763a6dff8daf2dbcbe20627bbb8",
+    "readme.txt": "e6fcf574c1f3955c0e71f8c023608b14020acf35d3d74195226f1dfd08f236a7"
+  },
+  "presidentialLineCount": 43853,
+  "candidateCount": 12,
+  "countyCount": 83,
+  "reportingUnitCount": 4413,
+  "sourceReportingUnitCount": 4434,
+  "geographicReportingUnitCount": 4347,
+  "centralCountUnitCount": 65,
+  "sourceStatisticalAdjustmentUnitCount": 22,
+  "normalizedStatisticalAdjustmentUnitCount": 1,
+  "statewideStatisticalAdjustment": {
+    "harrisVotes": 95,
+    "trumpVotes": 290,
+    "steinVotes": 1,
+    "oliverVotes": 2,
+    "residualOtherVotes": 721,
+    "otherVotes": 724,
+    "totalVotes": 1109
+  },
+  "statisticalAdjustmentsByCounty": {
+    "26005": {
+      "harrisVotes": -10,
+      "trumpVotes": -3,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 23,
+      "otherVotes": 23,
+      "totalVotes": 10
+    },
+    "26017": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 7,
+      "otherVotes": 7,
+      "totalVotes": 7
+    },
+    "26023": {
+      "harrisVotes": 1,
+      "trumpVotes": 1,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": 2
+    },
+    "26047": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 3,
+      "otherVotes": 3,
+      "totalVotes": 3
+    },
+    "26055": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 12,
+      "otherVotes": 12,
+      "totalVotes": 12
+    },
+    "26063": {
+      "harrisVotes": 80,
+      "trumpVotes": 286,
+      "steinVotes": 1,
+      "oliverVotes": 2,
+      "residualOtherVotes": 1,
+      "otherVotes": 4,
+      "totalVotes": 370
+    },
+    "26065": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 89,
+      "otherVotes": 89,
+      "totalVotes": 89
+    },
+    "26075": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 1,
+      "otherVotes": 1,
+      "totalVotes": 1
+    },
+    "26077": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 64,
+      "otherVotes": 64,
+      "totalVotes": 64
+    },
+    "26081": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 225,
+      "otherVotes": 225,
+      "totalVotes": 225
+    },
+    "26091": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 4,
+      "otherVotes": 4,
+      "totalVotes": 4
+    },
+    "26097": {
+      "harrisVotes": 0,
+      "trumpVotes": -1,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": -1
+    },
+    "26099": {
+      "harrisVotes": 0,
+      "trumpVotes": -1,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 96,
+      "otherVotes": 96,
+      "totalVotes": 95
+    },
+    "26105": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 8,
+      "otherVotes": 8,
+      "totalVotes": 8
+    },
+    "26107": {
+      "harrisVotes": 2,
+      "trumpVotes": 1,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": 3
+    },
+    "26111": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 14,
+      "otherVotes": 14,
+      "totalVotes": 14
+    },
+    "26115": {
+      "harrisVotes": 9,
+      "trumpVotes": 3,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": 12
+    },
+    "26143": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": -5,
+      "otherVotes": -5,
+      "totalVotes": -5
+    },
+    "26151": {
+      "harrisVotes": 1,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": 1
+    },
+    "26157": {
+      "harrisVotes": 2,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": 2
+    },
+    "26159": {
+      "harrisVotes": 10,
+      "trumpVotes": 4,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": 14
+    },
+    "26163": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 179,
+      "otherVotes": 179,
+      "totalVotes": 179
+    }
+  },
+  "stateTotals": {
+    "harrisVotes": 2736533,
+    "trumpVotes": 2816636,
+    "steinVotes": 44607,
+    "oliverVotes": 22440,
+    "residualOtherVotes": 43970,
+    "otherVotes": 111017,
+    "totalVotes": 5664186
+  },
+  "outputs": [
+    "src/data/mi-2024-counties.json",
+    "public/data/mi/2024/reporting-units.json"
+  ]
+}

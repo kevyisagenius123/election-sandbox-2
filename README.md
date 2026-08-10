@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.11 multi-state runtime foundation
+## Current release: v0.12 Michigan audited data foundation
 
 The current build provides:
 
@@ -28,12 +28,18 @@ The current build provides:
 - A typed detailed-state manifest that owns Pennsylvania's election, compatibility, runtime-artifact, geography, and source contracts.
 - Dedicated Web Worker decoding and scenario calculation with queued-change coalescing and stale-response rejection.
 - GitHub Actions release gates for model tests, lint, production build, and full browser replay.
+- A checksum-verified Michigan source package that reconciles all 5,664,186 presidential votes across 12 named candidates and 83 counties.
+- Exact-cycle Michigan precinct terrain with 4,339 of 4,340 polygons linked and 99.9979% coverage of votes cast in geographic precinct units.
+- Explicit off-map treatment for Michigan central-count votes, statistical corrections, and 114 unmatched geographic votes.
+- A compact Michigan P.L. 94-171 behavior artifact with direct VTD bridges, documented registered-voter-weighted splits, and unavailable denominators kept fail-closed.
 - Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
 - Reconciliation, allocation, and zero-change tests.
 
 The Pennsylvania source exposes exact Harris, Trump, Stein, and Oliver results by reporting unit, but does not place every write-in or residual vote by county. The model therefore preserves 24,526 certified residual votes in an explicit statewide bucket instead of inventing a county or precinct location. One Philadelphia reconciliation bucket and every unmatched reporting unit also remain explicit.
+
+Michigan is now selected and built as the second detailed-state data foundation, but it is not yet exposed through the workbench. The next release will add its runtime loader and generalize the Pennsylvania-only interface adapters. See [decision 0015](docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md) for the reconciliation and demographic limitations.
 
 ## Behavior model
 
@@ -128,7 +134,10 @@ packages/data-contracts/            Canonical election and demographic contracts
 packages/election-model/            Deterministic allocation and scenario engine
 public/data/pa/2024/                Runtime Pennsylvania result and geometry artifacts
 public/data/pa/2020/                Runtime P.L. 94-171 VTD demographic artifact
+public/data/mi/2024/                Michigan result and exact-cycle precinct geometry artifacts
+public/data/mi/2020/                Compact Michigan P.L. 94-171 behavior artifact
 data-sources/pennsylvania/           Small auditable source registries and crosswalks
+data-sources/michigan/               Michigan provenance, reconciliation, and crosswalk registries
 scripts/                             Reproducible import and geometry pipelines
 tests/                               Model invariants and browser scenario replays
 playwright.config.ts                 Browser-test server and Chromium configuration
@@ -165,6 +174,18 @@ npm run data:pa:demographics -- \
   <path-to-pa2020.pl.zip>
 ```
 
+## Rebuild Michigan data
+
+```bash
+npm run data:mi:results -- <2024GEN-directory> <2024GEN.zip>
+npm run data:mi:geometry -- \
+  public/data/mi/2024/reporting-units.json <2024-precincts.geojson>
+npm run data:mi:demographics -- \
+  <migeo2020.pl> <mi000022020.pl> <mi2020.pl.zip> <2024-precincts.geojson>
+```
+
+Each Michigan pipeline verifies the audited source checksum before replacing artifacts.
+
 ## Important documents
 
 - `PRODUCT_AND_ENGINEERING_PLAN.md`
@@ -183,15 +204,19 @@ npm run data:pa:demographics -- \
 - `docs/decisions/0012-compact-demographic-runtime.md`
 - `docs/decisions/0013-browser-replay-and-runtime-profile.md`
 - `docs/decisions/0014-manifest-driven-worker-runtime.md`
+- `docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md`
 
 ## Next increment
 
-Select and import the second production-detailed battleground through the manifest contract, then replace Pennsylvania-only aggregation with version-compatible multi-state aggregation and a path-to-270 view.
+Implement the Michigan runtime loader and manifest entry, then replace Pennsylvania-only map, aggregation, inspector, and URL adapters with active-state implementations. Multi-state national aggregation and a path-to-270 view follow after both detailed states replay deterministically.
 
 ## Primary sources
 
 - [Federal Election Commission, official 2024 presidential results](https://www.fec.gov/resources/cms-content/documents/2024presgeresults.pdf)
 - [Pennsylvania Department of State, election data](https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data)
 - [U.S. Census Bureau, 2020 Pennsylvania VTD TIGER/Line archive](https://www2.census.gov/geo/tiger/TIGER2020PL/STATE/42_PENNSYLVANIA/42/tl_2020_42_vtd20.zip)
+- [Michigan Department of State, election results and data](https://www.michigan.gov/sos/elections/election-results-and-data)
+- [State of Michigan, 2024 voting precinct geometry](https://gisagocss.state.mi.us/arcgis/rest/services/OpenData/boundaries/MapServer/9)
+- [U.S. Census Bureau, 2020 Michigan P.L. 94-171 archive](https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/Michigan/mi2020.pl.zip)
 - [U.S. Census Bureau, 2020 Redistricting Data summary files](https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html)
 - [U.S. Census Bureau, Table P4 variables](https://api.census.gov/data/2020/dec/pl/groups/P4.html)
