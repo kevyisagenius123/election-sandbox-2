@@ -1,0 +1,2265 @@
+{
+  "schemaVersion": 1,
+  "electionId": "2024-president",
+  "stateCode": "PA",
+  "stateFips": "42",
+  "generatedAt": "2026-08-09",
+  "geometrySource": {
+    "id": "census-tiger-2020-pa-vtd",
+    "publisher": "United States Census Bureau",
+    "title": "2020 Census Pennsylvania Voting Districts",
+    "sourceUrl": "https://www2.census.gov/geo/tiger/TIGER2020PL/STATE/42_PENNSYLVANIA/42/tl_2020_42_vtd20.zip",
+    "technicalDocumentationUrl": "https://www2.census.gov/geo/pdfs/maps-data/data/tiger/tgrshp2020pl/TGRSHP2020PL_TechDoc.pdf",
+    "vintage": "2020-01-01",
+    "retrievedAt": "2026-08-09",
+    "sourceArchiveSha256": "a2568ba2a1143341031d11482fd179be838f91dbdf0425ed024a378f8cc5ed79",
+    "shapefileSha256": "10f113221cc93330d82d7c266b30b92a484340c5a1bec5eb831975cf5b386e44",
+    "databaseSha256": "fd6fd939558aa7d112e8513af31d58315e3e6b1e0d3c583a2434e6d3efc8d949",
+    "limitations": [
+      "The geometry is the 2020 Census voting-district vintage while the election returns are from 2024.",
+      "County-plus-VTD identifiers are matched first; no proximity-based or approximate string matching is used.",
+      "When an identifier changed, a unit is matched only if its normalized official name resolves to exactly one Census VTD in the same county.",
+      "Multiple official election reporting units that share one Census VTD are aggregated into one polygon."
+    ]
+  },
+  "projection": "geoAlbersUsa().scale(1300).translate([487.5, 305]), then OrbitView Y-axis inversion",
+  "quantization": 50000,
+  "simplificationQuantile": 0.18,
+  "totals": {
+    "resultReportingUnitCount": 9187,
+    "matchedReportingUnitCount": 9087,
+    "unmatchedReportingUnitCount": 100,
+    "exactIdentifierMatchCount": 8636,
+    "canonicalNameMatchCount": 451,
+    "geometryFeatureCount": 9178,
+    "matchedGeometryFeatureCount": 9038,
+    "unmatchedGeometryFeatureCount": 140,
+    "duplicateGeometryMatchCount": 46,
+    "resultVotes": {
+      "harrisVotes": 3420865,
+      "trumpVotes": 3543041,
+      "otherVotes": 67831,
+      "totalVotes": 7031737
+    },
+    "matchedVotes": {
+      "harrisVotes": 3373378,
+      "trumpVotes": 3493255,
+      "otherVotes": 66927,
+      "totalVotes": 6933560
+    },
+    "resultVoteCoveragePct": 98.6038
+  },
+  "counties": [
+    {
+      "countyFips": "42001",
+      "resultReportingUnitCount": 51,
+      "matchedReportingUnitCount": 51,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 48,
+      "canonicalNameMatchCount": 3,
+      "geometryFeatureCount": 50,
+      "matchedGeometryFeatureCount": 50,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 19842,
+        "trumpVotes": 40248,
+        "otherVotes": 560,
+        "totalVotes": 60650
+      },
+      "matchedVotes": {
+        "harrisVotes": 19842,
+        "trumpVotes": 40248,
+        "otherVotes": 560,
+        "totalVotes": 60650
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        815.383,
+        349.501,
+        824.504,
+        358.446
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42001.topo.json",
+      "byteSize": 121140
+    },
+    {
+      "countyFips": "42003",
+      "resultReportingUnitCount": 1328,
+      "matchedReportingUnitCount": 1326,
+      "unmatchedReportingUnitCount": 2,
+      "exactIdentifierMatchCount": 1310,
+      "canonicalNameMatchCount": 16,
+      "geometryFeatureCount": 1325,
+      "matchedGeometryFeatureCount": 1321,
+      "unmatchedGeometryFeatureCount": 4,
+      "duplicateGeometryMatchCount": 3,
+      "resultVotes": {
+        "harrisVotes": 429916,
+        "trumpVotes": 283595,
+        "otherVotes": 6993,
+        "totalVotes": 720504
+      },
+      "matchedVotes": {
+        "harrisVotes": 428681,
+        "trumpVotes": 282263,
+        "otherVotes": 6968,
+        "totalVotes": 717912
+      },
+      "resultVoteCoveragePct": 99.6403,
+      "bounds": [
+        764.375,
+        352.569,
+        775.642,
+        363.882
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42003.topo.json",
+      "byteSize": 1605317
+    },
+    {
+      "countyFips": "42005",
+      "resultReportingUnitCount": 62,
+      "matchedReportingUnitCount": 62,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 56,
+      "canonicalNameMatchCount": 6,
+      "geometryFeatureCount": 62,
+      "matchedGeometryFeatureCount": 62,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 8553,
+        "trumpVotes": 28296,
+        "otherVotes": 270,
+        "totalVotes": 37119
+      },
+      "matchedVotes": {
+        "harrisVotes": 8553,
+        "trumpVotes": 28296,
+        "otherVotes": 270,
+        "totalVotes": 37119
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        772.999,
+        361.2,
+        782.492,
+        375.161
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42005.topo.json",
+      "byteSize": 116445
+    },
+    {
+      "countyFips": "42007",
+      "resultReportingUnitCount": 129,
+      "matchedReportingUnitCount": 129,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 129,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 129,
+      "matchedGeometryFeatureCount": 129,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 37196,
+        "trumpVotes": 56837,
+        "otherVotes": 810,
+        "totalVotes": 94843
+      },
+      "matchedVotes": {
+        "harrisVotes": 37196,
+        "trumpVotes": 56837,
+        "otherVotes": 810,
+        "totalVotes": 94843
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        760.319,
+        357.194,
+        767.5,
+        366.73
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42007.topo.json",
+      "byteSize": 176088
+    },
+    {
+      "countyFips": "42009",
+      "resultReportingUnitCount": 40,
+      "matchedReportingUnitCount": 39,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 39,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 40,
+      "matchedGeometryFeatureCount": 39,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4336,
+        "trumpVotes": 23658,
+        "otherVotes": 166,
+        "totalVotes": 28160
+      },
+      "matchedVotes": {
+        "harrisVotes": 4211,
+        "trumpVotes": 23041,
+        "otherVotes": 162,
+        "totalVotes": 27414
+      },
+      "resultVoteCoveragePct": 97.3509,
+      "bounds": [
+        793.038,
+        345.208,
+        803.206,
+        359.885
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42009.topo.json",
+      "byteSize": 79630
+    },
+    {
+      "countyFips": "42011",
+      "resultReportingUnitCount": 204,
+      "matchedReportingUnitCount": 198,
+      "unmatchedReportingUnitCount": 6,
+      "exactIdentifierMatchCount": 190,
+      "canonicalNameMatchCount": 8,
+      "geometryFeatureCount": 205,
+      "matchedGeometryFeatureCount": 196,
+      "unmatchedGeometryFeatureCount": 9,
+      "duplicateGeometryMatchCount": 2,
+      "resultVotes": {
+        "harrisVotes": 91125,
+        "trumpVotes": 116677,
+        "otherVotes": 2036,
+        "totalVotes": 209838
+      },
+      "matchedVotes": {
+        "harrisVotes": 88510,
+        "trumpVotes": 112160,
+        "otherVotes": 1987,
+        "totalVotes": 202657
+      },
+      "resultVoteCoveragePct": 96.5778,
+      "bounds": [
+        830.215,
+        364.378,
+        845.683,
+        376.402
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42011.topo.json",
+      "byteSize": 307418
+    },
+    {
+      "countyFips": "42013",
+      "resultReportingUnitCount": 93,
+      "matchedReportingUnitCount": 92,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 72,
+      "canonicalNameMatchCount": 20,
+      "geometryFeatureCount": 94,
+      "matchedGeometryFeatureCount": 92,
+      "unmatchedGeometryFeatureCount": 2,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 18127,
+        "trumpVotes": 46352,
+        "otherVotes": 470,
+        "totalVotes": 64949
+      },
+      "matchedVotes": {
+        "harrisVotes": 17908,
+        "trumpVotes": 46087,
+        "otherVotes": 463,
+        "totalVotes": 64458
+      },
+      "resultVoteCoveragePct": 99.244,
+      "bounds": [
+        794.331,
+        358.078,
+        801.93,
+        370.295
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42013.topo.json",
+      "byteSize": 139744
+    },
+    {
+      "countyFips": "42015",
+      "resultReportingUnitCount": 61,
+      "matchedReportingUnitCount": 61,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 61,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 61,
+      "matchedGeometryFeatureCount": 61,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7990,
+        "trumpVotes": 22937,
+        "otherVotes": 265,
+        "totalVotes": 31192
+      },
+      "matchedVotes": {
+        "harrisVotes": 7990,
+        "trumpVotes": 22937,
+        "otherVotes": 265,
+        "totalVotes": 31192
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        815.195,
+        393.571,
+        830.163,
+        405.063
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42015.topo.json",
+      "byteSize": 67637
+    },
+    {
+      "countyFips": "42017",
+      "resultReportingUnitCount": 306,
+      "matchedReportingUnitCount": 306,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 306,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 304,
+      "matchedGeometryFeatureCount": 304,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 2,
+      "resultVotes": {
+        "harrisVotes": 198431,
+        "trumpVotes": 198722,
+        "otherVotes": 3875,
+        "totalVotes": 401028
+      },
+      "matchedVotes": {
+        "harrisVotes": 198431,
+        "trumpVotes": 198722,
+        "otherVotes": 3875,
+        "totalVotes": 401028
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        846.586,
+        365.722,
+        860.682,
+        377.398
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42017.topo.json",
+      "byteSize": 375399
+    },
+    {
+      "countyFips": "42019",
+      "resultReportingUnitCount": 96,
+      "matchedReportingUnitCount": 90,
+      "unmatchedReportingUnitCount": 6,
+      "exactIdentifierMatchCount": 90,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 95,
+      "matchedGeometryFeatureCount": 83,
+      "unmatchedGeometryFeatureCount": 12,
+      "duplicateGeometryMatchCount": 7,
+      "resultVotes": {
+        "harrisVotes": 40661,
+        "trumpVotes": 79773,
+        "otherVotes": 1006,
+        "totalVotes": 121440
+      },
+      "matchedVotes": {
+        "harrisVotes": 36849,
+        "trumpVotes": 73301,
+        "otherVotes": 923,
+        "totalVotes": 111073
+      },
+      "resultVoteCoveragePct": 91.4633,
+      "bounds": [
+        765.67,
+        362.666,
+        774.893,
+        375.221
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42019.topo.json",
+      "byteSize": 145058
+    },
+    {
+      "countyFips": "42021",
+      "resultReportingUnitCount": 125,
+      "matchedReportingUnitCount": 118,
+      "unmatchedReportingUnitCount": 7,
+      "exactIdentifierMatchCount": 81,
+      "canonicalNameMatchCount": 37,
+      "geometryFeatureCount": 125,
+      "matchedGeometryFeatureCount": 118,
+      "unmatchedGeometryFeatureCount": 7,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 21177,
+        "trumpVotes": 49408,
+        "otherVotes": 551,
+        "totalVotes": 71136
+      },
+      "matchedVotes": {
+        "harrisVotes": 19775,
+        "trumpVotes": 46890,
+        "otherVotes": 510,
+        "totalVotes": 67175
+      },
+      "resultVoteCoveragePct": 94.4318,
+      "bounds": [
+        787.149,
+        356.722,
+        797.233,
+        369.167
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42021.topo.json",
+      "byteSize": 204740
+    },
+    {
+      "countyFips": "42023",
+      "resultReportingUnitCount": 10,
+      "matchedReportingUnitCount": 10,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 10,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 10,
+      "matchedGeometryFeatureCount": 10,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 538,
+        "trumpVotes": 1654,
+        "otherVotes": 27,
+        "totalVotes": 2219
+      },
+      "matchedVotes": {
+        "harrisVotes": 538,
+        "trumpVotes": 1654,
+        "otherVotes": 27,
+        "totalVotes": 2219
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        792.265,
+        380.913,
+        800.488,
+        389.721
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42023.topo.json",
+      "byteSize": 18149
+    },
+    {
+      "countyFips": "42025",
+      "resultReportingUnitCount": 51,
+      "matchedReportingUnitCount": 51,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 49,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 51,
+      "matchedGeometryFeatureCount": 51,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 11394,
+        "trumpVotes": 23708,
+        "otherVotes": 293,
+        "totalVotes": 35395
+      },
+      "matchedVotes": {
+        "harrisVotes": 11394,
+        "trumpVotes": 23708,
+        "otherVotes": 293,
+        "totalVotes": 35395
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        835.626,
+        378.183,
+        844.808,
+        387.42
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42025.topo.json",
+      "byteSize": 109100
+    },
+    {
+      "countyFips": "42027",
+      "resultReportingUnitCount": 91,
+      "matchedReportingUnitCount": 82,
+      "unmatchedReportingUnitCount": 9,
+      "exactIdentifierMatchCount": 82,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 90,
+      "matchedGeometryFeatureCount": 81,
+      "unmatchedGeometryFeatureCount": 9,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 41119,
+        "trumpVotes": 38829,
+        "otherVotes": 844,
+        "totalVotes": 80792
+      },
+      "matchedVotes": {
+        "harrisVotes": 35234,
+        "trumpVotes": 35514,
+        "otherVotes": 741,
+        "totalVotes": 71489
+      },
+      "resultVoteCoveragePct": 88.4852,
+      "bounds": [
+        796.637,
+        369.338,
+        815.959,
+        382.494
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42027.topo.json",
+      "byteSize": 121409
+    },
+    {
+      "countyFips": "42029",
+      "resultReportingUnitCount": 232,
+      "matchedReportingUnitCount": 223,
+      "unmatchedReportingUnitCount": 9,
+      "exactIdentifierMatchCount": 219,
+      "canonicalNameMatchCount": 4,
+      "geometryFeatureCount": 232,
+      "matchedGeometryFeatureCount": 223,
+      "unmatchedGeometryFeatureCount": 9,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 184281,
+        "trumpVotes": 137299,
+        "otherVotes": 3384,
+        "totalVotes": 324964
+      },
+      "matchedVotes": {
+        "harrisVotes": 178240,
+        "trumpVotes": 131919,
+        "otherVotes": 3289,
+        "totalVotes": 313448
+      },
+      "resultVoteCoveragePct": 96.4562,
+      "bounds": [
+        838.956,
+        354.12,
+        850.384,
+        367.626
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42029.topo.json",
+      "byteSize": 384728
+    },
+    {
+      "countyFips": "42031",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 41,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 40,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 41,
+      "matchedGeometryFeatureCount": 40,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 4562,
+        "trumpVotes": 15036,
+        "otherVotes": 135,
+        "totalVotes": 19733
+      },
+      "matchedVotes": {
+        "harrisVotes": 4562,
+        "trumpVotes": 15036,
+        "otherVotes": 135,
+        "totalVotes": 19733
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        772.768,
+        370.904,
+        781.388,
+        382.462
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42031.topo.json",
+      "byteSize": 78952
+    },
+    {
+      "countyFips": "42033",
+      "resultReportingUnitCount": 70,
+      "matchedReportingUnitCount": 70,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 69,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 70,
+      "matchedGeometryFeatureCount": 70,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 9647,
+        "trumpVotes": 30481,
+        "otherVotes": 302,
+        "totalVotes": 40430
+      },
+      "matchedVotes": {
+        "harrisVotes": 9647,
+        "trumpVotes": 30481,
+        "otherVotes": 302,
+        "totalVotes": 40430
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        787.911,
+        367.786,
+        800.931,
+        381.068
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42033.topo.json",
+      "byteSize": 138328
+    },
+    {
+      "countyFips": "42035",
+      "resultReportingUnitCount": 34,
+      "matchedReportingUnitCount": 34,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 32,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 34,
+      "matchedGeometryFeatureCount": 34,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5395,
+        "trumpVotes": 12965,
+        "otherVotes": 162,
+        "totalVotes": 18522
+      },
+      "matchedVotes": {
+        "harrisVotes": 5395,
+        "trumpVotes": 12965,
+        "otherVotes": 162,
+        "totalVotes": 18522
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        799.397,
+        377.251,
+        815.95,
+        388.531
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42035.topo.json",
+      "byteSize": 54569
+    },
+    {
+      "countyFips": "42037",
+      "resultReportingUnitCount": 42,
+      "matchedReportingUnitCount": 42,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 41,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 43,
+      "matchedGeometryFeatureCount": 41,
+      "unmatchedGeometryFeatureCount": 2,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 11083,
+        "trumpVotes": 21190,
+        "otherVotes": 303,
+        "totalVotes": 32576
+      },
+      "matchedVotes": {
+        "harrisVotes": 11083,
+        "trumpVotes": 21190,
+        "otherVotes": 303,
+        "totalVotes": 32576
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        823.802,
+        376.87,
+        831.957,
+        389.087
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42037.topo.json",
+      "byteSize": 81645
+    },
+    {
+      "countyFips": "42039",
+      "resultReportingUnitCount": 61,
+      "matchedReportingUnitCount": 61,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 59,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 68,
+      "matchedGeometryFeatureCount": 61,
+      "unmatchedGeometryFeatureCount": 7,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 12858,
+        "trumpVotes": 29685,
+        "otherVotes": 329,
+        "totalVotes": 42872
+      },
+      "matchedVotes": {
+        "harrisVotes": 12858,
+        "trumpVotes": 29685,
+        "otherVotes": 329,
+        "totalVotes": 42872
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        756.612,
+        380.033,
+        772.515,
+        390.722
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42039.topo.json",
+      "byteSize": 134220
+    },
+    {
+      "countyFips": "42041",
+      "resultReportingUnitCount": 119,
+      "matchedReportingUnitCount": 117,
+      "unmatchedReportingUnitCount": 2,
+      "exactIdentifierMatchCount": 99,
+      "canonicalNameMatchCount": 18,
+      "geometryFeatureCount": 119,
+      "matchedGeometryFeatureCount": 115,
+      "unmatchedGeometryFeatureCount": 4,
+      "duplicateGeometryMatchCount": 2,
+      "resultVotes": {
+        "harrisVotes": 66255,
+        "trumpVotes": 80267,
+        "otherVotes": 1874,
+        "totalVotes": 148396
+      },
+      "matchedVotes": {
+        "harrisVotes": 64032,
+        "trumpVotes": 77145,
+        "otherVotes": 1822,
+        "totalVotes": 142999
+      },
+      "resultVoteCoveragePct": 96.3631,
+      "bounds": [
+        811.661,
+        354.496,
+        824.441,
+        365.004
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42041.topo.json",
+      "byteSize": 222906
+    },
+    {
+      "countyFips": "42043",
+      "resultReportingUnitCount": 158,
+      "matchedReportingUnitCount": 158,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 143,
+      "canonicalNameMatchCount": 15,
+      "geometryFeatureCount": 159,
+      "matchedGeometryFeatureCount": 158,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 78327,
+        "trumpVotes": 69474,
+        "otherVotes": 1725,
+        "totalVotes": 149526
+      },
+      "matchedVotes": {
+        "harrisVotes": 78327,
+        "trumpVotes": 69474,
+        "otherVotes": 1725,
+        "totalVotes": 149526
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        820.637,
+        360.995,
+        829.496,
+        373.126
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42043.topo.json",
+      "byteSize": 248744
+    },
+    {
+      "countyFips": "42045",
+      "resultReportingUnitCount": 429,
+      "matchedReportingUnitCount": 429,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 391,
+      "canonicalNameMatchCount": 38,
+      "geometryFeatureCount": 429,
+      "matchedGeometryFeatureCount": 428,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 201324,
+        "trumpVotes": 123421,
+        "otherVotes": 3427,
+        "totalVotes": 328172
+      },
+      "matchedVotes": {
+        "harrisVotes": 201324,
+        "trumpVotes": 123421,
+        "otherVotes": 3427,
+        "totalVotes": 328172
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        847.335,
+        358.557,
+        853.883,
+        364.671
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42045.topo.json",
+      "byteSize": 483421
+    },
+    {
+      "countyFips": "42047",
+      "resultReportingUnitCount": 30,
+      "matchedReportingUnitCount": 30,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 27,
+      "canonicalNameMatchCount": 3,
+      "geometryFeatureCount": 29,
+      "matchedGeometryFeatureCount": 29,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 4483,
+        "trumpVotes": 12543,
+        "otherVotes": 127,
+        "totalVotes": 17153
+      },
+      "matchedVotes": {
+        "harrisVotes": 4483,
+        "trumpVotes": 12543,
+        "otherVotes": 127,
+        "totalVotes": 17153
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        781.911,
+        378.806,
+        796.953,
+        389.162
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42047.topo.json",
+      "byteSize": 56766
+    },
+    {
+      "countyFips": "42049",
+      "resultReportingUnitCount": 149,
+      "matchedReportingUnitCount": 145,
+      "unmatchedReportingUnitCount": 4,
+      "exactIdentifierMatchCount": 135,
+      "canonicalNameMatchCount": 10,
+      "geometryFeatureCount": 150,
+      "matchedGeometryFeatureCount": 145,
+      "unmatchedGeometryFeatureCount": 5,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 67456,
+        "trumpVotes": 68866,
+        "otherVotes": 1273,
+        "totalVotes": 137595
+      },
+      "matchedVotes": {
+        "harrisVotes": 65659,
+        "trumpVotes": 66826,
+        "otherVotes": 1237,
+        "totalVotes": 133722
+      },
+      "resultVoteCoveragePct": 97.1852,
+      "bounds": [
+        754.834,
+        388.164,
+        771.618,
+        405.278
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42049.topo.json",
+      "byteSize": 188810
+    },
+    {
+      "countyFips": "42051",
+      "resultReportingUnitCount": 77,
+      "matchedReportingUnitCount": 77,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 60,
+      "canonicalNameMatchCount": 17,
+      "geometryFeatureCount": 78,
+      "matchedGeometryFeatureCount": 77,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 19548,
+        "trumpVotes": 43633,
+        "otherVotes": 291,
+        "totalVotes": 63472
+      },
+      "matchedVotes": {
+        "harrisVotes": 19548,
+        "trumpVotes": 43633,
+        "otherVotes": 291,
+        "totalVotes": 63472
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        772.218,
+        341.823,
+        784.157,
+        352.713
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42051.topo.json",
+      "byteSize": 197352
+    },
+    {
+      "countyFips": "42053",
+      "resultReportingUnitCount": 9,
+      "matchedReportingUnitCount": 9,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 9,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 9,
+      "matchedGeometryFeatureCount": 9,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 724,
+        "trumpVotes": 1902,
+        "otherVotes": 24,
+        "totalVotes": 2650
+      },
+      "matchedVotes": {
+        "harrisVotes": 724,
+        "trumpVotes": 1902,
+        "otherVotes": 24,
+        "totalVotes": 2650
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        774.161,
+        380.099,
+        784.092,
+        387.542
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42053.topo.json",
+      "byteSize": 19996
+    },
+    {
+      "countyFips": "42055",
+      "resultReportingUnitCount": 73,
+      "matchedReportingUnitCount": 73,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 67,
+      "canonicalNameMatchCount": 6,
+      "geometryFeatureCount": 73,
+      "matchedGeometryFeatureCount": 73,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 23543,
+        "trumpVotes": 59604,
+        "otherVotes": 737,
+        "totalVotes": 83884
+      },
+      "matchedVotes": {
+        "harrisVotes": 23543,
+        "trumpVotes": 59604,
+        "otherVotes": 737,
+        "totalVotes": 83884
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        805.703,
+        347.44,
+        816.58,
+        361.6
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42055.topo.json",
+      "byteSize": 156028
+    },
+    {
+      "countyFips": "42057",
+      "resultReportingUnitCount": 13,
+      "matchedReportingUnitCount": 13,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 13,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 13,
+      "matchedGeometryFeatureCount": 13,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1102,
+        "trumpVotes": 7039,
+        "otherVotes": 36,
+        "totalVotes": 8177
+      },
+      "matchedVotes": {
+        "harrisVotes": 1102,
+        "trumpVotes": 7039,
+        "otherVotes": 36,
+        "totalVotes": 8177
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        800.923,
+        346.548,
+        808.217,
+        357.288
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42057.topo.json",
+      "byteSize": 28117
+    },
+    {
+      "countyFips": "42059",
+      "resultReportingUnitCount": 42,
+      "matchedReportingUnitCount": 42,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 40,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 42,
+      "matchedGeometryFeatureCount": 42,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4592,
+        "trumpVotes": 12319,
+        "otherVotes": 325,
+        "totalVotes": 17236
+      },
+      "matchedVotes": {
+        "harrisVotes": 4592,
+        "trumpVotes": 12319,
+        "otherVotes": 325,
+        "totalVotes": 17236
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        763.618,
+        340.114,
+        774.939,
+        347.925
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42059.topo.json",
+      "byteSize": 74637
+    },
+    {
+      "countyFips": "42061",
+      "resultReportingUnitCount": 58,
+      "matchedReportingUnitCount": 58,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 58,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 58,
+      "matchedGeometryFeatureCount": 58,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5368,
+        "trumpVotes": 17627,
+        "otherVotes": 161,
+        "totalVotes": 23156
+      },
+      "matchedVotes": {
+        "harrisVotes": 5368,
+        "trumpVotes": 17627,
+        "otherVotes": 161,
+        "totalVotes": 23156
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        799.566,
+        355.837,
+        810.06,
+        371.45
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42061.topo.json",
+      "byteSize": 84390
+    },
+    {
+      "countyFips": "42063",
+      "resultReportingUnitCount": 70,
+      "matchedReportingUnitCount": 70,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 70,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 69,
+      "matchedGeometryFeatureCount": 69,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 12697,
+        "trumpVotes": 29215,
+        "otherVotes": 317,
+        "totalVotes": 42229
+      },
+      "matchedVotes": {
+        "harrisVotes": 12697,
+        "trumpVotes": 29215,
+        "otherVotes": 317,
+        "totalVotes": 42229
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        779.409,
+        358.838,
+        789.711,
+        371.858
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42063.topo.json",
+      "byteSize": 103624
+    },
+    {
+      "countyFips": "42065",
+      "resultReportingUnitCount": 37,
+      "matchedReportingUnitCount": 37,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 37,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 37,
+      "matchedGeometryFeatureCount": 37,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4707,
+        "trumpVotes": 18235,
+        "otherVotes": 187,
+        "totalVotes": 23129
+      },
+      "matchedVotes": {
+        "harrisVotes": 4707,
+        "trumpVotes": 18235,
+        "otherVotes": 187,
+        "totalVotes": 23129
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        780.363,
+        370.738,
+        789.194,
+        381.942
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42065.topo.json",
+      "byteSize": 71462
+    },
+    {
+      "countyFips": "42067",
+      "resultReportingUnitCount": 18,
+      "matchedReportingUnitCount": 18,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 17,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 18,
+      "matchedGeometryFeatureCount": 18,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2290,
+        "trumpVotes": 9721,
+        "otherVotes": 93,
+        "totalVotes": 12104
+      },
+      "matchedVotes": {
+        "harrisVotes": 2290,
+        "trumpVotes": 9721,
+        "otherVotes": 93,
+        "totalVotes": 12104
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        808.731,
+        360.906,
+        821.197,
+        372.489
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42067.topo.json",
+      "byteSize": 41440
+    },
+    {
+      "countyFips": "42069",
+      "resultReportingUnitCount": 163,
+      "matchedReportingUnitCount": 163,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 159,
+      "canonicalNameMatchCount": 4,
+      "geometryFeatureCount": 163,
+      "matchedGeometryFeatureCount": 162,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 59510,
+        "trumpVotes": 56261,
+        "otherVotes": 819,
+        "totalVotes": 116590
+      },
+      "matchedVotes": {
+        "harrisVotes": 59510,
+        "trumpVotes": 56261,
+        "otherVotes": 819,
+        "totalVotes": 116590
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        835.859,
+        388.27,
+        843.193,
+        399.5
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42069.topo.json",
+      "byteSize": 215453
+    },
+    {
+      "countyFips": "42071",
+      "resultReportingUnitCount": 241,
+      "matchedReportingUnitCount": 240,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 219,
+      "canonicalNameMatchCount": 21,
+      "geometryFeatureCount": 241,
+      "matchedGeometryFeatureCount": 239,
+      "unmatchedGeometryFeatureCount": 2,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 120119,
+        "trumpVotes": 166261,
+        "otherVotes": 2877,
+        "totalVotes": 289257
+      },
+      "matchedVotes": {
+        "harrisVotes": 119390,
+        "trumpVotes": 164991,
+        "otherVotes": 2856,
+        "totalVotes": 287237
+      },
+      "resultVoteCoveragePct": 99.3017,
+      "bounds": [
+        827.235,
+        353.751,
+        841.426,
+        367.387
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42071.topo.json",
+      "byteSize": 500850
+    },
+    {
+      "countyFips": "42073",
+      "resultReportingUnitCount": 75,
+      "matchedReportingUnitCount": 75,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 68,
+      "canonicalNameMatchCount": 7,
+      "geometryFeatureCount": 75,
+      "matchedGeometryFeatureCount": 75,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 15440,
+        "trumpVotes": 31347,
+        "otherVotes": 323,
+        "totalVotes": 47110
+      },
+      "matchedVotes": {
+        "harrisVotes": 15440,
+        "trumpVotes": 31347,
+        "otherVotes": 323,
+        "totalVotes": 47110
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        759.303,
+        365.639,
+        766.545,
+        372.612
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42073.topo.json",
+      "byteSize": 108572
+    },
+    {
+      "countyFips": "42075",
+      "resultReportingUnitCount": 60,
+      "matchedReportingUnitCount": 60,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 49,
+      "canonicalNameMatchCount": 11,
+      "geometryFeatureCount": 60,
+      "matchedGeometryFeatureCount": 60,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 24734,
+        "trumpVotes": 48282,
+        "otherVotes": 676,
+        "totalVotes": 73692
+      },
+      "matchedVotes": {
+        "harrisVotes": 24734,
+        "trumpVotes": 48282,
+        "otherVotes": 676,
+        "totalVotes": 73692
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        826.33,
+        363.216,
+        835.906,
+        371.395
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42075.topo.json",
+      "byteSize": 94736
+    },
+    {
+      "countyFips": "42077",
+      "resultReportingUnitCount": 160,
+      "matchedReportingUnitCount": 159,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 148,
+      "canonicalNameMatchCount": 11,
+      "geometryFeatureCount": 158,
+      "matchedGeometryFeatureCount": 157,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 2,
+      "resultVotes": {
+        "harrisVotes": 96317,
+        "trumpVotes": 91207,
+        "otherVotes": 2286,
+        "totalVotes": 189810
+      },
+      "matchedVotes": {
+        "harrisVotes": 95813,
+        "trumpVotes": 90970,
+        "otherVotes": 2278,
+        "totalVotes": 189061
+      },
+      "resultVoteCoveragePct": 99.6054,
+      "bounds": [
+        838.525,
+        372.09,
+        848.518,
+        379.886
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42077.topo.json",
+      "byteSize": 182557
+    },
+    {
+      "countyFips": "42079",
+      "resultReportingUnitCount": 187,
+      "matchedReportingUnitCount": 182,
+      "unmatchedReportingUnitCount": 5,
+      "exactIdentifierMatchCount": 140,
+      "canonicalNameMatchCount": 42,
+      "geometryFeatureCount": 187,
+      "matchedGeometryFeatureCount": 180,
+      "unmatchedGeometryFeatureCount": 7,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 62504,
+        "trumpVotes": 92444,
+        "otherVotes": 1202,
+        "totalVotes": 156150
+      },
+      "matchedVotes": {
+        "harrisVotes": 61132,
+        "trumpVotes": 89380,
+        "otherVotes": 1172,
+        "totalVotes": 151684
+      },
+      "resultVoteCoveragePct": 97.1399,
+      "bounds": [
+        828.554,
+        380.95,
+        841.02,
+        393.378
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42079.topo.json",
+      "byteSize": 276055
+    },
+    {
+      "countyFips": "42081",
+      "resultReportingUnitCount": 82,
+      "matchedReportingUnitCount": 80,
+      "unmatchedReportingUnitCount": 2,
+      "exactIdentifierMatchCount": 67,
+      "canonicalNameMatchCount": 13,
+      "geometryFeatureCount": 81,
+      "matchedGeometryFeatureCount": 80,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 17216,
+        "trumpVotes": 41961,
+        "otherVotes": 508,
+        "totalVotes": 59685
+      },
+      "matchedVotes": {
+        "harrisVotes": 16893,
+        "trumpVotes": 41461,
+        "otherVotes": 498,
+        "totalVotes": 58852
+      },
+      "resultVoteCoveragePct": 98.6043,
+      "bounds": [
+        806.179,
+        380.765,
+        826.447,
+        393.627
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42081.topo.json",
+      "byteSize": 117142
+    },
+    {
+      "countyFips": "42083",
+      "resultReportingUnitCount": 42,
+      "matchedReportingUnitCount": 42,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 42,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 42,
+      "matchedGeometryFeatureCount": 42,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5115,
+        "trumpVotes": 14401,
+        "otherVotes": 166,
+        "totalVotes": 19682
+      },
+      "matchedVotes": {
+        "harrisVotes": 5115,
+        "trumpVotes": 14401,
+        "otherVotes": 166,
+        "totalVotes": 19682
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        782.464,
+        387.542,
+        795.857,
+        398.29
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42083.topo.json",
+      "byteSize": 60083
+    },
+    {
+      "countyFips": "42085",
+      "resultReportingUnitCount": 91,
+      "matchedReportingUnitCount": 85,
+      "unmatchedReportingUnitCount": 6,
+      "exactIdentifierMatchCount": 80,
+      "canonicalNameMatchCount": 5,
+      "geometryFeatureCount": 90,
+      "matchedGeometryFeatureCount": 84,
+      "unmatchedGeometryFeatureCount": 6,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 20145,
+        "trumpVotes": 37761,
+        "otherVotes": 504,
+        "totalVotes": 58410
+      },
+      "matchedVotes": {
+        "harrisVotes": 18350,
+        "trumpVotes": 36710,
+        "otherVotes": 475,
+        "totalVotes": 55535
+      },
+      "resultVoteCoveragePct": 95.0779,
+      "bounds": [
+        757.95,
+        371.748,
+        767.806,
+        381.498
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42085.topo.json",
+      "byteSize": 125469
+    },
+    {
+      "countyFips": "42087",
+      "resultReportingUnitCount": 26,
+      "matchedReportingUnitCount": 26,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 24,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 26,
+      "matchedGeometryFeatureCount": 26,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4735,
+        "trumpVotes": 17184,
+        "otherVotes": 152,
+        "totalVotes": 22071
+      },
+      "matchedVotes": {
+        "harrisVotes": 4735,
+        "trumpVotes": 17184,
+        "otherVotes": 152,
+        "totalVotes": 22071
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        805.906,
+        362.685,
+        815.123,
+        375.126
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42087.topo.json",
+      "byteSize": 42722
+    },
+    {
+      "countyFips": "42089",
+      "resultReportingUnitCount": 55,
+      "matchedReportingUnitCount": 54,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 52,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 52,
+      "matchedGeometryFeatureCount": 50,
+      "unmatchedGeometryFeatureCount": 2,
+      "duplicateGeometryMatchCount": 4,
+      "resultVotes": {
+        "harrisVotes": 42007,
+        "trumpVotes": 42676,
+        "otherVotes": 842,
+        "totalVotes": 85525
+      },
+      "matchedVotes": {
+        "harrisVotes": 41068,
+        "trumpVotes": 41974,
+        "otherVotes": 828,
+        "totalVotes": 83870
+      },
+      "resultVoteCoveragePct": 98.0649,
+      "bounds": [
+        840.388,
+        380.985,
+        851.848,
+        392.017
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42089.topo.json",
+      "byteSize": 119326
+    },
+    {
+      "countyFips": "42091",
+      "resultReportingUnitCount": 430,
+      "matchedReportingUnitCount": 418,
+      "unmatchedReportingUnitCount": 12,
+      "exactIdentifierMatchCount": 412,
+      "canonicalNameMatchCount": 6,
+      "geometryFeatureCount": 431,
+      "matchedGeometryFeatureCount": 415,
+      "unmatchedGeometryFeatureCount": 16,
+      "duplicateGeometryMatchCount": 3,
+      "resultVotes": {
+        "harrisVotes": 317103,
+        "trumpVotes": 198311,
+        "otherVotes": 5492,
+        "totalVotes": 520906
+      },
+      "matchedVotes": {
+        "harrisVotes": 308743,
+        "trumpVotes": 193852,
+        "otherVotes": 5373,
+        "totalVotes": 507968
+      },
+      "resultVoteCoveragePct": 97.5163,
+      "bounds": [
+        843.884,
+        362.987,
+        855.832,
+        372.561
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42091.topo.json",
+      "byteSize": 498810
+    },
+    {
+      "countyFips": "42093",
+      "resultReportingUnitCount": 15,
+      "matchedReportingUnitCount": 15,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 15,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 15,
+      "matchedGeometryFeatureCount": 15,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3862,
+        "trumpVotes": 5944,
+        "otherVotes": 102,
+        "totalVotes": 9908
+      },
+      "matchedVotes": {
+        "harrisVotes": 3862,
+        "trumpVotes": 5944,
+        "otherVotes": 102,
+        "totalVotes": 9908
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        822.202,
+        378.678,
+        826.944,
+        384.544
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42093.topo.json",
+      "byteSize": 34949
+    },
+    {
+      "countyFips": "42095",
+      "resultReportingUnitCount": 155,
+      "matchedReportingUnitCount": 153,
+      "unmatchedReportingUnitCount": 2,
+      "exactIdentifierMatchCount": 134,
+      "canonicalNameMatchCount": 19,
+      "geometryFeatureCount": 154,
+      "matchedGeometryFeatureCount": 152,
+      "unmatchedGeometryFeatureCount": 2,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 86655,
+        "trumpVotes": 89817,
+        "otherVotes": 1743,
+        "totalVotes": 178215
+      },
+      "matchedVotes": {
+        "harrisVotes": 86137,
+        "trumpVotes": 89398,
+        "otherVotes": 1738,
+        "totalVotes": 177273
+      },
+      "resultVoteCoveragePct": 99.4714,
+      "bounds": [
+        842.699,
+        375.29,
+        851.588,
+        385.725
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42095.topo.json",
+      "byteSize": 188409
+    },
+    {
+      "countyFips": "42097",
+      "resultReportingUnitCount": 75,
+      "matchedReportingUnitCount": 67,
+      "unmatchedReportingUnitCount": 8,
+      "exactIdentifierMatchCount": 65,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 75,
+      "matchedGeometryFeatureCount": 67,
+      "unmatchedGeometryFeatureCount": 8,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 12863,
+        "trumpVotes": 30240,
+        "otherVotes": 419,
+        "totalVotes": 43522
+      },
+      "matchedVotes": {
+        "harrisVotes": 11754,
+        "trumpVotes": 28005,
+        "otherVotes": 378,
+        "totalVotes": 40137
+      },
+      "resultVoteCoveragePct": 92.2223,
+      "bounds": [
+        819.63,
+        371.159,
+        829.906,
+        384.538
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42097.topo.json",
+      "byteSize": 136573
+    },
+    {
+      "countyFips": "42099",
+      "resultReportingUnitCount": 31,
+      "matchedReportingUnitCount": 31,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 29,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 31,
+      "matchedGeometryFeatureCount": 31,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6385,
+        "trumpVotes": 19073,
+        "otherVotes": 267,
+        "totalVotes": 25725
+      },
+      "matchedVotes": {
+        "harrisVotes": 6385,
+        "trumpVotes": 19073,
+        "otherVotes": 267,
+        "totalVotes": 25725
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        810.472,
+        359.47,
+        823.026,
+        371.609
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42099.topo.json",
+      "byteSize": 80034
+    },
+    {
+      "countyFips": "42101",
+      "resultReportingUnitCount": 1704,
+      "matchedReportingUnitCount": 1698,
+      "unmatchedReportingUnitCount": 6,
+      "exactIdentifierMatchCount": 1648,
+      "canonicalNameMatchCount": 50,
+      "geometryFeatureCount": 1703,
+      "matchedGeometryFeatureCount": 1697,
+      "unmatchedGeometryFeatureCount": 6,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 566394,
+        "trumpVotes": 144044,
+        "otherVotes": 8534,
+        "totalVotes": 718972
+      },
+      "matchedVotes": {
+        "harrisVotes": 563893,
+        "trumpVotes": 143791,
+        "otherVotes": 8516,
+        "totalVotes": 716200
+      },
+      "resultVoteCoveragePct": 99.6144,
+      "bounds": [
+        852.064,
+        360.771,
+        857.057,
+        367.564
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42101.topo.json",
+      "byteSize": 1181309
+    },
+    {
+      "countyFips": "42103",
+      "resultReportingUnitCount": 17,
+      "matchedReportingUnitCount": 17,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 17,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 18,
+      "matchedGeometryFeatureCount": 17,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 13132,
+        "trumpVotes": 21537,
+        "otherVotes": 281,
+        "totalVotes": 34950
+      },
+      "matchedVotes": {
+        "harrisVotes": 13132,
+        "trumpVotes": 21537,
+        "otherVotes": 281,
+        "totalVotes": 34950
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        844.135,
+        388.549,
+        855.06,
+        400.045
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42103.topo.json",
+      "byteSize": 56922
+    },
+    {
+      "countyFips": "42105",
+      "resultReportingUnitCount": 32,
+      "matchedReportingUnitCount": 32,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 31,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 32,
+      "matchedGeometryFeatureCount": 32,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1675,
+        "trumpVotes": 7334,
+        "otherVotes": 76,
+        "totalVotes": 9085
+      },
+      "matchedVotes": {
+        "harrisVotes": 1675,
+        "trumpVotes": 7334,
+        "otherVotes": 76,
+        "totalVotes": 9085
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        794.187,
+        387.011,
+        806.478,
+        400.175
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42105.topo.json",
+      "byteSize": 33127
+    },
+    {
+      "countyFips": "42107",
+      "resultReportingUnitCount": 125,
+      "matchedReportingUnitCount": 125,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 125,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 125,
+      "matchedGeometryFeatureCount": 125,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 20882,
+        "trumpVotes": 51665,
+        "otherVotes": 637,
+        "totalVotes": 73184
+      },
+      "matchedVotes": {
+        "harrisVotes": 20882,
+        "trumpVotes": 51665,
+        "otherVotes": 637,
+        "totalVotes": 73184
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        825.081,
+        370.4,
+        840.473,
+        381.377
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42107.topo.json",
+      "byteSize": 158581
+    },
+    {
+      "countyFips": "42109",
+      "resultReportingUnitCount": 25,
+      "matchedReportingUnitCount": 25,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 25,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 25,
+      "matchedGeometryFeatureCount": 25,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5239,
+        "trumpVotes": 14664,
+        "otherVotes": 135,
+        "totalVotes": 20038
+      },
+      "matchedVotes": {
+        "harrisVotes": 5239,
+        "trumpVotes": 14664,
+        "otherVotes": 135,
+        "totalVotes": 20038
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        813.467,
+        371.618,
+        822.454,
+        377.862
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42109.topo.json",
+      "byteSize": 59089
+    },
+    {
+      "countyFips": "42111",
+      "resultReportingUnitCount": 69,
+      "matchedReportingUnitCount": 69,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 69,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 68,
+      "matchedGeometryFeatureCount": 68,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 8596,
+        "trumpVotes": 31993,
+        "otherVotes": 292,
+        "totalVotes": 40881
+      },
+      "matchedVotes": {
+        "harrisVotes": 8596,
+        "trumpVotes": 31993,
+        "otherVotes": 292,
+        "totalVotes": 40881
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        782.762,
+        343.391,
+        794.103,
+        357.496
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42111.topo.json",
+      "byteSize": 171560
+    },
+    {
+      "countyFips": "42113",
+      "resultReportingUnitCount": 15,
+      "matchedReportingUnitCount": 15,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 15,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 15,
+      "matchedGeometryFeatureCount": 15,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 976,
+        "trumpVotes": 2721,
+        "otherVotes": 24,
+        "totalVotes": 3721
+      },
+      "matchedVotes": {
+        "harrisVotes": 976,
+        "trumpVotes": 2721,
+        "otherVotes": 24,
+        "totalVotes": 3721
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        818.94,
+        387.837,
+        828.975,
+        394.572
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42113.topo.json",
+      "byteSize": 21822
+    },
+    {
+      "countyFips": "42115",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 40,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 39,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 41,
+      "matchedGeometryFeatureCount": 40,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6093,
+        "trumpVotes": 16114,
+        "otherVotes": 197,
+        "totalVotes": 22404
+      },
+      "matchedVotes": {
+        "harrisVotes": 5833,
+        "trumpVotes": 15629,
+        "otherVotes": 190,
+        "totalVotes": 21652
+      },
+      "resultVoteCoveragePct": 96.6435,
+      "bounds": [
+        828.018,
+        397.225,
+        840.952,
+        407.41
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42115.topo.json",
+      "byteSize": 46498
+    },
+    {
+      "countyFips": "42117",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 41,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 39,
+      "canonicalNameMatchCount": 2,
+      "geometryFeatureCount": 41,
+      "matchedGeometryFeatureCount": 41,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 5100,
+        "trumpVotes": 16272,
+        "otherVotes": 215,
+        "totalVotes": 21587
+      },
+      "matchedVotes": {
+        "harrisVotes": 5100,
+        "trumpVotes": 16272,
+        "otherVotes": 215,
+        "totalVotes": 21587
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        803.992,
+        389.957,
+        817.902,
+        402.464
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42117.topo.json",
+      "byteSize": 51411
+    },
+    {
+      "countyFips": "42119",
+      "resultReportingUnitCount": 27,
+      "matchedReportingUnitCount": 27,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 27,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 27,
+      "matchedGeometryFeatureCount": 26,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 8015,
+        "trumpVotes": 12969,
+        "otherVotes": 204,
+        "totalVotes": 21188
+      },
+      "matchedVotes": {
+        "harrisVotes": 8015,
+        "trumpVotes": 12969,
+        "otherVotes": 204,
+        "totalVotes": 21188
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        813.164,
+        374.26,
+        822.443,
+        383.246
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42119.topo.json",
+      "byteSize": 60264
+    },
+    {
+      "countyFips": "42121",
+      "resultReportingUnitCount": 46,
+      "matchedReportingUnitCount": 46,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 40,
+      "canonicalNameMatchCount": 6,
+      "geometryFeatureCount": 44,
+      "matchedGeometryFeatureCount": 44,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 2,
+      "resultVotes": {
+        "harrisVotes": 7624,
+        "trumpVotes": 18883,
+        "otherVotes": 225,
+        "totalVotes": 26732
+      },
+      "matchedVotes": {
+        "harrisVotes": 7624,
+        "trumpVotes": 18883,
+        "otherVotes": 225,
+        "totalVotes": 26732
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        766.563,
+        374.325,
+        775.866,
+        385.927
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42121.topo.json",
+      "byteSize": 112214
+    },
+    {
+      "countyFips": "42123",
+      "resultReportingUnitCount": 33,
+      "matchedReportingUnitCount": 33,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 33,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 33,
+      "matchedGeometryFeatureCount": 33,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6212,
+        "trumpVotes": 14345,
+        "otherVotes": 166,
+        "totalVotes": 20723
+      },
+      "matchedVotes": {
+        "harrisVotes": 6212,
+        "trumpVotes": 14345,
+        "otherVotes": 166,
+        "totalVotes": 20723
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        771.056,
+        385.619,
+        783.379,
+        396.082
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42123.topo.json",
+      "byteSize": 49408
+    },
+    {
+      "countyFips": "42125",
+      "resultReportingUnitCount": 180,
+      "matchedReportingUnitCount": 180,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 154,
+      "canonicalNameMatchCount": 26,
+      "geometryFeatureCount": 180,
+      "matchedGeometryFeatureCount": 180,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 0,
+      "resultVotes": {
+        "harrisVotes": 44910,
+        "trumpVotes": 75929,
+        "otherVotes": 778,
+        "totalVotes": 121617
+      },
+      "matchedVotes": {
+        "harrisVotes": 44910,
+        "trumpVotes": 75929,
+        "otherVotes": 778,
+        "totalVotes": 121617
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        761.707,
+        345.416,
+        774.679,
+        357.64
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42125.topo.json",
+      "byteSize": 360997
+    },
+    {
+      "countyFips": "42127",
+      "resultReportingUnitCount": 36,
+      "matchedReportingUnitCount": 36,
+      "unmatchedReportingUnitCount": 0,
+      "exactIdentifierMatchCount": 36,
+      "canonicalNameMatchCount": 0,
+      "geometryFeatureCount": 35,
+      "matchedGeometryFeatureCount": 35,
+      "unmatchedGeometryFeatureCount": 0,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 9150,
+        "trumpVotes": 20071,
+        "otherVotes": 223,
+        "totalVotes": 29444
+      },
+      "matchedVotes": {
+        "harrisVotes": 9150,
+        "trumpVotes": 20071,
+        "otherVotes": 223,
+        "totalVotes": 29444
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        838.857,
+        390.207,
+        847.938,
+        407.861
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42127.topo.json",
+      "byteSize": 74385
+    },
+    {
+      "countyFips": "42129",
+      "resultReportingUnitCount": 308,
+      "matchedReportingUnitCount": 302,
+      "unmatchedReportingUnitCount": 6,
+      "exactIdentifierMatchCount": 301,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 308,
+      "matchedGeometryFeatureCount": 301,
+      "unmatchedGeometryFeatureCount": 7,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 74904,
+        "trumpVotes": 135008,
+        "otherVotes": 1538,
+        "totalVotes": 211450
+      },
+      "matchedVotes": {
+        "harrisVotes": 72107,
+        "trumpVotes": 130811,
+        "otherVotes": 1470,
+        "totalVotes": 204388
+      },
+      "resultVoteCoveragePct": 96.6602,
+      "bounds": [
+        773.306,
+        350.777,
+        788.091,
+        364.188
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42129.topo.json",
+      "byteSize": 575665
+    },
+    {
+      "countyFips": "42131",
+      "resultReportingUnitCount": 29,
+      "matchedReportingUnitCount": 28,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 27,
+      "canonicalNameMatchCount": 1,
+      "geometryFeatureCount": 28,
+      "matchedGeometryFeatureCount": 27,
+      "unmatchedGeometryFeatureCount": 1,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 4680,
+        "trumpVotes": 10222,
+        "otherVotes": 150,
+        "totalVotes": 15052
+      },
+      "matchedVotes": {
+        "harrisVotes": 4541,
+        "trumpVotes": 9989,
+        "otherVotes": 140,
+        "totalVotes": 14670
+      },
+      "resultVoteCoveragePct": 97.4621,
+      "bounds": [
+        828.695,
+        390.666,
+        836.76,
+        398.592
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42131.topo.json",
+      "byteSize": 38945
+    },
+    {
+      "countyFips": "42133",
+      "resultReportingUnitCount": 162,
+      "matchedReportingUnitCount": 161,
+      "unmatchedReportingUnitCount": 1,
+      "exactIdentifierMatchCount": 158,
+      "canonicalNameMatchCount": 3,
+      "geometryFeatureCount": 162,
+      "matchedGeometryFeatureCount": 160,
+      "unmatchedGeometryFeatureCount": 2,
+      "duplicateGeometryMatchCount": 1,
+      "resultVotes": {
+        "harrisVotes": 91926,
+        "trumpVotes": 154884,
+        "otherVotes": 2400,
+        "totalVotes": 249210
+      },
+      "matchedVotes": {
+        "harrisVotes": 91139,
+        "trumpVotes": 153781,
+        "otherVotes": 2371,
+        "totalVotes": 247291
+      },
+      "resultVoteCoveragePct": 99.23,
+      "bounds": [
+        820.455,
+        351.064,
+        837.233,
+        362.905
+      ],
+      "dataUrl": "./data/pa/2024/precincts/42133.topo.json",
+      "byteSize": 306740
+    }
+  ]
+}

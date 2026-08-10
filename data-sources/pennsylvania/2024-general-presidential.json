@@ -1,0 +1,75 @@
+{
+  "id": "pa-2024-presidential-source-package",
+  "sources": [
+    {
+      "id": "pa-dos-2024-general-precinct-returns",
+      "publisher": "Commonwealth of Pennsylvania Department of State",
+      "title": "2024 General Election Precinct Election Returns",
+      "sourceUrl": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_268768_20250129.txt",
+      "readmeUrl": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_readme.txt",
+      "sourceExtractedAt": "2025-01-10",
+      "retrievedAt": "2026-08-09",
+      "checksumSha256": "34339122238fe82272c52717a4065dbd3949e00eeb98320332797853c96f3b6c",
+      "licenseStatus": "review_required",
+      "limitations": [
+        "The state file supplies return records but not precinct polygon geometry.",
+        "Ballot mode is not encoded on presidential return rows and is therefore left null.",
+        "Reporting-unit names preserve the Department of State municipality and breakdown fields."
+      ]
+    },
+    {
+      "id": "pa-electionreturns-2024-president-county-breakdown",
+      "publisher": "Commonwealth of Pennsylvania Department of State",
+      "title": "2024 Presidential Election Official County Breakdown",
+      "sourceUrl": "https://www.electionreturns.pa.gov/api/ElectionReturn/GetCountyBreak?officeId=1&districtId=1&methodName=GetCountyBreak&electionid=105&electiontype=G&isactive=0",
+      "retrievedAt": "2026-08-09",
+      "checksumSha256": "c73094edb1b46312f89facc68c561b26286caa158819fe775c00f3487942c7cc",
+      "licenseStatus": "review_required",
+      "limitations": [
+        "The public county breakdown includes Harris, Trump, Oliver, and Stein but does not expose county-level write-in totals.",
+        "Election Day, mail, and provisional components reconcile exactly to each published candidate total."
+      ]
+    },
+    {
+      "id": "fec-2024-official-president",
+      "publisher": "Federal Election Commission",
+      "title": "Official 2024 Presidential General Election Results",
+      "sourceUrl": "https://www.fec.gov/resources/cms-content/documents/2024presgeresults.pdf",
+      "retrievedAt": "2026-08-09",
+      "limitations": [
+        "The certified statewide total exceeds the four named county candidates by 24,526 votes.",
+        "Those votes remain in an unassigned statewide bucket rather than being fabricated across counties."
+      ]
+    }
+  ],
+  "pipelineVersion": "pa-2024-import-v1",
+  "sourceLineCount": 268768,
+  "presidentialLineCount": 36748,
+  "candidateCount": 5,
+  "countyCount": 67,
+  "reportingUnitCount": 9189,
+  "sourceReportingUnitCount": 9187,
+  "countyResidualBucketCount": 1,
+  "statewideResidualBucketCount": 1,
+  "mappedCountyTotals": {
+    "harrisVotes": 3423042,
+    "trumpVotes": 3543308,
+    "otherVotes": 67856,
+    "totalVotes": 7034206
+  },
+  "statewideResidual": {
+    "harrisVotes": 0,
+    "trumpVotes": 0,
+    "otherVotes": 24526
+  },
+  "stateTotals": {
+    "harrisVotes": 3423042,
+    "trumpVotes": 3543308,
+    "otherVotes": 92382,
+    "totalVotes": 7058732
+  },
+  "outputs": [
+    "src/data/pa-2024-counties.json",
+    "public/data/pa/2024/reporting-units.json"
+  ]
+}

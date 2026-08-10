@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** Planning baseline
+**Status:** v0.3 Pennsylvania precinct pilot
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 

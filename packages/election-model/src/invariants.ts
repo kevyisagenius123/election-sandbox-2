@@ -1,4 +1,4 @@
-import type { CandidateVotes, ReportingUnitResult } from "../../data-contracts/src/index";
+import type { CandidateVotes, ReportingUnitResult } from "../../data-contracts/src/index.ts";
 
 export function assertNonNegativeIntegerVotes(votes: CandidateVotes[]) {
   for (const candidate of votes) {
