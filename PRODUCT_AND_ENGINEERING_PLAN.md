@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.4 Pennsylvania behavior foundation
+**Status:** v0.5 bidirectional behavior and contribution tracing
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.4 now implements the first trustworthy behavior slice in Pennsylvania. A versioned 2020 Census P.L. 94-171 voting-age-population denominator is joined to the existing VTD geometry, and the editor exposes separate ordered turnout and preference operations. The baseline, every integer allocation, and the aggregate state result reconcile exactly. Demographic candidate preference remains out of scope because the Census source does not observe it.
+Version 0.5 implements the first trustworthy behavior and explanation slice in Pennsylvania. A versioned 2020 Census P.L. 94-171 voting-age-population denominator is joined to the existing VTD geometry, and the editor exposes separate ordered turnout and preference operations. Preference can move across its complete mathematically feasible Republican-to-Democratic range. Exact county and VTD contribution rankings explain where the resulting margin moved. The baseline, every integer allocation, and the aggregate state result reconcile exactly. Demographic candidate preference remains out of scope because the Census source does not observe it.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

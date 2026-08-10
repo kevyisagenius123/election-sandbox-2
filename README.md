@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.4 Pennsylvania behavior foundation
+## Current release: v0.5 bidirectional behavior and contribution tracing
 
 The current build provides:
 
@@ -12,6 +12,9 @@ The current build provides:
 - A versioned crosswalk connecting 9,038 of 9,178 Census VTD polygons to mapped 2024 results.
 - A Census P.L. 94-171 Table P4 voting-age-population denominator for every 2020 Pennsylvania VTD.
 - Separate, ordered turnout and preference operations.
+- Full feasible Republican-to-Democratic preference movement with no arbitrary point ceiling.
+- Turnout composition from 100% Trump through 100% Harris.
+- Exact county and mapped-VTD contribution rankings using the change in the Harris minus Trump vote margin.
 - Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
@@ -23,8 +26,10 @@ The Pennsylvania county endpoint exposes four named candidates but not county-le
 
 Turnout and preference are deliberately different operations:
 
-1. **Turnout** adds ballots in proportion to each usable VTD's 2020 population age 18 and over. Added ballots cannot exceed the VTD's remaining denominator capacity. The user explicitly sets the Harris share of those ballots.
-2. **Preference** transfers already-counted Harris and Trump ballots after turnout. It preserves the number of ballots.
+1. **Turnout** adds ballots in proportion to each usable VTD's 2020 population age 18 and over. Added ballots cannot exceed the VTD's remaining denominator capacity. The user explicitly sets the Harris and Trump division from either full endpoint.
+2. **Preference** transfers already-counted Harris and Trump ballots after turnout. It preserves the number of ballots and can run to the full mathematically feasible endpoint in either direction. The engine caps at the available candidate ballots, never at an arbitrary interface margin.
+
+The contribution panel ranks the counties or mapped VTDs that most changed the state result. Contribution is defined as the scenario change in `Harris votes - Trump votes`. That definition lets turnout and preference reconcile in the same unit while retaining their separate operations.
 
 The model is deterministic and integer-reconciled. With both operations set to zero, it reproduces Pennsylvania's certified result exactly.
 
@@ -113,10 +118,11 @@ npm run data:pa:demographics -- \
 - `docs/decisions/0005-pennsylvania-result-reconciliation.md`
 - `docs/decisions/0006-pennsylvania-vtd-crosswalk.md`
 - `docs/decisions/0007-pennsylvania-demographic-denominator.md`
+- `docs/decisions/0008-bidirectional-preference-and-contributions.md`
 
 ## Next increment
 
-Add a versioned uncertainty and calibration layer without weakening the exact deterministic baseline. Candidate preference must remain an explicit assumption until a defensible, documented behavioral dataset is introduced.
+Add third-party candidate controls as a separate multi-candidate operation. They must preserve total ballots, retain named candidates and the residual Other bucket, and remain distinct from the two-party transfer. After that, add selected-geography denominator inspection and shareable versioned scenario URLs.
 
 ## Primary sources
 

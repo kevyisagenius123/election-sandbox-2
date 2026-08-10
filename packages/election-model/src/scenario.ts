@@ -81,10 +81,79 @@ export interface BehaviorScenarioResult {
   };
 }
 
+export interface BehaviorContribution {
+  id: string;
+  countyFips: string | null;
+  geometryId: string | null;
+  harrisDelta: number;
+  trumpDelta: number;
+  otherDelta: number;
+  ballotDelta: number;
+  marginDelta: number;
+}
+
+export interface PreferenceShiftBounds {
+  towardTrumpPoints: number;
+  towardHarrisPoints: number;
+}
+
 export type TwoPartyResult = {
   harrisVotes: number;
   trumpVotes: number;
 };
+
+export function preferenceShiftBounds(
+  result: Pick<BehaviorModelUnit, "harrisVotes" | "trumpVotes" | "totalVotes">,
+): PreferenceShiftBounds {
+  if (!Number.isSafeInteger(result.totalVotes) || result.totalVotes <= 0) {
+    throw new Error("Preference bounds require a positive safe-integer ballot total");
+  }
+  if (!Number.isSafeInteger(result.harrisVotes) || result.harrisVotes < 0
+    || !Number.isSafeInteger(result.trumpVotes) || result.trumpVotes < 0
+    || result.harrisVotes + result.trumpVotes > result.totalVotes) {
+    throw new Error("Preference bounds require valid major-party vote totals");
+  }
+  return {
+    towardTrumpPoints: -(result.harrisVotes * 200) / result.totalVotes,
+    towardHarrisPoints: (result.trumpVotes * 200) / result.totalVotes,
+  };
+}
+
+export function deriveBehaviorContributions(
+  baselineUnits: readonly BehaviorModelUnit[],
+  scenarioUnits: readonly BehaviorScenarioUnit[],
+): BehaviorContribution[] {
+  const baselineById = new Map(baselineUnits.map((unit) => [unit.id, unit]));
+  if (baselineById.size !== baselineUnits.length) {
+    throw new Error("Behavior baseline contains duplicate unit identifiers");
+  }
+  if (scenarioUnits.length !== baselineUnits.length) {
+    throw new Error("Behavior contribution inputs must contain the same units");
+  }
+
+  const contributions = scenarioUnits.map((unit) => {
+    const baseline = baselineById.get(unit.id);
+    if (!baseline) throw new Error(`Scenario unit ${unit.id} is missing from the baseline`);
+    const harrisDelta = unit.harrisVotes - baseline.harrisVotes;
+    const trumpDelta = unit.trumpVotes - baseline.trumpVotes;
+    return {
+      id: unit.id,
+      countyFips: unit.countyFips,
+      geometryId: unit.geometryId,
+      harrisDelta,
+      trumpDelta,
+      otherDelta: unit.otherVotes - baseline.otherVotes,
+      ballotDelta: unit.totalVotes - baseline.totalVotes,
+      marginDelta: harrisDelta - trumpDelta,
+    };
+  });
+  const scenarioIds = new Set(scenarioUnits.map((unit) => unit.id));
+  if (scenarioIds.size !== scenarioUnits.length
+    || baselineUnits.some((unit) => !scenarioIds.has(unit.id))) {
+    throw new Error("Behavior contribution inputs must contain each unit exactly once");
+  }
+  return contributions;
+}
 
 function proportionalAllocation(weights: readonly number[], requiredTotal: number) {
   const weightTotal = weights.reduce((sum, weight) => sum + weight, 0);

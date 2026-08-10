@@ -14,6 +14,8 @@ import {
   applyCountyTwoPartyMarginShift,
   applyTwoPartyMarginShift,
   applyTwoPartyVoteTransfer,
+  deriveBehaviorContributions,
+  preferenceShiftBounds,
   toReportingUnitResult,
 } from "../packages/election-model/src/scenario.ts";
 import { states2024 } from "../src/data/states.ts";
@@ -275,6 +277,82 @@ test("turnout additions and preference transfers remain separate and exact", () 
   scenario.units.forEach((unit) => {
     assert.equal(unit.harrisVotes + unit.trumpVotes + unit.otherVotes, unit.totalVotes);
   });
+});
+
+test("preference bounds expose the full feasible range in both directions", () => {
+  const baseline = [{
+    id: "state",
+    countyFips: "42001",
+    geometryId: "unit",
+    harrisVotes: 60,
+    trumpVotes: 40,
+    otherVotes: 10,
+    totalVotes: 110,
+    turnoutDenominator: null,
+    turnoutCapacity: 0,
+  }];
+  const bounds = preferenceShiftBounds(baseline[0]);
+  const towardHarris = applyBehaviorScenario(baseline, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: bounds.towardHarrisPoints,
+  });
+  const towardTrump = applyBehaviorScenario(baseline, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: bounds.towardTrumpPoints,
+  });
+
+  assert.equal(towardHarris.totals.trumpVotes, 0);
+  assert.equal(towardHarris.totals.harrisVotes, 100);
+  assert.equal(towardTrump.totals.harrisVotes, 0);
+  assert.equal(towardTrump.totals.trumpVotes, 100);
+  assert.equal(towardHarris.totals.totalVotes, 110);
+  assert.equal(towardTrump.totals.totalVotes, 110);
+});
+
+test("behavior contributions reconcile exactly and preserve Republican direction", () => {
+  const baseline = [
+    {
+      id: "a",
+      countyFips: "42001",
+      geometryId: "a",
+      harrisVotes: 60,
+      trumpVotes: 40,
+      otherVotes: 0,
+      totalVotes: 100,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    },
+    {
+      id: "b",
+      countyFips: "42003",
+      geometryId: "b",
+      harrisVotes: 30,
+      trumpVotes: 70,
+      otherVotes: 0,
+      totalVotes: 100,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    },
+  ];
+  const scenario = applyBehaviorScenario(baseline, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: -10,
+  });
+  const contributions = deriveBehaviorContributions(baseline, scenario.units);
+  const contributionMargin = contributions.reduce((sum, unit) => sum + unit.marginDelta, 0);
+  const baselineMargin = baseline.reduce(
+    (sum, unit) => sum + unit.harrisVotes - unit.trumpVotes,
+    0,
+  );
+  const scenarioMargin = scenario.totals.harrisVotes - scenario.totals.trumpVotes;
+
+  assert.equal(contributionMargin, scenarioMargin - baselineMargin);
+  assert.equal(contributionMargin, -20);
+  assert.ok(contributions.every((unit) => unit.marginDelta <= 0));
+  assert.equal(contributions.reduce((sum, unit) => sum + unit.ballotDelta, 0), 0);
 });
 
 test("Pennsylvania Census VTD demographics reconcile and preserve unavailable coverage", () => {

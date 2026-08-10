@@ -1,7 +1,9 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   aggregateNational,
   applyBehaviorScenario,
+  deriveBehaviorContributions,
+  preferenceShiftBounds,
   type BehaviorScenarioResult,
   type StatewidePresidentialResult,
 } from "../packages/election-model/src/scenario.ts";
@@ -19,6 +21,15 @@ import {
 
 type ViewMode = "actual" | "scenario" | "difference";
 type BehaviorEditorMode = "turnout" | "preference";
+type ContributionScope = "county" | "vtd";
+
+interface ContributionRow {
+  id: string;
+  name: string;
+  context: string;
+  countyFips: string;
+  marginDelta: number;
+}
 
 const AtlasMapScene = lazy(() => import("./map/AtlasMapScene.tsx").then((module) => ({
   default: module.AtlasMapScene,
@@ -47,6 +58,16 @@ function formatMargin(value: number) {
   return `${value > 0 ? "D" : "R"} +${Math.abs(value).toFixed(1)}`;
 }
 
+function formatPreferenceMovement(value: number) {
+  if (Math.abs(value) < 0.0005) return "No transfer";
+  return `+${Math.abs(value).toFixed(1)} pts ${value > 0 ? "D" : "R"}`;
+}
+
+function formatMarginVotes(value: number) {
+  if (value === 0) return "No movement";
+  return `+${formatCompact(Math.abs(value))} ${value > 0 ? "D" : "R"}`;
+}
+
 export function App() {
   const [selectedStateCode, setSelectedStateCode] = useState<string | null>(null);
   const [selectedCountyFips, setSelectedCountyFips] = useState<string | null>(null);
@@ -55,6 +76,7 @@ export function App() {
   const [turnoutIncreasePoints, setTurnoutIncreasePoints] = useState(0);
   const [addedVoterHarrisShare, setAddedVoterHarrisShare] = useState(55);
   const [preferenceShiftPoints, setPreferenceShiftPoints] = useState(0);
+  const [contributionScope, setContributionScope] = useState<ContributionScope>("county");
   const [assumptionsOpen, setAssumptionsOpen] = useState(true);
   const [demographicFoundation, setDemographicFoundation] = useState<
     PennsylvaniaDemographicFoundation | null
@@ -90,6 +112,19 @@ export function App() {
       preferenceShiftPoints,
     }) : null,
     [addedVoterHarrisShare, behaviorModelUnits, preferenceShiftPoints, turnoutIncreasePoints],
+  );
+  const preferenceBase = useMemo(() => ({
+    harrisVotes: paActual.harrisVotes + (behaviorScenario?.turnout.harrisVotes ?? 0),
+    trumpVotes: paActual.trumpVotes + (behaviorScenario?.turnout.trumpVotes ?? 0),
+    totalVotes: paActual.totalVotes + (behaviorScenario?.turnout.addedVotes ?? 0),
+  }), [behaviorScenario, paActual]);
+  const preferenceBounds = useMemo(
+    () => preferenceShiftBounds(preferenceBase),
+    [preferenceBase],
+  );
+  const effectivePreferenceShiftPoints = Math.min(
+    preferenceBounds.towardHarrisPoints,
+    Math.max(preferenceBounds.towardTrumpPoints, preferenceShiftPoints),
   );
   const paScenario = useMemo<StatewidePresidentialResult>(() => {
     if (!behaviorScenario) return paActual;
@@ -157,6 +192,67 @@ export function App() {
     () => scenarioVtdMap(behaviorScenario?.units ?? []),
     [behaviorScenario],
   );
+  const contributionSummary = useMemo(() => {
+    const empty = {
+      counties: [] as ContributionRow[],
+      vtds: [] as ContributionRow[],
+      statewideMarginDelta: 0,
+      outsideTerrainMarginDelta: 0,
+    };
+    if (!behaviorModelUnits || !behaviorScenario || !demographicFoundation) return empty;
+
+    const contributions = deriveBehaviorContributions(
+      behaviorModelUnits,
+      behaviorScenario.units,
+    );
+    const countyNames = new Map(
+      pennsylvaniaCounties2024.map((county) => [county.fips, county.name]),
+    );
+    const countyTotals = new Map<string, number>();
+    let statewideMarginDelta = 0;
+    let mappedMarginDelta = 0;
+    for (const contribution of contributions) {
+      statewideMarginDelta += contribution.marginDelta;
+      if (contribution.countyFips) {
+        countyTotals.set(
+          contribution.countyFips,
+          (countyTotals.get(contribution.countyFips) ?? 0) + contribution.marginDelta,
+        );
+      }
+      if (contribution.geometryId) mappedMarginDelta += contribution.marginDelta;
+    }
+    const counties = [...countyTotals.entries()]
+      .map(([countyFips, marginDelta]) => ({
+        id: countyFips,
+        name: countyNames.get(countyFips) ?? countyFips,
+        context: "County total",
+        countyFips,
+        marginDelta,
+      }))
+      .filter((row) => row.marginDelta !== 0)
+      .sort((left, right) => Math.abs(right.marginDelta) - Math.abs(left.marginDelta));
+    const vtdByGeoid = new Map(demographicFoundation.vtds.map((vtd) => [vtd.geoid, vtd]));
+    const vtds = contributions
+      .filter((contribution) => contribution.geometryId && contribution.marginDelta !== 0)
+      .map((contribution) => {
+        const vtd = vtdByGeoid.get(contribution.geometryId!);
+        const countyFips = contribution.countyFips ?? contribution.geometryId!.slice(0, 5);
+        return {
+          id: contribution.geometryId!,
+          name: vtd?.displayName ?? vtd?.censusName ?? contribution.geometryId!,
+          context: countyNames.get(countyFips) ?? countyFips,
+          countyFips,
+          marginDelta: contribution.marginDelta,
+        };
+      })
+      .sort((left, right) => Math.abs(right.marginDelta) - Math.abs(left.marginDelta));
+    return {
+      counties,
+      vtds,
+      statewideMarginDelta,
+      outsideTerrainMarginDelta: statewideMarginDelta - mappedMarginDelta,
+    };
+  }, [behaviorModelUnits, behaviorScenario, demographicFoundation]);
 
   const selectedActual = states2024.find((state) => state.code === selectedStateCode) ?? states2024[38];
   const selectedScenario = scenarioStates.find((state) => state.code === selectedStateCode) ?? scenarioStates[38];
@@ -166,15 +262,19 @@ export function App() {
   const selectedScenarioCounty = scenarioPennsylvaniaCounties.find(
     (county) => county.fips === selectedCountyFips,
   );
-  const paTransfer = paScenario.harrisVotes - paActual.harrisVotes;
   const paFlipped = paScenario.harrisVotes > paScenario.trumpVotes;
-  const scenarioChanged = turnoutIncreasePoints !== 0 || preferenceShiftPoints !== 0;
-  const preferenceBaseHarris = paActual.harrisVotes + (behaviorScenario?.turnout.harrisVotes ?? 0);
-  const preferenceBaseTrump = paActual.trumpVotes + (behaviorScenario?.turnout.trumpVotes ?? 0);
-  const threshold = Math.max(
-    0,
-    Math.ceil((preferenceBaseTrump - preferenceBaseHarris + 1) / 2),
+  const scenarioChanged = turnoutIncreasePoints !== 0 || effectivePreferenceShiftPoints !== 0;
+  const contributionRows = contributionScope === "county"
+    ? contributionSummary.counties.slice(0, 5)
+    : contributionSummary.vtds.slice(0, 5);
+  const contributionMaximum = Math.max(
+    1,
+    ...contributionRows.map((row) => Math.abs(row.marginDelta)),
   );
+  const preferenceZeroPosition = (
+    Math.abs(preferenceBounds.towardTrumpPoints)
+    / (preferenceBounds.towardHarrisPoints - preferenceBounds.towardTrumpPoints)
+  ) * 100;
   const readoutActualMargin = selectedActualCounty
     ? margin(selectedActualCounty)
     : selectedStateCode
@@ -206,6 +306,11 @@ export function App() {
     setViewMode("scenario");
   }
 
+  function focusContribution(row: ContributionRow) {
+    setSelectedStateCode("PA");
+    setSelectedCountyFips(row.countyFips);
+  }
+
   return (
     <main className="application-shell">
       <header className="masthead">
@@ -223,7 +328,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Pennsylvania behavior lab · v0.4</div>
+        <div className="build-status"><span />Pennsylvania behavior lab · v0.5</div>
       </header>
 
       <div className="workbench" id="top">
@@ -444,8 +549,8 @@ export function App() {
                   <input
                     disabled={!demographicFoundation}
                     id="pa-new-voter-share"
-                    max="80"
-                    min="20"
+                    max="100"
+                    min="0"
                     onChange={(event) => setAddedVoterHarrisShare(Number(event.currentTarget.value))}
                     onInput={(event) => setAddedVoterHarrisShare(Number(event.currentTarget.value))}
                     onKeyDown={(event) => {
@@ -457,16 +562,16 @@ export function App() {
                       if (movement == null && event.key !== "Home" && event.key !== "End") return;
                       event.preventDefault();
                       setAddedVoterHarrisShare((current) => {
-                        if (event.key === "Home") return 20;
-                        if (event.key === "End") return 80;
-                        return Math.min(80, Math.max(20, current + movement!));
+                        if (event.key === "Home") return 0;
+                        if (event.key === "End") return 100;
+                        return Math.min(100, Math.max(0, current + movement!));
                       });
                     }}
                     step="1"
                     type="range"
                     value={addedVoterHarrisShare}
                   />
-                  <div className="range-labels"><span>20% Harris</span><span>Even</span><span>80% Harris</span></div>
+                  <div className="range-labels"><span>100% Trump</span><span>Even</span><span>100% Harris</span></div>
 
                   <div className="effect-grid">
                     <div><span>Added ballots</span><strong>{formatCompact(behaviorScenario?.turnout.addedVotes ?? 0)}</strong></div>
@@ -477,39 +582,53 @@ export function App() {
               ) : (
                 <>
                   <div className="slider-header">
-                    <label htmlFor="pa-preference">Two-party margin movement</label>
-                    <strong>+{preferenceShiftPoints.toFixed(1)} pts D</strong>
+                    <label htmlFor="pa-preference">Two-party preference transfer</label>
+                    <strong>{formatPreferenceMovement(effectivePreferenceShiftPoints)}</strong>
                   </div>
-                  <input
-                    disabled={!demographicFoundation}
-                    id="pa-preference"
-                    max="4"
-                    min="0"
-                    onChange={(event) => setPreferenceShiftPoints(Number(event.currentTarget.value))}
-                    onInput={(event) => setPreferenceShiftPoints(Number(event.currentTarget.value))}
-                    onKeyDown={(event) => {
-                      const movement = event.key === "ArrowRight" || event.key === "ArrowUp"
-                        ? 0.1
-                        : event.key === "ArrowLeft" || event.key === "ArrowDown"
-                          ? -0.1
-                          : null;
-                      if (movement == null && event.key !== "Home" && event.key !== "End") return;
-                      event.preventDefault();
-                      setPreferenceShiftPoints((current) => {
-                        if (event.key === "Home") return 0;
-                        if (event.key === "End") return 4;
-                        return Math.min(4, Math.max(0, Number((current + movement!).toFixed(1))));
-                      });
-                    }}
-                    step="0.1"
-                    type="range"
-                    value={preferenceShiftPoints}
-                  />
-                  <div className="range-labels"><span>Actual</span><span>Flip need: {formatCompact(threshold)}</span><span>+4.0</span></div>
+                  <div
+                    className="bidirectional-range"
+                    style={{ "--zero-position": `${preferenceZeroPosition}%` } as CSSProperties}
+                  >
+                    <input
+                      aria-valuetext={formatPreferenceMovement(effectivePreferenceShiftPoints)}
+                      className="preference-range"
+                      disabled={!demographicFoundation}
+                      id="pa-preference"
+                      max={preferenceBounds.towardHarrisPoints}
+                      min={preferenceBounds.towardTrumpPoints}
+                      onChange={(event) => setPreferenceShiftPoints(Number(event.currentTarget.value))}
+                      onInput={(event) => setPreferenceShiftPoints(Number(event.currentTarget.value))}
+                      onKeyDown={(event) => {
+                        const movement = event.key === "ArrowRight" || event.key === "ArrowUp"
+                          ? 0.1
+                          : event.key === "ArrowLeft" || event.key === "ArrowDown"
+                            ? -0.1
+                            : null;
+                        if (movement == null && event.key !== "Home" && event.key !== "End") return;
+                        event.preventDefault();
+                        setPreferenceShiftPoints((current) => {
+                          if (event.key === "Home") return preferenceBounds.towardTrumpPoints;
+                          if (event.key === "End") return preferenceBounds.towardHarrisPoints;
+                          return Math.min(
+                            preferenceBounds.towardHarrisPoints,
+                            Math.max(
+                              preferenceBounds.towardTrumpPoints,
+                              Number((current + movement!).toFixed(1)),
+                            ),
+                          );
+                        });
+                      }}
+                      step="0.1"
+                      type="range"
+                      value={effectivePreferenceShiftPoints}
+                    />
+                    <span className="zero-tick" aria-hidden="true" />
+                  </div>
+                  <div className="range-labels preference-labels"><span>Harris → Trump</span><span>Actual</span><span>Trump → Harris</span></div>
 
                   <div className="effect-grid">
-                    <div><span>Votes transferred</span><strong>{formatCompact(behaviorScenario?.preference.realizedTransfer ?? 0)}</strong></div>
-                    <div><span>Total Harris gain</span><strong>{formatCompact(paTransfer)}</strong></div>
+                    <div><span>Ballots transferred</span><strong>{formatCompact(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))}</strong></div>
+                    <div><span>State margin movement</span><strong>{formatMarginVotes(contributionSummary.statewideMarginDelta)}</strong></div>
                     <div><span>PA result</span><strong>{formatMargin(margin(paScenario))}</strong></div>
                   </div>
                 </>
@@ -518,6 +637,49 @@ export function App() {
               <button className="reset-button" disabled={!scenarioChanged} onClick={resetScenario} type="button">
                 Reset to exact baseline
               </button>
+            </div>
+          </section>
+
+          <section className="contribution-card">
+            <div className="card-heading compact contribution-heading">
+              <div><span className="overline">Where the result moved</span><strong>Top contributors</strong></div>
+              <span className={`contribution-total ${contributionSummary.statewideMarginDelta < 0 ? "toward-rep" : ""}`}>
+                {formatMarginVotes(contributionSummary.statewideMarginDelta)}
+              </span>
+            </div>
+            <div className="contribution-body">
+              <p className="contribution-definition">Change in the Harris minus Trump vote margin, including both active operations.</p>
+              <div className="contribution-tabs" aria-label="Contribution geography">
+                <button aria-pressed={contributionScope === "county"} onClick={() => setContributionScope("county")} type="button">Counties</button>
+                <button aria-pressed={contributionScope === "vtd"} onClick={() => setContributionScope("vtd")} type="button">VTDs</button>
+              </div>
+              {contributionRows.length > 0 ? (
+                <ol className="contribution-list">
+                  {contributionRows.map((row, index) => (
+                    <li key={row.id}>
+                      <button onClick={() => focusContribution(row)} type="button">
+                        <span className="contribution-rank">{String(index + 1).padStart(2, "0")}</span>
+                        <span className="contribution-name"><strong>{row.name}</strong><small>{row.context}</small></span>
+                        <span className={`contribution-value ${row.marginDelta < 0 ? "toward-rep" : ""}`}>{formatMarginVotes(row.marginDelta)}</span>
+                        <span className="contribution-track" aria-hidden="true">
+                          <i
+                            className={row.marginDelta < 0 ? "toward-rep" : ""}
+                            style={{ "--contribution-share": `${Math.abs(row.marginDelta) / contributionMaximum * 100}%` } as CSSProperties}
+                          />
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <div className="contribution-empty">Move either behavior control to reveal the geography of the change.</div>
+              )}
+              <div className="contribution-footnote">
+                <span>{contributionScope === "county" ? "All 67 counties reconcile to Pennsylvania" : "Top mapped VTDs shown"}</span>
+                {contributionScope === "vtd" && contributionSummary.outsideTerrainMarginDelta !== 0 && (
+                  <strong>{formatMarginVotes(contributionSummary.outsideTerrainMarginDelta)} outside terrain</strong>
+                )}
+              </div>
             </div>
           </section>
 
@@ -535,10 +697,10 @@ export function App() {
               <div><strong>VAP turnout addition</strong><span>Ballots created · Harris share explicit</span></div>
               <b>{turnoutIncreasePoints === 0 ? "Off" : `+${turnoutIncreasePoints.toFixed(1)}`}</b>
             </div>
-            <div className={`ledger-line ${preferenceShiftPoints === 0 ? "inactive" : ""}`}>
+            <div className={`ledger-line ${effectivePreferenceShiftPoints === 0 ? "inactive" : ""}`}>
               <span className="ledger-index">02</span>
               <div><strong>Two-party preference transfer</strong><span>Runs after turnout · ballots preserved</span></div>
-              <b>{preferenceShiftPoints === 0 ? "Off" : `+${preferenceShiftPoints.toFixed(1)}`}</b>
+              <b>{effectivePreferenceShiftPoints === 0 ? "Off" : formatPreferenceMovement(effectivePreferenceShiftPoints)}</b>
             </div>
           </section>
 

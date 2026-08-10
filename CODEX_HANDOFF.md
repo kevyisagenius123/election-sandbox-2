@@ -21,8 +21,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.4.0`, Pennsylvania behavior foundation
-- Predecessor commit: `47c36dc Build standalone Pennsylvania precinct pilot`
+- Release: `0.5.0`, bidirectional behavior and contribution tracing
+- Predecessor commit: `92975c5 Add Pennsylvania behavior foundation`
 - Remote: none configured
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -32,7 +32,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 - Required Node: 22.12 or newer
 - Hosting metadata: none; there is no `.openai/hosting.json`
 
-At the end of this phase, v0.4 is verified and should be committed as one coherent release. A local Vite server may still be running on port 4173; check rather than starting a duplicate.
+At the end of this phase, v0.5 is verified and should be committed as one coherent release. A local Vite server may still be running on port 4173; check rather than starting a duplicate.
 
 ## 3. What is implemented
 
@@ -89,6 +89,19 @@ At the end of this phase, v0.4 is verified and should be committed as one cohere
 - Exact scenario values also feed the VTD drilldown rather than approximating from a countywide shift.
 - The assumption ledger explains operation order and whether each operation is active.
 - Fail-closed loading: behavior controls stay disabled if the demographic artifact is unavailable.
+
+### v0.5 bidirectional behavior and contribution tracing
+
+- Preference now spans the complete feasible range in both directions instead of stopping at +4 Democratic points.
+- The Republican endpoint transfers every available Harris ballot to Trump; the Democratic endpoint transfers every available Trump ballot to Harris.
+- Bounds are recalculated after turnout, and the engine still clamps transfers to available ballots.
+- Turnout composition spans 0 to 100 percent Harris, with the complementary Trump share shown explicitly.
+- Exact contributions are derived for every model unit as the change in `Harris - Trump` margin.
+- The contribution panel ranks the top five counties or mapped VTDs by absolute margin contribution.
+- County rows reconcile to Pennsylvania and open that county's VTD terrain.
+- VTD rows open their parent county, and the panel discloses the aggregate contribution remaining outside mapped terrain.
+- Republican contributions use the Republican palette and direction labels; Democratic contributions use the Democratic palette.
+- Third-party behavior is deliberately not included in the two-party slider.
 
 ## 4. Demographic source and limitations
 
@@ -189,7 +202,7 @@ All interactive calculations are client-side. Large official source archives are
 
 Do not reintroduce raw-vote elevation or duplicate camera effects. Those caused unreadable urban towers, jerky transitions, and stale async work in earlier prototypes.
 
-## 7. Important files changed in v0.4
+## 7. Important files changed
 
 New:
 
@@ -215,11 +228,20 @@ Modified:
 
 Generated artifacts are committed so the application works without a build-time Census download. The 55 MB raw Census archive is not committed.
 
+v0.5 additionally changes:
+
+- `packages/election-model/src/scenario.ts`
+- `src/App.tsx`
+- `src/styles.css`
+- `tests/election-model.test.mjs`
+- `docs/decisions/0008-bidirectional-preference-and-contributions.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.4:
+CLI verification for v0.5:
 
-- `npm test`: 14 tests pass.
+- `npm test`: 16 tests pass.
 - `npm run lint`: passes.
 - `npm run build`: passes.
 - `npm audit --omit=dev`: 0 vulnerabilities.
@@ -228,7 +250,10 @@ CLI verification for v0.4:
 Browser verification:
 
 - Desktop 1440 by 900: national and Pennsylvania layouts have no horizontal overflow.
-- Strong scenario: turnout +1.5 VAP points and preference +4.0 Democratic points produces Pennsylvania D+2.5 and flips its 19 EV, yielding Harris 245 and Trump 293.
+- Full Republican preference endpoint: Harris reaches zero without negative votes; Pennsylvania displays R+98.7.
+- Full Democratic preference endpoint: Trump reaches zero without negative votes; Pennsylvania displays D+98.7 and flips its 19 EV.
+- Full turnout composition endpoints work at 0 and 100 percent Harris.
+- County and VTD contribution rankings reconcile to the statewide margin movement and link into county drilldown.
 - Pennsylvania county and VTD drilldown remains functional; exact scenario changes propagate while inside a county.
 - Actual, Scenario, Shift, Ballots, and Flat controls respond.
 - Mobile 390 by 844: no horizontal overflow; national map and behavior editor stack cleanly.
@@ -244,21 +269,22 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
 5. **No CVAP or 2024 eligibility estimate exists.** The UI correctly discloses the 2020 VAP limitation.
 6. **No demographic preference model exists.** Candidate choice remains an explicit user input.
-7. **No saved scenarios, share URLs, backend, authentication, or deployment exist.**
-8. **Source redistribution status still needs a formal public-release review.** Official provenance and checksums are present, but legal review is not encoded in code.
+7. **Third-party results are preserved but not mutable yet.** Do not overload the two-party preference operation to add them.
+8. **No saved scenarios, share URLs, backend, authentication, or deployment exist.**
+9. **Source redistribution status still needs a formal public-release review.** Official provenance and checksums are present, but legal review is not encoded in code.
 
 ## 10. Exact next phase
 
-Do not jump directly to a national demographic simulator. The next phase is a Pennsylvania calibration and explainability layer:
+Do not jump directly to a national demographic simulator. The next phase is:
 
-1. Add an operation-level contribution panel that ranks counties and VTDs by added ballots and preference transfer, so the user can see exactly where the state flip came from.
+1. Add a separate third-party operation with named Stein and Oliver buckets plus the residual Other bucket. Define whether it transfers from the two major candidates proportionally or through explicit source shares; do not guess silently.
 2. Add a compact source-and-denominator inspector for a selected county or VTD, including baseline ballots, VAP, capacity, denominator status, and match quality.
 3. Add a shareable, versioned scenario encoding in the URL. It must include dataset versions and preserve exact deterministic replay without a backend.
-4. Add regression tests for URL round-tripping and contribution totals.
+4. Add regression tests for URL round-tripping and multi-candidate reconciliation.
 5. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
 6. Only after those are stable, design a separately switchable uncertainty layer with a fixed seed and documented calibration. The deterministic scenario must remain the default and must not change.
 
-The immediate next coding task is item 1: implement exact county contribution ranking from the existing `BehaviorScenarioUnit` deltas, then expose the top contributors in the editor without changing the current map or scenario semantics.
+The immediate next design task is item 1: specify the third-party transfer contract before adding its slider.
 
 ## 11. Commands
 
