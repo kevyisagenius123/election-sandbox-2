@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.7 selected-geography inspector
+## Current release: v0.8 versioned scenario URLs
 
 The current build provides:
 
@@ -19,6 +19,8 @@ The current build provides:
 - Candidate-share bounds derived only from available ballots, with no arbitrary interface ceiling.
 - Exact county and mapped-VTD contribution rankings using the change in the Harris minus Trump vote margin.
 - A selected county and VTD inspector with certified-to-scenario candidate ledgers, VAP, turnout capacity, operation contributions, result coverage, and crosswalk quality.
+- Versioned, shareable scenario URLs that preserve every behavior assumption, interface mode, ranking scope, and selected state, county, or VTD.
+- Explicit data and engine compatibility checks with certified-baseline fallback for malformed or unsupported links.
 - Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
@@ -45,6 +47,18 @@ Selecting a Pennsylvania county or pinning a mapped VTD opens an audit panel. It
 County coverage compares VTD-linked ballots with the official county total. VTD match quality distinguishes exact Census identifiers, unique canonical-name links, mixed links, and polygons with no matched return. Unmatched polygons show an explicit unavailable state. The inspector never assigns non-terrain residual ballots to a polygon.
 
 The turnout denominator is not citizen voting-age population and is not a 2024 eligible-voter estimate. Census data do not reveal candidate preference. These controls are transparent counterfactual assumptions, not a forecast or a claim about individual voters.
+
+## Scenario sharing
+
+Every non-baseline change is written into a readable query string with URL schema, dataset, and deterministic engine versions. The payload includes all three behavior operations, the active editor and map modes, contribution scope, and selected state, county, or VTD. A copied baseline link is also explicit and versioned even though the ordinary baseline page keeps a clean URL.
+
+Compatible links restore locally without a backend. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, or engine versions and malformed payloads never apply partially: the application restores the certified baseline and displays the reason.
+
+Current compatibility contract:
+
+- URL schema: `1`
+- Dataset: `us2024-pa-vtd2020-v2`
+- Engine: `pa-behavior-v1`
 
 Coverage is explicit:
 
@@ -79,6 +93,7 @@ npm run build
 src/App.tsx                         Editorial workbench and scenario state
 src/map/AtlasMapScene.tsx           deck.gl national, county, and VTD renderer
 src/data/paDemographics.ts          Versioned demographic artifact loader
+src/data/scenarioUrl.ts              Versioned scenario URL codec and compatibility policy
 packages/data-contracts/            Canonical election and demographic contracts
 packages/election-model/            Deterministic allocation and scenario engine
 public/data/pa/2024/                Runtime Pennsylvania result and geometry artifacts
@@ -132,10 +147,11 @@ npm run data:pa:demographics -- \
 - `docs/decisions/0008-bidirectional-preference-and-contributions.md`
 - `docs/decisions/0009-named-third-party-exchange.md`
 - `docs/decisions/0010-selected-geography-inspector.md`
+- `docs/decisions/0011-versioned-scenario-urls.md`
 
 ## Next increment
 
-Add shareable versioned scenario URLs. The URL schema must include dataset and engine versions so a shared scenario replays deterministically without a backend.
+Profile and split or compress the 4.1 MB Pennsylvania demographic runtime artifact before adding a second state. The public data contract and fail-closed loader behavior must remain intact.
 
 ## Primary sources
 

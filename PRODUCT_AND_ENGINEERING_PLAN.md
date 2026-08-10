@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.7 selected-geography inspector
+**Status:** v0.8 versioned scenario URLs
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.7 completes the first inspectable multi-candidate behavior slice in Pennsylvania. The editor exposes separate ordered turnout, two-party preference, and named third-party exchange operations. Preference and third-party movement use exact ballot-capacity bounds rather than arbitrary interface ceilings. County and VTD contribution rankings explain where the major-party margin moved. Selecting either geography opens a source and denominator inspector with certified-to-scenario candidate totals, 2020 Census VAP, usable turnout capacity, operation-level contributions, result coverage, and the audited crosswalk method. Unmatched geometry and non-terrain residuals remain explicit. The baseline, every integer allocation, and every aggregate result reconcile exactly.
+Version 0.8 makes the first inspectable multi-candidate behavior slice reproducible and shareable without a backend. A readable URL contract records every ordered behavior assumption, interface mode, contribution scope, and selected state, county, or VTD alongside explicit schema, dataset, and engine versions. Compatible links rebuild the same integer-reconciled result locally. Unknown versions and malformed payloads fail closed to the certified baseline with a visible explanation. Live changes use browser-history replacement so control drags do not create noisy navigation stacks.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

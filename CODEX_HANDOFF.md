@@ -21,8 +21,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.7.0`, selected-geography inspector
-- Last completed release commit before v0.7: `1e0ecb9 Add named third-party exchange modeling`
+- Release: `0.8.0`, versioned scenario URLs
+- Previous release commit: `e1f05c9 Add selected geography data inspector`
 - Remote: none configured
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -129,6 +129,16 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Unmatched VTDs display unavailable results and retain zero turnout capacity.
 - The P.L. 94-171 runtime artifact advances to schema version 2 and pipeline version `pa-pl94-vtd-demographics-v2`.
 
+### v0.8 versioned scenario URLs
+
+- Every behavior control, active map mode, editor tab, contribution scope, and selected state, county, or VTD can be encoded in a readable URL.
+- Compatibility is explicit: URL schema `1`, dataset `us2024-pa-vtd2020-v2`, and engine `pa-behavior-v1`.
+- Compatible links rebuild the scenario locally through the deterministic engine; computed results are not serialized as a competing source of truth.
+- Live changes use `history.replaceState`, so slider drags do not flood navigation history.
+- Copy link always emits a complete versioned payload, including for the baseline; the ordinary untouched baseline URL stays clean.
+- Duplicate fields, invalid ranges, malformed geography, missing metadata, and unknown future versions fail closed to the certified baseline with a visible explanation.
+- Unrelated query parameters are retained and copied links omit page-section hashes.
+
 ## 4. Demographic source and limitations
 
 Official archive:
@@ -194,6 +204,8 @@ src/data/paPrecincts.ts
   -> lazy manifest and TopoJSON shard loader
 src/data/paDemographics.ts
   -> lazy P.L. 94-171 artifact loader and model-unit conversion
+src/data/scenarioUrl.ts
+  -> versioned scenario codec, canonical URL builder, and compatibility validation
 
 packages/data-contracts/src/index.ts
   -> result, demographic coverage, denominator, and quality contracts
@@ -291,19 +303,32 @@ v0.7 additionally changes:
 - `docs/decisions/0010-selected-geography-inspector.md`
 - release documentation and package metadata
 
+v0.8 additionally changes:
+
+- `src/data/scenarioUrl.ts`
+- `src/App.tsx`
+- `src/styles.css`
+- `tests/election-model.test.mjs`
+- `docs/decisions/0011-versioned-scenario-urls.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.7:
+CLI verification for v0.8:
 
-- `npm test`: 21 tests pass.
+- `npm test`: 26 tests pass.
 - `npm run lint`: passes.
 - `npm run build`: passes.
-- `npm audit --omit=dev`: 0 vulnerabilities.
 - Vite emits the existing warning that the deck.gl Atlas chunk exceeds 500 kB after minification. This is a performance item, not a build failure.
 
 Browser verification:
 
-- v0.7 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
+- v0.8 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
+- A URL carrying turnout, Republican preference movement, Oliver exchange, Shift view, VTD contribution scope, Allegheny County, and a pinned ALEPPO VTD restores every visible state exactly.
+- Reloading that URL reproduces the same assumption ledger, R+5.8 Pennsylvania result, county terrain, VTD inspector, and local candidate ledger.
+- The Copy link control confirms success and keeps the explicit schema, data, and engine versions.
+- Changing turnout to +0.7 points immediately produces a canonical versioned URL through history replacement.
+- URL schema version 99 is rejected, removed from the address bar, and replaced by the certified national baseline with a visible compatibility notice.
 - Stein +1.5 points with a 65 percent Harris source exchanges 105.9K ballots and updates county contributions.
 - Switching candidates resets movement to zero; the Oliver negative endpoint reaches exactly zero Oliver votes.
 - Residual Other/write-in at its 100 percent Harris-source positive endpoint reaches the exact available capacity without negative votes.
@@ -335,19 +360,18 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 6. **No demographic preference model exists.** Candidate choice remains an explicit user input.
 7. **Residual Other has no historical county geography.** Keep its certified baseline statewide-only; scenario additions may be geographically allocated only as explicitly counterfactual exchanges.
 8. **A balanced third-party exchange can have zero `Harris - Trump` contribution.** This is correct even when exchanged ballot volume is large; the editor displays that volume separately.
-9. **No saved scenarios, share URLs, backend, authentication, or deployment exist.**
+9. **No backend-stored scenarios, authentication, or deployment exist.** Deterministic scenario URLs are client-side and require a compatible build.
 10. **Source redistribution status still needs a formal public-release review.** Official provenance and checksums are present, but legal review is not encoded in code.
 
 ## 10. Exact next phase
 
-Do not jump directly to a national demographic simulator. After v0.6 verification, the next phase is:
+Do not jump directly to a national demographic simulator. The next phase is:
 
-1. Add a shareable, versioned scenario encoding in the URL. It must include dataset and engine versions, selected geography, and preserve exact deterministic replay without a backend.
-2. Add regression tests for URL round-tripping and safe fallback from unknown future versions.
-3. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
-4. Only after those are stable, design a separately switchable uncertainty layer with a fixed seed and documented calibration. The deterministic scenario must remain the default and must not change.
+1. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
+2. Add a golden browser test for the canonical share URL once a browser-test runner is selected for the repository.
+3. Design a separately switchable uncertainty layer only after the runtime artifact and sharing contract are stable. It must use a fixed seed and documented calibration; the deterministic scenario remains the default.
 
-The immediate next product task after v0.7 is item 1: versioned scenario URLs.
+The immediate next product task after v0.8 is item 1: reduce the Pennsylvania demographic runtime payload without weakening its audited contract or fail-closed loading.
 
 ## 11. Commands
 

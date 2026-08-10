@@ -24,6 +24,13 @@ import {
   buildCountyInspector,
   buildVtdInspector,
 } from "../src/data/paInspector.ts";
+import {
+  buildScenarioUrl,
+  decodeScenarioSearch,
+  DEFAULT_SCENARIO_URL_STATE,
+  SCENARIO_DATA_VERSION,
+  SCENARIO_ENGINE_VERSION,
+} from "../src/data/scenarioUrl.ts";
 
 const pennsylvaniaCountyDocument = JSON.parse(readFileSync(
   new URL("../src/data/pa-2024-counties.json", import.meta.url),
@@ -762,4 +769,126 @@ test("Pennsylvania third-party scenarios retain exact named and statewide reconc
     scenario.units.reduce((sum, unit) => sum + unit.thirdPartyCandidateDelta, 0),
     expectedTransfer,
   );
+});
+
+test("versioned scenario URLs round-trip every assumption and selected geography", () => {
+  const state = {
+    turnoutIncreasePoints: 1.2,
+    addedVoterHarrisShare: 63,
+    preferenceShiftPoints: -4.7,
+    thirdPartyCandidate: "oliver",
+    thirdPartyShiftPoints: 0.8,
+    thirdPartyHarrisExchangeShare: 41,
+    viewMode: "difference",
+    behaviorEditorMode: "third-party",
+    contributionScope: "vtd",
+    selectedStateCode: "PA",
+    selectedCountyFips: "42003",
+    selectedVtdGeoid: "42003000010",
+  };
+  const url = buildScenarioUrl(
+    "https://atlas.example/lab/?utm_source=review#methodology",
+    state,
+    { force: true, clearHash: true },
+  );
+  const parsedUrl = new URL(url);
+  const decoded = decodeScenarioSearch(parsedUrl.search);
+
+  assert.equal(parsedUrl.searchParams.get("data"), SCENARIO_DATA_VERSION);
+  assert.equal(parsedUrl.searchParams.get("engine"), SCENARIO_ENGINE_VERSION);
+  assert.equal(parsedUrl.searchParams.get("utm_source"), "review");
+  assert.equal(parsedUrl.hash, "");
+  assert.equal(decoded.status, "valid");
+  assert.deepEqual(decoded.state, state);
+});
+
+test("scenario URL replay produces the same deterministic result", () => {
+  const baseline = [{
+    id: "state",
+    countyFips: "42003",
+    geometryId: "42003000010",
+    harrisVotes: 48,
+    trumpVotes: 45,
+    steinVotes: 3,
+    oliverVotes: 2,
+    residualOtherVotes: 2,
+    otherVotes: 7,
+    totalVotes: 100,
+    turnoutDenominator: 125,
+    turnoutCapacity: 25,
+  }];
+  const state = {
+    ...DEFAULT_SCENARIO_URL_STATE,
+    turnoutIncreasePoints: 1.2,
+    addedVoterHarrisShare: 60,
+    preferenceShiftPoints: 2.4,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: -1,
+    thirdPartyHarrisExchangeShare: 75,
+  };
+  const url = buildScenarioUrl("https://atlas.example/", state, { force: true });
+  const decoded = decodeScenarioSearch(new URL(url).search);
+  assert.equal(decoded.status, "valid");
+
+  const scenarioSettings = (urlState) => ({
+    turnoutIncreasePoints: urlState.turnoutIncreasePoints,
+    addedVoterHarrisShare: urlState.addedVoterHarrisShare / 100,
+    preferenceShiftPoints: urlState.preferenceShiftPoints,
+    thirdPartyCandidate: urlState.thirdPartyCandidate,
+    thirdPartyShiftPoints: urlState.thirdPartyShiftPoints,
+    thirdPartyHarrisExchangeShare: urlState.thirdPartyHarrisExchangeShare / 100,
+  });
+  assert.deepEqual(
+    applyBehaviorScenario(baseline, scenarioSettings(decoded.state)),
+    applyBehaviorScenario(baseline, scenarioSettings(state)),
+  );
+});
+
+test("baseline URLs stay clean until an explicit share is requested", () => {
+  const staleUrl = `https://atlas.example/lab/?utm_source=review&scenario=1&data=${SCENARIO_DATA_VERSION}&engine=${SCENARIO_ENGINE_VERSION}#top`;
+  const passiveUrl = new URL(buildScenarioUrl(staleUrl, { ...DEFAULT_SCENARIO_URL_STATE }));
+  const sharedUrl = new URL(buildScenarioUrl(
+    staleUrl,
+    { ...DEFAULT_SCENARIO_URL_STATE },
+    { force: true, clearHash: true },
+  ));
+
+  assert.equal(passiveUrl.searchParams.get("scenario"), null);
+  assert.equal(passiveUrl.searchParams.get("utm_source"), "review");
+  assert.equal(passiveUrl.hash, "#top");
+  assert.equal(sharedUrl.searchParams.get("scenario"), "1");
+  assert.equal(sharedUrl.searchParams.get("data"), SCENARIO_DATA_VERSION);
+  assert.equal(sharedUrl.searchParams.get("engine"), SCENARIO_ENGINE_VERSION);
+  assert.equal(sharedUrl.hash, "");
+});
+
+test("unknown scenario, data, and engine versions fall back safely", () => {
+  const futureSchema = decodeScenarioSearch(
+    `?scenario=99&data=${SCENARIO_DATA_VERSION}&engine=${SCENARIO_ENGINE_VERSION}`,
+  );
+  const futureData = decodeScenarioSearch(
+    `?scenario=1&data=future-data&engine=${SCENARIO_ENGINE_VERSION}`,
+  );
+  const futureEngine = decodeScenarioSearch(
+    `?scenario=1&data=${SCENARIO_DATA_VERSION}&engine=future-engine`,
+  );
+
+  for (const result of [futureSchema, futureData, futureEngine]) {
+    assert.equal(result.status, "unsupported");
+    assert.deepEqual(result.state, DEFAULT_SCENARIO_URL_STATE);
+  }
+});
+
+test("malformed scenario values and geography never apply partially", () => {
+  const prefix = `?scenario=1&data=${SCENARIO_DATA_VERSION}&engine=${SCENARIO_ENGINE_VERSION}`;
+  const malformedNumber = decodeScenarioSearch(`${prefix}&turnout=2`);
+  const mismatchedVtd = decodeScenarioSearch(
+    `${prefix}&state=PA&county=42003&vtd=42001000010`,
+  );
+  const duplicateControl = decodeScenarioSearch(`${prefix}&turnout=1&turnout=1.2`);
+
+  for (const result of [malformedNumber, mismatchedVtd, duplicateControl]) {
+    assert.equal(result.status, "invalid");
+    assert.deepEqual(result.state, DEFAULT_SCENARIO_URL_STATE);
+  }
 });

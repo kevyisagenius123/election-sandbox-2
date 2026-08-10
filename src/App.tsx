@@ -1,4 +1,13 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   aggregateNational,
   applyBehaviorScenario,
@@ -16,6 +25,19 @@ import {
   type PennsylvaniaDemographicFoundation,
 } from "./data/paDemographics.ts";
 import { buildCountyInspector, buildVtdInspector } from "./data/paInspector.ts";
+import {
+  buildScenarioUrl,
+  decodeScenarioSearch,
+  DEFAULT_SCENARIO_URL_STATE,
+  SCENARIO_DATA_VERSION,
+  SCENARIO_ENGINE_VERSION,
+  SCENARIO_URL_SCHEMA_VERSION,
+  type ScenarioContributionScope,
+  type ScenarioEditorMode,
+  type ScenarioUrlLoadResult,
+  type ScenarioUrlState,
+  type ScenarioViewMode,
+} from "./data/scenarioUrl.ts";
 import { states2024 } from "./data/states.ts";
 import {
   pennsylvaniaCounties2024,
@@ -23,9 +45,9 @@ import {
   pennsylvania2024,
 } from "./data/pennsylvania.ts";
 
-type ViewMode = "actual" | "scenario" | "difference";
-type BehaviorEditorMode = "turnout" | "preference" | "third-party";
-type ContributionScope = "county" | "vtd";
+type ViewMode = ScenarioViewMode;
+type BehaviorEditorMode = ScenarioEditorMode;
+type ContributionScope = ScenarioContributionScope;
 
 interface ContributionRow {
   id: string;
@@ -90,24 +112,106 @@ function normalizeBidirectionalSlider(value: number, minimum: number, maximum: n
   return Math.min(maximum, Math.max(minimum, Number(value.toFixed(1))));
 }
 
+function scenarioUrlNotice(load: ScenarioUrlLoadResult) {
+  if (load.status === "none") return null;
+  return load.message;
+}
+
+async function writeClipboardText(value: string) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    return copied;
+  }
+}
+
 export function App() {
-  const [selectedStateCode, setSelectedStateCode] = useState<string | null>(null);
-  const [selectedCountyFips, setSelectedCountyFips] = useState<string | null>(null);
-  const [selectedVtdGeoid, setSelectedVtdGeoid] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("scenario");
-  const [behaviorEditorMode, setBehaviorEditorMode] = useState<BehaviorEditorMode>("turnout");
-  const [turnoutIncreasePoints, setTurnoutIncreasePoints] = useState(0);
-  const [addedVoterHarrisShare, setAddedVoterHarrisShare] = useState(55);
-  const [preferenceShiftPoints, setPreferenceShiftPoints] = useState(0);
-  const [thirdPartyCandidate, setThirdPartyCandidate] = useState<ThirdPartyCandidate>("stein");
-  const [thirdPartyShiftPoints, setThirdPartyShiftPoints] = useState(0);
-  const [thirdPartyHarrisExchangeShare, setThirdPartyHarrisExchangeShare] = useState(50);
-  const [contributionScope, setContributionScope] = useState<ContributionScope>("county");
+  const [initialScenarioUrlLoad] = useState(() => decodeScenarioSearch(window.location.search));
+  const initialScenarioUrlState = initialScenarioUrlLoad.state;
+  const [selectedStateCode, setSelectedStateCode] = useState<string | null>(
+    initialScenarioUrlState.selectedStateCode,
+  );
+  const [selectedCountyFips, setSelectedCountyFips] = useState<string | null>(
+    initialScenarioUrlState.selectedCountyFips,
+  );
+  const [selectedVtdGeoid, setSelectedVtdGeoid] = useState<string | null>(
+    initialScenarioUrlState.selectedVtdGeoid,
+  );
+  const [viewMode, setViewMode] = useState<ViewMode>(initialScenarioUrlState.viewMode);
+  const [behaviorEditorMode, setBehaviorEditorMode] = useState<BehaviorEditorMode>(
+    initialScenarioUrlState.behaviorEditorMode,
+  );
+  const [turnoutIncreasePoints, setTurnoutIncreasePoints] = useState(
+    initialScenarioUrlState.turnoutIncreasePoints,
+  );
+  const [addedVoterHarrisShare, setAddedVoterHarrisShare] = useState(
+    initialScenarioUrlState.addedVoterHarrisShare,
+  );
+  const [preferenceShiftPoints, setPreferenceShiftPoints] = useState(
+    initialScenarioUrlState.preferenceShiftPoints,
+  );
+  const [thirdPartyCandidate, setThirdPartyCandidate] = useState<ThirdPartyCandidate>(
+    initialScenarioUrlState.thirdPartyCandidate,
+  );
+  const [thirdPartyShiftPoints, setThirdPartyShiftPoints] = useState(
+    initialScenarioUrlState.thirdPartyShiftPoints,
+  );
+  const [thirdPartyHarrisExchangeShare, setThirdPartyHarrisExchangeShare] = useState(
+    initialScenarioUrlState.thirdPartyHarrisExchangeShare,
+  );
+  const [contributionScope, setContributionScope] = useState<ContributionScope>(
+    initialScenarioUrlState.contributionScope,
+  );
   const [assumptionsOpen, setAssumptionsOpen] = useState(true);
+  const [scenarioLinkNotice, setScenarioLinkNotice] = useState<string | null>(
+    scenarioUrlNotice(initialScenarioUrlLoad),
+  );
+  const [copiedScenarioUrl, setCopiedScenarioUrl] = useState<string | null>(null);
+  const [failedScenarioUrl, setFailedScenarioUrl] = useState<string | null>(null);
   const [demographicFoundation, setDemographicFoundation] = useState<
     PennsylvaniaDemographicFoundation | null
   >(null);
   const [demographicError, setDemographicError] = useState<string | null>(null);
+  const observedScenarioSearch = useRef(window.location.search);
+
+  const applyScenarioUrlState = useCallback((state: ScenarioUrlState) => {
+    setTurnoutIncreasePoints(state.turnoutIncreasePoints);
+    setAddedVoterHarrisShare(state.addedVoterHarrisShare);
+    setPreferenceShiftPoints(state.preferenceShiftPoints);
+    setThirdPartyCandidate(state.thirdPartyCandidate);
+    setThirdPartyShiftPoints(state.thirdPartyShiftPoints);
+    setThirdPartyHarrisExchangeShare(state.thirdPartyHarrisExchangeShare);
+    setViewMode(state.viewMode);
+    setBehaviorEditorMode(state.behaviorEditorMode);
+    setContributionScope(state.contributionScope);
+    setSelectedStateCode(state.selectedStateCode);
+    setSelectedCountyFips(state.selectedCountyFips);
+    setSelectedVtdGeoid(state.selectedVtdGeoid);
+  }, []);
+
+  useEffect(() => {
+    function restoreBrowserHistoryState() {
+      if (window.location.search === observedScenarioSearch.current) return;
+      observedScenarioSearch.current = window.location.search;
+      const load = decodeScenarioSearch(window.location.search);
+      applyScenarioUrlState(load.state);
+      setScenarioLinkNotice(scenarioUrlNotice(load));
+      setCopiedScenarioUrl(null);
+      setFailedScenarioUrl(null);
+    }
+    window.addEventListener("popstate", restoreBrowserHistoryState);
+    return () => window.removeEventListener("popstate", restoreBrowserHistoryState);
+  }, [applyScenarioUrlState]);
 
   useEffect(() => {
     let active = true;
@@ -180,6 +284,54 @@ export function App() {
     thirdPartyMaximumPoints,
     Math.max(thirdPartyMinimumPoints, thirdPartyShiftPoints),
   );
+  const scenarioUrlState = useMemo<ScenarioUrlState>(() => ({
+    turnoutIncreasePoints,
+    addedVoterHarrisShare,
+    preferenceShiftPoints: effectivePreferenceShiftPoints,
+    thirdPartyCandidate,
+    thirdPartyShiftPoints: effectiveThirdPartyShiftPoints,
+    thirdPartyHarrisExchangeShare,
+    viewMode,
+    behaviorEditorMode,
+    contributionScope,
+    selectedStateCode,
+    selectedCountyFips,
+    selectedVtdGeoid,
+  }), [
+    addedVoterHarrisShare,
+    behaviorEditorMode,
+    contributionScope,
+    effectivePreferenceShiftPoints,
+    effectiveThirdPartyShiftPoints,
+    selectedCountyFips,
+    selectedStateCode,
+    selectedVtdGeoid,
+    thirdPartyCandidate,
+    thirdPartyHarrisExchangeShare,
+    turnoutIncreasePoints,
+    viewMode,
+  ]);
+
+  const currentScenarioShareUrl = useMemo(() => buildScenarioUrl(
+    window.location.href,
+    scenarioUrlState,
+    { force: true, clearHash: true },
+  ), [scenarioUrlState]);
+  const shareStatus = copiedScenarioUrl === currentScenarioShareUrl
+    ? "copied"
+    : failedScenarioUrl === currentScenarioShareUrl
+      ? "error"
+      : "idle";
+
+  useEffect(() => {
+    if (!demographicFoundation) return;
+    const nextUrl = buildScenarioUrl(window.location.href, scenarioUrlState);
+    if (nextUrl !== window.location.href) {
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+    observedScenarioSearch.current = window.location.search;
+  }, [demographicFoundation, scenarioUrlState]);
+
   const paScenario = useMemo<StatewidePresidentialResult>(() => {
     if (!behaviorScenario) return paActual;
     const harrisWins = behaviorScenario.totals.harrisVotes > behaviorScenario.totals.trumpVotes;
@@ -440,13 +592,26 @@ export function App() {
   }
 
   function resetScenario() {
-    setTurnoutIncreasePoints(0);
-    setAddedVoterHarrisShare(55);
-    setPreferenceShiftPoints(0);
-    setThirdPartyCandidate("stein");
-    setThirdPartyShiftPoints(0);
-    setThirdPartyHarrisExchangeShare(50);
-    setViewMode("scenario");
+    setTurnoutIncreasePoints(DEFAULT_SCENARIO_URL_STATE.turnoutIncreasePoints);
+    setAddedVoterHarrisShare(DEFAULT_SCENARIO_URL_STATE.addedVoterHarrisShare);
+    setPreferenceShiftPoints(DEFAULT_SCENARIO_URL_STATE.preferenceShiftPoints);
+    setThirdPartyCandidate(DEFAULT_SCENARIO_URL_STATE.thirdPartyCandidate);
+    setThirdPartyShiftPoints(DEFAULT_SCENARIO_URL_STATE.thirdPartyShiftPoints);
+    setThirdPartyHarrisExchangeShare(
+      DEFAULT_SCENARIO_URL_STATE.thirdPartyHarrisExchangeShare,
+    );
+    setViewMode(DEFAULT_SCENARIO_URL_STATE.viewMode);
+  }
+
+  async function copyScenarioLink() {
+    const copied = await writeClipboardText(currentScenarioShareUrl);
+    if (copied) {
+      setCopiedScenarioUrl(currentScenarioShareUrl);
+      setFailedScenarioUrl(null);
+    } else {
+      setFailedScenarioUrl(currentScenarioShareUrl);
+      setCopiedScenarioUrl(null);
+    }
   }
 
   function focusContribution(row: ContributionRow) {
@@ -477,7 +642,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Pennsylvania behavior lab · v0.7</div>
+        <div className="build-status"><span />Pennsylvania behavior lab · v0.8</div>
       </header>
 
       <div className="workbench" id="top">
@@ -599,7 +764,15 @@ export function App() {
           <section className="scenario-card">
             <div className="card-heading">
               <div><span className="overline">Your scenario</span><strong>Electoral College</strong></div>
-              <span className="year-chip">2024</span>
+              <div className="scenario-actions">
+                <span className="year-chip">2024</span>
+                <button
+                  className="share-button"
+                  disabled={!demographicFoundation}
+                  onClick={copyScenarioLink}
+                  type="button"
+                >{shareStatus === "copied" ? "Copied" : shareStatus === "error" ? "Try copy" : "Copy link"}</button>
+              </div>
             </div>
             <div className="scenario-score">
               <div><span>Harris</span><strong className="dem-text">{scenarioNational.harrisElectoralVotes}</strong></div>
@@ -618,6 +791,21 @@ export function App() {
               <span>National popular vote</span>
               <strong>{formatMargin(((scenarioNational.harrisVotes - scenarioNational.trumpVotes) / scenarioNational.totalVotes) * 100)}</strong>
             </div>
+            <div
+              className="scenario-version-row"
+              title={`Dataset ${SCENARIO_DATA_VERSION} · Engine ${SCENARIO_ENGINE_VERSION}`}
+            >
+              <span>Replay URL v{SCENARIO_URL_SCHEMA_VERSION}</span>
+              <span>Data v2 · engine v1</span>
+              <strong aria-live="polite">{shareStatus === "copied" ? "Link copied" : shareStatus === "error" ? "Copy unavailable" : ""}</strong>
+            </div>
+            {scenarioLinkNotice && (
+              <div className="scenario-link-notice" role="status">
+                <span aria-hidden="true" />
+                <p>{scenarioLinkNotice}</p>
+                <button aria-label="Dismiss shared scenario notice" onClick={() => setScenarioLinkNotice(null)} type="button">Dismiss</button>
+              </div>
+            )}
           </section>
 
           {selectedInspector && (

@@ -813,6 +813,39 @@ input:focus-visible {
   padding: 18px;
 }
 
+.scenario-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.share-button {
+  min-width: 65px;
+  padding: 6px 9px;
+  border: 1px solid rgba(43, 91, 110, 0.2);
+  border-radius: 5px;
+  color: #f8f6ee;
+  background: #345d70;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.share-button:disabled {
+  color: #8a999d;
+  background: #e8eae5;
+  cursor: wait;
+}
+
+.share-button:not(:disabled):hover,
+.share-button:not(:disabled):focus-visible {
+  background: #244f63;
+}
+
 .inspector-card {
   overflow: hidden;
 }
@@ -1149,6 +1182,71 @@ input:focus-visible {
   font-family: "Newsreader", Georgia, serif;
   font-size: 15px;
   font-weight: 500;
+}
+
+.scenario-version-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 9px;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(35, 68, 78, 0.1);
+  color: #89989c;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.scenario-version-row span + span::before {
+  margin-right: 9px;
+  color: #c0c4bf;
+  content: "·";
+}
+
+.scenario-version-row strong {
+  margin-left: auto;
+  color: #49788a;
+  font-size: 7px;
+}
+
+.scenario-link-notice {
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+  margin-top: 10px;
+  padding: 9px 10px;
+  border: 1px solid rgba(169, 126, 52, 0.18);
+  border-radius: 6px;
+  color: #6f765f;
+  background: rgba(240, 234, 211, 0.56);
+}
+
+.scenario-link-notice > span {
+  width: 6px;
+  height: 6px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: #bf8e35;
+}
+
+.scenario-link-notice p {
+  margin: 0;
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.scenario-link-notice button {
+  padding: 0;
+  border: 0;
+  color: #8e7649;
+  background: transparent;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 .assumption-card {
