@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.8 versioned scenario URLs
+## Current release: v0.9 compact demographic runtime
 
 The current build provides:
 
@@ -21,6 +21,8 @@ The current build provides:
 - A selected county and VTD inspector with certified-to-scenario candidate ledgers, VAP, turnout capacity, operation contributions, result coverage, and crosswalk quality.
 - Versioned, shareable scenario URLs that preserve every behavior assumption, interface mode, ranking scope, and selected state, county, or VTD.
 - Explicit data and engine compatibility checks with certified-baseline fallback for malformed or unsupported links.
+- A self-describing Pennsylvania VTD row format that reduces the demographic browser artifact from 5.71 MB to 875 KB without removing modeled or audited fields.
+- Fail-closed runtime decoding that verifies field order, GEOIDs, demographic cells, mapped votes, coverage counts, and turnout capacity before enabling controls.
 - Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
@@ -59,6 +61,12 @@ Current compatibility contract:
 - URL schema: `1`
 - Dataset: `us2024-pa-vtd2020-v2`
 - Engine: `pa-behavior-v1`
+
+## Compact demographic runtime
+
+The official P.L. 94-171 importer now writes storage schema `3` with encoding `vtd-row-v1`. Repeated object keys and derivable values no longer travel once per VTD. The loader reconstructs the same expanded objects used by the model and inspector, then reconciles the decoded rows against statewide coverage, mapped vote totals, and turnout capacity before returning them.
+
+The committed artifact is 874,568 bytes instead of 5,712,538 bytes, an 84.7% raw reduction. All 9,178 VTDs, six VAP cells, candidate totals, and exact/canonical crosswalk counts remain present. The importer pipeline is `pa-pl94-vtd-demographics-v3`; its checksum and byte size are recorded in the Pennsylvania source registry.
 
 Coverage is explicit:
 
@@ -148,10 +156,11 @@ npm run data:pa:demographics -- \
 - `docs/decisions/0009-named-third-party-exchange.md`
 - `docs/decisions/0010-selected-geography-inspector.md`
 - `docs/decisions/0011-versioned-scenario-urls.md`
+- `docs/decisions/0012-compact-demographic-runtime.md`
 
 ## Next increment
 
-Profile and split or compress the 4.1 MB Pennsylvania demographic runtime artifact before adding a second state. The public data contract and fail-closed loader behavior must remain intact.
+Add a checked-in golden browser replay for the canonical shared scenario, including county/VTD restoration and future-version fallback, before expanding the behavior model to another state.
 
 ## Primary sources
 

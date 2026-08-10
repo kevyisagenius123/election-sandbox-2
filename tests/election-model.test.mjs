@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
@@ -25,6 +26,12 @@ import {
   buildVtdInspector,
 } from "../src/data/paInspector.ts";
 import {
+  decodePennsylvaniaDemographicFoundation,
+  PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_ENCODING,
+  PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_SCHEMA_VERSION,
+  PENNSYLVANIA_VTD_ROW_FIELDS,
+} from "../src/data/paDemographics.ts";
+import {
   buildScenarioUrl,
   decodeScenarioSearch,
   DEFAULT_SCENARIO_URL_STATE,
@@ -48,8 +55,17 @@ const pennsylvaniaVtdCrosswalk = JSON.parse(readFileSync(
   new URL("../data-sources/pennsylvania/2024-vtd-crosswalk.json", import.meta.url),
   "utf8",
 ));
-const pennsylvaniaDemographicFoundation = JSON.parse(readFileSync(
+const pennsylvaniaDemographicArtifactBytes = readFileSync(
   new URL("../public/data/pa/2020/vtd-demographics.json", import.meta.url),
+);
+const pennsylvaniaDemographicRuntimeDocument = JSON.parse(
+  pennsylvaniaDemographicArtifactBytes.toString("utf8"),
+);
+const pennsylvaniaDemographicFoundation = decodePennsylvaniaDemographicFoundation(
+  pennsylvaniaDemographicRuntimeDocument,
+);
+const pennsylvaniaDemographicRegistry = JSON.parse(readFileSync(
+  new URL("../data-sources/pennsylvania/2020-pl94-vtd-demographics.json", import.meta.url),
   "utf8",
 ));
 const noThirdPartyChange = {
@@ -562,7 +578,9 @@ test("behavior contributions reconcile exactly and preserve Republican direction
 
 test("Pennsylvania Census VTD demographics reconcile and preserve unavailable coverage", () => {
   const foundation = pennsylvaniaDemographicFoundation;
-  assert.equal(foundation.schemaVersion, 2);
+  assert.equal(foundation.schemaVersion, PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_SCHEMA_VERSION);
+  assert.equal(foundation.encoding, PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_ENCODING);
+  assert.equal(foundation.source.pipelineVersion, "pa-pl94-vtd-demographics-v3");
   assert.equal(foundation.source.archiveSha256, "2d33a7dab29c8dd5692bbde203d253e06eebbc44fcbaa96b1caa958d454026ae");
   assert.equal(foundation.vtds.length, 9_178);
   assert.equal(foundation.join.mappedElectionGeometryCount, 9_038);
@@ -600,6 +618,59 @@ test("Pennsylvania Census VTD demographics reconcile and preserve unavailable co
       vtd.votingAgePopulation,
     );
   }
+});
+
+test("Pennsylvania demographic runtime artifact is compact, self-describing, and checksummed", () => {
+  const runtime = pennsylvaniaDemographicRuntimeDocument;
+  assert.equal(runtime.schemaVersion, PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_SCHEMA_VERSION);
+  assert.equal(runtime.encoding, PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_ENCODING);
+  assert.deepEqual(runtime.vtdFields, [...PENNSYLVANIA_VTD_ROW_FIELDS]);
+  assert.equal(runtime.vtdRows.length, 9_178);
+  assert.equal("vtds" in runtime, false);
+  assert.ok(pennsylvaniaDemographicArtifactBytes.byteLength < 900_000);
+  assert.equal(
+    pennsylvaniaDemographicRegistry.artifact.byteSize,
+    pennsylvaniaDemographicArtifactBytes.byteLength,
+  );
+  assert.equal(pennsylvaniaDemographicRegistry.artifact.schemaVersion, 3);
+  assert.equal(pennsylvaniaDemographicRegistry.artifact.encoding, "vtd-row-v1");
+  assert.equal(pennsylvaniaDemographicRegistry.artifact.rowCount, 9_178);
+  assert.equal(
+    pennsylvaniaDemographicRegistry.artifact.sha256,
+    createHash("sha256").update(pennsylvaniaDemographicArtifactBytes).digest("hex"),
+  );
+});
+
+test("Pennsylvania demographic decoder fails closed on incompatible or corrupted rows", () => {
+  const futureSchema = {
+    ...pennsylvaniaDemographicRuntimeDocument,
+    schemaVersion: 99,
+  };
+  assert.throws(
+    () => decodePennsylvaniaDemographicFoundation(futureSchema),
+    /Unsupported Pennsylvania demographic schema 99/,
+  );
+
+  const incompatibleFields = structuredClone(pennsylvaniaDemographicRuntimeDocument);
+  incompatibleFields.vtdFields[3] = "eligiblePopulation";
+  assert.throws(
+    () => decodePennsylvaniaDemographicFoundation(incompatibleFields),
+    /field contract is incompatible/,
+  );
+
+  const brokenDemographics = structuredClone(pennsylvaniaDemographicRuntimeDocument);
+  brokenDemographics.vtdRows[0][3] += 1;
+  assert.throws(
+    () => decodePennsylvaniaDemographicFoundation(brokenDemographics),
+    /demographic cells do not reconcile to VAP/,
+  );
+
+  const duplicateGeoid = structuredClone(pennsylvaniaDemographicRuntimeDocument);
+  duplicateGeoid.vtdRows[1][0] = duplicateGeoid.vtdRows[0][0];
+  assert.throws(
+    () => decodePennsylvaniaDemographicFoundation(duplicateGeoid),
+    /unique sorted GEOIDs/,
+  );
 });
 
 test("selected-geography inspectors preserve county, VTD, and unavailable distinctions", () => {
@@ -798,6 +869,19 @@ test("versioned scenario URLs round-trip every assumption and selected geography
   assert.equal(parsedUrl.searchParams.get("engine"), SCENARIO_ENGINE_VERSION);
   assert.equal(parsedUrl.searchParams.get("utm_source"), "review");
   assert.equal(parsedUrl.hash, "");
+  assert.equal(decoded.status, "valid");
+  assert.deepEqual(decoded.state, state);
+});
+
+test("versioned scenario URLs preserve official alphanumeric VTD GEOIDs", () => {
+  const state = {
+    ...DEFAULT_SCENARIO_URL_STATE,
+    selectedStateCode: "PA",
+    selectedCountyFips: "42003",
+    selectedVtdGeoid: "4200300A000",
+  };
+  const url = buildScenarioUrl("https://atlas.example/", state, { force: true });
+  const decoded = decodeScenarioSearch(new URL(url).search);
   assert.equal(decoded.status, "valid");
   assert.deepEqual(decoded.state, state);
 });

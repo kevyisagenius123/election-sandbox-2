@@ -21,8 +21,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.8.0`, versioned scenario URLs
-- Previous release commit: `e1f05c9 Add selected geography data inspector`
+- Release: `0.9.0`, compact demographic runtime
+- Previous release commit: `8cc0a06 Add versioned scenario sharing`
 - Remote: none configured
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -139,6 +139,17 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Duplicate fields, invalid ranges, malformed geography, missing metadata, and unknown future versions fail closed to the certified baseline with a visible explanation.
 - Unrelated query parameters are retained and copied links omit page-section hashes.
 
+### v0.9 compact demographic runtime
+
+- The P.L. 94-171 browser artifact advances to storage schema `3` and encoding `vtd-row-v1`.
+- A self-describing field list is stored once; all 9,178 VTDs use fixed-order compact rows.
+- County FIPS, VTD code, display-name fallback, source count, match method, aggregate Other, total ballots, denominator status, and turnout capacity are losslessly derived by the loader.
+- The loader validates field order, row types, official alphanumeric VTD GEOIDs, demographic sums, sorted uniqueness, mapped/unavailable coverage, mapped vote totals, and turnout capacity before enabling controls.
+- The official checksum-verified importer emits the compact artifact directly through pipeline `pa-pl94-vtd-demographics-v3`.
+- Raw browser payload falls from 5,712,538 bytes to 874,568 bytes, an 84.7 percent reduction. A local gzip profile falls from 437,995 to about 229,618 bytes.
+- Artifact SHA-256 is `639341193ee9b44d25a1712d2e02979f54db41a312baa7df992db44df0e790f0`.
+- Semantic scenario dataset `us2024-pa-vtd2020-v2` remains unchanged because decoded data and deterministic results are unchanged.
+
 ## 4. Demographic source and limitations
 
 Official archive:
@@ -203,7 +214,7 @@ src/data/pennsylvania.ts
 src/data/paPrecincts.ts
   -> lazy manifest and TopoJSON shard loader
 src/data/paDemographics.ts
-  -> lazy P.L. 94-171 artifact loader and model-unit conversion
+  -> compact P.L. 94-171 row decoder, validation, and model-unit conversion
 src/data/scenarioUrl.ts
   -> versioned scenario codec, canonical URL builder, and compatibility validation
 
@@ -312,18 +323,32 @@ v0.8 additionally changes:
 - `docs/decisions/0011-versioned-scenario-urls.md`
 - release documentation and package metadata
 
+v0.9 additionally changes:
+
+- `scripts/import-pennsylvania-2020-pl94-demographics.mjs`
+- regenerated compact `public/data/pa/2020/vtd-demographics.json`
+- regenerated `data-sources/pennsylvania/2020-pl94-vtd-demographics.json`
+- `src/data/paDemographics.ts`
+- `src/data/scenarioUrl.ts`
+- `tests/election-model.test.mjs`
+- `docs/decisions/0012-compact-demographic-runtime.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.8:
+CLI verification for v0.9:
 
-- `npm test`: 26 tests pass.
+- `npm test`: 29 tests pass.
 - `npm run lint`: passes.
 - `npm run build`: passes.
 - Vite emits the existing warning that the deck.gl Atlas chunk exceeds 500 kB after minification. This is a performance item, not a build failure.
 
 Browser verification:
 
-- v0.8 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
+- v0.9 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
+- The compact artifact loads successfully and enables behavior controls without changing the canonical complex scenario.
+- That scenario still produces Pennsylvania R+5.8 and the same ALEPPO VTD candidate ledger and contribution audit.
+- Official alphanumeric VTD `4200300A000` restores from a shared URL as Pittsburgh Ward 15 District 09 and opens the correct inspector.
 - A URL carrying turnout, Republican preference movement, Oliver exchange, Shift view, VTD contribution scope, Allegheny County, and a pinned ALEPPO VTD restores every visible state exactly.
 - Reloading that URL reproduces the same assumption ledger, R+5.8 Pennsylvania result, county terrain, VTD inspector, and local candidate ledger.
 - The Copy link control confirms success and keeps the explicit schema, data, and engine versions.
@@ -353,7 +378,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 ## 9. Known issues and deliberate omissions
 
 1. **Only Pennsylvania is production-detailed.** Other states remain state-level only.
-2. **The demographic runtime artifact is about 4.1 MB.** It is lazy-loaded, but should eventually be columnar, compressed, or split if more states are added.
+2. **The demographic artifact is now 875 KB, but decoding expands 9,178 VTD objects on the main thread.** This is acceptable for Pennsylvania; profile or move decoding/model work to a worker before loading several states at once.
 3. **The deck.gl chunk is about 1.6 MB minified.** It is already lazy, but further code splitting or bundle review is warranted.
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
 5. **No CVAP or 2024 eligibility estimate exists.** The UI correctly discloses the 2020 VAP limitation.
@@ -367,11 +392,11 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 Do not jump directly to a national demographic simulator. The next phase is:
 
-1. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
-2. Add a golden browser test for the canonical share URL once a browser-test runner is selected for the repository.
+1. Add a checked-in golden browser test for the canonical share URL, compact-data load, county/VTD restoration, and future-version fallback.
+2. Profile main-thread decode and scenario computation before choosing a second production-detailed state.
 3. Design a separately switchable uncertainty layer only after the runtime artifact and sharing contract are stable. It must use a fixed seed and documented calibration; the deterministic scenario remains the default.
 
-The immediate next product task after v0.8 is item 1: reduce the Pennsylvania demographic runtime payload without weakening its audited contract or fail-closed loading.
+The immediate next product task after v0.9 is item 1: turn the manual canonical-link browser audit into a repeatable repository test.
 
 ## 11. Commands
 

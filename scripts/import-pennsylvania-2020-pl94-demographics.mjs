@@ -34,6 +34,26 @@ const SOURCE_PAGE =
   "https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html";
 const RETRIEVED_AT = "2026-08-09";
 const GENERATED_AT = "2026-08-09T00:00:00.000Z";
+const RUNTIME_SCHEMA_VERSION = 3;
+const RUNTIME_ENCODING = "vtd-row-v1";
+const VTD_ROW_FIELDS = [
+  "geoid",
+  "censusName",
+  "displayNameOverride",
+  "votingAgePopulation",
+  "hispanicAnyRace",
+  "nonHispanicWhite",
+  "nonHispanicBlack",
+  "nonHispanicAsian",
+  "nonHispanicOther",
+  "exactSourceUnitCount",
+  "canonicalSourceUnitCount",
+  "harrisVotes",
+  "trumpVotes",
+  "steinVotes",
+  "oliverVotes",
+  "residualOtherVotes",
+];
 
 const GEO = {
   summaryLevel: 2,
@@ -332,7 +352,7 @@ const source = {
   table: "P4: Hispanic or Latino, and not Hispanic or Latino by race for the population 18 years and over",
   archiveFile: basename(ARCHIVE_PATH),
   archiveSha256,
-  pipelineVersion: "pa-pl94-vtd-demographics-v2",
+  pipelineVersion: "pa-pl94-vtd-demographics-v3",
   licenseStatus: "review_required",
   limitations: [
     "The denominator is the 2020 population age 18 and over, not citizen voting-age population or a 2024 eligible-voter estimate.",
@@ -343,7 +363,8 @@ const source = {
 };
 
 const document = {
-  schemaVersion: 2,
+  schemaVersion: RUNTIME_SCHEMA_VERSION,
+  encoding: RUNTIME_ENCODING,
   generatedAt: GENERATED_AT,
   electionId: "2024-president-pa",
   source,
@@ -371,7 +392,25 @@ const document = {
     },
   },
   counties: countySummaries,
-  vtds,
+  vtdFields: VTD_ROW_FIELDS,
+  vtdRows: vtds.map((vtd) => [
+    vtd.geoid,
+    vtd.censusName,
+    vtd.displayName === vtd.censusName ? null : vtd.displayName,
+    vtd.votingAgePopulation,
+    vtd.hispanicAnyRace,
+    vtd.nonHispanicWhite,
+    vtd.nonHispanicBlack,
+    vtd.nonHispanicAsian,
+    vtd.nonHispanicOther,
+    vtd.exactSourceUnitCount,
+    vtd.canonicalSourceUnitCount,
+    vtd.baselineVotes.harrisVotes,
+    vtd.baselineVotes.trumpVotes,
+    vtd.baselineVotes.steinVotes,
+    vtd.baselineVotes.oliverVotes,
+    vtd.baselineVotes.residualOtherVotes,
+  ]),
   residualUnits,
 };
 
@@ -385,6 +424,9 @@ const registry = {
   source,
   artifact: {
     path: "public/data/pa/2020/vtd-demographics.json",
+    schemaVersion: RUNTIME_SCHEMA_VERSION,
+    encoding: RUNTIME_ENCODING,
+    rowCount: vtds.length,
     sha256: sha256Text(serialized),
     byteSize: Buffer.byteLength(serialized),
   },
@@ -402,6 +444,9 @@ console.log(
 );
 console.log(
   `Certified baseline reconstructed: ${reconstructedVotes.totalVotes.toLocaleString()} votes`,
+);
+console.log(
+  `Compact ${RUNTIME_ENCODING} artifact: ${Buffer.byteLength(serialized).toLocaleString()} bytes`,
 );
 console.log(`Public artifact: ${PUBLIC_OUTPUT_PATH}`);
 console.log(`Registry: ${REGISTRY_OUTPUT_PATH}`);

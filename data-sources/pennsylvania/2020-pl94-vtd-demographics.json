@@ -12,7 +12,7 @@
     "table": "P4: Hispanic or Latino, and not Hispanic or Latino by race for the population 18 years and over",
     "archiveFile": "pa2020.pl.zip",
     "archiveSha256": "2d33a7dab29c8dd5692bbde203d253e06eebbc44fcbaa96b1caa958d454026ae",
-    "pipelineVersion": "pa-pl94-vtd-demographics-v2",
+    "pipelineVersion": "pa-pl94-vtd-demographics-v3",
     "licenseStatus": "review_required",
     "limitations": [
       "The denominator is the 2020 population age 18 and over, not citizen voting-age population or a 2024 eligible-voter estimate.",
@@ -23,8 +23,11 @@
   },
   "artifact": {
     "path": "public/data/pa/2020/vtd-demographics.json",
-    "sha256": "d18c813cc7bda50213cd178a45bf77823fb9b34ef9cc0c1bb24afdd2362333e3",
-    "byteSize": 5712538
+    "schemaVersion": 3,
+    "encoding": "vtd-row-v1",
+    "rowCount": 9178,
+    "sha256": "639341193ee9b44d25a1712d2e02979f54db41a312baa7df992db44df0e790f0",
+    "byteSize": 874568
   },
   "join": {
     "method": "exact_state_county_vtd_identifier",

@@ -642,7 +642,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Pennsylvania behavior lab · v0.8</div>
+        <div className="build-status"><span />Pennsylvania behavior lab · v0.9</div>
       </header>
 
       <div className="workbench" id="top">

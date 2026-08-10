@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.8 versioned scenario URLs
+**Status:** v0.9 compact demographic runtime
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.8 makes the first inspectable multi-candidate behavior slice reproducible and shareable without a backend. A readable URL contract records every ordered behavior assumption, interface mode, contribution scope, and selected state, county, or VTD alongside explicit schema, dataset, and engine versions. Compatible links rebuild the same integer-reconciled result locally. Unknown versions and malformed payloads fail closed to the certified baseline with a visible explanation. Live changes use browser-history replacement so control drags do not create noisy navigation stacks.
+Version 0.9 makes the Pennsylvania demographic foundation substantially lighter without changing its semantic data contract or deterministic results. The official importer emits storage schema 3 with a self-describing fixed-order VTD row encoding. The browser loader reconstructs the same expanded model records only after validating field order, official alphanumeric GEOIDs, demographic reconciliation, source-link coverage, mapped vote totals, and turnout capacity. The artifact falls from 5,712,538 bytes to 874,568 bytes while retaining every VTD, demographic cell, candidate total, and crosswalk count. Existing v0.8 scenario links remain compatible because the semantic dataset and engine are unchanged.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

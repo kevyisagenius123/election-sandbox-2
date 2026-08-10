@@ -140,7 +140,7 @@ function validateGeography(params: URLSearchParams) {
     }
   }
   if (vtd != null) {
-    if (!/^42\d{9}$/.test(vtd)) {
+    if (!/^42\d{3}[0-9A-Z]{6}$/.test(vtd)) {
       throw new InvalidScenarioUrlError("vtd is not a Pennsylvania Census VTD GEOID");
     }
     if (county == null || !vtd.startsWith(county)) {
