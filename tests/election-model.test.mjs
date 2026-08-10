@@ -9,6 +9,8 @@ import {
 } from "../packages/election-model/src/invariants.ts";
 import {
   aggregateNational,
+  allocateCappedProportionally,
+  applyBehaviorScenario,
   applyCountyTwoPartyMarginShift,
   applyTwoPartyMarginShift,
   applyTwoPartyVoteTransfer,
@@ -30,6 +32,10 @@ const pennsylvaniaPrecinctGeometryManifest = JSON.parse(readFileSync(
 ));
 const pennsylvaniaVtdCrosswalk = JSON.parse(readFileSync(
   new URL("../data-sources/pennsylvania/2024-vtd-crosswalk.json", import.meta.url),
+  "utf8",
+));
+const pennsylvaniaDemographicFoundation = JSON.parse(readFileSync(
+  new URL("../public/data/pa/2020/vtd-demographics.json", import.meta.url),
   "utf8",
 ));
 
@@ -196,4 +202,134 @@ test("Pennsylvania VTD crosswalk preserves explicit matched and unmatched covera
     ),
     9_087,
   );
+});
+
+test("capped proportional allocation preserves totals and respects capacity", () => {
+  const allocation = allocateCappedProportionally([1, 1], [1, 10], 5);
+  assert.deepEqual(allocation, [1, 4]);
+  assert.equal(allocation.reduce((sum, value) => sum + value, 0), 5);
+  assert.throws(
+    () => allocateCappedProportionally([1], [2], 3),
+    /exceeds capacity/,
+  );
+});
+
+test("turnout additions and preference transfers remain separate and exact", () => {
+  const baseline = [
+    {
+      id: "a",
+      countyFips: "42001",
+      geometryId: "a",
+      harrisVotes: 40,
+      trumpVotes: 30,
+      otherVotes: 0,
+      totalVotes: 70,
+      turnoutDenominator: 100,
+      turnoutCapacity: 30,
+    },
+    {
+      id: "b",
+      countyFips: "42003",
+      geometryId: "b",
+      harrisVotes: 20,
+      trumpVotes: 30,
+      otherVotes: 0,
+      totalVotes: 50,
+      turnoutDenominator: 100,
+      turnoutCapacity: 50,
+    },
+    {
+      id: "residual",
+      countyFips: null,
+      geometryId: null,
+      harrisVotes: 5,
+      trumpVotes: 5,
+      otherVotes: 2,
+      totalVotes: 12,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    },
+  ];
+  const scenario = applyBehaviorScenario(baseline, {
+    turnoutIncreasePoints: 10,
+    addedVoterHarrisShare: 0.6,
+    preferenceShiftPoints: 2,
+  });
+
+  assert.deepEqual(scenario.turnout, {
+    requestedVotes: 20,
+    addedVotes: 20,
+    harrisVotes: 12,
+    trumpVotes: 8,
+    denominator: 200,
+    capacity: 80,
+  });
+  assert.equal(scenario.preference.requestedTransfer, 2);
+  assert.equal(scenario.preference.realizedTransfer, 2);
+  assert.deepEqual(scenario.totals, {
+    harrisVotes: 79,
+    trumpVotes: 71,
+    otherVotes: 2,
+    totalVotes: 152,
+  });
+  scenario.units.forEach((unit) => {
+    assert.equal(unit.harrisVotes + unit.trumpVotes + unit.otherVotes, unit.totalVotes);
+  });
+});
+
+test("Pennsylvania Census VTD demographics reconcile and preserve unavailable coverage", () => {
+  const foundation = pennsylvaniaDemographicFoundation;
+  assert.equal(foundation.source.archiveSha256, "2d33a7dab29c8dd5692bbde203d253e06eebbc44fcbaa96b1caa958d454026ae");
+  assert.equal(foundation.vtds.length, 9_178);
+  assert.equal(foundation.join.mappedElectionGeometryCount, 9_038);
+  assert.equal(foundation.join.unavailableElectionGeometryCount, 140);
+  assert.equal(foundation.residualUnits.length, 102);
+  assert.equal(foundation.totals.statewideDemographics.votingAgePopulation, 10_353_548);
+  assert.equal(foundation.totals.turnoutCapacity, 3_281_256);
+  assert.deepEqual(foundation.totals.certifiedVotes, pennsylvaniaCountyDocument.totals);
+
+  for (const vtd of foundation.vtds) {
+    assert.equal(
+      vtd.hispanicAnyRace
+        + vtd.nonHispanicWhite
+        + vtd.nonHispanicBlack
+        + vtd.nonHispanicAsian
+        + vtd.nonHispanicOther,
+      vtd.votingAgePopulation,
+    );
+  }
+});
+
+test("zero-change Pennsylvania behavior model returns the certified baseline exactly", () => {
+  const foundation = pennsylvaniaDemographicFoundation;
+  const units = [
+    ...foundation.vtds
+      .filter((vtd) => vtd.hasMappedResult)
+      .map((vtd) => ({
+        id: `vtd-${vtd.geoid}`,
+        countyFips: vtd.countyFips,
+        geometryId: vtd.geoid,
+        ...vtd.baselineVotes,
+        turnoutDenominator: vtd.denominatorStatus === "available"
+          ? vtd.votingAgePopulation
+          : null,
+        turnoutCapacity: vtd.denominatorStatus === "available"
+          ? vtd.turnoutCapacity
+          : 0,
+      })),
+    ...foundation.residualUnits.map((unit) => ({
+      ...unit,
+      geometryId: null,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    })),
+  ];
+  const scenario = applyBehaviorScenario(units, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.55,
+    preferenceShiftPoints: 0,
+  });
+  assert.deepEqual(scenario.totals, pennsylvaniaCountyDocument.totals);
+  assert.equal(scenario.turnout.addedVotes, 0);
+  assert.equal(scenario.preference.realizedTransfer, 0);
 });

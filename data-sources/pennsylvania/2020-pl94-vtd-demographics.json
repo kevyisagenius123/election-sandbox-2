@@ -1,0 +1,1423 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-09T00:00:00.000Z",
+  "source": {
+    "id": "census-2020-pl94-pa-vtd-p4",
+    "publisher": "United States Census Bureau",
+    "title": "2020 Census Redistricting Data (P.L. 94-171), Table P4",
+    "sourceUrl": "https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/Pennsylvania/pa2020.pl.zip",
+    "documentationUrl": "https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html",
+    "retrievedAt": "2026-08-09",
+    "geographyVintage": "2020 Census voting districts",
+    "table": "P4: Hispanic or Latino, and not Hispanic or Latino by race for the population 18 years and over",
+    "archiveFile": "pa2020.pl.zip",
+    "archiveSha256": "2d33a7dab29c8dd5692bbde203d253e06eebbc44fcbaa96b1caa958d454026ae",
+    "pipelineVersion": "pa-pl94-vtd-demographics-v1",
+    "licenseStatus": "review_required",
+    "limitations": [
+      "The denominator is the 2020 population age 18 and over, not citizen voting-age population or a 2024 eligible-voter estimate.",
+      "The demographic vintage predates the 2024 election baseline by four years.",
+      "PL 94-171 tabulations use the 2020 Census disclosure-avoidance system.",
+      "Candidate preference is not observed in Census data and must not be inferred from these aggregate counts alone."
+    ]
+  },
+  "artifact": {
+    "path": "public/data/pa/2020/vtd-demographics.json",
+    "sha256": "2e58c46a58200ca4a825148b62b5948700dac4d767659c76d1ba000cf504f58b",
+    "byteSize": 4134769
+  },
+  "join": {
+    "method": "exact_state_county_vtd_identifier",
+    "demographicVintage": "2020",
+    "geometryVintage": "2020",
+    "electionVintage": "2024",
+    "geometryFeatureCount": 9178,
+    "mappedElectionGeometryCount": 9038,
+    "unavailableElectionGeometryCount": 140,
+    "resultReportingUnitCoveragePct": 98.6038
+  },
+  "totals": {
+    "statewideDemographics": {
+      "votingAgePopulation": 10353548,
+      "hispanicAnyRace": 704258,
+      "nonHispanicWhite": 7884010,
+      "nonHispanicBlack": 1039831,
+      "nonHispanicAsian": 398348,
+      "nonHispanicOther": 327101
+    },
+    "matchedDemographics": {
+      "votingAgePopulation": 10182984,
+      "hispanicAnyRace": 694027,
+      "nonHispanicWhite": 7749594,
+      "nonHispanicBlack": 1028685,
+      "nonHispanicAsian": 389353,
+      "nonHispanicOther": 321325
+    },
+    "mappedVotes": {
+      "harrisVotes": 3373378,
+      "trumpVotes": 3493255,
+      "otherVotes": 66927,
+      "totalVotes": 6933560
+    },
+    "residualVotes": {
+      "harrisVotes": 49664,
+      "trumpVotes": 50053,
+      "otherVotes": 25455,
+      "totalVotes": 125172
+    },
+    "certifiedVotes": {
+      "harrisVotes": 3423042,
+      "trumpVotes": 3543308,
+      "otherVotes": 92382,
+      "totalVotes": 7058732
+    },
+    "turnoutCapacity": 3281256,
+    "denominatorStatus": {
+      "availableVtdCount": 8880,
+      "ballotsExceed2020VapVtdCount": 158,
+      "noMappedResultVtdCount": 140
+    }
+  },
+  "counties": [
+    {
+      "countyFips": "42001",
+      "vtdCount": 50,
+      "mappedVtdCount": 50,
+      "demographics": {
+        "votingAgePopulation": 83005,
+        "hispanicAnyRace": 4865,
+        "nonHispanicWhite": 73832,
+        "nonHispanicBlack": 1183,
+        "nonHispanicAsian": 791,
+        "nonHispanicOther": 2334
+      },
+      "mappedVotes": {
+        "harrisVotes": 19842,
+        "trumpVotes": 40248,
+        "otherVotes": 560,
+        "totalVotes": 60650
+      },
+      "turnoutCapacity": 22463
+    },
+    {
+      "countyFips": "42003",
+      "vtdCount": 1325,
+      "mappedVtdCount": 1321,
+      "demographics": {
+        "votingAgePopulation": 1020183,
+        "hispanicAnyRace": 24137,
+        "nonHispanicWhite": 793509,
+        "nonHispanicBlack": 121252,
+        "nonHispanicAsian": 46016,
+        "nonHispanicOther": 35269
+      },
+      "mappedVotes": {
+        "harrisVotes": 428681,
+        "trumpVotes": 282263,
+        "otherVotes": 6968,
+        "totalVotes": 717912
+      },
+      "turnoutCapacity": 306096
+    },
+    {
+      "countyFips": "42005",
+      "vtdCount": 62,
+      "mappedVtdCount": 62,
+      "demographics": {
+        "votingAgePopulation": 53182,
+        "hispanicAnyRace": 296,
+        "nonHispanicWhite": 50952,
+        "nonHispanicBlack": 359,
+        "nonHispanicAsian": 115,
+        "nonHispanicOther": 1460
+      },
+      "mappedVotes": {
+        "harrisVotes": 8553,
+        "trumpVotes": 28296,
+        "otherVotes": 270,
+        "totalVotes": 37119
+      },
+      "turnoutCapacity": 16063
+    },
+    {
+      "countyFips": "42007",
+      "vtdCount": 129,
+      "mappedVtdCount": 129,
+      "demographics": {
+        "votingAgePopulation": 136115,
+        "hispanicAnyRace": 2396,
+        "nonHispanicWhite": 119542,
+        "nonHispanicBlack": 8234,
+        "nonHispanicAsian": 807,
+        "nonHispanicOther": 5136
+      },
+      "mappedVotes": {
+        "harrisVotes": 37196,
+        "trumpVotes": 56837,
+        "otherVotes": 810,
+        "totalVotes": 94843
+      },
+      "turnoutCapacity": 41336
+    },
+    {
+      "countyFips": "42009",
+      "vtdCount": 40,
+      "mappedVtdCount": 39,
+      "demographics": {
+        "votingAgePopulation": 38284,
+        "hispanicAnyRace": 353,
+        "nonHispanicWhite": 36752,
+        "nonHispanicBlack": 134,
+        "nonHispanicAsian": 116,
+        "nonHispanicOther": 929
+      },
+      "mappedVotes": {
+        "harrisVotes": 4211,
+        "trumpVotes": 23041,
+        "otherVotes": 162,
+        "totalVotes": 27414
+      },
+      "turnoutCapacity": 9716
+    },
+    {
+      "countyFips": "42011",
+      "vtdCount": 205,
+      "mappedVtdCount": 196,
+      "demographics": {
+        "votingAgePopulation": 333658,
+        "hispanicAnyRace": 65244,
+        "nonHispanicWhite": 240772,
+        "nonHispanicBlack": 14000,
+        "nonHispanicAsian": 4921,
+        "nonHispanicOther": 8721
+      },
+      "mappedVotes": {
+        "harrisVotes": 88510,
+        "trumpVotes": 112160,
+        "otherVotes": 1987,
+        "totalVotes": 202657
+      },
+      "turnoutCapacity": 121338
+    },
+    {
+      "countyFips": "42013",
+      "vtdCount": 94,
+      "mappedVtdCount": 92,
+      "demographics": {
+        "votingAgePopulation": 98475,
+        "hispanicAnyRace": 1116,
+        "nonHispanicWhite": 91837,
+        "nonHispanicBlack": 1822,
+        "nonHispanicAsian": 704,
+        "nonHispanicOther": 2996
+      },
+      "mappedVotes": {
+        "harrisVotes": 17908,
+        "trumpVotes": 46087,
+        "otherVotes": 463,
+        "totalVotes": 64458
+      },
+      "turnoutCapacity": 33615
+    },
+    {
+      "countyFips": "42015",
+      "vtdCount": 61,
+      "mappedVtdCount": 61,
+      "demographics": {
+        "votingAgePopulation": 46941,
+        "hispanicAnyRace": 543,
+        "nonHispanicWhite": 44064,
+        "nonHispanicBlack": 262,
+        "nonHispanicAsian": 347,
+        "nonHispanicOther": 1725
+      },
+      "mappedVotes": {
+        "harrisVotes": 7990,
+        "trumpVotes": 22937,
+        "otherVotes": 265,
+        "totalVotes": 31192
+      },
+      "turnoutCapacity": 15749
+    },
+    {
+      "countyFips": "42017",
+      "vtdCount": 304,
+      "mappedVtdCount": 304,
+      "demographics": {
+        "votingAgePopulation": 515340,
+        "hispanicAnyRace": 26025,
+        "nonHispanicWhite": 428133,
+        "nonHispanicBlack": 19077,
+        "nonHispanicAsian": 26860,
+        "nonHispanicOther": 15245
+      },
+      "mappedVotes": {
+        "harrisVotes": 198431,
+        "trumpVotes": 198722,
+        "otherVotes": 3875,
+        "totalVotes": 401028
+      },
+      "turnoutCapacity": 114437
+    },
+    {
+      "countyFips": "42019",
+      "vtdCount": 95,
+      "mappedVtdCount": 83,
+      "demographics": {
+        "votingAgePopulation": 155325,
+        "hispanicAnyRace": 2377,
+        "nonHispanicWhite": 144715,
+        "nonHispanicBlack": 1653,
+        "nonHispanicAsian": 2176,
+        "nonHispanicOther": 4404
+      },
+      "mappedVotes": {
+        "harrisVotes": 36849,
+        "trumpVotes": 73301,
+        "otherVotes": 923,
+        "totalVotes": 111073
+      },
+      "turnoutCapacity": 31807
+    },
+    {
+      "countyFips": "42021",
+      "vtdCount": 125,
+      "mappedVtdCount": 118,
+      "demographics": {
+        "votingAgePopulation": 108388,
+        "hispanicAnyRace": 1592,
+        "nonHispanicWhite": 99177,
+        "nonHispanicBlack": 3894,
+        "nonHispanicAsian": 633,
+        "nonHispanicOther": 3092
+      },
+      "mappedVotes": {
+        "harrisVotes": 19775,
+        "trumpVotes": 46890,
+        "otherVotes": 510,
+        "totalVotes": 67175
+      },
+      "turnoutCapacity": 36019
+    },
+    {
+      "countyFips": "42023",
+      "vtdCount": 10,
+      "mappedVtdCount": 10,
+      "demographics": {
+        "votingAgePopulation": 3751,
+        "hispanicAnyRace": 49,
+        "nonHispanicWhite": 3571,
+        "nonHispanicBlack": 12,
+        "nonHispanicAsian": 15,
+        "nonHispanicOther": 104
+      },
+      "mappedVotes": {
+        "harrisVotes": 538,
+        "trumpVotes": 1654,
+        "otherVotes": 27,
+        "totalVotes": 2219
+      },
+      "turnoutCapacity": 1633
+    },
+    {
+      "countyFips": "42025",
+      "vtdCount": 51,
+      "mappedVtdCount": 51,
+      "demographics": {
+        "votingAgePopulation": 52290,
+        "hispanicAnyRace": 2254,
+        "nonHispanicWhite": 47527,
+        "nonHispanicBlack": 784,
+        "nonHispanicAsian": 267,
+        "nonHispanicOther": 1458
+      },
+      "mappedVotes": {
+        "harrisVotes": 11394,
+        "trumpVotes": 23708,
+        "otherVotes": 293,
+        "totalVotes": 35395
+      },
+      "turnoutCapacity": 17016
+    },
+    {
+      "countyFips": "42027",
+      "vtdCount": 90,
+      "mappedVtdCount": 81,
+      "demographics": {
+        "votingAgePopulation": 134439,
+        "hispanicAnyRace": 4701,
+        "nonHispanicWhite": 110201,
+        "nonHispanicBlack": 4794,
+        "nonHispanicAsian": 10186,
+        "nonHispanicOther": 4557
+      },
+      "mappedVotes": {
+        "harrisVotes": 35234,
+        "trumpVotes": 35514,
+        "otherVotes": 741,
+        "totalVotes": 71489
+      },
+      "turnoutCapacity": 41216
+    },
+    {
+      "countyFips": "42029",
+      "vtdCount": 232,
+      "mappedVtdCount": 223,
+      "demographics": {
+        "votingAgePopulation": 412886,
+        "hispanicAnyRace": 28457,
+        "nonHispanicWhite": 324514,
+        "nonHispanicBlack": 22312,
+        "nonHispanicAsian": 24914,
+        "nonHispanicOther": 12689
+      },
+      "mappedVotes": {
+        "harrisVotes": 178240,
+        "trumpVotes": 131919,
+        "otherVotes": 3289,
+        "totalVotes": 313448
+      },
+      "turnoutCapacity": 85642
+    },
+    {
+      "countyFips": "42031",
+      "vtdCount": 41,
+      "mappedVtdCount": 40,
+      "demographics": {
+        "votingAgePopulation": 29966,
+        "hispanicAnyRace": 280,
+        "nonHispanicWhite": 28287,
+        "nonHispanicBlack": 442,
+        "nonHispanicAsian": 141,
+        "nonHispanicOther": 816
+      },
+      "mappedVotes": {
+        "harrisVotes": 4562,
+        "trumpVotes": 15036,
+        "otherVotes": 135,
+        "totalVotes": 19733
+      },
+      "turnoutCapacity": 10230
+    },
+    {
+      "countyFips": "42033",
+      "vtdCount": 70,
+      "mappedVtdCount": 70,
+      "demographics": {
+        "votingAgePopulation": 65948,
+        "hispanicAnyRace": 2329,
+        "nonHispanicWhite": 59942,
+        "nonHispanicBlack": 1675,
+        "nonHispanicAsian": 378,
+        "nonHispanicOther": 1624
+      },
+      "mappedVotes": {
+        "harrisVotes": 9647,
+        "trumpVotes": 30481,
+        "otherVotes": 302,
+        "totalVotes": 40430
+      },
+      "turnoutCapacity": 25518
+    },
+    {
+      "countyFips": "42035",
+      "vtdCount": 34,
+      "mappedVtdCount": 34,
+      "demographics": {
+        "votingAgePopulation": 29598,
+        "hispanicAnyRace": 409,
+        "nonHispanicWhite": 27878,
+        "nonHispanicBlack": 320,
+        "nonHispanicAsian": 181,
+        "nonHispanicOther": 810
+      },
+      "mappedVotes": {
+        "harrisVotes": 5395,
+        "trumpVotes": 12965,
+        "otherVotes": 162,
+        "totalVotes": 18522
+      },
+      "turnoutCapacity": 11080
+    },
+    {
+      "countyFips": "42037",
+      "vtdCount": 43,
+      "mappedVtdCount": 41,
+      "demographics": {
+        "votingAgePopulation": 53098,
+        "hispanicAnyRace": 1493,
+        "nonHispanicWhite": 48896,
+        "nonHispanicBlack": 671,
+        "nonHispanicAsian": 610,
+        "nonHispanicOther": 1428
+      },
+      "mappedVotes": {
+        "harrisVotes": 11083,
+        "trumpVotes": 21190,
+        "otherVotes": 303,
+        "totalVotes": 32576
+      },
+      "turnoutCapacity": 19276
+    },
+    {
+      "countyFips": "42039",
+      "vtdCount": 68,
+      "mappedVtdCount": 61,
+      "demographics": {
+        "votingAgePopulation": 66608,
+        "hispanicAnyRace": 795,
+        "nonHispanicWhite": 62126,
+        "nonHispanicBlack": 1187,
+        "nonHispanicAsian": 297,
+        "nonHispanicOther": 2203
+      },
+      "mappedVotes": {
+        "harrisVotes": 12858,
+        "trumpVotes": 29685,
+        "otherVotes": 329,
+        "totalVotes": 42872
+      },
+      "turnoutCapacity": 20486
+    },
+    {
+      "countyFips": "42041",
+      "vtdCount": 119,
+      "mappedVtdCount": 115,
+      "demographics": {
+        "votingAgePopulation": 206533,
+        "hispanicAnyRace": 8018,
+        "nonHispanicWhite": 173598,
+        "nonHispanicBlack": 7749,
+        "nonHispanicAsian": 10462,
+        "nonHispanicOther": 6706
+      },
+      "mappedVotes": {
+        "harrisVotes": 64032,
+        "trumpVotes": 77145,
+        "otherVotes": 1822,
+        "totalVotes": 142999
+      },
+      "turnoutCapacity": 56497
+    },
+    {
+      "countyFips": "42043",
+      "vtdCount": 159,
+      "mappedVtdCount": 158,
+      "demographics": {
+        "votingAgePopulation": 224493,
+        "hispanicAnyRace": 20482,
+        "nonHispanicWhite": 146556,
+        "nonHispanicBlack": 35774,
+        "nonHispanicAsian": 13018,
+        "nonHispanicOther": 8663
+      },
+      "mappedVotes": {
+        "harrisVotes": 78327,
+        "trumpVotes": 69474,
+        "otherVotes": 1725,
+        "totalVotes": 149526
+      },
+      "turnoutCapacity": 73951
+    },
+    {
+      "countyFips": "42045",
+      "vtdCount": 429,
+      "mappedVtdCount": 428,
+      "demographics": {
+        "votingAgePopulation": 449790,
+        "hispanicAnyRace": 17672,
+        "nonHispanicWhite": 298121,
+        "nonHispanicBlack": 92644,
+        "nonHispanicAsian": 27666,
+        "nonHispanicOther": 13687
+      },
+      "mappedVotes": {
+        "harrisVotes": 201324,
+        "trumpVotes": 123421,
+        "otherVotes": 3427,
+        "totalVotes": 328172
+      },
+      "turnoutCapacity": 123120
+    },
+    {
+      "countyFips": "42047",
+      "vtdCount": 29,
+      "mappedVtdCount": 29,
+      "demographics": {
+        "votingAgePopulation": 25229,
+        "hispanicAnyRace": 183,
+        "nonHispanicWhite": 24210,
+        "nonHispanicBlack": 51,
+        "nonHispanicAsian": 94,
+        "nonHispanicOther": 691
+      },
+      "mappedVotes": {
+        "harrisVotes": 4483,
+        "trumpVotes": 12543,
+        "otherVotes": 127,
+        "totalVotes": 17153
+      },
+      "turnoutCapacity": 8079
+    },
+    {
+      "countyFips": "42049",
+      "vtdCount": 150,
+      "mappedVtdCount": 145,
+      "demographics": {
+        "votingAgePopulation": 214341,
+        "hispanicAnyRace": 7450,
+        "nonHispanicWhite": 180091,
+        "nonHispanicBlack": 14140,
+        "nonHispanicAsian": 4662,
+        "nonHispanicOther": 7998
+      },
+      "mappedVotes": {
+        "harrisVotes": 65659,
+        "trumpVotes": 66826,
+        "otherVotes": 1237,
+        "totalVotes": 133722
+      },
+      "turnoutCapacity": 74044
+    },
+    {
+      "countyFips": "42051",
+      "vtdCount": 78,
+      "mappedVtdCount": 77,
+      "demographics": {
+        "votingAgePopulation": 104708,
+        "hispanicAnyRace": 1056,
+        "nonHispanicWhite": 95154,
+        "nonHispanicBlack": 4517,
+        "nonHispanicAsian": 313,
+        "nonHispanicOther": 3668
+      },
+      "mappedVotes": {
+        "harrisVotes": 19548,
+        "trumpVotes": 43633,
+        "otherVotes": 291,
+        "totalVotes": 63472
+      },
+      "turnoutCapacity": 41225
+    },
+    {
+      "countyFips": "42053",
+      "vtdCount": 9,
+      "mappedVtdCount": 9,
+      "demographics": {
+        "votingAgePopulation": 6323,
+        "hispanicAnyRace": 298,
+        "nonHispanicWhite": 4699,
+        "nonHispanicBlack": 1221,
+        "nonHispanicAsian": 14,
+        "nonHispanicOther": 91
+      },
+      "mappedVotes": {
+        "harrisVotes": 724,
+        "trumpVotes": 1902,
+        "otherVotes": 24,
+        "totalVotes": 2650
+      },
+      "turnoutCapacity": 3673
+    },
+    {
+      "countyFips": "42055",
+      "vtdCount": 73,
+      "mappedVtdCount": 73,
+      "demographics": {
+        "votingAgePopulation": 120964,
+        "hispanicAnyRace": 6584,
+        "nonHispanicWhite": 105963,
+        "nonHispanicBlack": 3649,
+        "nonHispanicAsian": 1107,
+        "nonHispanicOther": 3661
+      },
+      "mappedVotes": {
+        "harrisVotes": 23543,
+        "trumpVotes": 59604,
+        "otherVotes": 737,
+        "totalVotes": 83884
+      },
+      "turnoutCapacity": 37080
+    },
+    {
+      "countyFips": "42057",
+      "vtdCount": 13,
+      "mappedVtdCount": 13,
+      "demographics": {
+        "votingAgePopulation": 11514,
+        "hispanicAnyRace": 81,
+        "nonHispanicWhite": 10960,
+        "nonHispanicBlack": 91,
+        "nonHispanicAsian": 27,
+        "nonHispanicOther": 355
+      },
+      "mappedVotes": {
+        "harrisVotes": 1102,
+        "trumpVotes": 7039,
+        "otherVotes": 36,
+        "totalVotes": 8177
+      },
+      "turnoutCapacity": 3342
+    },
+    {
+      "countyFips": "42059",
+      "vtdCount": 42,
+      "mappedVtdCount": 42,
+      "demographics": {
+        "votingAgePopulation": 29272,
+        "hispanicAnyRace": 415,
+        "nonHispanicWhite": 26764,
+        "nonHispanicBlack": 1030,
+        "nonHispanicAsian": 96,
+        "nonHispanicOther": 967
+      },
+      "mappedVotes": {
+        "harrisVotes": 4592,
+        "trumpVotes": 12319,
+        "otherVotes": 325,
+        "totalVotes": 17236
+      },
+      "turnoutCapacity": 12183
+    },
+    {
+      "countyFips": "42061",
+      "vtdCount": 58,
+      "mappedVtdCount": 58,
+      "demographics": {
+        "votingAgePopulation": 36075,
+        "hispanicAnyRace": 659,
+        "nonHispanicWhite": 32176,
+        "nonHispanicBlack": 2148,
+        "nonHispanicAsian": 199,
+        "nonHispanicOther": 893
+      },
+      "mappedVotes": {
+        "harrisVotes": 5368,
+        "trumpVotes": 17627,
+        "otherVotes": 161,
+        "totalVotes": 23156
+      },
+      "turnoutCapacity": 12951
+    },
+    {
+      "countyFips": "42063",
+      "vtdCount": 69,
+      "mappedVtdCount": 69,
+      "demographics": {
+        "votingAgePopulation": 67726,
+        "hispanicAnyRace": 1121,
+        "nonHispanicWhite": 61830,
+        "nonHispanicBlack": 2144,
+        "nonHispanicAsian": 673,
+        "nonHispanicOther": 1958
+      },
+      "mappedVotes": {
+        "harrisVotes": 12697,
+        "trumpVotes": 29215,
+        "otherVotes": 317,
+        "totalVotes": 42229
+      },
+      "turnoutCapacity": 25497
+    },
+    {
+      "countyFips": "42065",
+      "vtdCount": 37,
+      "mappedVtdCount": 37,
+      "demographics": {
+        "votingAgePopulation": 35246,
+        "hispanicAnyRace": 271,
+        "nonHispanicWhite": 33716,
+        "nonHispanicBlack": 92,
+        "nonHispanicAsian": 75,
+        "nonHispanicOther": 1092
+      },
+      "mappedVotes": {
+        "harrisVotes": 4707,
+        "trumpVotes": 18235,
+        "otherVotes": 187,
+        "totalVotes": 23129
+      },
+      "turnoutCapacity": 12117
+    },
+    {
+      "countyFips": "42067",
+      "vtdCount": 18,
+      "mappedVtdCount": 18,
+      "demographics": {
+        "votingAgePopulation": 18343,
+        "hispanicAnyRace": 557,
+        "nonHispanicWhite": 17270,
+        "nonHispanicBlack": 82,
+        "nonHispanicAsian": 47,
+        "nonHispanicOther": 387
+      },
+      "mappedVotes": {
+        "harrisVotes": 2290,
+        "trumpVotes": 9721,
+        "otherVotes": 93,
+        "totalVotes": 12104
+      },
+      "turnoutCapacity": 6239
+    },
+    {
+      "countyFips": "42069",
+      "vtdCount": 163,
+      "mappedVtdCount": 162,
+      "demographics": {
+        "votingAgePopulation": 173597,
+        "hispanicAnyRace": 11538,
+        "nonHispanicWhite": 146578,
+        "nonHispanicBlack": 5241,
+        "nonHispanicAsian": 5316,
+        "nonHispanicOther": 4924
+      },
+      "mappedVotes": {
+        "harrisVotes": 59510,
+        "trumpVotes": 56261,
+        "otherVotes": 819,
+        "totalVotes": 116590
+      },
+      "turnoutCapacity": 56377
+    },
+    {
+      "countyFips": "42071",
+      "vtdCount": 241,
+      "mappedVtdCount": 239,
+      "demographics": {
+        "votingAgePopulation": 425314,
+        "hispanicAnyRace": 40363,
+        "nonHispanicWhite": 349267,
+        "nonHispanicBlack": 14423,
+        "nonHispanicAsian": 10598,
+        "nonHispanicOther": 10663
+      },
+      "mappedVotes": {
+        "harrisVotes": 119390,
+        "trumpVotes": 164991,
+        "otherVotes": 2856,
+        "totalVotes": 287237
+      },
+      "turnoutCapacity": 135565
+    },
+    {
+      "countyFips": "42073",
+      "vtdCount": 75,
+      "mappedVtdCount": 75,
+      "demographics": {
+        "votingAgePopulation": 69056,
+        "hispanicAnyRace": 1032,
+        "nonHispanicWhite": 62440,
+        "nonHispanicBlack": 2516,
+        "nonHispanicAsian": 264,
+        "nonHispanicOther": 2804
+      },
+      "mappedVotes": {
+        "harrisVotes": 15440,
+        "trumpVotes": 31347,
+        "otherVotes": 323,
+        "totalVotes": 47110
+      },
+      "turnoutCapacity": 21973
+    },
+    {
+      "countyFips": "42075",
+      "vtdCount": 60,
+      "mappedVtdCount": 60,
+      "demographics": {
+        "votingAgePopulation": 111234,
+        "hispanicAnyRace": 13125,
+        "nonHispanicWhite": 91972,
+        "nonHispanicBlack": 1874,
+        "nonHispanicAsian": 1691,
+        "nonHispanicOther": 2572
+      },
+      "mappedVotes": {
+        "harrisVotes": 24734,
+        "trumpVotes": 48282,
+        "otherVotes": 676,
+        "totalVotes": 73692
+      },
+      "turnoutCapacity": 37601
+    },
+    {
+      "countyFips": "42077",
+      "vtdCount": 158,
+      "mappedVtdCount": 157,
+      "demographics": {
+        "votingAgePopulation": 291935,
+        "hispanicAnyRace": 65250,
+        "nonHispanicWhite": 191222,
+        "nonHispanicBlack": 17021,
+        "nonHispanicAsian": 10530,
+        "nonHispanicOther": 7912
+      },
+      "mappedVotes": {
+        "harrisVotes": 95813,
+        "trumpVotes": 90970,
+        "otherVotes": 2278,
+        "totalVotes": 189061
+      },
+      "turnoutCapacity": 100593
+    },
+    {
+      "countyFips": "42079",
+      "vtdCount": 187,
+      "mappedVtdCount": 180,
+      "demographics": {
+        "votingAgePopulation": 262455,
+        "hispanicAnyRace": 30897,
+        "nonHispanicWhite": 212069,
+        "nonHispanicBlack": 10133,
+        "nonHispanicAsian": 3142,
+        "nonHispanicOther": 6214
+      },
+      "mappedVotes": {
+        "harrisVotes": 61132,
+        "trumpVotes": 89380,
+        "otherVotes": 1172,
+        "totalVotes": 151684
+      },
+      "turnoutCapacity": 103206
+    },
+    {
+      "countyFips": "42081",
+      "vtdCount": 81,
+      "mappedVtdCount": 80,
+      "demographics": {
+        "votingAgePopulation": 90800,
+        "hispanicAnyRace": 1556,
+        "nonHispanicWhite": 81075,
+        "nonHispanicBlack": 4240,
+        "nonHispanicAsian": 733,
+        "nonHispanicOther": 3196
+      },
+      "mappedVotes": {
+        "harrisVotes": 16893,
+        "trumpVotes": 41461,
+        "otherVotes": 498,
+        "totalVotes": 58852
+      },
+      "turnoutCapacity": 30172
+    },
+    {
+      "countyFips": "42083",
+      "vtdCount": 42,
+      "mappedVtdCount": 42,
+      "demographics": {
+        "votingAgePopulation": 32321,
+        "hispanicAnyRace": 449,
+        "nonHispanicWhite": 29698,
+        "nonHispanicBlack": 811,
+        "nonHispanicAsian": 163,
+        "nonHispanicOther": 1200
+      },
+      "mappedVotes": {
+        "harrisVotes": 5115,
+        "trumpVotes": 14401,
+        "otherVotes": 166,
+        "totalVotes": 19682
+      },
+      "turnoutCapacity": 12649
+    },
+    {
+      "countyFips": "42085",
+      "vtdCount": 90,
+      "mappedVtdCount": 84,
+      "demographics": {
+        "votingAgePopulation": 89028,
+        "hispanicAnyRace": 985,
+        "nonHispanicWhite": 79683,
+        "nonHispanicBlack": 4749,
+        "nonHispanicAsian": 537,
+        "nonHispanicOther": 3074
+      },
+      "mappedVotes": {
+        "harrisVotes": 18350,
+        "trumpVotes": 36710,
+        "otherVotes": 475,
+        "totalVotes": 55535
+      },
+      "turnoutCapacity": 26806
+    },
+    {
+      "countyFips": "42087",
+      "vtdCount": 26,
+      "mappedVtdCount": 26,
+      "demographics": {
+        "votingAgePopulation": 36057,
+        "hispanicAnyRace": 578,
+        "nonHispanicWhite": 34282,
+        "nonHispanicBlack": 242,
+        "nonHispanicAsian": 136,
+        "nonHispanicOther": 819
+      },
+      "mappedVotes": {
+        "harrisVotes": 4735,
+        "trumpVotes": 17184,
+        "otherVotes": 152,
+        "totalVotes": 22071
+      },
+      "turnoutCapacity": 13986
+    },
+    {
+      "countyFips": "42089",
+      "vtdCount": 52,
+      "mappedVtdCount": 50,
+      "demographics": {
+        "votingAgePopulation": 134271,
+        "hispanicAnyRace": 19796,
+        "nonHispanicWhite": 88292,
+        "nonHispanicBlack": 17416,
+        "nonHispanicAsian": 3270,
+        "nonHispanicOther": 5497
+      },
+      "mappedVotes": {
+        "harrisVotes": 41068,
+        "trumpVotes": 41974,
+        "otherVotes": 828,
+        "totalVotes": 83870
+      },
+      "turnoutCapacity": 47913
+    },
+    {
+      "countyFips": "42091",
+      "vtdCount": 431,
+      "mappedVtdCount": 415,
+      "demographics": {
+        "votingAgePopulation": 674024,
+        "hispanicAnyRace": 35655,
+        "nonHispanicWhite": 503800,
+        "nonHispanicBlack": 61170,
+        "nonHispanicAsian": 52504,
+        "nonHispanicOther": 20895
+      },
+      "mappedVotes": {
+        "harrisVotes": 308743,
+        "trumpVotes": 193852,
+        "otherVotes": 5373,
+        "totalVotes": 507968
+      },
+      "turnoutCapacity": 154816
+    },
+    {
+      "countyFips": "42093",
+      "vtdCount": 15,
+      "mappedVtdCount": 15,
+      "demographics": {
+        "votingAgePopulation": 14393,
+        "hispanicAnyRace": 318,
+        "nonHispanicWhite": 13017,
+        "nonHispanicBlack": 203,
+        "nonHispanicAsian": 516,
+        "nonHispanicOther": 339
+      },
+      "mappedVotes": {
+        "harrisVotes": 3862,
+        "trumpVotes": 5944,
+        "otherVotes": 102,
+        "totalVotes": 9908
+      },
+      "turnoutCapacity": 4485
+    },
+    {
+      "countyFips": "42095",
+      "vtdCount": 154,
+      "mappedVtdCount": 152,
+      "demographics": {
+        "votingAgePopulation": 251676,
+        "hispanicAnyRace": 29851,
+        "nonHispanicWhite": 192789,
+        "nonHispanicBlack": 13060,
+        "nonHispanicAsian": 7978,
+        "nonHispanicOther": 7998
+      },
+      "mappedVotes": {
+        "harrisVotes": 86137,
+        "trumpVotes": 89398,
+        "otherVotes": 1738,
+        "totalVotes": 177273
+      },
+      "turnoutCapacity": 73826
+    },
+    {
+      "countyFips": "42097",
+      "vtdCount": 75,
+      "mappedVtdCount": 67,
+      "demographics": {
+        "votingAgePopulation": 73275,
+        "hispanicAnyRace": 2583,
+        "nonHispanicWhite": 66561,
+        "nonHispanicBlack": 1934,
+        "nonHispanicAsian": 337,
+        "nonHispanicOther": 1860
+      },
+      "mappedVotes": {
+        "harrisVotes": 11754,
+        "trumpVotes": 28005,
+        "otherVotes": 378,
+        "totalVotes": 40137
+      },
+      "turnoutCapacity": 27091
+    },
+    {
+      "countyFips": "42099",
+      "vtdCount": 31,
+      "mappedVtdCount": 31,
+      "demographics": {
+        "votingAgePopulation": 35917,
+        "hispanicAnyRace": 554,
+        "nonHispanicWhite": 33912,
+        "nonHispanicBlack": 229,
+        "nonHispanicAsian": 127,
+        "nonHispanicOther": 1095
+      },
+      "mappedVotes": {
+        "harrisVotes": 6385,
+        "trumpVotes": 19073,
+        "otherVotes": 267,
+        "totalVotes": 25725
+      },
+      "turnoutCapacity": 10316
+    },
+    {
+      "countyFips": "42101",
+      "vtdCount": 1703,
+      "mappedVtdCount": 1697,
+      "demographics": {
+        "votingAgePopulation": 1278362,
+        "hispanicAnyRace": 167538,
+        "nonHispanicWhite": 482917,
+        "nonHispanicBlack": 471206,
+        "nonHispanicAsian": 108776,
+        "nonHispanicOther": 47925
+      },
+      "mappedVotes": {
+        "harrisVotes": 563893,
+        "trumpVotes": 143791,
+        "otherVotes": 8516,
+        "totalVotes": 716200
+      },
+      "turnoutCapacity": 551837
+    },
+    {
+      "countyFips": "42103",
+      "vtdCount": 18,
+      "mappedVtdCount": 17,
+      "demographics": {
+        "votingAgePopulation": 47447,
+        "hispanicAnyRace": 4593,
+        "nonHispanicWhite": 38018,
+        "nonHispanicBlack": 2366,
+        "nonHispanicAsian": 680,
+        "nonHispanicOther": 1790
+      },
+      "mappedVotes": {
+        "harrisVotes": 13132,
+        "trumpVotes": 21537,
+        "otherVotes": 281,
+        "totalVotes": 34950
+      },
+      "turnoutCapacity": 11865
+    },
+    {
+      "countyFips": "42105",
+      "vtdCount": 32,
+      "mappedVtdCount": 32,
+      "demographics": {
+        "votingAgePopulation": 13140,
+        "hispanicAnyRace": 156,
+        "nonHispanicWhite": 12491,
+        "nonHispanicBlack": 34,
+        "nonHispanicAsian": 52,
+        "nonHispanicOther": 407
+      },
+      "mappedVotes": {
+        "harrisVotes": 1675,
+        "trumpVotes": 7334,
+        "otherVotes": 76,
+        "totalVotes": 9085
+      },
+      "turnoutCapacity": 4056
+    },
+    {
+      "countyFips": "42107",
+      "vtdCount": 125,
+      "mappedVtdCount": 125,
+      "demographics": {
+        "votingAgePopulation": 115932,
+        "hispanicAnyRace": 5112,
+        "nonHispanicWhite": 104076,
+        "nonHispanicBlack": 3665,
+        "nonHispanicAsian": 637,
+        "nonHispanicOther": 2442
+      },
+      "mappedVotes": {
+        "harrisVotes": 20882,
+        "trumpVotes": 51665,
+        "otherVotes": 637,
+        "totalVotes": 73184
+      },
+      "turnoutCapacity": 42829
+    },
+    {
+      "countyFips": "42109",
+      "vtdCount": 25,
+      "mappedVtdCount": 25,
+      "demographics": {
+        "votingAgePopulation": 31144,
+        "hispanicAnyRace": 652,
+        "nonHispanicWhite": 29237,
+        "nonHispanicBlack": 403,
+        "nonHispanicAsian": 241,
+        "nonHispanicOther": 611
+      },
+      "mappedVotes": {
+        "harrisVotes": 5239,
+        "trumpVotes": 14664,
+        "otherVotes": 135,
+        "totalVotes": 20038
+      },
+      "turnoutCapacity": 11106
+    },
+    {
+      "countyFips": "42111",
+      "vtdCount": 68,
+      "mappedVtdCount": 68,
+      "demographics": {
+        "votingAgePopulation": 60695,
+        "hispanicAnyRace": 748,
+        "nonHispanicWhite": 56653,
+        "nonHispanicBlack": 1796,
+        "nonHispanicAsian": 161,
+        "nonHispanicOther": 1337
+      },
+      "mappedVotes": {
+        "harrisVotes": 8596,
+        "trumpVotes": 31993,
+        "otherVotes": 292,
+        "totalVotes": 40881
+      },
+      "turnoutCapacity": 19826
+    },
+    {
+      "countyFips": "42113",
+      "vtdCount": 15,
+      "mappedVtdCount": 15,
+      "demographics": {
+        "votingAgePopulation": 4857,
+        "hispanicAnyRace": 72,
+        "nonHispanicWhite": 4543,
+        "nonHispanicBlack": 68,
+        "nonHispanicAsian": 15,
+        "nonHispanicOther": 159
+      },
+      "mappedVotes": {
+        "harrisVotes": 976,
+        "trumpVotes": 2721,
+        "otherVotes": 24,
+        "totalVotes": 3721
+      },
+      "turnoutCapacity": 1136
+    },
+    {
+      "countyFips": "42115",
+      "vtdCount": 41,
+      "mappedVtdCount": 40,
+      "demographics": {
+        "votingAgePopulation": 30923,
+        "hispanicAnyRace": 531,
+        "nonHispanicWhite": 29152,
+        "nonHispanicBlack": 101,
+        "nonHispanicAsian": 112,
+        "nonHispanicOther": 1027
+      },
+      "mappedVotes": {
+        "harrisVotes": 5833,
+        "trumpVotes": 15629,
+        "otherVotes": 190,
+        "totalVotes": 21652
+      },
+      "turnoutCapacity": 8302
+    },
+    {
+      "countyFips": "42117",
+      "vtdCount": 41,
+      "mappedVtdCount": 41,
+      "demographics": {
+        "votingAgePopulation": 32720,
+        "hispanicAnyRace": 426,
+        "nonHispanicWhite": 30760,
+        "nonHispanicBlack": 263,
+        "nonHispanicAsian": 167,
+        "nonHispanicOther": 1104
+      },
+      "mappedVotes": {
+        "harrisVotes": 5100,
+        "trumpVotes": 16272,
+        "otherVotes": 215,
+        "totalVotes": 21587
+      },
+      "turnoutCapacity": 11133
+    },
+    {
+      "countyFips": "42119",
+      "vtdCount": 27,
+      "mappedVtdCount": 26,
+      "demographics": {
+        "votingAgePopulation": 34680,
+        "hispanicAnyRace": 1555,
+        "nonHispanicWhite": 29284,
+        "nonHispanicBlack": 2261,
+        "nonHispanicAsian": 701,
+        "nonHispanicOther": 879
+      },
+      "mappedVotes": {
+        "harrisVotes": 8015,
+        "trumpVotes": 12969,
+        "otherVotes": 204,
+        "totalVotes": 21188
+      },
+      "turnoutCapacity": 13397
+    },
+    {
+      "countyFips": "42121",
+      "vtdCount": 44,
+      "mappedVtdCount": 44,
+      "demographics": {
+        "votingAgePopulation": 40320,
+        "hispanicAnyRace": 328,
+        "nonHispanicWhite": 38151,
+        "nonHispanicBlack": 302,
+        "nonHispanicAsian": 144,
+        "nonHispanicOther": 1395
+      },
+      "mappedVotes": {
+        "harrisVotes": 7624,
+        "trumpVotes": 18883,
+        "otherVotes": 225,
+        "totalVotes": 26732
+      },
+      "turnoutCapacity": 13588
+    },
+    {
+      "countyFips": "42123",
+      "vtdCount": 33,
+      "mappedVtdCount": 33,
+      "demographics": {
+        "votingAgePopulation": 31105,
+        "hispanicAnyRace": 257,
+        "nonHispanicWhite": 29522,
+        "nonHispanicBlack": 107,
+        "nonHispanicAsian": 128,
+        "nonHispanicOther": 1091
+      },
+      "mappedVotes": {
+        "harrisVotes": 6212,
+        "trumpVotes": 14345,
+        "otherVotes": 166,
+        "totalVotes": 20723
+      },
+      "turnoutCapacity": 10382
+    },
+    {
+      "countyFips": "42125",
+      "vtdCount": 180,
+      "mappedVtdCount": 180,
+      "demographics": {
+        "votingAgePopulation": 169191,
+        "hispanicAnyRace": 2702,
+        "nonHispanicWhite": 153619,
+        "nonHispanicBlack": 5506,
+        "nonHispanicAsian": 1621,
+        "nonHispanicOther": 5743
+      },
+      "mappedVotes": {
+        "harrisVotes": 44910,
+        "trumpVotes": 75929,
+        "otherVotes": 778,
+        "totalVotes": 121617
+      },
+      "turnoutCapacity": 48109
+    },
+    {
+      "countyFips": "42127",
+      "vtdCount": 35,
+      "mappedVtdCount": 35,
+      "demographics": {
+        "votingAgePopulation": 42587,
+        "hispanicAnyRace": 1707,
+        "nonHispanicWhite": 37665,
+        "nonHispanicBlack": 1541,
+        "nonHispanicAsian": 358,
+        "nonHispanicOther": 1316
+      },
+      "mappedVotes": {
+        "harrisVotes": 9150,
+        "trumpVotes": 20071,
+        "otherVotes": 223,
+        "totalVotes": 29444
+      },
+      "turnoutCapacity": 13143
+    },
+    {
+      "countyFips": "42129",
+      "vtdCount": 308,
+      "mappedVtdCount": 301,
+      "demographics": {
+        "votingAgePopulation": 289614,
+        "hispanicAnyRace": 3412,
+        "nonHispanicWhite": 268490,
+        "nonHispanicBlack": 6557,
+        "nonHispanicAsian": 2578,
+        "nonHispanicOther": 8577
+      },
+      "mappedVotes": {
+        "harrisVotes": 72107,
+        "trumpVotes": 130811,
+        "otherVotes": 1470,
+        "totalVotes": 204388
+      },
+      "turnoutCapacity": 77179
+    },
+    {
+      "countyFips": "42131",
+      "vtdCount": 28,
+      "mappedVtdCount": 27,
+      "demographics": {
+        "votingAgePopulation": 21073,
+        "hispanicAnyRace": 360,
+        "nonHispanicWhite": 19738,
+        "nonHispanicBlack": 191,
+        "nonHispanicAsian": 95,
+        "nonHispanicOther": 689
+      },
+      "mappedVotes": {
+        "harrisVotes": 4541,
+        "trumpVotes": 9989,
+        "otherVotes": 140,
+        "totalVotes": 14670
+      },
+      "turnoutCapacity": 5871
+    },
+    {
+      "countyFips": "42133",
+      "vtdCount": 162,
+      "mappedVtdCount": 160,
+      "demographics": {
+        "votingAgePopulation": 356368,
+        "hispanicAnyRace": 25021,
+        "nonHispanicWhite": 295702,
+        "nonHispanicBlack": 18803,
+        "nonHispanicAsian": 5112,
+        "nonHispanicOther": 11730
+      },
+      "mappedVotes": {
+        "harrisVotes": 91139,
+        "trumpVotes": 153781,
+        "otherVotes": 2371,
+        "totalVotes": 247291
+      },
+      "turnoutCapacity": 109388
+    }
+  ]
+}

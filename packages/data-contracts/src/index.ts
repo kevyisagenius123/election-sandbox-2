@@ -80,6 +80,34 @@ export interface DemographicSelector {
   income?: "low" | "middle" | "high";
 }
 
+export type DemographicDataQuality =
+  | "exact_vintage_geography"
+  | "population_weighted_crosswalk"
+  | "unavailable";
+
+export type TurnoutDenominatorStatus =
+  | "available"
+  | "ballots_exceed_2020_vap"
+  | "no_mapped_2024_result";
+
+export interface VotingAgeRaceEthnicityProfile {
+  votingAgePopulation: number;
+  hispanicAnyRace: number;
+  nonHispanicWhite: number;
+  nonHispanicBlack: number;
+  nonHispanicAsian: number;
+  nonHispanicOther: number;
+}
+
+export interface ReportingUnitDemographicCoverage {
+  geographyId: Identifier;
+  geographyVintage: string;
+  sourceId: Identifier;
+  quality: DemographicDataQuality;
+  denominatorStatus: TurnoutDenominatorStatus;
+  profile: VotingAgeRaceEthnicityProfile | null;
+}
+
 export interface ScenarioMutation {
   id: Identifier;
   order: number;

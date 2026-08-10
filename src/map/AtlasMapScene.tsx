@@ -11,10 +11,8 @@ import { GeoJsonLayer } from "@deck.gl/layers";
 import DeckGL from "@deck.gl/react";
 import type { Feature } from "geojson";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  applyTwoPartyVoteTransfer,
-} from "../../packages/election-model/src/scenario.ts";
 import type {
+  BehaviorScenarioUnit,
   CountyPresidentialResult,
   CountyScenarioResult,
   StatewidePresidentialResult,
@@ -45,6 +43,7 @@ type AtlasMapSceneProps = {
   scenarioStates: readonly StatewidePresidentialResult[];
   actualPennsylvaniaCounties: readonly CountyPresidentialResult[];
   scenarioPennsylvaniaCounties: readonly CountyScenarioResult[];
+  scenarioPennsylvaniaVtds: ReadonlyMap<string, BehaviorScenarioUnit>;
   activeStateCode: string | null;
   activeCountyFips: string | null;
   viewMode: ViewMode;
@@ -69,6 +68,7 @@ export function AtlasMapScene({
   scenarioStates,
   actualPennsylvaniaCounties,
   scenarioPennsylvaniaCounties,
+  scenarioPennsylvaniaVtds,
   activeStateCode,
   activeCountyFips,
   viewMode,
@@ -133,33 +133,23 @@ export function AtlasMapScene({
   const activeActualCounty = activeCountyFips
     ? actualCountyByFips.get(activeCountyFips)
     : undefined;
-  const activeScenarioCounty = activeCountyFips
-    ? scenarioCountyByFips.get(activeCountyFips)
-    : undefined;
   const scenarioPrecinctByGeoid = useMemo(() => {
     const map = new Map<string, PrecinctResultProperties & { netHarrisGain: number }>();
-    if (!precinctCounty || !activeActualCounty || !activeScenarioCounty) return map;
-    const actualPrecincts = precinctCounty.features.features.map(
-      (item) => item.properties,
-    );
-    const towardHarris = activeScenarioCounty.netHarrisGain >= 0;
-    const countyAvailable = towardHarris
-      ? activeActualCounty.trumpVotes
-      : activeActualCounty.harrisVotes;
-    const mappedAvailable = actualPrecincts.reduce(
-      (sum, result) => sum + (towardHarris ? result.trumpVotes : result.harrisVotes),
-      0,
-    );
-    const mappedTransfer = countyAvailable === 0
-      ? 0
-      : Math.round(
-        Math.abs(activeScenarioCounty.netHarrisGain) * mappedAvailable / countyAvailable,
-      ) * (towardHarris ? 1 : -1);
-    for (const result of applyTwoPartyVoteTransfer(actualPrecincts, mappedTransfer)) {
-      map.set(result.geoid, result);
+    if (!precinctCounty) return map;
+    for (const item of precinctCounty.features.features) {
+      const actual = item.properties;
+      const scenario = scenarioPennsylvaniaVtds.get(actual.geoid);
+      map.set(actual.geoid, scenario ? {
+        ...actual,
+        harrisVotes: scenario.harrisVotes,
+        trumpVotes: scenario.trumpVotes,
+        otherVotes: scenario.otherVotes,
+        totalVotes: scenario.totalVotes,
+        netHarrisGain: scenario.netHarrisGain,
+      } : { ...actual, netHarrisGain: 0 });
     }
     return map;
-  }, [activeActualCounty, activeScenarioCounty, precinctCounty]);
+  }, [precinctCounty, scenarioPennsylvaniaVtds]);
   const maxPrecinctVotes = useMemo(
     () => Math.max(
       ...(precinctCounty?.features.features.map((item) => item.properties.totalVotes) ?? []),
@@ -472,9 +462,11 @@ export function AtlasMapScene({
       },
       getElevation: (item: Feature) => {
         const actual = actualCountyByFips.get(featureFips(item, 5));
-        if (!actual) return 4;
+        const scenario = scenarioCountyByFips.get(featureFips(item, 5));
+        const result = viewMode === "actual" ? actual : scenario ?? actual;
+        if (!result) return 4;
         if (heightMode === "flat") return 7;
-        return 4 + 18 * Math.sqrt(actual.totalVotes / maxPennsylvaniaCountyVotes);
+        return 4 + 18 * Math.sqrt(result.totalVotes / maxPennsylvaniaCountyVotes);
       },
       material: { ambient: 0.74, diffuse: 0.5, shininess: 4, specularColor: [16, 18, 16] },
       transitions: {
@@ -482,7 +474,7 @@ export function AtlasMapScene({
         getFillColor: { duration: 680 },
       },
       updateTriggers: {
-        getElevation: [heightMode, maxPennsylvaniaCountyVotes],
+        getElevation: [heightMode, maxPennsylvaniaCountyVotes, scenarioPennsylvaniaCounties, viewMode],
         getFillColor: [viewMode, scenarioPennsylvaniaCounties],
       },
       onHover: (info: PickingInfo) => {
@@ -528,7 +520,10 @@ export function AtlasMapScene({
           return hexToDeckColor(resultColor(viewMode === "actual" ? actual : scenario), 255);
         },
         getElevation: (item: Feature) => {
-          const result = item.properties as unknown as PrecinctResultProperties;
+          const actual = item.properties as unknown as PrecinctResultProperties;
+          const result = viewMode === "actual"
+            ? actual
+            : scenarioPrecinctByGeoid.get(actual.geoid) ?? actual;
           if (result.totalVotes === 0) return precinctElevationUnit * 0.18;
           if (heightMode === "flat") return precinctElevationUnit * 0.72;
           return precinctElevationUnit * (
@@ -541,7 +536,7 @@ export function AtlasMapScene({
           getFillColor: { duration: 520 },
         },
         updateTriggers: {
-          getElevation: [heightMode, maxPrecinctVotes, precinctElevationUnit],
+          getElevation: [heightMode, maxPrecinctVotes, precinctElevationUnit, scenarioPrecinctByGeoid, viewMode],
           getFillColor: [viewMode, scenarioPrecinctByGeoid],
         },
         onHover: (info: PickingInfo) => {
