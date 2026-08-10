@@ -1,5 +1,6 @@
 import type { FeatureCollection, Geometry } from "geojson";
 import { feature } from "topojson-client";
+import { pennsylvaniaDetailedStateManifest } from "./detailedStateManifest.ts";
 
 type TopologySource = Parameters<typeof feature>[0];
 type TopologyGeometry = Parameters<typeof feature>[1];
@@ -63,7 +64,9 @@ function publicUrl(path: string) {
 
 async function loadManifest(signal?: AbortSignal) {
   if (manifestCache) return manifestCache;
-  const response = await fetch(publicUrl("data/pa/2024/precinct-geometry-manifest.json"), { signal });
+  const response = await fetch(publicUrl(
+    pennsylvaniaDetailedStateManifest.geography.precinctGeometryManifestPath,
+  ), { signal });
   if (!response.ok) throw new Error(`Precinct manifest request failed with ${response.status}`);
   manifestCache = await response.json() as PennsylvaniaPrecinctManifest;
   return manifestCache;

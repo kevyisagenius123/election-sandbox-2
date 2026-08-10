@@ -1,8 +1,9 @@
 import type { ThirdPartyCandidate } from "../../packages/election-model/src/scenario.ts";
+import { pennsylvaniaDetailedStateManifest } from "./detailedStateManifest.ts";
 
 export const SCENARIO_URL_SCHEMA_VERSION = "1";
-export const SCENARIO_DATA_VERSION = "us2024-pa-vtd2020-v2";
-export const SCENARIO_ENGINE_VERSION = "pa-behavior-v1";
+export const SCENARIO_DATA_VERSION = pennsylvaniaDetailedStateManifest.compatibility.dataVersion;
+export const SCENARIO_ENGINE_VERSION = pennsylvaniaDetailedStateManifest.compatibility.engineVersion;
 
 export type ScenarioViewMode = "actual" | "scenario" | "difference";
 export type ScenarioEditorMode = "turnout" | "preference" | "third-party";
@@ -58,6 +59,12 @@ const stateCodes = new Set([
   "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX",
   "UT", "VT", "VA", "WA", "WV", "WI", "WY",
 ]);
+const detailedCountyPattern = new RegExp(
+  `^${pennsylvaniaDetailedStateManifest.geography.countyFipsPrefix}\\d{3}$`,
+);
+const detailedVtdPattern = new RegExp(
+  `^${pennsylvaniaDetailedStateManifest.geography.countyFipsPrefix}\\d{3}[0-9A-Z]{6}$`,
+);
 
 const scenarioParameterNames = [
   "scenario",
@@ -132,15 +139,15 @@ function validateGeography(params: URLSearchParams) {
     throw new InvalidScenarioUrlError("state is not recognized");
   }
   if (county != null) {
-    if (!/^42\d{3}$/.test(county)) {
+    if (!detailedCountyPattern.test(county)) {
       throw new InvalidScenarioUrlError("county is not a Pennsylvania county FIPS");
     }
-    if (state !== "PA") {
+    if (state !== pennsylvaniaDetailedStateManifest.code) {
       throw new InvalidScenarioUrlError("county selection requires Pennsylvania state context");
     }
   }
   if (vtd != null) {
-    if (!/^42\d{3}[0-9A-Z]{6}$/.test(vtd)) {
+    if (!detailedVtdPattern.test(vtd)) {
       throw new InvalidScenarioUrlError("vtd is not a Pennsylvania Census VTD GEOID");
     }
     if (county == null || !vtd.startsWith(county)) {

@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.10 replay and performance hardening
+## Current release: v0.11 multi-state runtime foundation
 
 The current build provides:
 
@@ -25,6 +25,9 @@ The current build provides:
 - Fail-closed runtime decoding that verifies field order, GEOIDs, demographic cells, mapped votes, coverage counts, and turnout capacity before enabling controls.
 - Checked-in Playwright replays for the canonical complex scenario, an official alphanumeric VTD, and unsupported-future-version fallback.
 - A reproducible Pennsylvania runtime profiler plus allocation hot-path improvements that preserve the engine's exact integer results.
+- A typed detailed-state manifest that owns Pennsylvania's election, compatibility, runtime-artifact, geography, and source contracts.
+- Dedicated Web Worker decoding and scenario calculation with queued-change coalescing and stale-response rejection.
+- GitHub Actions release gates for model tests, lint, production build, and full browser replay.
 - Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
@@ -82,7 +85,13 @@ Coverage is explicit:
 
 The browser suite opens the real application, waits for the compact demographic artifact, and verifies visible scenario outcomes rather than private component state. It locks the canonical replay to Pennsylvania R +5.8 and the ALEPPO VTD inspector, verifies `4200300A000`, and proves that a future URL schema fails closed to the certified baseline.
 
-The local profiler covers JSON parsing, fail-closed decoding, model-unit conversion, a complex three-operation scenario, and its contribution audit. On repeated runs on the current Windows development machine, the scenario median fell from about 100 ms to roughly 75 ms and the contribution audit from about 16 ms to under 2 ms. These measurements are diagnostic, not cross-device performance guarantees. A Web Worker boundary remains required before multiple detailed states are active together.
+The local profiler covers JSON parsing, fail-closed decoding, model-unit conversion, a complex three-operation scenario, and its contribution audit. On repeated runs on the current Windows development machine, the scenario median fell from about 100 ms to roughly 75 ms and the contribution audit from about 16 ms to under 2 ms. These measurements are diagnostic, not cross-device performance guarantees.
+
+## Multi-state runtime foundation
+
+Pennsylvania is now registered through a typed state manifest instead of scattered runtime constants. URL compatibility versions, the demographic artifact, precinct geometry manifest, election metadata, and source registries resolve through that contract.
+
+The demographic artifact is fetched, decoded, validated, and converted to model units inside a dedicated worker. Scenario requests carry monotonically increasing identifiers. Queued slider changes are coalesced, and the interface accepts only the response matching the newest settings. Share links remain disabled while a result is pending, so a copied URL and the displayed result cannot disagree.
 
 ## Run locally
 
@@ -112,7 +121,9 @@ npm run build
 src/App.tsx                         Editorial workbench and scenario state
 src/map/AtlasMapScene.tsx           deck.gl national, county, and VTD renderer
 src/data/paDemographics.ts          Versioned demographic artifact loader
-src/data/scenarioUrl.ts              Versioned scenario URL codec and compatibility policy
+src/data/detailedStateManifest.ts   Typed state registration and asset contracts
+src/data/scenarioUrl.ts             Versioned scenario URL codec and compatibility policy
+src/runtime/                         Worker protocol, scenario runtime, and React bridge
 packages/data-contracts/            Canonical election and demographic contracts
 packages/election-model/            Deterministic allocation and scenario engine
 public/data/pa/2024/                Runtime Pennsylvania result and geometry artifacts
@@ -121,6 +132,7 @@ data-sources/pennsylvania/           Small auditable source registries and cross
 scripts/                             Reproducible import and geometry pipelines
 tests/                               Model invariants and browser scenario replays
 playwright.config.ts                 Browser-test server and Chromium configuration
+.github/workflows/verify.yml         Hosted model, build, and browser release gates
 docs/decisions/                      Architecture and data decisions
 ```
 
@@ -170,10 +182,11 @@ npm run data:pa:demographics -- \
 - `docs/decisions/0011-versioned-scenario-urls.md`
 - `docs/decisions/0012-compact-demographic-runtime.md`
 - `docs/decisions/0013-browser-replay-and-runtime-profile.md`
+- `docs/decisions/0014-manifest-driven-worker-runtime.md`
 
 ## Next increment
 
-Extract a manifest-driven state runtime and move detailed-state scenario computation behind a Web Worker boundary. Only then add the second production-detailed battleground and national cross-state aggregation.
+Select and import the second production-detailed battleground through the manifest contract, then replace Pennsylvania-only aggregation with version-compatible multi-state aggregation and a path-to-270 view.
 
 ## Primary sources
 

@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.10 replay and performance hardening
+**Status:** v0.11 multi-state runtime foundation
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.10 turns the scenario-sharing audit into a checked-in browser contract and profiles the Pennsylvania runtime before multi-state expansion. Playwright now proves the canonical complex replay, official alphanumeric VTD restoration, and fail-closed future-version behavior through visible application outcomes. The deterministic engine caches immutable baseline validation and indexes, avoids unnecessary allocation objects, and keeps the same largest-remainder ordering and scenario results. On repeated runs on the current development machine, the complex Pennsylvania scenario median falls from about 100 ms to roughly 75 ms and contribution derivation from about 16 ms to under 2 ms. The remaining scenario cost makes a Web Worker boundary an entry condition for multiple detailed states.
+Version 0.11 establishes the runtime boundary required for multiple production-detailed states. A typed manifest now owns Pennsylvania's election metadata, data and engine compatibility, runtime artifact, precinct geometry, and source registries. A dedicated Web Worker fetches and validates the compact artifact, builds model units, and calculates deterministic scenarios away from the interface thread. Requests are versioned by monotonically increasing identifiers, queued changes are coalesced, stale responses cannot replace newer settings, and URL publication waits for the matching result. GitHub Actions now runs the model, lint, build, and browser contracts on every main-branch push and pull request. Pennsylvania's canonical R +5.8 replay and every compatibility version remain unchanged.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

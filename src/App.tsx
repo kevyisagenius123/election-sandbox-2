@@ -10,20 +10,17 @@ import {
 } from "react";
 import {
   aggregateNational,
-  applyBehaviorScenario,
   deriveBehaviorContributions,
   preferenceShiftBounds,
-  type BehaviorScenarioResult,
   type StatewidePresidentialResult,
   type ThirdPartyCandidate,
 } from "../packages/election-model/src/scenario.ts";
 import { GeographyInspector } from "./components/GeographyInspector.tsx";
 import {
-  loadPennsylvaniaDemographicFoundation,
   scenarioVtdMap,
   toBehaviorModelUnits,
-  type PennsylvaniaDemographicFoundation,
 } from "./data/paDemographics.ts";
+import { pennsylvaniaDetailedStateManifest } from "./data/detailedStateManifest.ts";
 import { buildCountyInspector, buildVtdInspector } from "./data/paInspector.ts";
 import {
   buildScenarioUrl,
@@ -44,6 +41,7 @@ import {
   pennsylvaniaCountySource,
   pennsylvania2024,
 } from "./data/pennsylvania.ts";
+import { useDetailedStateScenario } from "./runtime/useDetailedStateScenario.ts";
 
 type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
@@ -178,11 +176,31 @@ export function App() {
   );
   const [copiedScenarioUrl, setCopiedScenarioUrl] = useState<string | null>(null);
   const [failedScenarioUrl, setFailedScenarioUrl] = useState<string | null>(null);
-  const [demographicFoundation, setDemographicFoundation] = useState<
-    PennsylvaniaDemographicFoundation | null
-  >(null);
-  const [demographicError, setDemographicError] = useState<string | null>(null);
   const observedScenarioSearch = useRef(window.location.search);
+  const behaviorScenarioSettings = useMemo(() => ({
+    turnoutIncreasePoints,
+    addedVoterHarrisShare: addedVoterHarrisShare / 100,
+    preferenceShiftPoints,
+    thirdPartyCandidate,
+    thirdPartyShiftPoints,
+    thirdPartyHarrisExchangeShare: thirdPartyHarrisExchangeShare / 100,
+  }), [
+    addedVoterHarrisShare,
+    preferenceShiftPoints,
+    thirdPartyCandidate,
+    thirdPartyHarrisExchangeShare,
+    thirdPartyShiftPoints,
+    turnoutIncreasePoints,
+  ]);
+  const {
+    foundation: demographicFoundation,
+    scenario: behaviorScenario,
+    error: demographicError,
+    pending: scenarioPending,
+  } = useDetailedStateScenario(
+    pennsylvaniaDetailedStateManifest,
+    behaviorScenarioSettings,
+  );
 
   const applyScenarioUrlState = useCallback((state: ScenarioUrlState) => {
     setTurnoutIncreasePoints(state.turnoutIncreasePoints);
@@ -213,46 +231,12 @@ export function App() {
     return () => window.removeEventListener("popstate", restoreBrowserHistoryState);
   }, [applyScenarioUrlState]);
 
-  useEffect(() => {
-    let active = true;
-    loadPennsylvaniaDemographicFoundation()
-      .then((foundation) => {
-        if (!active) return;
-        setDemographicFoundation(foundation);
-        setDemographicError(null);
-      })
-      .catch((error: unknown) => {
-        if (!active) return;
-        setDemographicError(
-          error instanceof Error ? error.message : "Demographic foundation could not be loaded",
-        );
-      });
-    return () => { active = false; };
-  }, []);
-
-  const paActual = states2024.find((state) => state.code === "PA")!;
+  const paActual = states2024.find(
+    (state) => state.code === pennsylvaniaDetailedStateManifest.code,
+  )!;
   const behaviorModelUnits = useMemo(
     () => demographicFoundation ? toBehaviorModelUnits(demographicFoundation) : null,
     [demographicFoundation],
-  );
-  const behaviorScenario = useMemo<BehaviorScenarioResult | null>(
-    () => behaviorModelUnits ? applyBehaviorScenario(behaviorModelUnits, {
-      turnoutIncreasePoints,
-      addedVoterHarrisShare: addedVoterHarrisShare / 100,
-      preferenceShiftPoints,
-      thirdPartyCandidate,
-      thirdPartyShiftPoints,
-      thirdPartyHarrisExchangeShare: thirdPartyHarrisExchangeShare / 100,
-    }) : null,
-    [
-      addedVoterHarrisShare,
-      behaviorModelUnits,
-      preferenceShiftPoints,
-      thirdPartyCandidate,
-      thirdPartyHarrisExchangeShare,
-      thirdPartyShiftPoints,
-      turnoutIncreasePoints,
-    ],
   );
   const preferenceBase = useMemo(() => ({
     harrisVotes: paActual.harrisVotes + (behaviorScenario?.turnout.harrisVotes ?? 0),
@@ -324,13 +308,13 @@ export function App() {
       : "idle";
 
   useEffect(() => {
-    if (!demographicFoundation) return;
+    if (!demographicFoundation || scenarioPending) return;
     const nextUrl = buildScenarioUrl(window.location.href, scenarioUrlState);
     if (nextUrl !== window.location.href) {
       window.history.replaceState(window.history.state, "", nextUrl);
     }
     observedScenarioSearch.current = window.location.search;
-  }, [demographicFoundation, scenarioUrlState]);
+  }, [demographicFoundation, scenarioPending, scenarioUrlState]);
 
   const paScenario = useMemo<StatewidePresidentialResult>(() => {
     if (!behaviorScenario) return paActual;
@@ -338,14 +322,18 @@ export function App() {
     return {
       ...paActual,
       ...behaviorScenario.totals,
-      harrisElectoralVotes: harrisWins ? 19 : 0,
-      trumpElectoralVotes: harrisWins ? 0 : 19,
+      harrisElectoralVotes: harrisWins
+        ? pennsylvaniaDetailedStateManifest.election.electoralVotes
+        : 0,
+      trumpElectoralVotes: harrisWins
+        ? 0
+        : pennsylvaniaDetailedStateManifest.election.electoralVotes,
     };
   }, [behaviorScenario, paActual]);
 
   const scenarioStates = useMemo(
     () => states2024.map((state) => (
-      state.code === "PA"
+      state.code === pennsylvaniaDetailedStateManifest.code
         ? paScenario
         : state
     )),
@@ -475,8 +463,8 @@ export function App() {
     };
   }, [behaviorModelUnits, behaviorScenario, demographicFoundation]);
 
-  const selectedActual = states2024.find((state) => state.code === selectedStateCode) ?? states2024[38];
-  const selectedScenario = scenarioStates.find((state) => state.code === selectedStateCode) ?? scenarioStates[38];
+  const selectedActual = states2024.find((state) => state.code === selectedStateCode) ?? paActual;
+  const selectedScenario = scenarioStates.find((state) => state.code === selectedStateCode) ?? paScenario;
   const selectedActualCounty = pennsylvaniaCounties2024.find(
     (county) => county.fips === selectedCountyFips,
   );
@@ -498,7 +486,7 @@ export function App() {
       return buildVtdInspector(
         selectedVtd,
         selectedVtdScenario,
-        selectedActualCounty?.name ?? "Pennsylvania",
+        selectedActualCounty?.name ?? pennsylvaniaDetailedStateManifest.name,
         thirdPartyCandidate,
       );
     }
@@ -577,7 +565,7 @@ export function App() {
   function selectState(code: string | null) {
     setSelectedVtdGeoid(null);
     setSelectedStateCode(code);
-    if (code !== "PA") setSelectedCountyFips(null);
+    if (code !== pennsylvaniaDetailedStateManifest.code) setSelectedCountyFips(null);
   }
 
   function selectNation() {
@@ -615,7 +603,7 @@ export function App() {
   }
 
   function focusContribution(row: ContributionRow) {
-    setSelectedStateCode("PA");
+    setSelectedStateCode(pennsylvaniaDetailedStateManifest.code);
     setSelectedCountyFips(row.countyFips);
     setSelectedVtdGeoid(row.vtdGeoid);
   }
@@ -642,7 +630,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Pennsylvania behavior lab · v0.10</div>
+        <div className="build-status"><span />Pennsylvania behavior lab · v0.11</div>
       </header>
 
       <div className="workbench" id="top">
@@ -765,10 +753,10 @@ export function App() {
             <div className="card-heading">
               <div><span className="overline">Your scenario</span><strong>Electoral College</strong></div>
               <div className="scenario-actions">
-                <span className="year-chip">2024</span>
+                <span className="year-chip">{pennsylvaniaDetailedStateManifest.election.year}</span>
                 <button
                   className="share-button"
-                  disabled={!demographicFoundation}
+                  disabled={!demographicFoundation || scenarioPending}
                   onClick={copyScenarioLink}
                   type="button"
                 >{shareStatus === "copied" ? "Copied" : shareStatus === "error" ? "Try copy" : "Copy link"}</button>
@@ -797,7 +785,7 @@ export function App() {
             >
               <span>Replay URL v{SCENARIO_URL_SCHEMA_VERSION}</span>
               <span>Data v2 · engine v1</span>
-              <strong aria-live="polite">{shareStatus === "copied" ? "Link copied" : shareStatus === "error" ? "Copy unavailable" : ""}</strong>
+              <strong aria-live="polite">{scenarioPending ? "Updating scenario" : shareStatus === "copied" ? "Link copied" : shareStatus === "error" ? "Copy unavailable" : ""}</strong>
             </div>
             {scenarioLinkNotice && (
               <div className="scenario-link-notice" role="status">
@@ -843,7 +831,7 @@ export function App() {
               </div>
               <div className="field-label">
                 <span>Geography</span>
-                <strong>Pennsylvania</strong>
+                <strong>{pennsylvaniaDetailedStateManifest.name}</strong>
               </div>
               <div className="field-label">
                 <span>Population</span>

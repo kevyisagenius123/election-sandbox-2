@@ -95,3 +95,34 @@ test("unsupported future links fail closed to the certified baseline", async ({ 
   await expect(page.getByRole("slider", { name: "Participation increase" })).toHaveValue("0");
   await expect(page).toHaveURL("http://127.0.0.1:4173/");
 });
+
+test("rapid scenario changes publish only the newest worker result", async ({ page }) => {
+  const preferenceScenario = new URLSearchParams({
+    scenario: "1",
+    data: DATA_VERSION,
+    engine: ENGINE_VERSION,
+    turnout: "0",
+    turnoutHarris: "55",
+    preference: "0",
+    thirdParty: "stein",
+    thirdPartyShift: "0",
+    thirdPartyHarris: "50",
+    view: "scenario",
+    editor: "preference",
+    rank: "county",
+  });
+  await loadScenario(page, preferenceScenario);
+
+  const preference = page.getByRole("slider", { name: "Two-party preference transfer" });
+  await preference.fill("8");
+  await preference.fill("-12");
+  await preference.fill("6.2");
+
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(preference).toHaveValue("6.2");
+  await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText(
+    "Pennsylvania flips to Harris",
+  );
+  await expect(page.getByRole("complementary", { name: "Scenario editor" }).getByText("D +4.5", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(new RegExp("preference=6.2(?:&|$)"));
+});

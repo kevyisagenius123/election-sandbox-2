@@ -21,9 +21,9 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.10.0`, replay and performance hardening
-- Previous release commit: `f764815 Compact Pennsylvania demographic runtime`
-- Remote: none configured
+- Release: `0.11.0`, multi-state runtime foundation
+- Previous release commit: `4dd04fd Harden scenario replay and runtime performance`
+- Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
 - Backend: none
@@ -158,6 +158,18 @@ A local Vite server may still be running on port 4173; check rather than startin
 - The engine caches validation and indexes by immutable baseline-array identity, uses numeric largest-remainder ranking, and removes per-unit accumulator object churn without changing allocation ordering or outputs.
 - Repeated local profile medians: scenario calculation about 100 ms to roughly 75 ms; contribution audit about 16 ms to under 2 ms. Validated decode ranges around 25 to 45 ms and retained expanded runtime heap is about 13 MiB on this machine.
 - URL schema, semantic dataset, and deterministic engine versions remain unchanged because results are unchanged.
+
+### v0.11 multi-state runtime foundation
+
+- `src/data/detailedStateManifest.ts` registers Pennsylvania through a typed schema covering election metadata, compatibility versions, runtime artifacts, geometry, and source registries.
+- Scenario URL constants and precinct-geometry loading now consume the manifest instead of duplicating Pennsylvania runtime paths and versions.
+- `src/runtime/detailedStateScenario.worker.ts` fetches, decodes, validates, converts, and calculates the detailed-state scenario outside the interface thread.
+- `src/runtime/useDetailedStateScenario.ts` owns worker lifetime, monotonic request identifiers, pending/error state, and stale-response rejection.
+- Queued worker calculations are coalesced to the newest waiting request. One already-running synchronous calculation may finish, but it can never replace a newer interface state.
+- URL history replacement and Copy link wait until the worker has published the matching result.
+- A fourth browser replay rapidly submits three conflicting preference settings and proves only the final D +4.5 Pennsylvania result and `preference=6.2` URL are published.
+- `.github/workflows/verify.yml` runs model tests, lint, build, and Playwright browser replay for pushes to `main` and pull requests.
+- URL schema `1`, dataset `us2024-pa-vtd2020-v2`, and engine `pa-behavior-v1` remain unchanged because deterministic results are unchanged.
 
 ## 4. Demographic source and limitations
 
@@ -355,12 +367,27 @@ v0.10 additionally changes:
 - `docs/decisions/0013-browser-replay-and-runtime-profile.md`
 - release documentation and package metadata
 
+v0.11 additionally changes:
+
+- `.github/workflows/verify.yml`
+- `src/data/detailedStateManifest.ts`
+- `src/data/paPrecincts.ts`
+- `src/data/scenarioUrl.ts`
+- `src/runtime/detailedStateWorkerProtocol.ts`
+- `src/runtime/detailedStateScenario.worker.ts`
+- `src/runtime/useDetailedStateScenario.ts`
+- `src/App.tsx`
+- `tests/election-model.test.mjs`
+- `tests/browser/scenario-replay.spec.ts`
+- `docs/decisions/0014-manifest-driven-worker-runtime.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.10:
+CLI verification for v0.11:
 
-- `npm test`: 29 tests pass.
-- `npm run test:browser`: 3 browser replays pass.
+- `npm test`: 30 tests pass.
+- `npm run test:browser`: 4 browser replays pass.
 - `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
@@ -368,7 +395,7 @@ CLI verification for v0.10:
 
 Browser verification:
 
-- v0.10 retains the v0.9 desktop and mobile layout behavior; the release contains no design changes beyond the visible version label.
+- v0.11 retains the v0.10 desktop and mobile design; pending calculations use the existing version-status line.
 - The compact artifact loads successfully and enables behavior controls without changing the canonical complex scenario.
 - That scenario still produces Pennsylvania R+5.8 and the same ALEPPO VTD candidate ledger and contribution audit.
 - Official alphanumeric VTD `4200300A000` restores from a shared URL as Pittsburgh Ward 15 District 09 and opens the correct inspector.
@@ -401,7 +428,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 ## 9. Known issues and deliberate omissions
 
 1. **Only Pennsylvania is production-detailed.** Other states remain state-level only.
-2. **The demographic artifact is 875 KB, but decoding and scenarios still run on the main thread.** Repeated local medians are about 25 to 45 ms for validated decode and roughly 75 ms for a complex 9,140-unit scenario. Add a Web Worker boundary before loading several detailed states at once.
+2. **The worker removes decoding and scenario calculation from the interface thread, but the expanded foundation is still cloned back for map and inspector use.** Measure retained memory and transfer cost again when the second detailed state is added; load detailed states on demand rather than retaining every state automatically.
 3. **The deck.gl chunk is about 1.6 MB minified.** It is already lazy, but further code splitting or bundle review is warranted.
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
 5. **No CVAP or 2024 eligibility estimate exists.** The UI correctly discloses the 2020 VAP limitation.
@@ -413,15 +440,16 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-Do not jump directly to a national demographic simulator. The next phase is the reusable multi-state platform:
+Do not jump directly to a national demographic simulator. The next phase is the second production-detailed battleground:
 
-1. Extract Pennsylvania-specific loading, geography, assumptions, and election rules behind a typed state manifest.
-2. Move detailed-state decode/scenario work behind a Web Worker contract while retaining deterministic URL replay and stale-result cancellation.
-3. Add one second production-detailed battleground using certified county and VTD/precinct data through that manifest.
-4. Aggregate only loaded, version-compatible state scenarios nationally and expose the resulting path to 270.
-5. Design uncertainty only after the multi-state deterministic contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
+1. Audit candidate states for official 2024 reporting-unit results, stable precinct or VTD geometry, demographic denominators, and redistribution terms.
+2. Select one state whose data can pass the same reconciliation and provenance standards as Pennsylvania.
+3. Add its loader implementation and manifest entry without adding state-specific conditionals to the worker protocol.
+4. Generalize the current Pennsylvania aggregation and inspector adapters to operate on the active detailed-state manifest.
+5. Aggregate only loaded, version-compatible state scenarios nationally and expose the resulting path to 270.
+6. Design uncertainty only after the multi-state deterministic contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 
-The immediate next engineering task after v0.10 is items 1 and 2 together: define the state manifest and worker message contract before importing another state's data.
+The immediate next engineering task after v0.11 is item 1: perform the source and geometry audit before choosing the second state.
 
 ## 11. Commands
 

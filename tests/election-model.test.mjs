@@ -22,6 +22,11 @@ import {
 } from "../packages/election-model/src/scenario.ts";
 import { states2024 } from "../src/data/states.ts";
 import {
+  getDetailedStateManifest,
+  pennsylvaniaDetailedStateManifest,
+  resolveDetailedStateArtifactUrl,
+} from "../src/data/detailedStateManifest.ts";
+import {
   buildCountyInspector,
   buildVtdInspector,
 } from "../src/data/paInspector.ts";
@@ -68,6 +73,31 @@ const pennsylvaniaDemographicRegistry = JSON.parse(readFileSync(
   new URL("../data-sources/pennsylvania/2020-pl94-vtd-demographics.json", import.meta.url),
   "utf8",
 ));
+
+test("Pennsylvania is registered through a versioned detailed-state manifest", () => {
+  const manifest = getDetailedStateManifest("PA");
+  assert.equal(manifest, pennsylvaniaDetailedStateManifest);
+  assert.equal(manifest.compatibility.dataVersion, SCENARIO_DATA_VERSION);
+  assert.equal(manifest.compatibility.engineVersion, SCENARIO_ENGINE_VERSION);
+  assert.equal(manifest.election.electoralVotes, 19);
+  assert.equal(
+    resolveDetailedStateArtifactUrl(manifest, "/sandbox/", "https://atlas.example"),
+    "https://atlas.example/sandbox/data/pa/2020/vtd-demographics.json",
+  );
+  assert.doesNotThrow(() => readFileSync(
+    new URL(`../public/${manifest.runtime.artifactPath}`, import.meta.url),
+  ));
+  assert.doesNotThrow(() => readFileSync(
+    new URL(`../public/${manifest.geography.precinctGeometryManifestPath}`, import.meta.url),
+  ));
+  assert.doesNotThrow(() => readFileSync(
+    new URL(`../${manifest.sources.electionRegistryPath}`, import.meta.url),
+  ));
+  assert.doesNotThrow(() => readFileSync(
+    new URL(`../${manifest.sources.demographicRegistryPath}`, import.meta.url),
+  ));
+  assert.throws(() => getDetailedStateManifest("GA"), /not registered/);
+});
 const noThirdPartyChange = {
   thirdPartyCandidate: "stein",
   thirdPartyShiftPoints: 0,
