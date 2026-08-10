@@ -39,16 +39,24 @@ export interface BehaviorModelUnit {
   geometryId: string | null;
   harrisVotes: number;
   trumpVotes: number;
+  steinVotes: number;
+  oliverVotes: number;
+  residualOtherVotes: number;
   otherVotes: number;
   totalVotes: number;
   turnoutDenominator: number | null;
   turnoutCapacity: number;
 }
 
+export type ThirdPartyCandidate = "stein" | "oliver" | "residual_other";
+
 export interface BehaviorScenarioSettings {
   turnoutIncreasePoints: number;
   addedVoterHarrisShare: number;
   preferenceShiftPoints: number;
+  thirdPartyCandidate: ThirdPartyCandidate;
+  thirdPartyShiftPoints: number;
+  thirdPartyHarrisExchangeShare: number;
 }
 
 export interface BehaviorScenarioUnit extends BehaviorModelUnit {
@@ -56,6 +64,7 @@ export interface BehaviorScenarioUnit extends BehaviorModelUnit {
   turnoutHarrisVotes: number;
   turnoutTrumpVotes: number;
   preferenceNetHarrisGain: number;
+  thirdPartyCandidateDelta: number;
   netHarrisGain: number;
 }
 
@@ -64,6 +73,9 @@ export interface BehaviorScenarioResult {
   totals: {
     harrisVotes: number;
     trumpVotes: number;
+    steinVotes: number;
+    oliverVotes: number;
+    residualOtherVotes: number;
     otherVotes: number;
     totalVotes: number;
   };
@@ -78,6 +90,16 @@ export interface BehaviorScenarioResult {
   preference: {
     requestedTransfer: number;
     realizedTransfer: number;
+  };
+  thirdParty: {
+    candidate: ThirdPartyCandidate;
+    startingCandidateVotes: number;
+    exchangeCapacity: number;
+    ballotTotal: number;
+    requestedCandidateDelta: number;
+    realizedCandidateDelta: number;
+    harrisVoteDelta: number;
+    trumpVoteDelta: number;
   };
 }
 
@@ -97,10 +119,47 @@ export interface PreferenceShiftBounds {
   towardHarrisPoints: number;
 }
 
+export interface ThirdPartyShiftBounds {
+  towardZeroPoints: number;
+  towardMaximumPoints: number;
+}
+
 export type TwoPartyResult = {
   harrisVotes: number;
   trumpVotes: number;
 };
+
+type ThirdPartyVoteKey = "steinVotes" | "oliverVotes" | "residualOtherVotes";
+
+function thirdPartyVoteKey(candidate: ThirdPartyCandidate): ThirdPartyVoteKey {
+  if (candidate === "stein") return "steinVotes";
+  if (candidate === "oliver") return "oliverVotes";
+  return "residualOtherVotes";
+}
+
+function splitThirdPartyExchange(ballots: number, harrisShare: number) {
+  const harrisVotes = Math.round(ballots * harrisShare);
+  return { harrisVotes, trumpVotes: ballots - harrisVotes };
+}
+
+function thirdPartyGainCapacity(
+  harrisVotes: number,
+  trumpVotes: number,
+  harrisShare: number,
+) {
+  let lower = 0;
+  let upper = harrisVotes + trumpVotes;
+  while (lower < upper) {
+    const candidate = Math.ceil((lower + upper) / 2);
+    const exchange = splitThirdPartyExchange(candidate, harrisShare);
+    if (exchange.harrisVotes <= harrisVotes && exchange.trumpVotes <= trumpVotes) {
+      lower = candidate;
+    } else {
+      upper = candidate - 1;
+    }
+  }
+  return lower;
+}
 
 export function preferenceShiftBounds(
   result: Pick<BehaviorModelUnit, "harrisVotes" | "trumpVotes" | "totalVotes">,
@@ -116,6 +175,43 @@ export function preferenceShiftBounds(
   return {
     towardTrumpPoints: -(result.harrisVotes * 200) / result.totalVotes,
     towardHarrisPoints: (result.trumpVotes * 200) / result.totalVotes,
+  };
+}
+
+export function thirdPartyShiftBounds(
+  result: Pick<
+    BehaviorModelUnit,
+    | "harrisVotes"
+    | "trumpVotes"
+    | "steinVotes"
+    | "oliverVotes"
+    | "residualOtherVotes"
+    | "totalVotes"
+  >,
+  candidate: ThirdPartyCandidate,
+  harrisExchangeShare: number,
+): ThirdPartyShiftBounds {
+  if (!Number.isSafeInteger(result.totalVotes) || result.totalVotes <= 0) {
+    throw new Error("Third-party bounds require a positive safe-integer ballot total");
+  }
+  const candidateVotes = result[thirdPartyVoteKey(candidate)];
+  if (![result.harrisVotes, result.trumpVotes, candidateVotes]
+    .every((votes) => Number.isSafeInteger(votes) && votes >= 0)) {
+    throw new Error("Third-party bounds require valid candidate vote totals");
+  }
+  if (!Number.isFinite(harrisExchangeShare)
+    || harrisExchangeShare < 0
+    || harrisExchangeShare > 1) {
+    throw new Error("Third-party Harris exchange share must be between zero and one");
+  }
+  const exchangeCapacity = thirdPartyGainCapacity(
+    result.harrisVotes,
+    result.trumpVotes,
+    harrisExchangeShare,
+  );
+  return {
+    towardZeroPoints: -(candidateVotes * 100) / result.totalVotes,
+    towardMaximumPoints: (exchangeCapacity * 100) / result.totalVotes,
   };
 }
 
@@ -230,10 +326,24 @@ export function applyBehaviorScenario(
   if (!Number.isFinite(settings.preferenceShiftPoints)) {
     throw new Error("Preference shift must be finite");
   }
+  if (!["stein", "oliver", "residual_other"].includes(settings.thirdPartyCandidate)) {
+    throw new Error("Third-party candidate is invalid");
+  }
+  if (!Number.isFinite(settings.thirdPartyShiftPoints)) {
+    throw new Error("Third-party shift must be finite");
+  }
+  if (!Number.isFinite(settings.thirdPartyHarrisExchangeShare)
+    || settings.thirdPartyHarrisExchangeShare < 0
+    || settings.thirdPartyHarrisExchangeShare > 1) {
+    throw new Error("Third-party Harris exchange share must be between zero and one");
+  }
 
   for (const unit of baselineUnits) {
     if (unit.harrisVotes + unit.trumpVotes + unit.otherVotes !== unit.totalVotes) {
       throw new Error(`${unit.id} baseline votes do not reconcile`);
+    }
+    if (unit.steinVotes + unit.oliverVotes + unit.residualOtherVotes !== unit.otherVotes) {
+      throw new Error(`${unit.id} third-party votes do not reconcile`);
     }
     if (!Number.isSafeInteger(unit.turnoutCapacity) || unit.turnoutCapacity < 0) {
       throw new Error(`${unit.id} has invalid turnout capacity`);
@@ -278,25 +388,170 @@ export function applyBehaviorScenario(
     scenarioBallots * settings.preferenceShiftPoints / 200,
   );
   const afterPreference = applyTwoPartyVoteTransfer(afterTurnout, requestedTransfer);
-  const units = afterPreference.map((unit, index) => ({
-    ...unit,
-    preferenceNetHarrisGain: unit.netHarrisGain,
-    netHarrisGain:
-      unit.harrisVotes - baselineUnits[index].harrisVotes,
-  }));
+  const preferenceRealizedTransfer = afterPreference.reduce(
+    (sum, unit) => sum + unit.netHarrisGain,
+    0,
+  );
+  const selectedVoteKey = thirdPartyVoteKey(settings.thirdPartyCandidate);
+  const preThirdPartyTotals = afterPreference.reduce(
+    (sum, unit) => ({
+      harrisVotes: sum.harrisVotes + unit.harrisVotes,
+      trumpVotes: sum.trumpVotes + unit.trumpVotes,
+      steinVotes: sum.steinVotes + unit.steinVotes,
+      oliverVotes: sum.oliverVotes + unit.oliverVotes,
+      residualOtherVotes: sum.residualOtherVotes + unit.residualOtherVotes,
+      totalVotes: sum.totalVotes + unit.totalVotes,
+    }),
+    {
+      harrisVotes: 0,
+      trumpVotes: 0,
+      steinVotes: 0,
+      oliverVotes: 0,
+      residualOtherVotes: 0,
+      totalVotes: 0,
+    },
+  );
+  const requestedCandidateDelta = Math.round(
+    scenarioBallots * settings.thirdPartyShiftPoints / 100,
+  );
+  const harrisExchangeShare = settings.thirdPartyHarrisExchangeShare;
+  const gainCapacity = thirdPartyGainCapacity(
+    preThirdPartyTotals.harrisVotes,
+    preThirdPartyTotals.trumpVotes,
+    harrisExchangeShare,
+  );
+  const currentCandidateVotes = preThirdPartyTotals[selectedVoteKey];
+  const realizedCandidateDelta = requestedCandidateDelta >= 0
+    ? Math.min(requestedCandidateDelta, gainCapacity)
+    : -Math.min(Math.abs(requestedCandidateDelta), currentCandidateVotes);
+
+  let harrisVoteDelta = 0;
+  let trumpVoteDelta = 0;
+  let units: BehaviorScenarioUnit[];
+  if (realizedCandidateDelta > 0) {
+    const exchange = splitThirdPartyExchange(
+      realizedCandidateDelta,
+      harrisExchangeShare,
+    );
+    const harrisLossTotal = exchange.harrisVotes;
+    const trumpLossTotal = exchange.trumpVotes;
+    const harrisLosses = allocateCappedProportionally(
+      afterPreference.map((unit) => unit.harrisVotes),
+      afterPreference.map((unit) => unit.harrisVotes),
+      harrisLossTotal,
+    );
+    const trumpLosses = allocateCappedProportionally(
+      afterPreference.map((unit) => unit.trumpVotes),
+      afterPreference.map((unit) => unit.trumpVotes),
+      trumpLossTotal,
+    );
+    harrisVoteDelta = -harrisLossTotal;
+    trumpVoteDelta = -trumpLossTotal;
+    units = afterPreference.map((unit, index) => {
+      const candidateGain = harrisLosses[index] + trumpLosses[index];
+      const namedThirdPartyVotes = {
+        steinVotes: unit.steinVotes,
+        oliverVotes: unit.oliverVotes,
+        residualOtherVotes: unit.residualOtherVotes,
+        [selectedVoteKey]: unit[selectedVoteKey] + candidateGain,
+      };
+      return {
+        ...unit,
+        ...namedThirdPartyVotes,
+        harrisVotes: unit.harrisVotes - harrisLosses[index],
+        trumpVotes: unit.trumpVotes - trumpLosses[index],
+        otherVotes: unit.otherVotes + candidateGain,
+        preferenceNetHarrisGain: unit.netHarrisGain,
+        thirdPartyCandidateDelta: candidateGain,
+        netHarrisGain:
+          unit.harrisVotes - harrisLosses[index] - baselineUnits[index].harrisVotes,
+      };
+    });
+  } else if (realizedCandidateDelta < 0) {
+    const releasedVotes = Math.abs(realizedCandidateDelta);
+    const candidateLosses = allocateCappedProportionally(
+      afterPreference.map((unit) => unit[selectedVoteKey]),
+      afterPreference.map((unit) => unit[selectedVoteKey]),
+      releasedVotes,
+    );
+    const harrisGainTotal = splitThirdPartyExchange(
+      releasedVotes,
+      harrisExchangeShare,
+    ).harrisVotes;
+    const harrisGains = allocateCappedProportionally(
+      candidateLosses,
+      candidateLosses,
+      harrisGainTotal,
+    );
+    harrisVoteDelta = harrisGainTotal;
+    trumpVoteDelta = releasedVotes - harrisGainTotal;
+    units = afterPreference.map((unit, index) => {
+      const candidateLoss = candidateLosses[index];
+      const trumpGain = candidateLoss - harrisGains[index];
+      const namedThirdPartyVotes = {
+        steinVotes: unit.steinVotes,
+        oliverVotes: unit.oliverVotes,
+        residualOtherVotes: unit.residualOtherVotes,
+        [selectedVoteKey]: unit[selectedVoteKey] - candidateLoss,
+      };
+      return {
+        ...unit,
+        ...namedThirdPartyVotes,
+        harrisVotes: unit.harrisVotes + harrisGains[index],
+        trumpVotes: unit.trumpVotes + trumpGain,
+        otherVotes: unit.otherVotes - candidateLoss,
+        preferenceNetHarrisGain: unit.netHarrisGain,
+        thirdPartyCandidateDelta: -candidateLoss,
+        netHarrisGain:
+          unit.harrisVotes + harrisGains[index] - baselineUnits[index].harrisVotes,
+      };
+    });
+  } else {
+    units = afterPreference.map((unit, index) => ({
+      ...unit,
+      preferenceNetHarrisGain: unit.netHarrisGain,
+      thirdPartyCandidateDelta: 0,
+      netHarrisGain: unit.harrisVotes - baselineUnits[index].harrisVotes,
+    }));
+  }
   const totals = units.reduce(
     (sum, unit) => ({
       harrisVotes: sum.harrisVotes + unit.harrisVotes,
       trumpVotes: sum.trumpVotes + unit.trumpVotes,
+      steinVotes: sum.steinVotes + unit.steinVotes,
+      oliverVotes: sum.oliverVotes + unit.oliverVotes,
+      residualOtherVotes: sum.residualOtherVotes + unit.residualOtherVotes,
       otherVotes: sum.otherVotes + unit.otherVotes,
       totalVotes: sum.totalVotes + unit.totalVotes,
     }),
-    { harrisVotes: 0, trumpVotes: 0, otherVotes: 0, totalVotes: 0 },
+    {
+      harrisVotes: 0,
+      trumpVotes: 0,
+      steinVotes: 0,
+      oliverVotes: 0,
+      residualOtherVotes: 0,
+      otherVotes: 0,
+      totalVotes: 0,
+    },
   );
-  const realizedTransfer = units.reduce(
-    (sum, unit) => sum + unit.preferenceNetHarrisGain,
-    0,
-  );
+
+  for (const unit of units) {
+    if ([
+      unit.harrisVotes,
+      unit.trumpVotes,
+      unit.steinVotes,
+      unit.oliverVotes,
+      unit.residualOtherVotes,
+      unit.otherVotes,
+      unit.totalVotes,
+    ].some((votes) => !Number.isSafeInteger(votes) || votes < 0)) {
+      throw new Error(`${unit.id} scenario contains invalid candidate votes`);
+    }
+    if (unit.steinVotes + unit.oliverVotes + unit.residualOtherVotes !== unit.otherVotes
+      || unit.harrisVotes + unit.trumpVotes + unit.otherVotes !== unit.totalVotes) {
+      throw new Error(`${unit.id} scenario votes do not reconcile`);
+    }
+  }
 
   return {
     units,
@@ -309,7 +564,17 @@ export function applyBehaviorScenario(
       denominator,
       capacity,
     },
-    preference: { requestedTransfer, realizedTransfer },
+    preference: { requestedTransfer, realizedTransfer: preferenceRealizedTransfer },
+    thirdParty: {
+      candidate: settings.thirdPartyCandidate,
+      startingCandidateVotes: currentCandidateVotes,
+      exchangeCapacity: gainCapacity,
+      ballotTotal: scenarioBallots,
+      requestedCandidateDelta,
+      realizedCandidateDelta,
+      harrisVoteDelta,
+      trumpVoteDelta,
+    },
   };
 }
 

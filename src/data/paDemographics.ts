@@ -19,6 +19,9 @@ export interface PennsylvaniaVtdDemographicRecord {
   baselineVotes: {
     harrisVotes: number;
     trumpVotes: number;
+    steinVotes: number;
+    oliverVotes: number;
+    residualOtherVotes: number;
     otherVotes: number;
     totalVotes: number;
   };
@@ -36,6 +39,9 @@ export interface PennsylvaniaResidualModelUnit {
   type: string;
   harrisVotes: number;
   trumpVotes: number;
+  steinVotes: number;
+  oliverVotes: number;
+  residualOtherVotes: number;
   otherVotes: number;
   totalVotes: number;
 }
@@ -131,6 +137,9 @@ export function toBehaviorModelUnits(
     geometryId: null,
     harrisVotes: unit.harrisVotes,
     trumpVotes: unit.trumpVotes,
+    steinVotes: unit.steinVotes,
+    oliverVotes: unit.oliverVotes,
+    residualOtherVotes: unit.residualOtherVotes,
     otherVotes: unit.otherVotes,
     totalVotes: unit.totalVotes,
     turnoutDenominator: null,

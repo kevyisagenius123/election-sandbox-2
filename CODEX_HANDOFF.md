@@ -21,8 +21,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.5.0`, bidirectional behavior and contribution tracing
-- Predecessor commit: `92975c5 Add Pennsylvania behavior foundation`
+- Release: `0.6.0`, named third-party exchange
+- Last completed release commit before v0.6: `0e356c9 Add bidirectional preference and contribution tracing`
 - Remote: none configured
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -32,7 +32,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 - Required Node: 22.12 or newer
 - Hosting metadata: none; there is no `.openai/hosting.json`
 
-At the end of this phase, v0.5 is verified and should be committed as one coherent release. A local Vite server may still be running on port 4173; check rather than starting a duplicate.
+A local Vite server may still be running on port 4173; check rather than starting a duplicate.
 
 ## 3. What is implemented
 
@@ -102,6 +102,20 @@ At the end of this phase, v0.5 is verified and should be committed as one cohere
 - VTD rows open their parent county, and the panel discloses the aggregate contribution remaining outside mapped terrain.
 - Republican contributions use the Republican palette and direction labels; Democratic contributions use the Democratic palette.
 - Third-party behavior is deliberately not included in the two-party slider.
+
+### v0.6 named third-party exchange
+
+- The result import retains exact Stein and Oliver votes at county and reporting-unit level.
+- The certified residual Other/write-in total remains an explicit statewide-only bucket because the source package does not provide honest county geography for it.
+- A separate third operation runs after turnout and two-party preference.
+- The user selects Stein, Oliver, or residual Other/write-in and moves that bucket's share in either direction.
+- A second control explicitly defines the Harris share of exchanged ballots; Trump supplies or receives the complement.
+- Negative movement can reach exactly zero votes for the selected bucket.
+- Positive movement reaches the exact integer ballot capacity implied by the selected Harris/Trump source mix. It has no arbitrary interface ceiling.
+- Every reporting unit preserves its ballot total during the exchange, and every named third-party bucket reconciles to aggregate Other.
+- Contribution tracing continues to measure `change in Harris - Trump`, while the third-party panel separately displays exchanged ballot volume.
+- Increasing residual Other produces counterfactual geography where source major-party ballots were located. It does not fabricate a historical county allocation for the certified statewide residual.
+- County contribution accounting separately discloses margin movement confined to the statewide-only residual instead of falsely assigning it to all 67 counties.
 
 ## 4. Demographic source and limitations
 
@@ -174,7 +188,7 @@ packages/data-contracts/src/index.ts
 packages/election-model/src/invariants.ts
   -> reconciliation and largest-remainder primitives
 packages/election-model/src/scenario.ts
-  -> national aggregation, capped allocation, turnout, and preference
+  -> national aggregation, capped allocation, turnout, preference, and third-party exchange
 
 scripts/import-pennsylvania-2024.mjs
   -> election result ingestion
@@ -237,11 +251,25 @@ v0.5 additionally changes:
 - `docs/decisions/0008-bidirectional-preference-and-contributions.md`
 - release documentation and package metadata
 
+v0.6 additionally changes:
+
+- `scripts/import-pennsylvania-2024.mjs`
+- `scripts/import-pennsylvania-2020-pl94-demographics.mjs`
+- regenerated Pennsylvania result and demographic artifacts
+- `src/data/pennsylvania.ts`
+- `src/data/paDemographics.ts`
+- `packages/election-model/src/scenario.ts`
+- `src/App.tsx`
+- `src/styles.css`
+- `tests/election-model.test.mjs`
+- `docs/decisions/0009-named-third-party-exchange.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.5:
+CLI verification for v0.6:
 
-- `npm test`: 16 tests pass.
+- `npm test`: 20 tests pass.
 - `npm run lint`: passes.
 - `npm run build`: passes.
 - `npm audit --omit=dev`: 0 vulnerabilities.
@@ -249,6 +277,14 @@ CLI verification for v0.5:
 
 Browser verification:
 
+- v0.6 desktop check at the browser runtime's 1280 by 720 viewport has no horizontal overflow.
+- Stein +1.5 points with a 65 percent Harris source exchanges 105.9K ballots and updates county contributions.
+- Switching candidates resets movement to zero; the Oliver negative endpoint reaches exactly zero Oliver votes.
+- Residual Other/write-in at its 100 percent Harris-source positive endpoint reaches the exact available capacity without negative votes.
+- Contribution rows still open Pennsylvania county and VTD context correctly.
+- Residual-only movement is labeled as having no honest county placement, including the balanced-exchange case where ballot changes net to no Harris-minus-Trump margin movement.
+- Reset restores the exact baseline, and both irregularly bounded sliders now expose a genuine DOM value of zero.
+- The browser console contains no application errors.
 - Desktop 1440 by 900: national and Pennsylvania layouts have no horizontal overflow.
 - Full Republican preference endpoint: Harris reaches zero without negative votes; Pennsylvania displays R+98.7.
 - Full Democratic preference endpoint: Trump reaches zero without negative votes; Pennsylvania displays D+98.7 and flips its 19 EV.
@@ -269,22 +305,22 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
 5. **No CVAP or 2024 eligibility estimate exists.** The UI correctly discloses the 2020 VAP limitation.
 6. **No demographic preference model exists.** Candidate choice remains an explicit user input.
-7. **Third-party results are preserved but not mutable yet.** Do not overload the two-party preference operation to add them.
-8. **No saved scenarios, share URLs, backend, authentication, or deployment exist.**
-9. **Source redistribution status still needs a formal public-release review.** Official provenance and checksums are present, but legal review is not encoded in code.
+7. **Residual Other has no historical county geography.** Keep its certified baseline statewide-only; scenario additions may be geographically allocated only as explicitly counterfactual exchanges.
+8. **A balanced third-party exchange can have zero `Harris - Trump` contribution.** This is correct even when exchanged ballot volume is large; the editor displays that volume separately.
+9. **No saved scenarios, share URLs, backend, authentication, or deployment exist.**
+10. **Source redistribution status still needs a formal public-release review.** Official provenance and checksums are present, but legal review is not encoded in code.
 
 ## 10. Exact next phase
 
-Do not jump directly to a national demographic simulator. The next phase is:
+Do not jump directly to a national demographic simulator. After v0.6 verification, the next phase is:
 
-1. Add a separate third-party operation with named Stein and Oliver buckets plus the residual Other bucket. Define whether it transfers from the two major candidates proportionally or through explicit source shares; do not guess silently.
-2. Add a compact source-and-denominator inspector for a selected county or VTD, including baseline ballots, VAP, capacity, denominator status, and match quality.
-3. Add a shareable, versioned scenario encoding in the URL. It must include dataset versions and preserve exact deterministic replay without a backend.
-4. Add regression tests for URL round-tripping and multi-candidate reconciliation.
-5. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
-6. Only after those are stable, design a separately switchable uncertainty layer with a fixed seed and documented calibration. The deterministic scenario must remain the default and must not change.
+1. Add a compact source-and-denominator inspector for a selected county or VTD, including baseline ballots, VAP, capacity, denominator status, match quality, and named candidate totals where available.
+2. Add a shareable, versioned scenario encoding in the URL. It must include dataset and engine versions and preserve exact deterministic replay without a backend.
+3. Add regression tests for URL round-tripping.
+4. Profile the 4.1 MB demographic artifact and split or compress it before adding a second state.
+5. Only after those are stable, design a separately switchable uncertainty layer with a fixed seed and documented calibration. The deterministic scenario must remain the default and must not change.
 
-The immediate next design task is item 1: specify the third-party transfer contract before adding its slider.
+The immediate next product task after v0.6 is item 1: selected-geography source and denominator inspection.
 
 ## 11. Commands
 

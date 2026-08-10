@@ -16,6 +16,7 @@ import {
   applyTwoPartyVoteTransfer,
   deriveBehaviorContributions,
   preferenceShiftBounds,
+  thirdPartyShiftBounds,
   toReportingUnitResult,
 } from "../packages/election-model/src/scenario.ts";
 import { states2024 } from "../src/data/states.ts";
@@ -40,6 +41,11 @@ const pennsylvaniaDemographicFoundation = JSON.parse(readFileSync(
   new URL("../public/data/pa/2020/vtd-demographics.json", import.meta.url),
   "utf8",
 ));
+const noThirdPartyChange = {
+  thirdPartyCandidate: "stein",
+  thirdPartyShiftPoints: 0,
+  thirdPartyHarrisExchangeShare: 0.5,
+};
 
 test("largest remainder preserves the required integer total", () => {
   const allocated = largestRemainder([10.4, 5.4, 4.2], 20);
@@ -125,12 +131,18 @@ test("Pennsylvania official county results reconcile without fabricating the sta
   assert.deepEqual(pennsylvaniaCountyDocument.totals, {
     harrisVotes: 3_423_042,
     trumpVotes: 3_543_308,
+    steinVotes: 34_538,
+    oliverVotes: 33_318,
+    residualOtherVotes: 24_526,
     otherVotes: 92_382,
     totalVotes: 7_058_732,
   });
   assert.deepEqual(pennsylvaniaCountyDocument.mappedCountyTotals, {
     harrisVotes: 3_423_042,
     trumpVotes: 3_543_308,
+    steinVotes: 34_538,
+    oliverVotes: 33_318,
+    residualOtherVotes: 0,
     otherVotes: 67_856,
     totalVotes: 7_034_206,
   });
@@ -138,6 +150,7 @@ test("Pennsylvania official county results reconcile without fabricating the sta
 
   for (const county of pennsylvaniaCountyDocument.counties) {
     assert.equal(county.harrisVotes + county.trumpVotes + county.otherVotes, county.totalVotes);
+    assert.equal(county.steinVotes + county.oliverVotes + county.residualOtherVotes, county.otherVotes);
     assert.equal(county.electionDayVotes + county.mailVotes + county.provisionalVotes, county.totalVotes);
   }
 });
@@ -163,12 +176,24 @@ test("Pennsylvania reporting units and explicit residual buckets reconcile to th
   assert.equal(pennsylvaniaReportingUnitDocument.reportingUnits.length, 9_189);
   const totals = pennsylvaniaReportingUnitDocument.reportingUnits.reduce((sum, unit) => {
     assert.equal(unit.harrisVotes + unit.trumpVotes + unit.otherVotes, unit.totalVotes);
+    assert.equal(unit.steinVotes + unit.oliverVotes + unit.residualOtherVotes, unit.otherVotes);
     sum.harrisVotes += unit.harrisVotes;
     sum.trumpVotes += unit.trumpVotes;
+    sum.steinVotes += unit.steinVotes;
+    sum.oliverVotes += unit.oliverVotes;
+    sum.residualOtherVotes += unit.residualOtherVotes;
     sum.otherVotes += unit.otherVotes;
     sum.totalVotes += unit.totalVotes;
     return sum;
-  }, { harrisVotes: 0, trumpVotes: 0, otherVotes: 0, totalVotes: 0 });
+  }, {
+    harrisVotes: 0,
+    trumpVotes: 0,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
+    otherVotes: 0,
+    totalVotes: 0,
+  });
   assert.deepEqual(totals, pennsylvaniaCountyDocument.totals);
   assert.equal(
     pennsylvaniaReportingUnitDocument.reportingUnits.filter((unit) => unit.type === "other_bucket").length,
@@ -224,6 +249,9 @@ test("turnout additions and preference transfers remain separate and exact", () 
       geometryId: "a",
       harrisVotes: 40,
       trumpVotes: 30,
+      steinVotes: 0,
+      oliverVotes: 0,
+      residualOtherVotes: 0,
       otherVotes: 0,
       totalVotes: 70,
       turnoutDenominator: 100,
@@ -235,6 +263,9 @@ test("turnout additions and preference transfers remain separate and exact", () 
       geometryId: "b",
       harrisVotes: 20,
       trumpVotes: 30,
+      steinVotes: 0,
+      oliverVotes: 0,
+      residualOtherVotes: 0,
       otherVotes: 0,
       totalVotes: 50,
       turnoutDenominator: 100,
@@ -246,6 +277,9 @@ test("turnout additions and preference transfers remain separate and exact", () 
       geometryId: null,
       harrisVotes: 5,
       trumpVotes: 5,
+      steinVotes: 0,
+      oliverVotes: 0,
+      residualOtherVotes: 2,
       otherVotes: 2,
       totalVotes: 12,
       turnoutDenominator: null,
@@ -253,6 +287,7 @@ test("turnout additions and preference transfers remain separate and exact", () 
     },
   ];
   const scenario = applyBehaviorScenario(baseline, {
+    ...noThirdPartyChange,
     turnoutIncreasePoints: 10,
     addedVoterHarrisShare: 0.6,
     preferenceShiftPoints: 2,
@@ -271,6 +306,9 @@ test("turnout additions and preference transfers remain separate and exact", () 
   assert.deepEqual(scenario.totals, {
     harrisVotes: 79,
     trumpVotes: 71,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 2,
     otherVotes: 2,
     totalVotes: 152,
   });
@@ -286,6 +324,9 @@ test("preference bounds expose the full feasible range in both directions", () =
     geometryId: "unit",
     harrisVotes: 60,
     trumpVotes: 40,
+    steinVotes: 4,
+    oliverVotes: 3,
+    residualOtherVotes: 3,
     otherVotes: 10,
     totalVotes: 110,
     turnoutDenominator: null,
@@ -293,11 +334,13 @@ test("preference bounds expose the full feasible range in both directions", () =
   }];
   const bounds = preferenceShiftBounds(baseline[0]);
   const towardHarris = applyBehaviorScenario(baseline, {
+    ...noThirdPartyChange,
     turnoutIncreasePoints: 0,
     addedVoterHarrisShare: 0.5,
     preferenceShiftPoints: bounds.towardHarrisPoints,
   });
   const towardTrump = applyBehaviorScenario(baseline, {
+    ...noThirdPartyChange,
     turnoutIncreasePoints: 0,
     addedVoterHarrisShare: 0.5,
     preferenceShiftPoints: bounds.towardTrumpPoints,
@@ -311,6 +354,150 @@ test("preference bounds expose the full feasible range in both directions", () =
   assert.equal(towardTrump.totals.totalVotes, 110);
 });
 
+test("third-party gains use the explicit major-party source mix and preserve every ballot", () => {
+  const baseline = [
+    {
+      id: "urban",
+      countyFips: "42101",
+      geometryId: "urban",
+      harrisVotes: 70,
+      trumpVotes: 20,
+      steinVotes: 6,
+      oliverVotes: 2,
+      residualOtherVotes: 2,
+      otherVotes: 10,
+      totalVotes: 100,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    },
+    {
+      id: "rural",
+      countyFips: "42001",
+      geometryId: "rural",
+      harrisVotes: 30,
+      trumpVotes: 60,
+      steinVotes: 4,
+      oliverVotes: 4,
+      residualOtherVotes: 2,
+      otherVotes: 10,
+      totalVotes: 100,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    },
+  ];
+  const scenario = applyBehaviorScenario(baseline, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: 0,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: 10,
+    thirdPartyHarrisExchangeShare: 0.25,
+  });
+
+  assert.deepEqual(scenario.thirdParty, {
+    candidate: "stein",
+    startingCandidateVotes: 10,
+    exchangeCapacity: 107,
+    ballotTotal: 200,
+    requestedCandidateDelta: 20,
+    realizedCandidateDelta: 20,
+    harrisVoteDelta: -5,
+    trumpVoteDelta: -15,
+  });
+  assert.deepEqual(scenario.totals, {
+    harrisVotes: 95,
+    trumpVotes: 65,
+    steinVotes: 30,
+    oliverVotes: 6,
+    residualOtherVotes: 4,
+    otherVotes: 40,
+    totalVotes: 200,
+  });
+  scenario.units.forEach((unit, index) => {
+    assert.equal(unit.totalVotes, baseline[index].totalVotes);
+    assert.equal(unit.harrisVotes + unit.trumpVotes + unit.otherVotes, unit.totalVotes);
+    assert.equal(unit.steinVotes + unit.oliverVotes + unit.residualOtherVotes, unit.otherVotes);
+  });
+  const contributions = deriveBehaviorContributions(baseline, scenario.units);
+  assert.equal(contributions.reduce((sum, unit) => sum + unit.marginDelta, 0), 10);
+  assert.equal(contributions.reduce((sum, unit) => sum + unit.otherDelta, 0), 20);
+  assert.equal(contributions.reduce((sum, unit) => sum + unit.ballotDelta, 0), 0);
+});
+
+test("third-party removal can reach zero and returns ballots at the chosen source share", () => {
+  const baseline = [{
+    id: "state",
+    countyFips: null,
+    geometryId: null,
+    harrisVotes: 40,
+    trumpVotes: 40,
+    steinVotes: 5,
+    oliverVotes: 10,
+    residualOtherVotes: 5,
+    otherVotes: 20,
+    totalVotes: 100,
+    turnoutDenominator: null,
+    turnoutCapacity: 0,
+  }];
+  const bounds = thirdPartyShiftBounds(baseline[0], "oliver", 1);
+  const scenario = applyBehaviorScenario(baseline, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: 0,
+    thirdPartyCandidate: "oliver",
+    thirdPartyShiftPoints: bounds.towardZeroPoints,
+    thirdPartyHarrisExchangeShare: 1,
+  });
+
+  assert.deepEqual(bounds, { towardZeroPoints: -10, towardMaximumPoints: 40 });
+  assert.equal(scenario.totals.harrisVotes, 50);
+  assert.equal(scenario.totals.trumpVotes, 40);
+  assert.equal(scenario.totals.oliverVotes, 0);
+  assert.equal(scenario.totals.otherVotes, 10);
+  assert.equal(scenario.totals.totalVotes, 100);
+  assert.equal(scenario.thirdParty.realizedCandidateDelta, -10);
+  assert.equal(scenario.thirdParty.harrisVoteDelta, 10);
+  assert.equal(scenario.thirdParty.trumpVoteDelta, 0);
+});
+
+test("third-party positive bounds reach the exact rounded source capacity", () => {
+  const baseline = [{
+    id: "state",
+    countyFips: null,
+    geometryId: null,
+    harrisVotes: 1,
+    trumpVotes: 9,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
+    otherVotes: 0,
+    totalVotes: 10,
+    turnoutDenominator: null,
+    turnoutCapacity: 0,
+  }];
+  const bounds = thirdPartyShiftBounds(baseline[0], "stein", 0.4);
+  const scenario = applyBehaviorScenario(baseline, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: 0,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: bounds.towardMaximumPoints,
+    thirdPartyHarrisExchangeShare: 0.4,
+  });
+
+  assert.equal(bounds.towardMaximumPoints, 30);
+  assert.equal(scenario.thirdParty.realizedCandidateDelta, 3);
+  assert.equal(scenario.totals.harrisVotes, 0);
+  assert.equal(scenario.totals.trumpVotes, 7);
+  assert.equal(scenario.totals.steinVotes, 3);
+  assert.equal(scenario.totals.totalVotes, 10);
+  assert.ok(scenario.units.every((unit) => (
+    unit.harrisVotes >= 0
+    && unit.trumpVotes >= 0
+    && unit.otherVotes >= 0
+  )));
+});
+
 test("behavior contributions reconcile exactly and preserve Republican direction", () => {
   const baseline = [
     {
@@ -319,6 +506,9 @@ test("behavior contributions reconcile exactly and preserve Republican direction
       geometryId: "a",
       harrisVotes: 60,
       trumpVotes: 40,
+      steinVotes: 0,
+      oliverVotes: 0,
+      residualOtherVotes: 0,
       otherVotes: 0,
       totalVotes: 100,
       turnoutDenominator: null,
@@ -330,6 +520,9 @@ test("behavior contributions reconcile exactly and preserve Republican direction
       geometryId: "b",
       harrisVotes: 30,
       trumpVotes: 70,
+      steinVotes: 0,
+      oliverVotes: 0,
+      residualOtherVotes: 0,
       otherVotes: 0,
       totalVotes: 100,
       turnoutDenominator: null,
@@ -337,6 +530,7 @@ test("behavior contributions reconcile exactly and preserve Republican direction
     },
   ];
   const scenario = applyBehaviorScenario(baseline, {
+    ...noThirdPartyChange,
     turnoutIncreasePoints: 0,
     addedVoterHarrisShare: 0.5,
     preferenceShiftPoints: -10,
@@ -403,6 +597,7 @@ test("zero-change Pennsylvania behavior model returns the certified baseline exa
     })),
   ];
   const scenario = applyBehaviorScenario(units, {
+    ...noThirdPartyChange,
     turnoutIncreasePoints: 0,
     addedVoterHarrisShare: 0.55,
     preferenceShiftPoints: 0,
@@ -410,4 +605,62 @@ test("zero-change Pennsylvania behavior model returns the certified baseline exa
   assert.deepEqual(scenario.totals, pennsylvaniaCountyDocument.totals);
   assert.equal(scenario.turnout.addedVotes, 0);
   assert.equal(scenario.preference.realizedTransfer, 0);
+  assert.equal(scenario.thirdParty.realizedCandidateDelta, 0);
+});
+
+test("Pennsylvania third-party scenarios retain exact named and statewide reconciliation", () => {
+  const foundation = pennsylvaniaDemographicFoundation;
+  const units = [
+    ...foundation.vtds
+      .filter((vtd) => vtd.hasMappedResult)
+      .map((vtd) => ({
+        id: `vtd-${vtd.geoid}`,
+        countyFips: vtd.countyFips,
+        geometryId: vtd.geoid,
+        ...vtd.baselineVotes,
+        turnoutDenominator: vtd.denominatorStatus === "available"
+          ? vtd.votingAgePopulation
+          : null,
+        turnoutCapacity: vtd.denominatorStatus === "available"
+          ? vtd.turnoutCapacity
+          : 0,
+      })),
+    ...foundation.residualUnits.map((unit) => ({
+      ...unit,
+      geometryId: null,
+      turnoutDenominator: null,
+      turnoutCapacity: 0,
+    })),
+  ];
+  const scenario = applyBehaviorScenario(units, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: 0,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: 1.5,
+    thirdPartyHarrisExchangeShare: 0.65,
+  });
+  const expectedTransfer = Math.round(pennsylvaniaCountyDocument.totals.totalVotes * 0.015);
+
+  assert.equal(scenario.thirdParty.realizedCandidateDelta, expectedTransfer);
+  assert.equal(
+    scenario.totals.steinVotes,
+    pennsylvaniaCountyDocument.totals.steinVotes + expectedTransfer,
+  );
+  assert.equal(scenario.totals.oliverVotes, pennsylvaniaCountyDocument.totals.oliverVotes);
+  assert.equal(
+    scenario.totals.residualOtherVotes,
+    pennsylvaniaCountyDocument.totals.residualOtherVotes,
+  );
+  assert.equal(scenario.totals.totalVotes, pennsylvaniaCountyDocument.totals.totalVotes);
+  assert.equal(
+    scenario.totals.harrisVotes + scenario.totals.trumpVotes,
+    pennsylvaniaCountyDocument.totals.harrisVotes
+      + pennsylvaniaCountyDocument.totals.trumpVotes
+      - expectedTransfer,
+  );
+  assert.equal(
+    scenario.units.reduce((sum, unit) => sum + unit.thirdPartyCandidateDelta, 0),
+    expectedTransfer,
+  );
 });

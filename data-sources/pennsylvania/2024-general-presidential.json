@@ -54,17 +54,26 @@
   "mappedCountyTotals": {
     "harrisVotes": 3423042,
     "trumpVotes": 3543308,
+    "steinVotes": 34538,
+    "oliverVotes": 33318,
+    "residualOtherVotes": 0,
     "otherVotes": 67856,
     "totalVotes": 7034206
   },
   "statewideResidual": {
     "harrisVotes": 0,
     "trumpVotes": 0,
+    "steinVotes": 0,
+    "oliverVotes": 0,
+    "residualOtherVotes": 24526,
     "otherVotes": 24526
   },
   "stateTotals": {
     "harrisVotes": 3423042,
     "trumpVotes": 3543308,
+    "steinVotes": 34538,
+    "oliverVotes": 33318,
+    "residualOtherVotes": 24526,
     "otherVotes": 92382,
     "totalVotes": 7058732
   },

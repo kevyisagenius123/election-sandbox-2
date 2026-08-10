@@ -10,6 +10,9 @@ const EXPECTED_COUNTY_SUMMARY_SHA256 = "c73094edb1b46312f89facc68c561b26286caa15
 const EXPECTED_STATE_TOTALS = {
   harrisVotes: 3_423_042,
   trumpVotes: 3_543_308,
+  steinVotes: 34_538,
+  oliverVotes: 33_318,
+  residualOtherVotes: 24_526,
   otherVotes: 92_382,
   totalVotes: 7_058_732,
 };
@@ -71,8 +74,19 @@ function candidateBucket(_partyCode, lastName) {
   return "other";
 }
 
-function addVotes(target, bucket, votes) {
-  target[bucket] += votes;
+function candidateVoteKey(lastName) {
+  if (lastName === "HARRIS") return "harrisVotes";
+  if (lastName === "TRUMP") return "trumpVotes";
+  if (lastName === "STEIN") return "steinVotes";
+  if (lastName === "OLIVER") return "oliverVotes";
+  return "residualOtherVotes";
+}
+
+function addVotes(target, voteKey, votes) {
+  target[voteKey] += votes;
+  if (["steinVotes", "oliverVotes", "residualOtherVotes"].includes(voteKey)) {
+    target.otherVotes += votes;
+  }
   target.totalVotes += votes;
 }
 
@@ -116,6 +130,7 @@ for await (const line of lines) {
   const lastName = fields[11].trim();
   const candidateNumber = fields[10].trim();
   const bucket = candidateBucket(partyCode, lastName);
+  const voteKey = candidateVoteKey(lastName);
   const fips = countyFips(countyCode);
   const countyName = COUNTY_NAMES[countyCode - 1];
   const sourceMcdCode = fields[28].trim() || null;
@@ -147,11 +162,14 @@ for await (const line of lines) {
     name: `${countyName} County`,
     harrisVotes: 0,
     trumpVotes: 0,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
     otherVotes: 0,
     totalVotes: 0,
     reportingUnitCount: 0,
   };
-  addVotes(county, `${bucket}Votes`, votes);
+  addVotes(county, voteKey, votes);
   countyMap.set(fips, county);
 
   const reportingUnitId = `pa-${fips}-${precinctCode}`;
@@ -177,10 +195,13 @@ for await (const line of lines) {
     ballotMode: null,
     harrisVotes: 0,
     trumpVotes: 0,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
     otherVotes: 0,
     totalVotes: 0,
   };
-  addVotes(reportingUnit, `${bucket}Votes`, votes);
+  addVotes(reportingUnit, voteKey, votes);
   reportingUnitMap.set(reportingUnitId, reportingUnit);
 }
 
@@ -212,6 +233,9 @@ for (const [sourceCountyName, rows] of Object.entries(countySummaryRows)) {
     name: `${COUNTY_NAMES[countyIndex]} County`,
     harrisVotes: 0,
     trumpVotes: 0,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
     otherVotes: 0,
     totalVotes: 0,
     electionDayVotes: 0,
@@ -229,11 +253,12 @@ for (const [sourceCountyName, rows] of Object.entries(countySummaryRows)) {
     const partyCode = String(row.PartyName ?? "").trim();
     const lastName = String(row.CandidateName ?? "").trim().split(/\s+/).at(-1) ?? "";
     const bucket = candidateBucket(partyCode, lastName);
+    const voteKey = candidateVoteKey(lastName);
     if (![votes, electionDayVotes, mailVotes, provisionalVotes].every(Number.isSafeInteger)) {
       throw new Error(`Invalid county summary record for ${sourceCountyName}`);
     }
     assertEqual(`${sourceCountyName} ${row.CandidateName} ballot modes`, electionDayVotes + mailVotes + provisionalVotes, votes);
-    addVotes(county, `${bucket}Votes`, votes);
+    addVotes(county, voteKey, votes);
     county.electionDayVotes += electionDayVotes;
     county.mailVotes += mailVotes;
     county.provisionalVotes += provisionalVotes;
@@ -261,6 +286,10 @@ for (const [fips, officialCounty] of summaryCountyMap) {
   const residual = {
     harrisVotes: officialCounty.harrisVotes - precinctCounty.harrisVotes,
     trumpVotes: officialCounty.trumpVotes - precinctCounty.trumpVotes,
+    steinVotes: officialCounty.steinVotes - precinctCounty.steinVotes,
+    oliverVotes: officialCounty.oliverVotes - precinctCounty.oliverVotes,
+    residualOtherVotes:
+      officialCounty.residualOtherVotes - precinctCounty.residualOtherVotes,
     otherVotes: officialCounty.otherVotes - precinctCounty.otherVotes,
   };
   if (Object.values(residual).some((value) => value < 0)) {
@@ -300,14 +329,29 @@ const counties = [...summaryCountyMap.values()].sort((a, b) => a.fips.localeComp
 const mappedCountyTotals = counties.reduce((totals, county) => {
   totals.harrisVotes += county.harrisVotes;
   totals.trumpVotes += county.trumpVotes;
+  totals.steinVotes += county.steinVotes;
+  totals.oliverVotes += county.oliverVotes;
+  totals.residualOtherVotes += county.residualOtherVotes;
   totals.otherVotes += county.otherVotes;
   totals.totalVotes += county.totalVotes;
   return totals;
-}, { harrisVotes: 0, trumpVotes: 0, otherVotes: 0, totalVotes: 0 });
+}, {
+  harrisVotes: 0,
+  trumpVotes: 0,
+  steinVotes: 0,
+  oliverVotes: 0,
+  residualOtherVotes: 0,
+  otherVotes: 0,
+  totalVotes: 0,
+});
 
 const statewideResidual = {
   harrisVotes: EXPECTED_STATE_TOTALS.harrisVotes - mappedCountyTotals.harrisVotes,
   trumpVotes: EXPECTED_STATE_TOTALS.trumpVotes - mappedCountyTotals.trumpVotes,
+  steinVotes: EXPECTED_STATE_TOTALS.steinVotes - mappedCountyTotals.steinVotes,
+  oliverVotes: EXPECTED_STATE_TOTALS.oliverVotes - mappedCountyTotals.oliverVotes,
+  residualOtherVotes:
+    EXPECTED_STATE_TOTALS.residualOtherVotes - mappedCountyTotals.residualOtherVotes,
   otherVotes: EXPECTED_STATE_TOTALS.otherVotes - mappedCountyTotals.otherVotes,
 };
 if (Object.values(statewideResidual).some((value) => value < 0)) {
@@ -335,6 +379,10 @@ reportingUnitMap.set("pa-42-statewide-residual", {
 const stateTotals = {
   harrisVotes: mappedCountyTotals.harrisVotes + statewideResidual.harrisVotes,
   trumpVotes: mappedCountyTotals.trumpVotes + statewideResidual.trumpVotes,
+  steinVotes: mappedCountyTotals.steinVotes + statewideResidual.steinVotes,
+  oliverVotes: mappedCountyTotals.oliverVotes + statewideResidual.oliverVotes,
+  residualOtherVotes:
+    mappedCountyTotals.residualOtherVotes + statewideResidual.residualOtherVotes,
   otherVotes: mappedCountyTotals.otherVotes + statewideResidual.otherVotes,
   totalVotes: mappedCountyTotals.totalVotes + statewideResidualTotal,
 };

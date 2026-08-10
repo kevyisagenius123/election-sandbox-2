@@ -941,7 +941,7 @@ input:focus-visible {
 
 .behavior-tabs {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 3px;
   margin-bottom: 8px;
   padding: 3px;
@@ -1101,6 +1101,97 @@ input[type="range"]:disabled {
 
 .preference-labels span:last-child {
   color: #3d7892;
+}
+
+.third-party-candidates {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-top: 12px;
+}
+
+.third-party-candidates button {
+  min-width: 0;
+  padding: 7px 4px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: #73878e;
+  background: #f6f5ef;
+  font-size: 7px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.third-party-candidates button[aria-pressed="true"][data-candidate="stein"] {
+  color: #f7f8ef;
+  border-color: #63815d;
+  background: #63815d;
+}
+
+.third-party-candidates button[aria-pressed="true"][data-candidate="oliver"] {
+  color: #fffaf0;
+  border-color: #b28236;
+  background: #b28236;
+}
+
+.third-party-candidates button[aria-pressed="true"][data-candidate="residual_other"] {
+  color: #faf6fb;
+  border-color: #77627f;
+  background: #77627f;
+}
+
+.bidirectional-range .third-party-range {
+  height: 6px;
+  appearance: none;
+  border: 1px solid rgba(25, 58, 73, 0.13);
+  background: linear-gradient(
+    90deg,
+    #d5d2c6 0%,
+    #e9e5d8 var(--zero-position),
+    var(--third-party-color, #63815d) 100%
+  );
+}
+
+.third-party-bidirectional[data-candidate="stein"] {
+  --third-party-color: #63815d;
+}
+
+.third-party-bidirectional[data-candidate="oliver"] {
+  --third-party-color: #b28236;
+}
+
+.third-party-bidirectional[data-candidate="residual_other"] {
+  --third-party-color: #77627f;
+}
+
+.bidirectional-range .third-party-range::-webkit-slider-thumb {
+  width: 15px;
+  height: 15px;
+  appearance: none;
+  border: 2px solid #f8f6ed;
+  border-radius: 50%;
+  background: var(--third-party-color, #63815d);
+  box-shadow: 0 2px 6px rgba(25, 58, 73, 0.28);
+}
+
+.bidirectional-range .third-party-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f8f6ed;
+  border-radius: 50%;
+  background: var(--third-party-color, #63815d);
+  box-shadow: 0 2px 6px rgba(25, 58, 73, 0.28);
+}
+
+.third-party-labels span:first-child {
+  color: #8e9694;
+}
+
+.third-party-labels span:last-child {
+  color: #6c8067;
 }
 
 .range-labels {

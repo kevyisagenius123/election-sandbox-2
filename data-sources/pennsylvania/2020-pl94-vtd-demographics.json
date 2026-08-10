@@ -23,8 +23,8 @@
   },
   "artifact": {
     "path": "public/data/pa/2020/vtd-demographics.json",
-    "sha256": "2e58c46a58200ca4a825148b62b5948700dac4d767659c76d1ba000cf504f58b",
-    "byteSize": 4134769
+    "sha256": "68e351afc7133ff95df857db8615b7b9b7bf692840f88df41c4fbedf811e3a43",
+    "byteSize": 4641247
   },
   "join": {
     "method": "exact_state_county_vtd_identifier",
@@ -56,18 +56,27 @@
     "mappedVotes": {
       "harrisVotes": 3373378,
       "trumpVotes": 3493255,
+      "steinVotes": 34093,
+      "oliverVotes": 32834,
+      "residualOtherVotes": 0,
       "otherVotes": 66927,
       "totalVotes": 6933560
     },
     "residualVotes": {
       "harrisVotes": 49664,
       "trumpVotes": 50053,
+      "steinVotes": 445,
+      "oliverVotes": 484,
+      "residualOtherVotes": 24526,
       "otherVotes": 25455,
       "totalVotes": 125172
     },
     "certifiedVotes": {
       "harrisVotes": 3423042,
       "trumpVotes": 3543308,
+      "steinVotes": 34538,
+      "oliverVotes": 33318,
+      "residualOtherVotes": 24526,
       "otherVotes": 92382,
       "totalVotes": 7058732
     },
@@ -94,6 +103,9 @@
       "mappedVotes": {
         "harrisVotes": 19842,
         "trumpVotes": 40248,
+        "steinVotes": 218,
+        "oliverVotes": 342,
+        "residualOtherVotes": 0,
         "otherVotes": 560,
         "totalVotes": 60650
       },
@@ -114,6 +126,9 @@
       "mappedVotes": {
         "harrisVotes": 428681,
         "trumpVotes": 282263,
+        "steinVotes": 3676,
+        "oliverVotes": 3292,
+        "residualOtherVotes": 0,
         "otherVotes": 6968,
         "totalVotes": 717912
       },
@@ -134,6 +149,9 @@
       "mappedVotes": {
         "harrisVotes": 8553,
         "trumpVotes": 28296,
+        "steinVotes": 88,
+        "oliverVotes": 182,
+        "residualOtherVotes": 0,
         "otherVotes": 270,
         "totalVotes": 37119
       },
@@ -154,6 +172,9 @@
       "mappedVotes": {
         "harrisVotes": 37196,
         "trumpVotes": 56837,
+        "steinVotes": 308,
+        "oliverVotes": 502,
+        "residualOtherVotes": 0,
         "otherVotes": 810,
         "totalVotes": 94843
       },
@@ -174,6 +195,9 @@
       "mappedVotes": {
         "harrisVotes": 4211,
         "trumpVotes": 23041,
+        "steinVotes": 64,
+        "oliverVotes": 98,
+        "residualOtherVotes": 0,
         "otherVotes": 162,
         "totalVotes": 27414
       },
@@ -194,6 +218,9 @@
       "mappedVotes": {
         "harrisVotes": 88510,
         "trumpVotes": 112160,
+        "steinVotes": 924,
+        "oliverVotes": 1063,
+        "residualOtherVotes": 0,
         "otherVotes": 1987,
         "totalVotes": 202657
       },
@@ -214,6 +241,9 @@
       "mappedVotes": {
         "harrisVotes": 17908,
         "trumpVotes": 46087,
+        "steinVotes": 190,
+        "oliverVotes": 273,
+        "residualOtherVotes": 0,
         "otherVotes": 463,
         "totalVotes": 64458
       },
@@ -234,6 +264,9 @@
       "mappedVotes": {
         "harrisVotes": 7990,
         "trumpVotes": 22937,
+        "steinVotes": 85,
+        "oliverVotes": 180,
+        "residualOtherVotes": 0,
         "otherVotes": 265,
         "totalVotes": 31192
       },
@@ -254,6 +287,9 @@
       "mappedVotes": {
         "harrisVotes": 198431,
         "trumpVotes": 198722,
+        "steinVotes": 1971,
+        "oliverVotes": 1904,
+        "residualOtherVotes": 0,
         "otherVotes": 3875,
         "totalVotes": 401028
       },
@@ -274,6 +310,9 @@
       "mappedVotes": {
         "harrisVotes": 36849,
         "trumpVotes": 73301,
+        "steinVotes": 316,
+        "oliverVotes": 607,
+        "residualOtherVotes": 0,
         "otherVotes": 923,
         "totalVotes": 111073
       },
@@ -294,6 +333,9 @@
       "mappedVotes": {
         "harrisVotes": 19775,
         "trumpVotes": 46890,
+        "steinVotes": 197,
+        "oliverVotes": 313,
+        "residualOtherVotes": 0,
         "otherVotes": 510,
         "totalVotes": 67175
       },
@@ -314,6 +356,9 @@
       "mappedVotes": {
         "harrisVotes": 538,
         "trumpVotes": 1654,
+        "steinVotes": 10,
+        "oliverVotes": 17,
+        "residualOtherVotes": 0,
         "otherVotes": 27,
         "totalVotes": 2219
       },
@@ -334,6 +379,9 @@
       "mappedVotes": {
         "harrisVotes": 11394,
         "trumpVotes": 23708,
+        "steinVotes": 122,
+        "oliverVotes": 171,
+        "residualOtherVotes": 0,
         "otherVotes": 293,
         "totalVotes": 35395
       },
@@ -354,6 +402,9 @@
       "mappedVotes": {
         "harrisVotes": 35234,
         "trumpVotes": 35514,
+        "steinVotes": 328,
+        "oliverVotes": 413,
+        "residualOtherVotes": 0,
         "otherVotes": 741,
         "totalVotes": 71489
       },
@@ -374,6 +425,9 @@
       "mappedVotes": {
         "harrisVotes": 178240,
         "trumpVotes": 131919,
+        "steinVotes": 1566,
+        "oliverVotes": 1723,
+        "residualOtherVotes": 0,
         "otherVotes": 3289,
         "totalVotes": 313448
       },
@@ -394,6 +448,9 @@
       "mappedVotes": {
         "harrisVotes": 4562,
         "trumpVotes": 15036,
+        "steinVotes": 44,
+        "oliverVotes": 91,
+        "residualOtherVotes": 0,
         "otherVotes": 135,
         "totalVotes": 19733
       },
@@ -414,6 +471,9 @@
       "mappedVotes": {
         "harrisVotes": 9647,
         "trumpVotes": 30481,
+        "steinVotes": 119,
+        "oliverVotes": 183,
+        "residualOtherVotes": 0,
         "otherVotes": 302,
         "totalVotes": 40430
       },
@@ -434,6 +494,9 @@
       "mappedVotes": {
         "harrisVotes": 5395,
         "trumpVotes": 12965,
+        "steinVotes": 62,
+        "oliverVotes": 100,
+        "residualOtherVotes": 0,
         "otherVotes": 162,
         "totalVotes": 18522
       },
@@ -454,6 +517,9 @@
       "mappedVotes": {
         "harrisVotes": 11083,
         "trumpVotes": 21190,
+        "steinVotes": 110,
+        "oliverVotes": 193,
+        "residualOtherVotes": 0,
         "otherVotes": 303,
         "totalVotes": 32576
       },
@@ -474,6 +540,9 @@
       "mappedVotes": {
         "harrisVotes": 12858,
         "trumpVotes": 29685,
+        "steinVotes": 115,
+        "oliverVotes": 214,
+        "residualOtherVotes": 0,
         "otherVotes": 329,
         "totalVotes": 42872
       },
@@ -494,6 +563,9 @@
       "mappedVotes": {
         "harrisVotes": 64032,
         "trumpVotes": 77145,
+        "steinVotes": 925,
+        "oliverVotes": 897,
+        "residualOtherVotes": 0,
         "otherVotes": 1822,
         "totalVotes": 142999
       },
@@ -514,6 +586,9 @@
       "mappedVotes": {
         "harrisVotes": 78327,
         "trumpVotes": 69474,
+        "steinVotes": 893,
+        "oliverVotes": 832,
+        "residualOtherVotes": 0,
         "otherVotes": 1725,
         "totalVotes": 149526
       },
@@ -534,6 +609,9 @@
       "mappedVotes": {
         "harrisVotes": 201324,
         "trumpVotes": 123421,
+        "steinVotes": 2127,
+        "oliverVotes": 1300,
+        "residualOtherVotes": 0,
         "otherVotes": 3427,
         "totalVotes": 328172
       },
@@ -554,6 +632,9 @@
       "mappedVotes": {
         "harrisVotes": 4483,
         "trumpVotes": 12543,
+        "steinVotes": 52,
+        "oliverVotes": 75,
+        "residualOtherVotes": 0,
         "otherVotes": 127,
         "totalVotes": 17153
       },
@@ -574,6 +655,9 @@
       "mappedVotes": {
         "harrisVotes": 65659,
         "trumpVotes": 66826,
+        "steinVotes": 564,
+        "oliverVotes": 673,
+        "residualOtherVotes": 0,
         "otherVotes": 1237,
         "totalVotes": 133722
       },
@@ -594,6 +678,9 @@
       "mappedVotes": {
         "harrisVotes": 19548,
         "trumpVotes": 43633,
+        "steinVotes": 122,
+        "oliverVotes": 169,
+        "residualOtherVotes": 0,
         "otherVotes": 291,
         "totalVotes": 63472
       },
@@ -614,6 +701,9 @@
       "mappedVotes": {
         "harrisVotes": 724,
         "trumpVotes": 1902,
+        "steinVotes": 15,
+        "oliverVotes": 9,
+        "residualOtherVotes": 0,
         "otherVotes": 24,
         "totalVotes": 2650
       },
@@ -634,6 +724,9 @@
       "mappedVotes": {
         "harrisVotes": 23543,
         "trumpVotes": 59604,
+        "steinVotes": 280,
+        "oliverVotes": 457,
+        "residualOtherVotes": 0,
         "otherVotes": 737,
         "totalVotes": 83884
       },
@@ -654,6 +747,9 @@
       "mappedVotes": {
         "harrisVotes": 1102,
         "trumpVotes": 7039,
+        "steinVotes": 13,
+        "oliverVotes": 23,
+        "residualOtherVotes": 0,
         "otherVotes": 36,
         "totalVotes": 8177
       },
@@ -674,6 +770,9 @@
       "mappedVotes": {
         "harrisVotes": 4592,
         "trumpVotes": 12319,
+        "steinVotes": 235,
+        "oliverVotes": 90,
+        "residualOtherVotes": 0,
         "otherVotes": 325,
         "totalVotes": 17236
       },
@@ -694,6 +793,9 @@
       "mappedVotes": {
         "harrisVotes": 5368,
         "trumpVotes": 17627,
+        "steinVotes": 53,
+        "oliverVotes": 108,
+        "residualOtherVotes": 0,
         "otherVotes": 161,
         "totalVotes": 23156
       },
@@ -714,6 +816,9 @@
       "mappedVotes": {
         "harrisVotes": 12697,
         "trumpVotes": 29215,
+        "steinVotes": 123,
+        "oliverVotes": 194,
+        "residualOtherVotes": 0,
         "otherVotes": 317,
         "totalVotes": 42229
       },
@@ -734,6 +839,9 @@
       "mappedVotes": {
         "harrisVotes": 4707,
         "trumpVotes": 18235,
+        "steinVotes": 56,
+        "oliverVotes": 131,
+        "residualOtherVotes": 0,
         "otherVotes": 187,
         "totalVotes": 23129
       },
@@ -754,6 +862,9 @@
       "mappedVotes": {
         "harrisVotes": 2290,
         "trumpVotes": 9721,
+        "steinVotes": 29,
+        "oliverVotes": 64,
+        "residualOtherVotes": 0,
         "otherVotes": 93,
         "totalVotes": 12104
       },
@@ -774,6 +885,9 @@
       "mappedVotes": {
         "harrisVotes": 59510,
         "trumpVotes": 56261,
+        "steinVotes": 394,
+        "oliverVotes": 425,
+        "residualOtherVotes": 0,
         "otherVotes": 819,
         "totalVotes": 116590
       },
@@ -794,6 +908,9 @@
       "mappedVotes": {
         "harrisVotes": 119390,
         "trumpVotes": 164991,
+        "steinVotes": 1144,
+        "oliverVotes": 1712,
+        "residualOtherVotes": 0,
         "otherVotes": 2856,
         "totalVotes": 287237
       },
@@ -814,6 +931,9 @@
       "mappedVotes": {
         "harrisVotes": 15440,
         "trumpVotes": 31347,
+        "steinVotes": 144,
+        "oliverVotes": 179,
+        "residualOtherVotes": 0,
         "otherVotes": 323,
         "totalVotes": 47110
       },
@@ -834,6 +954,9 @@
       "mappedVotes": {
         "harrisVotes": 24734,
         "trumpVotes": 48282,
+        "steinVotes": 286,
+        "oliverVotes": 390,
+        "residualOtherVotes": 0,
         "otherVotes": 676,
         "totalVotes": 73692
       },
@@ -854,6 +977,9 @@
       "mappedVotes": {
         "harrisVotes": 95813,
         "trumpVotes": 90970,
+        "steinVotes": 1424,
+        "oliverVotes": 854,
+        "residualOtherVotes": 0,
         "otherVotes": 2278,
         "totalVotes": 189061
       },
@@ -874,6 +1000,9 @@
       "mappedVotes": {
         "harrisVotes": 61132,
         "trumpVotes": 89380,
+        "steinVotes": 548,
+        "oliverVotes": 624,
+        "residualOtherVotes": 0,
         "otherVotes": 1172,
         "totalVotes": 151684
       },
@@ -894,6 +1023,9 @@
       "mappedVotes": {
         "harrisVotes": 16893,
         "trumpVotes": 41461,
+        "steinVotes": 207,
+        "oliverVotes": 291,
+        "residualOtherVotes": 0,
         "otherVotes": 498,
         "totalVotes": 58852
       },
@@ -914,6 +1046,9 @@
       "mappedVotes": {
         "harrisVotes": 5115,
         "trumpVotes": 14401,
+        "steinVotes": 58,
+        "oliverVotes": 108,
+        "residualOtherVotes": 0,
         "otherVotes": 166,
         "totalVotes": 19682
       },
@@ -934,6 +1069,9 @@
       "mappedVotes": {
         "harrisVotes": 18350,
         "trumpVotes": 36710,
+        "steinVotes": 181,
+        "oliverVotes": 294,
+        "residualOtherVotes": 0,
         "otherVotes": 475,
         "totalVotes": 55535
       },
@@ -954,6 +1092,9 @@
       "mappedVotes": {
         "harrisVotes": 4735,
         "trumpVotes": 17184,
+        "steinVotes": 57,
+        "oliverVotes": 95,
+        "residualOtherVotes": 0,
         "otherVotes": 152,
         "totalVotes": 22071
       },
@@ -974,6 +1115,9 @@
       "mappedVotes": {
         "harrisVotes": 41068,
         "trumpVotes": 41974,
+        "steinVotes": 434,
+        "oliverVotes": 394,
+        "residualOtherVotes": 0,
         "otherVotes": 828,
         "totalVotes": 83870
       },
@@ -994,6 +1138,9 @@
       "mappedVotes": {
         "harrisVotes": 308743,
         "trumpVotes": 193852,
+        "steinVotes": 2932,
+        "oliverVotes": 2441,
+        "residualOtherVotes": 0,
         "otherVotes": 5373,
         "totalVotes": 507968
       },
@@ -1014,6 +1161,9 @@
       "mappedVotes": {
         "harrisVotes": 3862,
         "trumpVotes": 5944,
+        "steinVotes": 44,
+        "oliverVotes": 58,
+        "residualOtherVotes": 0,
         "otherVotes": 102,
         "totalVotes": 9908
       },
@@ -1034,6 +1184,9 @@
       "mappedVotes": {
         "harrisVotes": 86137,
         "trumpVotes": 89398,
+        "steinVotes": 926,
+        "oliverVotes": 812,
+        "residualOtherVotes": 0,
         "otherVotes": 1738,
         "totalVotes": 177273
       },
@@ -1054,6 +1207,9 @@
       "mappedVotes": {
         "harrisVotes": 11754,
         "trumpVotes": 28005,
+        "steinVotes": 140,
+        "oliverVotes": 238,
+        "residualOtherVotes": 0,
         "otherVotes": 378,
         "totalVotes": 40137
       },
@@ -1074,6 +1230,9 @@
       "mappedVotes": {
         "harrisVotes": 6385,
         "trumpVotes": 19073,
+        "steinVotes": 103,
+        "oliverVotes": 164,
+        "residualOtherVotes": 0,
         "otherVotes": 267,
         "totalVotes": 25725
       },
@@ -1094,6 +1253,9 @@
       "mappedVotes": {
         "harrisVotes": 563893,
         "trumpVotes": 143791,
+        "steinVotes": 6194,
+        "oliverVotes": 2322,
+        "residualOtherVotes": 0,
         "otherVotes": 8516,
         "totalVotes": 716200
       },
@@ -1114,6 +1276,9 @@
       "mappedVotes": {
         "harrisVotes": 13132,
         "trumpVotes": 21537,
+        "steinVotes": 144,
+        "oliverVotes": 137,
+        "residualOtherVotes": 0,
         "otherVotes": 281,
         "totalVotes": 34950
       },
@@ -1134,6 +1299,9 @@
       "mappedVotes": {
         "harrisVotes": 1675,
         "trumpVotes": 7334,
+        "steinVotes": 20,
+        "oliverVotes": 56,
+        "residualOtherVotes": 0,
         "otherVotes": 76,
         "totalVotes": 9085
       },
@@ -1154,6 +1322,9 @@
       "mappedVotes": {
         "harrisVotes": 20882,
         "trumpVotes": 51665,
+        "steinVotes": 268,
+        "oliverVotes": 369,
+        "residualOtherVotes": 0,
         "otherVotes": 637,
         "totalVotes": 73184
       },
@@ -1174,6 +1345,9 @@
       "mappedVotes": {
         "harrisVotes": 5239,
         "trumpVotes": 14664,
+        "steinVotes": 45,
+        "oliverVotes": 90,
+        "residualOtherVotes": 0,
         "otherVotes": 135,
         "totalVotes": 20038
       },
@@ -1194,6 +1368,9 @@
       "mappedVotes": {
         "harrisVotes": 8596,
         "trumpVotes": 31993,
+        "steinVotes": 103,
+        "oliverVotes": 189,
+        "residualOtherVotes": 0,
         "otherVotes": 292,
         "totalVotes": 40881
       },
@@ -1214,6 +1391,9 @@
       "mappedVotes": {
         "harrisVotes": 976,
         "trumpVotes": 2721,
+        "steinVotes": 12,
+        "oliverVotes": 12,
+        "residualOtherVotes": 0,
         "otherVotes": 24,
         "totalVotes": 3721
       },
@@ -1234,6 +1414,9 @@
       "mappedVotes": {
         "harrisVotes": 5833,
         "trumpVotes": 15629,
+        "steinVotes": 64,
+        "oliverVotes": 126,
+        "residualOtherVotes": 0,
         "otherVotes": 190,
         "totalVotes": 21652
       },
@@ -1254,6 +1437,9 @@
       "mappedVotes": {
         "harrisVotes": 5100,
         "trumpVotes": 16272,
+        "steinVotes": 71,
+        "oliverVotes": 144,
+        "residualOtherVotes": 0,
         "otherVotes": 215,
         "totalVotes": 21587
       },
@@ -1274,6 +1460,9 @@
       "mappedVotes": {
         "harrisVotes": 8015,
         "trumpVotes": 12969,
+        "steinVotes": 104,
+        "oliverVotes": 100,
+        "residualOtherVotes": 0,
         "otherVotes": 204,
         "totalVotes": 21188
       },
@@ -1294,6 +1483,9 @@
       "mappedVotes": {
         "harrisVotes": 7624,
         "trumpVotes": 18883,
+        "steinVotes": 88,
+        "oliverVotes": 137,
+        "residualOtherVotes": 0,
         "otherVotes": 225,
         "totalVotes": 26732
       },
@@ -1314,6 +1506,9 @@
       "mappedVotes": {
         "harrisVotes": 6212,
         "trumpVotes": 14345,
+        "steinVotes": 53,
+        "oliverVotes": 113,
+        "residualOtherVotes": 0,
         "otherVotes": 166,
         "totalVotes": 20723
       },
@@ -1334,6 +1529,9 @@
       "mappedVotes": {
         "harrisVotes": 44910,
         "trumpVotes": 75929,
+        "steinVotes": 254,
+        "oliverVotes": 524,
+        "residualOtherVotes": 0,
         "otherVotes": 778,
         "totalVotes": 121617
       },
@@ -1354,6 +1552,9 @@
       "mappedVotes": {
         "harrisVotes": 9150,
         "trumpVotes": 20071,
+        "steinVotes": 98,
+        "oliverVotes": 125,
+        "residualOtherVotes": 0,
         "otherVotes": 223,
         "totalVotes": 29444
       },
@@ -1374,6 +1575,9 @@
       "mappedVotes": {
         "harrisVotes": 72107,
         "trumpVotes": 130811,
+        "steinVotes": 531,
+        "oliverVotes": 939,
+        "residualOtherVotes": 0,
         "otherVotes": 1470,
         "totalVotes": 204388
       },
@@ -1394,6 +1598,9 @@
       "mappedVotes": {
         "harrisVotes": 4541,
         "trumpVotes": 9989,
+        "steinVotes": 56,
+        "oliverVotes": 84,
+        "residualOtherVotes": 0,
         "otherVotes": 140,
         "totalVotes": 14670
       },
@@ -1414,6 +1621,9 @@
       "mappedVotes": {
         "harrisVotes": 91139,
         "trumpVotes": 153781,
+        "steinVotes": 966,
+        "oliverVotes": 1405,
+        "residualOtherVotes": 0,
         "otherVotes": 2371,
         "totalVotes": 247291
       },

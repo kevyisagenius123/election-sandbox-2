@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.5 bidirectional behavior and contribution tracing
+**Status:** v0.6 named third-party exchange
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.5 implements the first trustworthy behavior and explanation slice in Pennsylvania. A versioned 2020 Census P.L. 94-171 voting-age-population denominator is joined to the existing VTD geometry, and the editor exposes separate ordered turnout and preference operations. Preference can move across its complete mathematically feasible Republican-to-Democratic range. Exact county and VTD contribution rankings explain where the resulting margin moved. The baseline, every integer allocation, and the aggregate state result reconcile exactly. Demographic candidate preference remains out of scope because the Census source does not observe it.
+Version 0.6 implements the first multi-candidate behavior and explanation slice in Pennsylvania. A versioned 2020 Census P.L. 94-171 voting-age-population denominator is joined to the existing VTD geometry, and the editor exposes separate ordered turnout, two-party preference, and named third-party exchange operations. Preference spans its complete mathematically feasible Republican-to-Democratic range. Stein, Oliver, and residual Other/write-in movement uses an explicit Harris/Trump ballot source share and candidate-capacity bounds rather than an arbitrary interface ceiling. Exact county and VTD contribution rankings explain where the resulting major-party margin moved. The baseline, every integer allocation, and the aggregate state result reconcile exactly. Demographic candidate preference remains out of scope because the Census source does not observe it.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

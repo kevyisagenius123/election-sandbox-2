@@ -78,12 +78,23 @@ function parseInteger(value, label) {
 }
 
 function emptyVotes() {
-  return { harrisVotes: 0, trumpVotes: 0, otherVotes: 0, totalVotes: 0 };
+  return {
+    harrisVotes: 0,
+    trumpVotes: 0,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: 0,
+    otherVotes: 0,
+    totalVotes: 0,
+  };
 }
 
 function addVotes(target, source) {
   target.harrisVotes += source.harrisVotes;
   target.trumpVotes += source.trumpVotes;
+  target.steinVotes += source.steinVotes;
+  target.oliverVotes += source.oliverVotes;
+  target.residualOtherVotes += source.residualOtherVotes;
   target.otherVotes += source.otherVotes;
   target.totalVotes += source.totalVotes;
 }
@@ -147,6 +158,9 @@ const residualUnits = reportingDocument.reportingUnits
     type: unit.type,
     harrisVotes: unit.harrisVotes,
     trumpVotes: unit.trumpVotes,
+    steinVotes: unit.steinVotes,
+    oliverVotes: unit.oliverVotes,
+    residualOtherVotes: unit.residualOtherVotes,
     otherVotes: unit.otherVotes,
     totalVotes: unit.totalVotes,
   }));

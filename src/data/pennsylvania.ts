@@ -8,6 +8,17 @@ export interface PennsylvaniaCountyResult extends CountyPresidentialResult {
   provisionalVotes: number;
   reportingUnitCount: number;
   residualVotes: number;
+  steinVotes: number;
+  oliverVotes: number;
+  residualOtherVotes: number;
+}
+
+export interface PennsylvaniaCandidateResult {
+  id: string;
+  name: string;
+  partyCode: string | null;
+  bucket: string;
+  votes: number;
 }
 
 interface PennsylvaniaSource {
@@ -29,6 +40,9 @@ interface PennsylvaniaCountyDocument {
   totals: {
     harrisVotes: number;
     trumpVotes: number;
+    steinVotes: number;
+    oliverVotes: number;
+    residualOtherVotes: number;
     otherVotes: number;
     totalVotes: number;
   };
@@ -39,11 +53,13 @@ interface PennsylvaniaCountyDocument {
     totalVotes: number;
   };
   unassignedStatewideVotes: number;
+  candidates: PennsylvaniaCandidateResult[];
   counties: PennsylvaniaCountyResult[];
 }
 
 export const pennsylvania2024 = sourceDocument as PennsylvaniaCountyDocument;
 export const pennsylvaniaCounties2024 = pennsylvania2024.counties;
+export const pennsylvaniaCandidates2024 = pennsylvania2024.candidates;
 export const pennsylvaniaCountyByFips = new Map(
   pennsylvaniaCounties2024.map((county) => [county.fips, county]),
 );
