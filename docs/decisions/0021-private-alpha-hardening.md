@@ -14,7 +14,7 @@ The browser exposes a development-only, immutable `window.__sandboxDiagnostics()
 
 The canonical stress journey repeatedly opens real Michigan and Pennsylvania precinct shards, switches ownership, forces controlled Chromium garbage collection, and verifies the same national totals, route consequence, and recipe fingerprints on every cycle. Five warm-up cycles precede thirty measured cycles. A separate hostile journey delays geometry responses and replaces active-state ownership before they complete.
 
-Visual acceptance covers 800×900, 1024×768, 1180×820, 1280×800, 1350×900, and 390×844. Strict full-page comparisons mask the WebGL surface, whose GPU antialiasing is not a stable DOM contract. Semantic assertions separately verify the active Michigan county layer, Electoral College score, route status, route ledger, and contribution flow. Reduced-motion mode removes route-progress animation completely.
+Visual acceptance covers 800×900, 1024×768, 1180×820, 1280×800, 1350×900, and 390×844. Canonical Windows review uses committed full-page references at 1.5% tolerance plus 0.5%-tolerance card references. Hosted Linux verification compares two same-platform viewport captures with a 0.1% pixel-change ceiling, because cross-platform web-font line metrics alter full-document height. Both paths mask the WebGL surface, whose GPU antialiasing is not a stable DOM contract. Full-document ordering and overflow remain numeric assertions in every environment. Semantic assertions separately verify the active Michigan county layer, Electoral College score, route status, route ledger, and contribution flow. Reduced-motion mode removes route-progress animation completely.
 
 ## Consequences
 

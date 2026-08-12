@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-v1";
 const ENGINE_VERSION = "pa-behavior-v1";
+const HOSTED_VISUALS = Boolean(process.env.GITHUB_ACTIONS);
 
 const acceptanceSizes = [
   { width: 800, height: 900 },
@@ -38,6 +39,50 @@ async function loadVisualScenario(page: Page) {
   await expect(page.locator(".scenario-score")).toContainText("260");
   await expect(page.locator(".scenario-score")).toContainText("278");
   await page.evaluate(() => document.fonts.ready);
+}
+
+async function expectPlatformVisualStable(
+  page: Page,
+  name: string,
+  options: Parameters<Page["screenshot"]>[0],
+) {
+  if (!HOSTED_VISUALS) {
+    await expect(page).toHaveScreenshot(name, { ...options, maxDiffPixelRatio: 0.015 });
+    return;
+  }
+  const first = await page.screenshot(options);
+  await page.waitForTimeout(150);
+  const second = await page.screenshot(options);
+  const differenceRatio = await page.evaluate(async ({ firstPng, secondPng }) => {
+    const decode = async (base64: string) => createImageBitmap(
+      await (await fetch(`data:image/png;base64,${base64}`)).blob(),
+    );
+    const [firstImage, secondImage] = await Promise.all([decode(firstPng), decode(secondPng)]);
+    if (firstImage.width !== secondImage.width || firstImage.height !== secondImage.height) return 1;
+    const pixels = (image: ImageBitmap) => {
+      const canvas = new OffscreenCanvas(image.width, image.height);
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) throw new Error("Visual comparison canvas is unavailable");
+      context.drawImage(image, 0, 0);
+      return context.getImageData(0, 0, image.width, image.height).data;
+    };
+    const firstPixels = pixels(firstImage);
+    const secondPixels = pixels(secondImage);
+    let changedPixels = 0;
+    for (let index = 0; index < firstPixels.length; index += 4) {
+      if (
+        Math.abs(firstPixels[index] - secondPixels[index]) > 8
+        || Math.abs(firstPixels[index + 1] - secondPixels[index + 1]) > 8
+        || Math.abs(firstPixels[index + 2] - secondPixels[index + 2]) > 8
+        || Math.abs(firstPixels[index + 3] - secondPixels[index + 3]) > 8
+      ) changedPixels += 1;
+    }
+    const totalPixels = firstImage.width * firstImage.height;
+    firstImage.close();
+    secondImage.close();
+    return changedPixels / totalPixels;
+  }, { firstPng: first.toString("base64"), secondPng: second.toString("base64") });
+  expect(differenceRatio).toBeLessThanOrEqual(0.001);
 }
 
 for (const size of acceptanceSizes) {
@@ -77,13 +122,12 @@ for (const size of acceptanceSizes) {
     await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText("Where the result moved");
     await expect.poll(async () => page.evaluate(() => window.__sandboxDiagnostics?.().activeDeckLayerIds ?? [])).toContain("sandbox-2-counties-MI");
 
-    await expect(page).toHaveScreenshot(`layout-${size.width}x${size.height}.png`, {
+    await expectPlatformVisualStable(page, `layout-${size.width}x${size.height}.png`, {
       animations: "disabled",
       caret: "hide",
-      fullPage: true,
+      fullPage: !HOSTED_VISUALS,
       mask: [page.locator(".atlas-map-scene")],
       maskColor: "#e7e7df",
-      maxDiffPixelRatio: 0.015,
     });
 
     if (size.width === 1180) {
@@ -94,25 +138,29 @@ for (const size of acceptanceSizes) {
         ["behavior-editor", ".assumption-card"],
         ["contribution-panel", ".contribution-card"],
       ] as const) {
-        await expect(page.locator(selector)).toHaveScreenshot(`${name}-1180.png`, {
+        if (!HOSTED_VISUALS) {
+          await expect(page.locator(selector)).toHaveScreenshot(`${name}-1180.png`, {
+            animations: "disabled",
+            caret: "hide",
+            maxDiffPixelRatio: 0.005,
+          });
+        }
+      }
+    }
+
+    if (size.width === 390) {
+      if (!HOSTED_VISUALS) {
+        await expect(page.locator(".scenario-card")).toHaveScreenshot("electoral-ledger-mobile-390.png", {
+          animations: "disabled",
+          caret: "hide",
+          maxDiffPixelRatio: 0.005,
+        });
+        await expect(page.locator(".route-lab-card")).toHaveScreenshot("route-context-mobile-390.png", {
           animations: "disabled",
           caret: "hide",
           maxDiffPixelRatio: 0.005,
         });
       }
-    }
-
-    if (size.width === 390) {
-      await expect(page.locator(".scenario-card")).toHaveScreenshot("electoral-ledger-mobile-390.png", {
-        animations: "disabled",
-        caret: "hide",
-        maxDiffPixelRatio: 0.005,
-      });
-      await expect(page.locator(".route-lab-card")).toHaveScreenshot("route-context-mobile-390.png", {
-        animations: "disabled",
-        caret: "hide",
-        maxDiffPixelRatio: 0.005,
-      });
     }
   });
 }
