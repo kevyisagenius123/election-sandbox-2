@@ -890,6 +890,8 @@ Pennsylvania is the first end-to-end pilot. It provides competitive statewide po
 
 Pennsylvania and Michigan establish the first persistent multi-state scenario. Arizona, Georgia, Wisconsin, and later states extend the same architecture only after the portfolio foundation is proven.
 
+**Implementation status:** v0.14 Portfolio foundation and v0.15 Consequence ledger are complete. v0.16 Route engine and v0.17 Geographic route construction remain planned.
+
 The milestone is released in four bounded increments:
 
 - **v0.14 Portfolio foundation**: versioned recipes, sequential inactive-state hydration, persistent PA and MI controls, aggregation, changed-state strip, schema-2 replay, and resource release.

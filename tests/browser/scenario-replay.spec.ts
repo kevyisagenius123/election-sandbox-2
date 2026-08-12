@@ -141,7 +141,7 @@ test("unsupported future links fail closed to the certified baseline", async ({ 
     "Shared scenario URL version 99 is not supported.",
   );
   await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText(
-    "Scenario matches the certified EV baseline",
+    "The scenario matches the certified Electoral College baseline.",
   );
   await expect(page.getByRole("slider", { name: "Participation increase" })).toHaveValue("0");
   await expect(page).toHaveURL("http://127.0.0.1:4173/");
@@ -171,9 +171,7 @@ test("rapid scenario changes publish only the newest worker result", async ({ pa
 
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
   await expect(preference).toHaveValue("6.2");
-  await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText(
-    "Pennsylvania flips to Harris",
-  );
+  await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText("Harris gains 19 electoral votes");
   await expect(page.getByRole("complementary", { name: "Scenario editor" }).locator(".effect-grid strong").getByText("D +4.5", { exact: true })).toBeVisible();
   await expect.poll(() => new URL(page.url()).searchParams.get("scenario")).toBe("2");
   await expect.poll(() => (
@@ -212,4 +210,38 @@ test("a two-state portfolio aggregates deterministically and survives state swit
   await expect(page.getByTestId("portfolio-state-MI")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
   await expect.poll(() => new URL(page.url()).searchParams.getAll("recipe").length).toBe(2);
+
+  await page.getByRole("button", { name: "Trump", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Trump", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".consequence-ledger-heading")).toContainText("−34 Trump EV");
+  await expect.poll(() => new URL(page.url()).searchParams.get("target")).toBe("trump");
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Trump", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".scenario-score")).toContainText("260");
+  await expect(page.locator(".scenario-score")).toContainText("278");
+  await expect(page.locator(".consequence-ledger-heading")).toContainText("−34 Trump EV");
+});
+
+test("an active state that does not flip remains visible with zero EV consequence", async ({ page }) => {
+  const portfolio = new URLSearchParams({
+    scenario: "2",
+    data: DATA_VERSION,
+    engine: ENGINE_VERSION,
+    activeState: "PA",
+    target: "harris",
+    view: "scenario",
+    editor: "preference",
+    rank: "county",
+    state: "PA",
+  });
+  portfolio.append("recipe", `PA|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|0.5|0,50`);
+
+  await loadScenario(page, portfolio);
+  const editor = page.getByRole("complementary", { name: "Scenario editor" });
+  await expect(page.getByTestId("portfolio-state-PA")).toContainText("0 EV");
+  await expect(editor).toContainText("Pennsylvania changed in the model, but no state changed its Electoral College allocation.");
+  await expect(page.locator(".scenario-score")).toContainText("226");
+  await expect(page.locator(".scenario-score")).toContainText("312");
 });

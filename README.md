@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.14 multi-state scenario portfolio
+## Current release: v0.15 Electoral College consequence ledger
 
 The current build provides:
 
@@ -41,6 +41,11 @@ The current build provides:
 - Sequential inactive-state worker hydration, compact verified summaries, and bounded county-geometry caching instead of retaining both full foundations on the main thread.
 - A compact active-state strip showing each modeled state's current margin and opening its detailed laboratory.
 - URL schema 2 replay for complete multi-state portfolios, while schema 1 links remain supported.
+- An explicit Harris or Trump explanation target persisted in schema-2 links.
+- A changed-state consequence ledger with Actual margin, Scenario margin, winner change, and signed target-candidate EV effect.
+- Deterministic causal language explaining which modeled states changed the national Electoral College result.
+- Separate handling for exactly 270, above 270, below 270, and a true 269–269 no-majority result.
+- Active modeled states remain visible with `0 EV` when their margin changes without flipping their allocation.
 
 The Pennsylvania source exposes exact Harris, Trump, Stein, and Oliver results by reporting unit, but does not place every write-in or residual vote by county. The model therefore preserves 24,526 certified residual votes in an explicit statewide bucket instead of inventing a county or precinct location. One Philadelphia reconciliation bucket and every unmatched reporting unit also remain explicit.
 
@@ -70,7 +75,7 @@ The turnout denominator is not citizen voting-age population and is not a 2024 e
 
 Every non-baseline change is written into a readable query string with URL schema, dataset, and deterministic engine versions. Schema 2 stores one authoritative recipe per active detailed state plus the active editor, map mode, contribution scope, and selected geography. Derived results are regenerated locally and are never serialized as a competing source of truth. A copied baseline link is explicit and versioned even though the ordinary baseline page stays clean.
 
-Compatible links restore locally without a backend. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, or engine versions and malformed payloads never apply partially: the application restores the certified baseline and displays the reason.
+Compatible links restore locally without a backend. Schema 2 also restores the selected explanation target, from which the national score, changed-state ledger, and distance to 270 are deterministically rebuilt. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, or engine versions and malformed payloads never apply partially: the application restores the certified baseline and displays the reason.
 
 Current compatibility contract:
 
@@ -110,6 +115,12 @@ Recipes are the authoritative resident state. The active state uses the full det
 
 Switching between Pennsylvania and Michigan snapshots the departing controls and restores the arriving state's own recipe. Leaving a state releases eligible precinct shards, county geometry uses a bounded least-recently-used cache, and both detailed workers are terminated by React lifecycle cleanup. This is the memory-safe foundation for the Path to 270 consequence ledger and route engine.
 
+## Electoral College consequence ledger
+
+The consequence layer answers what the active recipes did to the election. It compares each Modeled state's certified and scenario margins, retains non-flipping changes with zero EV effect, and reports signed EV movement from the selected Harris or Trump perspective. National causal language is assembled from those exact rows rather than generated prose.
+
+The threshold lockup distinguishes a target exactly at 270 from one above it, reports EV remaining or EV above the majority, and treats 269–269 as a unique no-majority outcome. The model rejects any scenario aggregate whose electoral allocation does not equal the certified election-year total.
+
 ## Run locally
 
 Requirements: Node.js 22.12 or newer.
@@ -144,6 +155,7 @@ src/data/detailedStatePrecincts.ts  Manifest-driven lazy precinct geometry loade
 src/data/detailedStateManifest.ts   Typed state registration and asset contracts
 src/data/scenarioUrl.ts             Versioned scenario URL codec and compatibility policy
 src/data/scenarioPortfolio.ts       Authoritative recipes and derived state-summary contracts
+src/data/electoralConsequences.ts   Target-aware EV ledger and threshold classification
 src/runtime/                         Worker protocol, scenario runtime, and React bridge
 packages/data-contracts/            Canonical election and demographic contracts
 packages/election-model/            Deterministic allocation and scenario engine

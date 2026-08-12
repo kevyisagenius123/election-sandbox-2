@@ -59,6 +59,12 @@ import {
   stateScenarioRecipeFingerprint,
   summaryAsStateResult,
 } from "../src/data/scenarioPortfolio.ts";
+import {
+  buildElectoralConsequenceModel,
+  electoralCausalSummary,
+  electoralThresholdDetail,
+  electoralThresholdHeadline,
+} from "../src/data/electoralConsequences.ts";
 
 const pennsylvaniaCountyDocument = JSON.parse(readFileSync(
   new URL("../src/data/pa-2024-counties.json", import.meta.url),
@@ -1028,6 +1034,7 @@ test("Pennsylvania third-party scenarios retain exact named and statewide reconc
 
 test("versioned scenario URLs round-trip every assumption and selected geography", () => {
   const state = {
+    targetCandidate: "harris",
     turnoutIncreasePoints: 1.2,
     addedVoterHarrisShare: 63,
     preferenceShiftPoints: -4.7,
@@ -1058,6 +1065,99 @@ test("versioned scenario URLs round-trip every assumption and selected geography
   assert.deepEqual(decoded.state, state);
 });
 
+function electoralState(code, name, harrisElectoralVotes, trumpElectoralVotes, harrisVotes, trumpVotes) {
+  return {
+    code,
+    name,
+    harrisElectoralVotes,
+    trumpElectoralVotes,
+    harrisVotes,
+    trumpVotes,
+    otherVotes: 0,
+    totalVotes: harrisVotes + trumpVotes,
+  };
+}
+
+test("Electoral consequence model recognizes the exact 270 threshold", () => {
+  const actual = [
+    electoralState("AA", "Alpha", 226, 0, 60, 40),
+    electoralState("BB", "Beta", 0, 44, 45, 55),
+    electoralState("CC", "Gamma", 0, 268, 40, 60),
+  ];
+  const scenario = [actual[0], electoralState("BB", "Beta", 44, 0, 56, 44), actual[2]];
+  const model = buildElectoralConsequenceModel(actual, scenario, ["BB"], "harris");
+
+  assert.equal(model.totalElectoralVotes, 538);
+  assert.equal(model.targetActualElectoralVotes, 226);
+  assert.equal(model.targetScenarioElectoralVotes, 270);
+  assert.equal(model.targetElectoralDelta, 44);
+  assert.equal(model.thresholdStatus, "exact-majority");
+  assert.equal(model.electoralVotesToMajority, 0);
+  assert.equal(model.electoralVotesAboveMajority, 0);
+  assert.equal(electoralThresholdHeadline(model), "HARRIS REACHES 270 · MINIMUM WINNING THRESHOLD");
+  assert.match(electoralCausalSummary(model), /Harris gains 44 electoral votes.*Beta changed its winner/);
+});
+
+test("Electoral consequence model treats 269-269 as a distinct no-majority result", () => {
+  const actual = [
+    electoralState("AA", "Alpha", 226, 0, 60, 40),
+    electoralState("BB", "Beta", 0, 43, 45, 55),
+    electoralState("CC", "Gamma", 0, 269, 40, 60),
+  ];
+  const scenario = [actual[0], electoralState("BB", "Beta", 43, 0, 56, 44), actual[2]];
+  const model = buildElectoralConsequenceModel(actual, scenario, ["BB"], "harris");
+
+  assert.equal(model.thresholdStatus, "tie");
+  assert.equal(model.targetScenarioElectoralVotes, 269);
+  assert.equal(electoralThresholdHeadline(model), "ELECTORAL COLLEGE TIE · 269-269");
+  assert.equal(electoralThresholdDetail(model), "No candidate has secured an Electoral College majority.");
+});
+
+test("Electoral consequence model reports above-majority distance and negative target movement", () => {
+  const actual = [
+    electoralState("AA", "Alpha", 276, 0, 60, 40),
+    electoralState("BB", "Beta", 15, 0, 55, 45),
+    electoralState("CC", "Gamma", 0, 247, 40, 60),
+  ];
+  const scenario = [actual[0], electoralState("BB", "Beta", 0, 15, 44, 56), actual[2]];
+  const model = buildElectoralConsequenceModel(actual, scenario, ["BB"], "harris");
+
+  assert.equal(model.targetScenarioElectoralVotes, 276);
+  assert.equal(model.targetElectoralDelta, -15);
+  assert.equal(model.electoralVotesAboveMajority, 6);
+  assert.equal(model.thresholdStatus, "above-majority");
+  assert.equal(model.activeRows[0].targetElectoralDelta, -15);
+  assert.match(electoralCausalSummary(model), /Harris loses 15 electoral votes/);
+});
+
+test("Electoral ledger retains an active state whose margin changes without an EV flip", () => {
+  const actual = [
+    electoralState("AA", "Alpha", 226, 0, 60, 40),
+    electoralState("BB", "Beta", 0, 15, 45, 55),
+    electoralState("CC", "Gamma", 0, 297, 40, 60),
+  ];
+  const scenario = [actual[0], electoralState("BB", "Beta", 0, 15, 48, 52), actual[2]];
+  const model = buildElectoralConsequenceModel(actual, scenario, ["BB"], "harris");
+
+  assert.equal(model.activeRows.length, 1);
+  assert.equal(model.activeRows[0].targetElectoralDelta, 0);
+  assert.equal(model.activeRows[0].winnerChanged, false);
+  assert.equal(model.consequentialRows.length, 0);
+  assert.match(electoralCausalSummary(model), /changed in the model, but no state changed/);
+});
+
+test("Electoral consequence aggregation rejects a lost or duplicated electoral allocation", () => {
+  const actual = [
+    electoralState("AA", "Alpha", 270, 0, 60, 40),
+    electoralState("BB", "Beta", 0, 268, 40, 60),
+  ];
+  const invalidScenario = [actual[0], electoralState("BB", "Beta", 0, 267, 40, 60)];
+  assert.throws(
+    () => buildElectoralConsequenceModel(actual, invalidScenario, ["BB"], "harris"),
+    /does not reconcile/,
+  );
+});
+
 test("multi-state portfolio URLs replay authoritative Pennsylvania and Michigan recipes", () => {
   const paRecipe = createStateScenarioRecipe("PA", {
     turnoutIncreasePoints: 0.4,
@@ -1078,6 +1178,7 @@ test("multi-state portfolio URLs replay authoritative Pennsylvania and Michigan 
   const state = {
     ...DEFAULT_SCENARIO_URL_STATE,
     ...miRecipe.settings,
+    targetCandidate: "trump",
     selectedStateCode: "MI",
     activeDetailedStateCode: "MI",
     portfolioRecipes: [miRecipe, paRecipe],

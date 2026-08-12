@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.14.0`, multi-state scenario portfolio
+- Release: `0.15.0`, Electoral College consequence ledger
 - Previous release commit: `439db1c Add audited Michigan data foundation`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
@@ -212,6 +212,20 @@ A local Vite server may still be running on port 4173; check rather than startin
 - The amended Path to 270 plan separates Actual, Modeled, and Required states, defines net margin votes, target and tie behavior, and splits delivery into v0.14 through v0.17.
 - Decision 0017 records recipe authority, summary-cache semantics, memory lifecycle, aggregation safety, and replay compatibility.
 - Verification now contains 37 model tests and six real-browser replays, including simultaneous PA and MI aggregation and state-switch restoration.
+
+### v0.15 Electoral College consequence ledger
+
+- `src/data/electoralConsequences.ts` derives the national score, majority threshold, target EV delta, active and consequential state rows, and deterministic causal language from certified and verified scenario states.
+- The user explicitly selects Harris or Trump as the explanation target. Schema-2 URLs preserve that target; legacy schema-1 links retain their original Harris default.
+- The scenario card now leads with threshold status and a changed-state ledger instead of a decorative active-state strip.
+- Each Modeled row reports Actual winner and margin, Scenario winner and margin, and signed EV consequence from the target perspective.
+- Active state recipes remain visible with `0 EV` if their margins change without changing the state's winner.
+- Threshold states distinguish exactly 270, above-majority distance, below-majority distance, and a 269–269 Electoral College tie with no majority.
+- Causal language reports exact target EV gained or lost and names only states whose allocations changed. It explicitly explains when active modeled changes produce no EV change.
+- The consequence model fails if scenario EV allocation does not reconcile to the certified election-year total.
+- Desktop and 390-pixel mobile visual QA show no horizontal overflow and preserve the Atlas editorial hierarchy.
+- Decision 0018 records the target, threshold, signed-consequence, replay, and invariant contracts.
+- Verification contains 42 model tests and seven browser replays.
 
 ## 4. Demographic source and limitations
 
@@ -466,12 +480,21 @@ v0.14 additionally adds or changes:
 - `docs/decisions/0017-multi-state-scenario-portfolio.md`
 - release documentation, product plan, and package metadata
 
+v0.15 additionally adds or changes:
+
+- `src/data/electoralConsequences.ts`
+- `src/data/scenarioUrl.ts`
+- `src/App.tsx` and `src/styles.css`
+- `tests/election-model.test.mjs` and `tests/browser/scenario-replay.spec.ts`
+- `docs/decisions/0018-electoral-consequence-ledger.md`
+- release documentation and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.14:
+CLI verification for v0.15:
 
-- `npm test`: 37 tests pass, including multi-state URL and summary invariants.
-- `npm run test:browser`: 6 browser replays pass, including the two-state portfolio.
+- `npm test`: 42 tests pass, including Electoral College threshold and allocation invariants.
+- `npm run test:browser`: 7 browser replays pass, including target persistence and zero-EV active states.
 - `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
@@ -486,6 +509,9 @@ Michigan pipeline verification:
 
 Browser verification:
 
+- The two-state ledger attributes +34 Harris EV to Pennsylvania and Michigan; changing target reports −34 Trump EV without changing the underlying score.
+- The target, score, state ledger, and recipes reproduce after reload from one schema-2 URL.
+- A Pennsylvania scenario that changes its margin without flipping remains visible with 0 EV consequence and leaves the national 226–312 allocation unchanged.
 - A schema-2 recipe portfolio flips Pennsylvania and Michigan simultaneously and produces Harris 260, Trump 278 from the certified 226 to 312 baseline.
 - Pennsylvania and Michigan recipe controls restore exactly when their active-state chips are selected repeatedly.
 - The inactive state is rehydrated into a compact fingerprinted summary before Copy link is enabled.
@@ -536,16 +562,16 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-The v0.14 portfolio foundation is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next release is v0.15, the Electoral College consequence ledger:
+The v0.15 consequence ledger is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next release is v0.16, deterministic Path to 270 route enumeration:
 
-1. Add an explicit target-candidate control and calculate EV gained or lost from the certified baseline.
-2. Replace the compact active-state strip with a structured changed-state ledger containing Actual margin, Scenario margin, winner change, EV consequence, and direct detailed-state navigation.
-3. Show EV remaining to 270, exact-threshold behavior, and a clear no-majority state at 269-269.
-4. Generate a deterministic causal sentence from the ledger, not free-form text.
-5. Add invariant tests for baseline, one-state and two-state consequences, exact 270, below 270, removal of a pivotal state, and total election-year EV allocation.
-6. Add repeated-switch heap, worker, and WebGL-resource profiling. Tighten cache limits only from measured evidence.
-
-After v0.15, v0.16 implements the bounded route engine and permanent Actual, Modeled, and Required classifications. It must not assign county or reporting-unit geography to Required states.
+1. Define a route-state contract with permanent Actual, Modeled, and Required classifications. Required states carry only mathematical movement and must never receive county or reporting-unit geography.
+2. Calculate additional target margin points and the smallest integer net target margin-vote improvement needed to move past a tie under the current state total.
+3. Enumerate winning combinations using a bounded Pareto frontier with dominance pruning rather than brute-force national subsets.
+4. Rank routes by fewest states, aggregate margin movement, or aggregate net margin-vote requirement, with the active metric always visible.
+5. Add mathematical, partially modeled, and fully modeled route completeness labels.
+6. Link Modeled route rows to existing detailed labs. Unsupported Required rows remain non-geographic until a production foundation exists.
+7. Lock deterministic route order, exactly 270, below 270, pivotal-state removal, 269–269, and Maine/Nebraska allocation behavior where supported.
+8. Add repeated-switch heap, worker, and WebGL-resource profiling before registering a third detailed state.
 
 Uncertainty remains deferred until the deterministic multi-state contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 

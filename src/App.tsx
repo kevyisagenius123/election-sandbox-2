@@ -62,6 +62,14 @@ import {
   type StateScenarioRecipe,
 } from "./data/scenarioPortfolio.ts";
 import { useScenarioPortfolio } from "./runtime/useScenarioPortfolio.ts";
+import {
+  buildElectoralConsequenceModel,
+  candidateNames,
+  electoralCausalSummary,
+  electoralThresholdDetail,
+  electoralThresholdHeadline,
+  type MajorCandidate,
+} from "./data/electoralConsequences.ts";
 
 type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
@@ -111,6 +119,12 @@ function formatPreferenceMovement(value: number) {
 function formatMarginVotes(value: number) {
   if (value === 0) return "No movement";
   return `+${formatCompact(Math.abs(value))} ${value > 0 ? "D" : "R"}`;
+}
+
+function electoralDeltaClass(value: number, target: MajorCandidate) {
+  if (value === 0) return "";
+  const movesTowardHarris = target === "harris" ? value > 0 : value < 0;
+  return movesTowardHarris ? "toward-dem" : "toward-rep";
 }
 
 const thirdPartyLabels: Record<ThirdPartyCandidate, string> = {
@@ -193,6 +207,9 @@ export function App() {
       )]);
   });
   const [viewMode, setViewMode] = useState<ViewMode>(initialScenarioUrlState.viewMode);
+  const [targetCandidate, setTargetCandidate] = useState<MajorCandidate>(
+    initialScenarioUrlState.targetCandidate,
+  );
   const [behaviorEditorMode, setBehaviorEditorMode] = useState<BehaviorEditorMode>(
     initialScenarioUrlState.behaviorEditorMode,
   );
@@ -254,6 +271,7 @@ export function App() {
     : null;
 
   const applyScenarioUrlState = useCallback((state: ScenarioUrlState) => {
+    setTargetCandidate(state.targetCandidate);
     setTurnoutIncreasePoints(state.turnoutIncreasePoints);
     setAddedVoterHarrisShare(state.addedVoterHarrisShare);
     setPreferenceShiftPoints(state.preferenceShiftPoints);
@@ -398,6 +416,7 @@ export function App() {
   } = useScenarioPortfolio(inactivePortfolioRecipes);
   const scenarioPending = detailedScenarioPending || portfolioPending;
   const scenarioUrlState = useMemo<ScenarioUrlState>(() => ({
+    targetCandidate,
     turnoutIncreasePoints,
     addedVoterHarrisShare,
     preferenceShiftPoints: effectivePreferenceShiftPoints,
@@ -425,6 +444,7 @@ export function App() {
     selectedVtdGeoid,
     thirdPartyCandidate,
     thirdPartyHarrisExchangeShare,
+    targetCandidate,
     turnoutIncreasePoints,
     viewMode,
   ]);
@@ -486,6 +506,16 @@ export function App() {
   const scenarioNational = useMemo(
     () => aggregateNational(scenarioStates),
     [scenarioStates],
+  );
+  const electoralConsequences = useMemo(() => buildElectoralConsequenceModel(
+    states2024,
+    scenarioStates,
+    portfolioRecipes.map((recipe) => recipe.stateCode),
+    targetCandidate,
+  ), [portfolioRecipes, scenarioStates, targetCandidate]);
+  const consequenceSummary = useMemo(
+    () => electoralCausalSummary(electoralConsequences),
+    [electoralConsequences],
   );
   const scenarioDetailedCounties = useMemo(
     () => buildDetailedScenarioCounties(
@@ -616,9 +646,7 @@ export function App() {
     selectedVtdScenario,
     thirdPartyCandidate,
   ]);
-  const detailedStateFlipped = detailedScenario.harrisVotes > detailedScenario.trumpVotes;
   const activeScenarioChanged = !isDefaultStateBehaviorSettings(currentStateRecipeSettings);
-  const scenarioChanged = portfolioRecipes.length > 0;
   const contributionRows = contributionScope === "county"
     ? contributionSummary.counties.slice(0, 5)
     : contributionSummary.vtds.slice(0, 5);
@@ -750,7 +778,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Multi-state behavior lab · v0.14</div>
+        <div className="build-status"><span />Electoral consequence lab · v0.15</div>
       </header>
 
       <div className="workbench" id="top">
@@ -883,45 +911,63 @@ export function App() {
                 >{shareStatus === "copied" ? "Copied" : shareStatus === "error" ? "Try copy" : "Copy link"}</button>
               </div>
             </div>
+            <div className="target-selector" aria-label="Electoral College target candidate">
+              <span>Explain for</span>
+              <div>
+                {(["harris", "trump"] as MajorCandidate[]).map((candidate) => (
+                  <button
+                    aria-pressed={targetCandidate === candidate}
+                    key={candidate}
+                    onClick={() => setTargetCandidate(candidate)}
+                    type="button"
+                  >{candidateNames[candidate]}</button>
+                ))}
+              </div>
+            </div>
             <div className="scenario-score">
               <div><span>Harris</span><strong className="dem-text">{scenarioNational.harrisElectoralVotes}</strong></div>
-              <div className="score-divider"><span>270</span></div>
+              <div className="score-divider"><span>{electoralConsequences.majorityThreshold}</span></div>
               <div><strong className="rep-text">{scenarioNational.trumpElectoralVotes}</strong><span>Trump</span></div>
             </div>
-            <div className="scenario-message" data-flipped={detailedStateFlipped}>
-              <span className="message-dot" />
-              {detailedStateFlipped
-                ? `${activeDetailedStateManifest.name} flips to Harris`
-                : activeScenarioChanged
-                  ? `Synthetic ${activeDetailedStateManifest.name} behavior scenario active`
-                  : scenarioChanged
-                    ? `${portfolioRecipes.length} state ${portfolioRecipes.length === 1 ? "scenario" : "scenarios"} active`
-                  : "Scenario matches the certified EV baseline"}
+            <div className="threshold-lockup" data-status={electoralConsequences.thresholdStatus} data-target={targetCandidate}>
+              <span>{electoralThresholdHeadline(electoralConsequences)}</span>
+              <p>{electoralThresholdDetail(electoralConsequences)}</p>
             </div>
-            {portfolioRecipes.length > 0 && (
-              <div className="scenario-portfolio" aria-label="Active state scenarios">
-                <span>Active states</span>
-                <div>
-                  {portfolioRecipes.map((recipe) => {
-                    const summary = recipe.stateCode === activeDetailedStateCode
-                      ? detailedScenarioPending
-                        ? null
-                        : { scenarioMargin: margin(detailedScenario) }
-                      : inactiveScenarioSummaries.get(recipe.stateCode);
-                    return (
-                      <button
-                        aria-pressed={recipe.stateCode === activeDetailedStateCode}
-                        data-testid={`portfolio-state-${recipe.stateCode}`}
-                        key={recipe.stateCode}
-                        onClick={() => selectState(recipe.stateCode)}
-                        type="button"
-                      >
-                        <strong>{recipe.stateCode}</strong>
-                        <small>{summary ? formatMargin(summary.scenarioMargin) : "Updating"}</small>
-                      </button>
-                    );
-                  })}
+            <p className="consequence-summary" aria-live="polite">
+              {scenarioPending ? "Verifying every active state before publishing the national consequence." : consequenceSummary}
+            </p>
+            {electoralConsequences.activeRows.length > 0 && (
+              <div className="consequence-ledger" aria-label="Changed state Electoral College consequences" aria-busy={scenarioPending}>
+                <div className="consequence-ledger-heading" data-target={targetCandidate}>
+                  <span>Active scenarios</span>
+                  <strong>{electoralConsequences.targetElectoralDelta === 0
+                    ? "0 EV change"
+                    : `${electoralConsequences.targetElectoralDelta > 0 ? "+" : "−"}${Math.abs(electoralConsequences.targetElectoralDelta)} ${candidateNames[targetCandidate]} EV`}</strong>
                 </div>
+                <div className="consequence-ledger-columns" aria-hidden="true">
+                  <span>State</span><span>Actual</span><span>Scenario</span><span>Consequence</span>
+                </div>
+                {electoralConsequences.activeRows.map((row) => (
+                  <button
+                    aria-pressed={row.stateCode === activeDetailedStateCode}
+                    className="consequence-row"
+                    data-consequential={row.winnerChanged}
+                    data-testid={`portfolio-state-${row.stateCode}`}
+                    key={row.stateCode}
+                    onClick={() => selectState(row.stateCode)}
+                    type="button"
+                  >
+                    <span className="consequence-state"><strong>{row.stateName}</strong><small>{row.stateCode} · Modeled</small></span>
+                    <span><small>{candidateNames[row.actualWinner]}</small><strong>{formatMargin(row.actualMargin)}</strong></span>
+                    <span><small>{candidateNames[row.scenarioWinner]}</small><strong>{scenarioPending ? "Updating" : formatMargin(row.scenarioMargin)}</strong></span>
+                    <span className={electoralDeltaClass(row.targetElectoralDelta, targetCandidate)}>
+                      <small>{candidateNames[targetCandidate]}</small>
+                      <strong>{row.targetElectoralDelta === 0
+                        ? "0 EV"
+                        : `${row.targetElectoralDelta > 0 ? "+" : "−"}${Math.abs(row.targetElectoralDelta)} EV`}</strong>
+                    </span>
+                  </button>
+                ))}
               </div>
             )}
             <div className="popular-row">

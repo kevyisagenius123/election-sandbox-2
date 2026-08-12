@@ -11,6 +11,7 @@ import {
   type StateBehaviorRecipeSettings,
   type StateScenarioRecipe,
 } from "./scenarioPortfolio.ts";
+import type { MajorCandidate } from "./electoralConsequences.ts";
 
 export const LEGACY_SCENARIO_URL_SCHEMA_VERSION = "1";
 export const SCENARIO_URL_SCHEMA_VERSION = "2";
@@ -22,6 +23,7 @@ export type ScenarioEditorMode = "turnout" | "preference" | "third-party";
 export type ScenarioContributionScope = "county" | "vtd";
 
 export interface ScenarioUrlState {
+  targetCandidate: MajorCandidate;
   turnoutIncreasePoints: number;
   addedVoterHarrisShare: number;
   preferenceShiftPoints: number;
@@ -52,6 +54,7 @@ export interface BuildScenarioUrlOptions {
 }
 
 export const DEFAULT_SCENARIO_URL_STATE: Readonly<ScenarioUrlState> = Object.freeze({
+  targetCandidate: "harris",
   turnoutIncreasePoints: 0,
   addedVoterHarrisShare: 55,
   preferenceShiftPoints: 0,
@@ -86,6 +89,7 @@ const scenarioParameterNames = [
   "view",
   "editor",
   "rank",
+  "target",
   "activeState",
   "recipe",
   "state",
@@ -263,6 +267,7 @@ export function isDefaultScenarioUrlState(state: ScenarioUrlState) {
       case "view": return state.viewMode === DEFAULT_SCENARIO_URL_STATE.viewMode;
       case "editor": return state.behaviorEditorMode === DEFAULT_SCENARIO_URL_STATE.behaviorEditorMode;
       case "rank": return state.contributionScope === DEFAULT_SCENARIO_URL_STATE.contributionScope;
+      case "target": return state.targetCandidate === DEFAULT_SCENARIO_URL_STATE.targetCandidate;
       case "state": return state.selectedStateCode === null;
       case "county": return state.selectedCountyFips === null;
       case "vtd": return state.selectedVtdGeoid === null;
@@ -332,6 +337,7 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
         status: "valid",
         state: {
           ...settings,
+          targetCandidate: parseChoice(params, "target", ["harris", "trump"] as const, "harris"),
           viewMode: parseChoice(params, "view", ["actual", "scenario", "difference"] as const, "scenario"),
           behaviorEditorMode: parseChoice(params, "editor", ["turnout", "preference", "third-party"] as const, "turnout"),
           contributionScope: parseChoice(params, "rank", ["county", "vtd"] as const, "county"),
@@ -345,6 +351,7 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
     return {
       status: "valid",
       state: {
+        targetCandidate: "harris",
         turnoutIncreasePoints: parseNumber(params, "turnout", 0, 0, 1.5),
         addedVoterHarrisShare: parseNumber(params, "turnoutHarris", 55, 0, 100, true),
         preferenceShiftPoints: parseNumber(params, "preference", 0, -200, 200),
@@ -409,6 +416,7 @@ function setScenarioParameters(
   params.set("engine", SCENARIO_ENGINE_VERSION);
   if (isPortfolio) {
     params.set("activeState", state.activeDetailedStateCode ?? pennsylvaniaDetailedStateManifest.code);
+    params.set("target", state.targetCandidate);
     for (const recipe of [...state.portfolioRecipes!].sort((left, right) => left.stateCode.localeCompare(right.stateCode))) {
       params.append("recipe", encodePortfolioRecipe(recipe));
     }
