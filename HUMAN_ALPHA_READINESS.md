@@ -32,6 +32,7 @@ Completed on 2026-08-12 against v0.19.1:
 
 - Obtain written permission or an applicable documented legal basis for the Pennsylvania and Michigan result artifacts, or approve a replacement source and delivery method. The current artifacts are explicitly excluded from external alpha delivery.
 - Because the public repository and Pages build currently contain or serve those artifacts, do not treat them as a cleared participant build. Before recruitment, either obtain the required basis, deploy an approved replacement build, or receive approval to suspend that public delivery.
+- Permission-request drafts and the evidence tracker are ready in `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md` and `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`. They have not been sent.
 - Recruit at least three genuinely new users, preferably five to ten across the participant matrix.
 
 ## Evidence that does not yet exist

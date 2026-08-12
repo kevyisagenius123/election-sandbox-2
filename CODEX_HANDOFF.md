@@ -592,6 +592,8 @@ v0.17 additionally adds or changes:
 - State #3 requires zero unresolved P0 and P1 findings, no repeated severe misunderstanding of epistemic status, functional and trusted deterministic restoration, discoverable evidence, resolved artifact delivery, and green correction gates.
 - The artifact review did not clear the current result files: PA lacked an explicit grant for the specific pa.gov artifacts, and Michigan.gov terms restrict reuse absent permission or another basis. The result artifacts and dependent crosswalks are excluded from external alpha delivery until permission, an applicable documented legal basis, or an approved replacement is recorded.
 - Do not invite participants to the currently reachable Pages deployment while the exclusion remains.
+- `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md` contains unsent, exact-scope drafts for `RA-Elections@pa.gov` and `ElectionData@Michigan.gov` with `Elections@Michigan.gov` copied. Bracketed owner identity fields must be completed before submission.
+- `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md` records the exact derivative checksums, response requirements, follow-up cadence, and fail-closed replacement choices. Silence and automated acknowledgments are not approval.
 
 ## 8. Verification state
 

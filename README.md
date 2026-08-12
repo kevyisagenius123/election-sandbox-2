@@ -295,6 +295,8 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `HUMAN_ALPHA_READINESS.md`
 - `HUMAN_ALPHA_REPORT.md`
 - `docs/decisions/0025-human-alpha-research-freeze.md`
+- `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md`
+- `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`
 
 ## Next increment
 
