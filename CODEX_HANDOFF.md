@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.15.0`, Electoral College consequence ledger
+- Release: `0.16.0`, deterministic Path to 270
 - Previous release commit: `439db1c Add audited Michigan data foundation`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
@@ -226,6 +226,21 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Desktop and 390-pixel mobile visual QA show no horizontal overflow and preserve the Atlas editorial hierarchy.
 - Decision 0018 records the target, threshold, signed-consequence, replay, and invariant contracts.
 - Verification contains 42 model tests and seven browser replays.
+
+### v0.16 deterministic Path to 270
+
+- `src/data/pathTo270.ts` derives exact statewide target-margin requirements and bounded winning combinations from the current verified scenario states.
+- Every route requirement preserves a current Actual or Modeled classification and a separate Required classification. Required never implies local geographic modeling.
+- The smallest net margin-vote requirement is `opponent votes - target votes + 1`; the interface also reports its margin-point equivalent under the current state vote total.
+- Routes rank deterministically by fewest states, aggregate margin movement, or aggregate net margin votes. Stable secondary comparisons prevent reload-dependent ordering.
+- The bounded search caps excess EV states at the target need and retains a limited Pareto set instead of brute-forcing every national subset.
+- The route panel reports current to projected EV, completeness, individual state requirements, and route totals.
+- Supported Pennsylvania and Michigan rows open their detailed state labs. Unsupported Required states remain noninteractive and receive no county or precinct claims.
+- Maine and Nebraska are excluded until district-level electoral allocation is modeled.
+- Schema-2 URLs persist the selected route metric. Schema-1 URLs retain their prior defaults.
+- A target already at or above the majority receives no Required route.
+- Decision 0019 records arithmetic, classification, bounded-search, replay, and split-state contracts.
+- Verification contains 46 model tests and seven browser replays.
 
 ## 4. Demographic source and limitations
 
@@ -489,12 +504,21 @@ v0.15 additionally adds or changes:
 - `docs/decisions/0018-electoral-consequence-ledger.md`
 - release documentation and package metadata
 
+v0.16 additionally adds or changes:
+
+- `src/data/pathTo270.ts`
+- `src/data/scenarioUrl.ts`
+- `src/App.tsx` and `src/styles.css`
+- `tests/election-model.test.mjs` and `tests/browser/scenario-replay.spec.ts`
+- `docs/decisions/0019-deterministic-path-to-270.md`
+- release documentation, product plan, and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.15:
+CLI verification for v0.16:
 
-- `npm test`: 42 tests pass, including Electoral College threshold and allocation invariants.
-- `npm run test:browser`: 7 browser replays pass, including target persistence and zero-EV active states.
+- `npm test`: 46 tests pass, including route arithmetic, deterministic metric ordering, split-allocation exclusion, and Electoral College invariants.
+- `npm run test:browser`: 7 browser replays pass, including exact-270 route display and route-metric URL restoration.
 - `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
@@ -562,16 +586,16 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-The v0.15 consequence ledger is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next release is v0.16, deterministic Path to 270 route enumeration:
+The v0.16 route engine is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next release is v0.17, geographic route construction:
 
-1. Define a route-state contract with permanent Actual, Modeled, and Required classifications. Required states carry only mathematical movement and must never receive county or reporting-unit geography.
-2. Calculate additional target margin points and the smallest integer net target margin-vote improvement needed to move past a tie under the current state total.
-3. Enumerate winning combinations using a bounded Pareto frontier with dominance pruning rather than brute-force national subsets.
-4. Rank routes by fewest states, aggregate margin movement, or aggregate net margin-vote requirement, with the active metric always visible.
-5. Add mathematical, partially modeled, and fully modeled route completeness labels.
-6. Link Modeled route rows to existing detailed labs. Unsupported Required rows remain non-geographic until a production foundation exists.
-7. Lock deterministic route order, exactly 270, below 270, pivotal-state removal, 269–269, and Maine/Nebraska allocation behavior where supported.
-8. Add repeated-switch heap, worker, and WebGL-resource profiling before registering a third detailed state.
+1. Make a supported Required route row open the correct detailed state laboratory with the route target and exact statewide requirement in context.
+2. Preserve the selected route and target while the user edits that state; returning nationally must rebuild the portfolio and routes from verified recipes.
+3. Mark a state Modeled only when its deterministic detailed scenario actually changes the required allocation. Opening a state or moving toward the target is not enough.
+4. Explain the remaining gap when a detailed scenario improves a state without flipping it.
+5. Replace the Required contribution with the verified Modeled result after a flip and update current EV, route completeness, and alternatives.
+6. Add route-state emphasis on the national map without relying on color alone. Do not fabricate geography for unsupported states.
+7. Lock browser journeys for Required to lab to Modeled transitions, reversal, reload, target switching, and an insufficient partial movement.
+8. Run repeated-switch heap, worker, and WebGL-resource profiling before registering a third detailed state.
 
 Uncertainty remains deferred until the deterministic multi-state contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 

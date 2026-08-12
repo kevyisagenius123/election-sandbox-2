@@ -12,6 +12,7 @@ import {
   type StateScenarioRecipe,
 } from "./scenarioPortfolio.ts";
 import type { MajorCandidate } from "./electoralConsequences.ts";
+import type { RouteMetric } from "./pathTo270.ts";
 
 export const LEGACY_SCENARIO_URL_SCHEMA_VERSION = "1";
 export const SCENARIO_URL_SCHEMA_VERSION = "2";
@@ -24,6 +25,7 @@ export type ScenarioContributionScope = "county" | "vtd";
 
 export interface ScenarioUrlState {
   targetCandidate: MajorCandidate;
+  routeMetric: RouteMetric;
   turnoutIncreasePoints: number;
   addedVoterHarrisShare: number;
   preferenceShiftPoints: number;
@@ -55,6 +57,7 @@ export interface BuildScenarioUrlOptions {
 
 export const DEFAULT_SCENARIO_URL_STATE: Readonly<ScenarioUrlState> = Object.freeze({
   targetCandidate: "harris",
+  routeMetric: "fewest-states",
   turnoutIncreasePoints: 0,
   addedVoterHarrisShare: 55,
   preferenceShiftPoints: 0,
@@ -90,6 +93,7 @@ const scenarioParameterNames = [
   "editor",
   "rank",
   "target",
+  "route",
   "activeState",
   "recipe",
   "state",
@@ -268,6 +272,7 @@ export function isDefaultScenarioUrlState(state: ScenarioUrlState) {
       case "editor": return state.behaviorEditorMode === DEFAULT_SCENARIO_URL_STATE.behaviorEditorMode;
       case "rank": return state.contributionScope === DEFAULT_SCENARIO_URL_STATE.contributionScope;
       case "target": return state.targetCandidate === DEFAULT_SCENARIO_URL_STATE.targetCandidate;
+      case "route": return state.routeMetric === DEFAULT_SCENARIO_URL_STATE.routeMetric;
       case "state": return state.selectedStateCode === null;
       case "county": return state.selectedCountyFips === null;
       case "vtd": return state.selectedVtdGeoid === null;
@@ -338,6 +343,7 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
         state: {
           ...settings,
           targetCandidate: parseChoice(params, "target", ["harris", "trump"] as const, "harris"),
+          routeMetric: parseChoice(params, "route", ["fewest-states", "margin-movement", "margin-votes"] as const, "fewest-states"),
           viewMode: parseChoice(params, "view", ["actual", "scenario", "difference"] as const, "scenario"),
           behaviorEditorMode: parseChoice(params, "editor", ["turnout", "preference", "third-party"] as const, "turnout"),
           contributionScope: parseChoice(params, "rank", ["county", "vtd"] as const, "county"),
@@ -352,6 +358,7 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
       status: "valid",
       state: {
         targetCandidate: "harris",
+        routeMetric: "fewest-states",
         turnoutIncreasePoints: parseNumber(params, "turnout", 0, 0, 1.5),
         addedVoterHarrisShare: parseNumber(params, "turnoutHarris", 55, 0, 100, true),
         preferenceShiftPoints: parseNumber(params, "preference", 0, -200, 200),
@@ -417,6 +424,7 @@ function setScenarioParameters(
   if (isPortfolio) {
     params.set("activeState", state.activeDetailedStateCode ?? pennsylvaniaDetailedStateManifest.code);
     params.set("target", state.targetCandidate);
+    params.set("route", state.routeMetric);
     for (const recipe of [...state.portfolioRecipes!].sort((left, right) => left.stateCode.localeCompare(right.stateCode))) {
       params.append("recipe", encodePortfolioRecipe(recipe));
     }

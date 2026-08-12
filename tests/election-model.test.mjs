@@ -65,6 +65,7 @@ import {
   electoralThresholdDetail,
   electoralThresholdHeadline,
 } from "../src/data/electoralConsequences.ts";
+import { buildPathTo270Model } from "../src/data/pathTo270.ts";
 
 const pennsylvaniaCountyDocument = JSON.parse(readFileSync(
   new URL("../src/data/pa-2024-counties.json", import.meta.url),
@@ -1035,6 +1036,7 @@ test("Pennsylvania third-party scenarios retain exact named and statewide reconc
 test("versioned scenario URLs round-trip every assumption and selected geography", () => {
   const state = {
     targetCandidate: "harris",
+    routeMetric: "fewest-states",
     turnoutIncreasePoints: 1.2,
     addedVoterHarrisShare: 63,
     preferenceShiftPoints: -4.7,
@@ -1156,6 +1158,66 @@ test("Electoral consequence aggregation rejects a lost or duplicated electoral a
     () => buildElectoralConsequenceModel(actual, invalidScenario, ["BB"], "harris"),
     /does not reconcile/,
   );
+});
+
+test("Path to 270 calculates exact net margin votes and a deterministic minimum-state route", () => {
+  const scenario = states2024.map((state) => {
+    if (state.code === "PA") return { ...state, harrisElectoralVotes: 19, trumpElectoralVotes: 0 };
+    if (state.code === "MI") return { ...state, harrisElectoralVotes: 15, trumpElectoralVotes: 0 };
+    return state;
+  });
+  const model = buildPathTo270Model(
+    scenario,
+    ["PA", "MI"],
+    ["PA", "MI"],
+    ["PA", "MI"],
+    "harris",
+    "fewest-states",
+  );
+  const wisconsin = model.routes[0].states[0];
+  const certifiedWisconsin = states2024.find((state) => state.code === "WI");
+  assert.ok(certifiedWisconsin);
+
+  assert.equal(model.targetElectoralVotes, 260);
+  assert.equal(model.electoralVotesNeeded, 10);
+  assert.equal(model.routes[0].id, "WI");
+  assert.equal(model.routes[0].projectedTargetElectoralVotes, 270);
+  assert.equal(model.routes[0].completeness, "partially-modeled");
+  assert.equal(
+    wisconsin.requiredNetMarginVotes,
+    certifiedWisconsin.trumpVotes - certifiedWisconsin.harrisVotes + 1,
+  );
+  assert.equal(wisconsin.routeClassification, "required");
+  assert.equal(wisconsin.detailedModelAvailable, false);
+});
+
+test("Path rankings change deterministically with the visible optimization metric", () => {
+  const argumentsBeforeMetric = [states2024, [], ["PA", "MI"], [], "harris"];
+  const fewest = buildPathTo270Model(...argumentsBeforeMetric, "fewest-states");
+  const movement = buildPathTo270Model(...argumentsBeforeMetric, "margin-movement");
+  const votes = buildPathTo270Model(...argumentsBeforeMetric, "margin-votes");
+
+  assert.equal(fewest.routes[0].id, "FL+MI");
+  assert.equal(fewest.routes[0].stateCount, 2);
+  assert.equal(movement.routes[0].id, "MI+PA+WI");
+  assert.equal(votes.routes[0].id, "MI+PA+WI");
+  assert.deepEqual(
+    buildPathTo270Model(...argumentsBeforeMetric, "fewest-states").routes.map((route) => route.id),
+    fewest.routes.map((route) => route.id),
+  );
+});
+
+test("Path to 270 excludes Maine and Nebraska split-allocation approximations", () => {
+  const model = buildPathTo270Model(states2024, [], ["PA", "MI"], [], "harris", "margin-votes");
+  assert.deepEqual(model.excludedSplitAllocationStates, ["ME", "NE"]);
+  assert.ok(model.routes.every((route) => route.states.every((state) => !["ME", "NE"].includes(state.stateCode))));
+});
+
+test("Path to 270 emits no Required route after the target already holds a majority", () => {
+  const model = buildPathTo270Model(states2024, [], ["PA", "MI"], [], "trump", "fewest-states");
+  assert.equal(model.targetElectoralVotes, 312);
+  assert.equal(model.electoralVotesNeeded, 0);
+  assert.deepEqual(model.routes, []);
 });
 
 test("multi-state portfolio URLs replay authoritative Pennsylvania and Michigan recipes", () => {

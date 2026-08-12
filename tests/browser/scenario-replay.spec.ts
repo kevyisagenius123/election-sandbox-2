@@ -199,6 +199,9 @@ test("a two-state portfolio aggregates deterministically and survives state swit
   await expect(editor.getByText("278", { exact: true })).toBeVisible();
   await expect(page.getByTestId("portfolio-state-PA")).toContainText("D");
   await expect(page.getByTestId("portfolio-state-MI")).toContainText("D");
+  await expect(page.getByTestId("path-route-1")).toContainText("WI");
+  await expect(page.getByTestId("path-route-1")).toContainText("260 → 270 EV");
+  await expect(page.getByTestId("path-route-1")).toContainText("actual → required");
 
   await page.getByTestId("portfolio-state-PA").click();
   await expect(page.getByRole("slider", { name: "Two-party preference transfer" })).toHaveValue("2.5");
@@ -211,6 +214,10 @@ test("a two-state portfolio aggregates deterministically and survives state swit
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
   await expect.poll(() => new URL(page.url()).searchParams.getAll("recipe").length).toBe(2);
 
+  await page.getByRole("button", { name: "Net margin votes" }).click();
+  await expect(page.getByRole("button", { name: "Net margin votes" })).toHaveAttribute("aria-pressed", "true");
+  await expect.poll(() => new URL(page.url()).searchParams.get("route")).toBe("margin-votes");
+
   await page.getByRole("button", { name: "Trump", exact: true }).click();
   await expect(page.getByRole("button", { name: "Trump", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".consequence-ledger-heading")).toContainText("−34 Trump EV");
@@ -222,6 +229,8 @@ test("a two-state portfolio aggregates deterministically and survives state swit
   await expect(page.locator(".scenario-score")).toContainText("260");
   await expect(page.locator(".scenario-score")).toContainText("278");
   await expect(page.locator(".consequence-ledger-heading")).toContainText("−34 Trump EV");
+  await expect(page.getByRole("button", { name: "Net margin votes" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("region", { name: "Path to 270" })).toContainText("Trump already holds a majority.");
 });
 
 test("an active state that does not flip remains visible with zero EV consequence", async ({ page }) => {

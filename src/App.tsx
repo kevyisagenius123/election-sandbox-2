@@ -28,6 +28,7 @@ import {
 import {
   getDetailedStateManifest,
   isDetailedStateCode,
+  listDetailedStateManifests,
   pennsylvaniaDetailedStateManifest,
   type DetailedStateCode,
 } from "./data/detailedStateManifest.ts";
@@ -70,6 +71,10 @@ import {
   electoralThresholdHeadline,
   type MajorCandidate,
 } from "./data/electoralConsequences.ts";
+import {
+  buildPathTo270Model,
+  type RouteMetric,
+} from "./data/pathTo270.ts";
 
 type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
@@ -131,6 +136,12 @@ const thirdPartyLabels: Record<ThirdPartyCandidate, string> = {
   stein: "Stein",
   oliver: "Oliver",
   residual_other: "Other/write-in",
+};
+
+const routeMetricLabels: Record<RouteMetric, string> = {
+  "fewest-states": "Fewest states",
+  "margin-movement": "Margin movement",
+  "margin-votes": "Net margin votes",
 };
 
 function formatThirdPartyMovement(value: number, candidate: ThirdPartyCandidate) {
@@ -210,6 +221,7 @@ export function App() {
   const [targetCandidate, setTargetCandidate] = useState<MajorCandidate>(
     initialScenarioUrlState.targetCandidate,
   );
+  const [routeMetric, setRouteMetric] = useState<RouteMetric>(initialScenarioUrlState.routeMetric);
   const [behaviorEditorMode, setBehaviorEditorMode] = useState<BehaviorEditorMode>(
     initialScenarioUrlState.behaviorEditorMode,
   );
@@ -272,6 +284,7 @@ export function App() {
 
   const applyScenarioUrlState = useCallback((state: ScenarioUrlState) => {
     setTargetCandidate(state.targetCandidate);
+    setRouteMetric(state.routeMetric);
     setTurnoutIncreasePoints(state.turnoutIncreasePoints);
     setAddedVoterHarrisShare(state.addedVoterHarrisShare);
     setPreferenceShiftPoints(state.preferenceShiftPoints);
@@ -417,6 +430,7 @@ export function App() {
   const scenarioPending = detailedScenarioPending || portfolioPending;
   const scenarioUrlState = useMemo<ScenarioUrlState>(() => ({
     targetCandidate,
+    routeMetric,
     turnoutIncreasePoints,
     addedVoterHarrisShare,
     preferenceShiftPoints: effectivePreferenceShiftPoints,
@@ -439,6 +453,7 @@ export function App() {
     effectivePreferenceShiftPoints,
     effectiveThirdPartyShiftPoints,
     portfolioRecipes,
+    routeMetric,
     selectedCountyFips,
     selectedStateCode,
     selectedVtdGeoid,
@@ -517,6 +532,16 @@ export function App() {
     () => electoralCausalSummary(electoralConsequences),
     [electoralConsequences],
   );
+  const pathTo270 = useMemo(() => buildPathTo270Model(
+    scenarioStates,
+    portfolioRecipes.map((recipe) => recipe.stateCode),
+    listDetailedStateManifests().map((manifest) => manifest.code),
+    electoralConsequences.consequentialRows
+      .filter((row) => row.targetElectoralDelta > 0)
+      .map((row) => row.stateCode),
+    targetCandidate,
+    routeMetric,
+  ), [electoralConsequences, portfolioRecipes, routeMetric, scenarioStates, targetCandidate]);
   const scenarioDetailedCounties = useMemo(
     () => buildDetailedScenarioCounties(
       detailedCounties,
@@ -778,7 +803,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Electoral consequence lab · v0.15</div>
+        <div className="build-status"><span />Path to 270 lab · v0.16</div>
       </header>
 
       <div className="workbench" id="top">
@@ -995,6 +1020,82 @@ export function App() {
                 <p>Inactive state verification is unavailable. {portfolioError}</p>
               </div>
             )}
+          </section>
+
+          <section className="path-card" aria-label="Path to 270">
+            <div className="card-heading compact">
+              <div><span className="overline">Path to {pathTo270.majorityThreshold}</span><strong>Closest mathematical routes</strong></div>
+              <span className="route-needed">{pathTo270.electoralVotesNeeded === 0
+                ? "Majority reached"
+                : `${pathTo270.electoralVotesNeeded} EV needed`}</span>
+            </div>
+            <div className="route-metrics" aria-label="Path ranking metric">
+              {(Object.keys(routeMetricLabels) as RouteMetric[]).map((metric) => (
+                <button
+                  aria-pressed={routeMetric === metric}
+                  key={metric}
+                  onClick={() => setRouteMetric(metric)}
+                  type="button"
+                >{routeMetricLabels[metric]}</button>
+              ))}
+            </div>
+            {pathTo270.electoralVotesNeeded === 0 ? (
+              <div className="route-complete">
+                <strong>{candidateNames[targetCandidate]} already holds a majority.</strong>
+                <p>No additional Required state movement is needed in this scenario.</p>
+              </div>
+            ) : pathTo270.routes.length > 0 ? (
+              <ol className="route-list">
+                {pathTo270.routes.slice(0, 3).map((route, index) => (
+                  <li data-testid={`path-route-${index + 1}`} key={route.id}>
+                    <div className="route-heading">
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <div>
+                        <strong>{route.states.map((state) => state.stateCode).join(" + ")}</strong>
+                        <small>{route.completeness.replace("-", " ")} path</small>
+                      </div>
+                      <b>{pathTo270.targetElectoralVotes} → {route.projectedTargetElectoralVotes} EV</b>
+                    </div>
+                    <div className="route-states">
+                      {route.states.map((state) => {
+                        const stateContent = (
+                          <>
+                            <span><strong>{state.stateName}</strong><small>{state.currentClassification} → required</small></span>
+                            <span><small>Current</small><strong>{formatMargin(targetCandidate === "harris" ? state.currentMargin : -state.currentMargin)}</strong></span>
+                            <span><small>Required</small><strong>+{state.requiredMarginPoints.toFixed(1)} pts {targetCandidate === "harris" ? "D" : "R"}</strong></span>
+                            <span><small>Net margin votes</small><strong>{formatNumber(state.requiredNetMarginVotes)}</strong></span>
+                            <b>+{state.electoralVotes} EV</b>
+                          </>
+                        );
+                        return state.detailedModelAvailable ? (
+                          <button
+                            aria-label={`Open ${state.stateName} detailed laboratory`}
+                            key={state.stateCode}
+                            onClick={() => selectState(state.stateCode)}
+                            type="button"
+                          >{stateContent}</button>
+                        ) : (
+                          <div key={state.stateCode}>{stateContent}</div>
+                        );
+                      })}
+                    </div>
+                    <div className="route-totals">
+                      <span>{route.stateCount} {route.stateCount === 1 ? "state" : "states"}</span>
+                      <span>{formatNumber(route.totalRequiredNetMarginVotes)} net margin votes</span>
+                      <span>{route.totalRequiredMarginPoints.toFixed(1)} aggregate margin pts</span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <div className="route-complete error">
+                <strong>No supported whole-state route reaches the threshold.</strong>
+                <p>The current route contract excludes split-allocation approximations.</p>
+              </div>
+            )}
+            <p className="route-disclosure">
+              Required means mathematical movement only, not geographically modeled votes. Maine and Nebraska are excluded until district allocation is supported.
+            </p>
           </section>
 
           {selectedInspector && (

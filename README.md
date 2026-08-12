@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.15 Electoral College consequence ledger
+## Current release: v0.16 Deterministic Path to 270
 
 The current build provides:
 
@@ -46,6 +46,12 @@ The current build provides:
 - Deterministic causal language explaining which modeled states changed the national Electoral College result.
 - Separate handling for exactly 270, above 270, below 270, and a true 269–269 no-majority result.
 - Active modeled states remain visible with `0 EV` when their margin changes without flipping their allocation.
+- A deterministic Path to 270 engine that calculates the closest winning state combinations from the current portfolio.
+- Three explicit route metrics: fewest states, aggregate margin movement, and aggregate net margin votes.
+- Actual, Modeled, and Required classifications that never imply unsupported county or precinct geography.
+- Mathematical and partially modeled route labels, exact projected EV totals, and direct links into supported detailed-state laboratories.
+- Route metric persistence in schema-2 URLs, with deterministic ordering after reload.
+- Maine and Nebraska are excluded from route approximation until congressional-district allocation is represented correctly.
 
 The Pennsylvania source exposes exact Harris, Trump, Stein, and Oliver results by reporting unit, but does not place every write-in or residual vote by county. The model therefore preserves 24,526 certified residual votes in an explicit statewide bucket instead of inventing a county or precinct location. One Philadelphia reconciliation bucket and every unmatched reporting unit also remain explicit.
 
@@ -75,7 +81,7 @@ The turnout denominator is not citizen voting-age population and is not a 2024 e
 
 Every non-baseline change is written into a readable query string with URL schema, dataset, and deterministic engine versions. Schema 2 stores one authoritative recipe per active detailed state plus the active editor, map mode, contribution scope, and selected geography. Derived results are regenerated locally and are never serialized as a competing source of truth. A copied baseline link is explicit and versioned even though the ordinary baseline page stays clean.
 
-Compatible links restore locally without a backend. Schema 2 also restores the selected explanation target, from which the national score, changed-state ledger, and distance to 270 are deterministically rebuilt. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, or engine versions and malformed payloads never apply partially: the application restores the certified baseline and displays the reason.
+Compatible links restore locally without a backend. Schema 2 also restores the selected explanation target and route metric, from which the national score, changed-state ledger, distance to 270, and ranked routes are deterministically rebuilt. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, or engine versions and malformed payloads never apply partially: the application restores the certified baseline and displays the reason.
 
 Current compatibility contract:
 
@@ -121,6 +127,14 @@ The consequence layer answers what the active recipes did to the election. It co
 
 The threshold lockup distinguishes a target exactly at 270 from one above it, reports EV remaining or EV above the majority, and treats 269–269 as a unique no-majority outcome. The model rejects any scenario aggregate whose electoral allocation does not equal the certified election-year total.
 
+## Deterministic Path to 270
+
+The route engine begins with the current verified national portfolio, not a separate scoreboard. For each eligible state not allocated to the target candidate, it computes the smallest integer improvement in the target-minus-opponent vote margin needed to move past a tie. That arithmetic is a statewide requirement only. It does not invent turnout, county, precinct, or demographic sources for the change.
+
+A bounded deterministic search retains competitive partial combinations and ranks complete routes by the selected visible metric: fewest states, total required margin-point movement, or total required net margin votes. Every route displays its current and projected EV score, individual state requirements, EV gained, and completeness. A supported PA or MI row can open its detailed laboratory. Unsupported Required states remain noninteractive and non-geographic.
+
+Maine and Nebraska are excluded because their split electoral allocation cannot be represented honestly by the current winner-take-all route contract. The route list is an arithmetic strategy tool, not a forecast, probability, or claim that all listed combinations are equally plausible.
+
 ## Run locally
 
 Requirements: Node.js 22.12 or newer.
@@ -156,6 +170,7 @@ src/data/detailedStateManifest.ts   Typed state registration and asset contracts
 src/data/scenarioUrl.ts             Versioned scenario URL codec and compatibility policy
 src/data/scenarioPortfolio.ts       Authoritative recipes and derived state-summary contracts
 src/data/electoralConsequences.ts   Target-aware EV ledger and threshold classification
+src/data/pathTo270.ts               Deterministic bounded route enumeration and ranking
 src/runtime/                         Worker protocol, scenario runtime, and React bridge
 packages/data-contracts/            Canonical election and demographic contracts
 packages/election-model/            Deterministic allocation and scenario engine
@@ -233,10 +248,13 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `docs/decisions/0014-manifest-driven-worker-runtime.md`
 - `docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md`
 - `docs/decisions/0016-michigan-runtime-integration.md`
+- `docs/decisions/0017-multi-state-scenario-portfolio.md`
+- `docs/decisions/0018-electoral-consequence-ledger.md`
+- `docs/decisions/0019-deterministic-path-to-270.md`
 
 ## Next increment
 
-Build the path-to-270 analysis layer on top of the now-deterministic two-state runtime. It should explain which active detailed-state scenarios move Electoral College control, while retaining one loaded detailed state at a time and never implying uncertainty that the model does not estimate.
+Build geographic route construction for states that have a production-ready detailed foundation. A Required route state may become Modeled only after the user opens its state laboratory and constructs a scenario whose verified result supplies the needed electoral allocation. Unsupported states must remain mathematical requirements with no invented local geography.
 
 ## Primary sources
 
