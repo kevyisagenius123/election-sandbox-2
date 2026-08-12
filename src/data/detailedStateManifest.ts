@@ -1,5 +1,5 @@
-export type DetailedStateCode = "PA";
-export type DetailedStateRuntimeLoader = "pa-vtd-row-v1";
+export type DetailedStateCode = "MI" | "PA";
+export type DetailedStateRuntimeLoader = "mi-precinct-row-v1" | "pa-vtd-row-v1";
 
 export interface DetailedStateManifest {
   schemaVersion: 1;
@@ -40,7 +40,7 @@ export const pennsylvaniaDetailedStateManifest = Object.freeze({
     electoralVotes: 19,
   },
   compatibility: {
-    dataVersion: "us2024-pa-vtd2020-v2",
+    dataVersion: "us2024-pa-vtd2020-mi-precinct2024-v1",
     engineVersion: "pa-behavior-v1",
   },
   runtime: {
@@ -59,9 +59,47 @@ export const pennsylvaniaDetailedStateManifest = Object.freeze({
   },
 } as const satisfies DetailedStateManifest);
 
+export const michiganDetailedStateManifest = Object.freeze({
+  schemaVersion: 1,
+  code: "MI",
+  name: "Michigan",
+  election: {
+    year: 2024,
+    contestId: "2024-president",
+    electoralVotes: 15,
+  },
+  compatibility: {
+    dataVersion: "us2024-pa-vtd2020-mi-precinct2024-v1",
+    engineVersion: "pa-behavior-v1",
+  },
+  runtime: {
+    loader: "mi-precinct-row-v1",
+    artifactPath: "data/mi/2020/precinct-demographics.json",
+    schemaVersion: 1,
+    encoding: "mi-precinct-row-v1",
+  },
+  geography: {
+    countyFipsPrefix: "26",
+    precinctGeometryManifestPath: "data/mi/2024/precinct-geometry-manifest.json",
+  },
+  sources: {
+    electionRegistryPath: "data-sources/michigan/2024-general-presidential.json",
+    demographicRegistryPath: "data-sources/michigan/2020-pl94-precinct-demographics.json",
+  },
+} as const satisfies DetailedStateManifest);
+
 const manifests = new Map<DetailedStateCode, DetailedStateManifest>([
+  [michiganDetailedStateManifest.code, michiganDetailedStateManifest],
   [pennsylvaniaDetailedStateManifest.code, pennsylvaniaDetailedStateManifest],
 ]);
+
+export function isDetailedStateCode(code: string): code is DetailedStateCode {
+  return manifests.has(code as DetailedStateCode);
+}
+
+export function listDetailedStateManifests() {
+  return [...manifests.values()];
+}
 
 export function getDetailedStateManifest(code: string) {
   const manifest = manifests.get(code as DetailedStateCode);

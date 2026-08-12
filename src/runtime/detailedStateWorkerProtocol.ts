@@ -3,7 +3,7 @@ import type {
   BehaviorScenarioSettings,
 } from "../../packages/election-model/src/scenario.ts";
 import type { DetailedStateCode } from "../data/detailedStateManifest.ts";
-import type { PennsylvaniaDemographicFoundation } from "../data/paDemographics.ts";
+import type { DetailedStateFoundation } from "../data/detailedStateFoundation.ts";
 
 export interface InitializeDetailedStateRequest {
   type: "initialize";
@@ -27,7 +27,7 @@ export interface DetailedStateReadyResponse {
   type: "ready";
   requestId: number;
   stateCode: DetailedStateCode;
-  foundation: PennsylvaniaDemographicFoundation;
+  foundation: DetailedStateFoundation;
   scenario: BehaviorScenarioResult;
 }
 

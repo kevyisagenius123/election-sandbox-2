@@ -23,9 +23,16 @@ import {
 import { states2024 } from "../src/data/states.ts";
 import {
   getDetailedStateManifest,
+  michiganDetailedStateManifest,
   pennsylvaniaDetailedStateManifest,
   resolveDetailedStateArtifactUrl,
 } from "../src/data/detailedStateManifest.ts";
+import { getDetailedStateRuntimeAdapter } from "../src/data/detailedStateRuntimeLoaders.ts";
+import {
+  decodeMichiganDemographicFoundation,
+  MICHIGAN_PRECINCT_ROW_FIELDS,
+  toMichiganBehaviorModelUnits,
+} from "../src/data/miDemographics.ts";
 import {
   buildCountyInspector,
   buildVtdInspector,
@@ -147,6 +154,68 @@ test("Michigan source, geometry, and demographic artifacts reconcile exactly", (
   assert.equal(
     createHash("sha256").update(michiganDemographicArtifactBytes).digest("hex"),
     michiganDemographicRegistry.artifact.sha256,
+  );
+});
+
+test("Michigan runtime decoder reconstructs the certified zero-change scenario", () => {
+  const foundation = decodeMichiganDemographicFoundation(michiganDemographicDocument);
+  const modelUnits = toMichiganBehaviorModelUnits(foundation);
+  const scenario = applyBehaviorScenario(modelUnits, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: 0,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: 0,
+    thirdPartyHarrisExchangeShare: 0.5,
+  });
+
+  assert.equal(foundation.stateCode, "MI");
+  assert.equal(foundation.precincts.length, 4_340);
+  assert.equal(foundation.residualUnits.length, 74);
+  assert.equal(modelUnits.length, 4_413);
+  assert.deepEqual(scenario.totals, foundation.totals.certifiedVotes);
+});
+
+test("Michigan is registered through the state-agnostic runtime loader registry", () => {
+  const manifest = getDetailedStateManifest("MI");
+  assert.equal(manifest, michiganDetailedStateManifest);
+  assert.equal(manifest.compatibility.dataVersion, SCENARIO_DATA_VERSION);
+  assert.equal(manifest.runtime.loader, "mi-precinct-row-v1");
+  const adapter = getDetailedStateRuntimeAdapter(manifest.runtime.loader);
+  const foundation = adapter.decode(michiganDemographicDocument);
+  const modelUnits = adapter.toBehaviorModelUnits(foundation);
+  assert.equal(foundation.stateCode, "MI");
+  assert.equal(modelUnits.length, 4_413);
+});
+
+test("Michigan runtime decoder fails closed on incompatible or corrupted rows", () => {
+  const wrongFields = structuredClone(michiganDemographicDocument);
+  wrongFields.precinctFields = [...MICHIGAN_PRECINCT_ROW_FIELDS].reverse();
+  assert.throws(
+    () => decodeMichiganDemographicFoundation(wrongFields),
+    /field contract is incompatible/,
+  );
+
+  const duplicateGeometry = structuredClone(michiganDemographicDocument);
+  duplicateGeometry.precinctRows[1][0] = duplicateGeometry.precinctRows[0][0];
+  assert.throws(
+    () => decodeMichiganDemographicFoundation(duplicateGeometry),
+    /unique sorted geometry IDs/,
+  );
+
+  const brokenDemographics = structuredClone(michiganDemographicDocument);
+  brokenDemographics.precinctRows[0][5] += 1;
+  assert.throws(
+    () => decodeMichiganDemographicFoundation(brokenDemographics),
+    /demographic cells do not reconcile/,
+  );
+
+  const brokenResidual = structuredClone(michiganDemographicDocument);
+  brokenResidual.residualUnits[0].harrisVotes += 1;
+  brokenResidual.residualUnits[0].totalVotes += 1;
+  assert.throws(
+    () => decodeMichiganDemographicFoundation(brokenResidual),
+    /residual votes HarrisVotes does not reconcile|certified votes HarrisVotes does not reconcile/i,
   );
 });
 
@@ -990,6 +1059,23 @@ test("versioned scenario URLs preserve official alphanumeric VTD GEOIDs", () => 
   const decoded = decodeScenarioSearch(new URL(url).search);
   assert.equal(decoded.status, "valid");
   assert.deepEqual(decoded.state, state);
+});
+
+test("versioned scenario URLs preserve Michigan PRECINCTID hierarchy", () => {
+  const state = {
+    ...DEFAULT_SCENARIO_URL_STATE,
+    selectedStateCode: "MI",
+    selectedCountyFips: "26001",
+    selectedVtdGeoid: "WP-001-01040-00001",
+  };
+  const url = buildScenarioUrl("https://atlas.example/", state, { force: true });
+  const decoded = decodeScenarioSearch(new URL(url).search);
+  assert.equal(decoded.status, "valid");
+  assert.deepEqual(decoded.state, state);
+
+  const mismatched = new URL(url);
+  mismatched.searchParams.set("county", "26003");
+  assert.equal(decodeScenarioSearch(mismatched.search).status, "invalid");
 });
 
 test("scenario URL replay produces the same deterministic result", () => {

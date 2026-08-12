@@ -18,10 +18,12 @@ import type {
   StatewidePresidentialResult,
 } from "../../packages/election-model/src/scenario.ts";
 import {
-  loadPennsylvaniaPrecinctCounty,
-  type LoadedPennsylvaniaPrecinctCounty,
-  type PrecinctResultProperties,
-} from "../data/paPrecincts.ts";
+  detailedPrecinctName,
+  loadDetailedPrecinctCounty,
+  type DetailedPrecinctResultProperties,
+  type LoadedDetailedPrecinctCounty,
+} from "../data/detailedStatePrecincts.ts";
+import type { DetailedStateManifest } from "../data/detailedStateManifest.ts";
 import type { StateDatum } from "../data/states.ts";
 import {
   atlasController,
@@ -41,9 +43,10 @@ type ViewMode = "actual" | "scenario" | "difference";
 type AtlasMapSceneProps = {
   actualStates: readonly StateDatum[];
   scenarioStates: readonly StatewidePresidentialResult[];
-  actualPennsylvaniaCounties: readonly CountyPresidentialResult[];
-  scenarioPennsylvaniaCounties: readonly CountyScenarioResult[];
-  scenarioPennsylvaniaVtds: ReadonlyMap<string, BehaviorScenarioUnit>;
+  actualDetailedCounties: readonly CountyPresidentialResult[];
+  scenarioDetailedCounties: readonly CountyScenarioResult[];
+  scenarioDetailedGeographies: ReadonlyMap<string, BehaviorScenarioUnit>;
+  activeDetailedStateManifest: DetailedStateManifest | null;
   activeStateCode: string | null;
   activeCountyFips: string | null;
   activePrecinctGeoid: string | null;
@@ -68,9 +71,10 @@ function resultColor(result: VoteResult | undefined) {
 export function AtlasMapScene({
   actualStates,
   scenarioStates,
-  actualPennsylvaniaCounties,
-  scenarioPennsylvaniaCounties,
-  scenarioPennsylvaniaVtds,
+  actualDetailedCounties,
+  scenarioDetailedCounties,
+  scenarioDetailedGeographies,
+  activeDetailedStateManifest,
   activeStateCode,
   activeCountyFips,
   activePrecinctGeoid,
@@ -91,17 +95,22 @@ export function AtlasMapScene({
   const [hoveredStateCode, setHoveredStateCode] = useState<string | null>(null);
   const [hoveredCountyFips, setHoveredCountyFips] = useState<string | null>(null);
   const [precinctLoad, setPrecinctLoad] = useState<{
+    stateCode: string | null;
     countyFips: string | null;
-    county: LoadedPennsylvaniaPrecinctCounty | null;
+    county: LoadedDetailedPrecinctCounty | null;
     error: string | null;
-  }>({ countyFips: null, county: null, error: null });
+  }>({ stateCode: null, countyFips: null, county: null, error: null });
   const [hoveredPrecinctGeoid, setHoveredPrecinctGeoid] = useState<string | null>(null);
   const [heightMode, setHeightMode] = useState<"ballots" | "flat">("ballots");
-  const precinctCounty = activeCountyFips && precinctLoad.countyFips === activeCountyFips
+  const precinctCounty = activeDetailedStateManifest && activeCountyFips
+    && precinctLoad.stateCode === activeDetailedStateManifest.code
+    && precinctLoad.countyFips === activeCountyFips
     ? precinctLoad.county
     : null;
-  const precinctLoading = Boolean(activeCountyFips && precinctLoad.countyFips !== activeCountyFips);
-  const precinctError = activeCountyFips && precinctLoad.countyFips === activeCountyFips
+  const precinctLoading = Boolean(activeDetailedStateManifest && activeCountyFips && !precinctCounty);
+  const precinctError = activeDetailedStateManifest && activeCountyFips
+    && precinctLoad.stateCode === activeDetailedStateManifest.code
+    && precinctLoad.countyFips === activeCountyFips
     ? precinctLoad.error
     : null;
 
@@ -122,26 +131,26 @@ export function AtlasMapScene({
     [scenarioStates],
   );
   const actualCountyByFips = useMemo(
-    () => new Map(actualPennsylvaniaCounties.map((county) => [county.fips, county])),
-    [actualPennsylvaniaCounties],
+    () => new Map(actualDetailedCounties.map((county) => [county.fips, county])),
+    [actualDetailedCounties],
   );
   const scenarioCountyByFips = useMemo(
-    () => new Map(scenarioPennsylvaniaCounties.map((county) => [county.fips, county])),
-    [scenarioPennsylvaniaCounties],
+    () => new Map(scenarioDetailedCounties.map((county) => [county.fips, county])),
+    [scenarioDetailedCounties],
   );
-  const maxPennsylvaniaCountyVotes = useMemo(
-    () => Math.max(...actualPennsylvaniaCounties.map((county) => county.totalVotes), 1),
-    [actualPennsylvaniaCounties],
+  const maxDetailedCountyVotes = useMemo(
+    () => Math.max(...actualDetailedCounties.map((county) => county.totalVotes), 1),
+    [actualDetailedCounties],
   );
   const activeActualCounty = activeCountyFips
     ? actualCountyByFips.get(activeCountyFips)
     : undefined;
   const scenarioPrecinctByGeoid = useMemo(() => {
-    const map = new Map<string, PrecinctResultProperties & { netHarrisGain: number }>();
+    const map = new Map<string, DetailedPrecinctResultProperties & { netHarrisGain: number }>();
     if (!precinctCounty) return map;
     for (const item of precinctCounty.features.features) {
       const actual = item.properties;
-      const scenario = scenarioPennsylvaniaVtds.get(actual.geoid);
+      const scenario = scenarioDetailedGeographies.get(actual.geoid);
       map.set(actual.geoid, scenario ? {
         ...actual,
         harrisVotes: scenario.harrisVotes,
@@ -152,7 +161,7 @@ export function AtlasMapScene({
       } : { ...actual, netHarrisGain: 0 });
     }
     return map;
-  }, [precinctCounty, scenarioPennsylvaniaVtds]);
+  }, [precinctCounty, scenarioDetailedGeographies]);
   const maxPrecinctVotes = useMemo(
     () => Math.max(
       ...(precinctCounty?.features.features.map((item) => item.properties.totalVotes) ?? []),
@@ -333,23 +342,29 @@ export function AtlasMapScene({
   }, [activeStateCode, nationalDestination]);
 
   useEffect(() => {
-    if (!activeCountyFips) return;
+    if (!activeCountyFips || !activeDetailedStateManifest) return;
 
     const controller = new AbortController();
-    loadPennsylvaniaPrecinctCounty(activeCountyFips, controller.signal)
+    loadDetailedPrecinctCounty(activeDetailedStateManifest, activeCountyFips, controller.signal)
       .then((county) => {
-        setPrecinctLoad({ countyFips: activeCountyFips, county, error: null });
+        setPrecinctLoad({
+          stateCode: activeDetailedStateManifest.code,
+          countyFips: activeCountyFips,
+          county,
+          error: null,
+        });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setPrecinctLoad({
+          stateCode: activeDetailedStateManifest.code,
           countyFips: activeCountyFips,
           county: null,
           error: error instanceof Error ? error.message : "Precinct geometry could not be loaded",
         });
       });
     return () => controller.abort();
-  }, [activeCountyFips]);
+  }, [activeCountyFips, activeDetailedStateManifest]);
 
   useEffect(() => {
     if (!activeCountyFips || !precinctCounty) return;
@@ -446,8 +461,8 @@ export function AtlasMapScene({
       filled: true,
       stroked: true,
       wireframe: true,
-      pickable: activeStateCode === "PA" && !activeCountyFips,
-      autoHighlight: activeStateCode === "PA" && !activeCountyFips,
+      pickable: activeStateCode === activeDetailedStateManifest?.code && !activeCountyFips,
+      autoHighlight: activeStateCode === activeDetailedStateManifest?.code && !activeCountyFips,
       highlightColor: [255, 248, 226, 95],
       lineWidthUnits: "pixels",
       getLineWidth: 1.1,
@@ -470,7 +485,7 @@ export function AtlasMapScene({
         const result = viewMode === "actual" ? actual : scenario ?? actual;
         if (!result) return 4;
         if (heightMode === "flat") return 7;
-        return 4 + 18 * Math.sqrt(result.totalVotes / maxPennsylvaniaCountyVotes);
+        return 4 + 18 * Math.sqrt(result.totalVotes / maxDetailedCountyVotes);
       },
       material: { ambient: 0.74, diffuse: 0.5, shininess: 4, specularColor: [16, 18, 16] },
       transitions: {
@@ -478,8 +493,8 @@ export function AtlasMapScene({
         getFillColor: { duration: 680 },
       },
       updateTriggers: {
-        getElevation: [heightMode, maxPennsylvaniaCountyVotes, scenarioPennsylvaniaCounties, viewMode],
-        getFillColor: [viewMode, scenarioPennsylvaniaCounties],
+        getElevation: [heightMode, maxDetailedCountyVotes, scenarioDetailedCounties, viewMode],
+        getFillColor: [viewMode, scenarioDetailedCounties],
       },
       onHover: (info: PickingInfo) => {
         const item = info.object as Feature | undefined;
@@ -507,7 +522,7 @@ export function AtlasMapScene({
         getLineWidth: 0.8,
         getLineColor: [61, 75, 72, 150],
         getFillColor: (item: Feature) => {
-          const actual = item.properties as unknown as PrecinctResultProperties;
+          const actual = item.properties as unknown as DetailedPrecinctResultProperties;
           const scenario = scenarioPrecinctByGeoid.get(actual.geoid);
           if (actual.resultQuality === "unmatched_geometry" || actual.totalVotes === 0) {
             return hexToDeckColor(ATLAS_NEUTRAL, 205);
@@ -524,7 +539,7 @@ export function AtlasMapScene({
           return hexToDeckColor(resultColor(viewMode === "actual" ? actual : scenario), 255);
         },
         getElevation: (item: Feature) => {
-          const actual = item.properties as unknown as PrecinctResultProperties;
+          const actual = item.properties as unknown as DetailedPrecinctResultProperties;
           const result = viewMode === "actual"
             ? actual
             : scenarioPrecinctByGeoid.get(actual.geoid) ?? actual;
@@ -545,12 +560,12 @@ export function AtlasMapScene({
         },
         onHover: (info: PickingInfo) => {
           const item = info.object as Feature | undefined;
-          const properties = item?.properties as unknown as PrecinctResultProperties | undefined;
+          const properties = item?.properties as unknown as DetailedPrecinctResultProperties | undefined;
           setHoveredPrecinctGeoid(properties?.geoid ?? null);
         },
         onClick: (info: PickingInfo) => {
           const item = info.object as Feature | undefined;
-          const properties = item?.properties as unknown as PrecinctResultProperties | undefined;
+          const properties = item?.properties as unknown as DetailedPrecinctResultProperties | undefined;
           if (properties) onActivePrecinctChange(properties.geoid);
         },
       });
@@ -563,13 +578,14 @@ export function AtlasMapScene({
   }, [
     activeCounties,
     activeCountyFips,
+    activeDetailedStateManifest,
     activeStateCode,
     activeStateFeature,
     actualCountyByFips,
     actualByCode,
     countyRaised,
     heightMode,
-    maxPennsylvaniaCountyVotes,
+    maxDetailedCountyVotes,
     maxPrecinctVotes,
     openCounty,
     openState,
@@ -578,7 +594,7 @@ export function AtlasMapScene({
     precinctElevationUnit,
     scenarioByCode,
     scenarioCountyByFips,
-    scenarioPennsylvaniaCounties,
+    scenarioDetailedCounties,
     scenarioPrecinctByGeoid,
     scenarioStates,
     viewMode,
@@ -650,12 +666,12 @@ export function AtlasMapScene({
           </button>
           <div className="atlas-data-note">
             <span className="overline">
-              {activeCountyFips ? "Verified precinct returns" : activeStateCode === "PA" ? "Verified county returns" : "County terrain"}
+              {activeCountyFips ? "Verified precinct returns" : activeDetailedStateManifest ? "Verified county returns" : "County terrain"}
             </span>
             <strong>{activeCountyFips ? activeActualCounty?.name : actualByCode.get(activeStateCode)?.name}</strong>
             {activeCountyFips ? (
               <>
-                {precinctLoading && <p className="atlas-load-status">Loading this county’s Census VTD geometry…</p>}
+                {precinctLoading && <p className="atlas-load-status">Loading this county’s audited precinct geometry…</p>}
                 {precinctError && <p className="atlas-load-status error">{precinctError}</p>}
                 {precinctCounty && (
                   <p>
@@ -669,7 +685,7 @@ export function AtlasMapScene({
                   <button aria-pressed={heightMode === "flat"} onClick={() => setHeightMode("flat")} type="button">Flat</button>
                 </div>
               </>
-            ) : activeStateCode === "PA" ? (
+            ) : activeDetailedStateManifest ? (
               <>
                 <p>Color is presidential margin. Height is normalized named-candidate ballots. Click a county to open its voting-district terrain.</p>
                 <div className="atlas-height-switch" aria-label="County height mode">
@@ -682,7 +698,7 @@ export function AtlasMapScene({
               <p>Geometry connected. This state remains neutral until its official county results reconcile.</p>
             )}
           </div>
-          {activeStateCode === "PA" && !activeCountyFips && inspectedActualCounty && inspectedScenarioCounty && (
+          {activeDetailedStateManifest && !activeCountyFips && inspectedActualCounty && inspectedScenarioCounty && (
             <div className="atlas-county-readout" aria-live="polite">
               <span className="overline">County under cursor · click to open</span>
               <strong>{inspectedActualCounty.name}</strong>
@@ -695,8 +711,8 @@ export function AtlasMapScene({
           )}
           {activeCountyFips && inspectedActualPrecinct && inspectedScenarioPrecinct && (
             <div className="atlas-county-readout atlas-precinct-readout" aria-live="polite">
-              <span className="overline">{hoveredPrecinctGeoid ? "VTD under cursor" : "Pinned VTD"}</span>
-              <strong>{inspectedActualPrecinct.sourceName ?? inspectedActualPrecinct.censusName}</strong>
+              <span className="overline">{hoveredPrecinctGeoid ? "Precinct under cursor" : "Pinned precinct"}</span>
+              <strong>{detailedPrecinctName(inspectedActualPrecinct)}</strong>
               <div>
                 <span>{inspectedActualPrecinct.totalVotes.toLocaleString()} named votes</span>
                 <span>
@@ -708,11 +724,9 @@ export function AtlasMapScene({
                 </span>
               </div>
               <p>
-                {inspectedActualPrecinct.resultQuality === "official_exact_vtd"
-                  ? "Exact county and Census VTD identifier match."
-                  : inspectedActualPrecinct.resultQuality === "official_canonical_name"
-                    ? "Unique exact canonical-name match within this county."
-                    : "Census geometry has no matched 2024 return and stays neutral."}
+                {inspectedActualPrecinct.resultQuality === "unmatched_geometry"
+                  ? "Audited geometry has no matched 2024 return and stays neutral."
+                  : "Official return linked through the documented state geography crosswalk."}
               </p>
             </div>
           )}

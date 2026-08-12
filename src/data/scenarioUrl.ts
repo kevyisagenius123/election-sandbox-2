@@ -1,5 +1,9 @@
 import type { ThirdPartyCandidate } from "../../packages/election-model/src/scenario.ts";
-import { pennsylvaniaDetailedStateManifest } from "./detailedStateManifest.ts";
+import {
+  getDetailedStateManifest,
+  isDetailedStateCode,
+  pennsylvaniaDetailedStateManifest,
+} from "./detailedStateManifest.ts";
 
 export const SCENARIO_URL_SCHEMA_VERSION = "1";
 export const SCENARIO_DATA_VERSION = pennsylvaniaDetailedStateManifest.compatibility.dataVersion;
@@ -59,13 +63,6 @@ const stateCodes = new Set([
   "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX",
   "UT", "VT", "VA", "WA", "WV", "WI", "WY",
 ]);
-const detailedCountyPattern = new RegExp(
-  `^${pennsylvaniaDetailedStateManifest.geography.countyFipsPrefix}\\d{3}$`,
-);
-const detailedVtdPattern = new RegExp(
-  `^${pennsylvaniaDetailedStateManifest.geography.countyFipsPrefix}\\d{3}[0-9A-Z]{6}$`,
-);
-
 const scenarioParameterNames = [
   "scenario",
   "data",
@@ -138,20 +135,31 @@ function validateGeography(params: URLSearchParams) {
   if (state != null && !stateCodes.has(state)) {
     throw new InvalidScenarioUrlError("state is not recognized");
   }
+  const manifest = state && isDetailedStateCode(state)
+    ? getDetailedStateManifest(state)
+    : null;
   if (county != null) {
-    if (!detailedCountyPattern.test(county)) {
-      throw new InvalidScenarioUrlError("county is not a Pennsylvania county FIPS");
-    }
-    if (state !== pennsylvaniaDetailedStateManifest.code) {
-      throw new InvalidScenarioUrlError("county selection requires Pennsylvania state context");
+    if (!manifest || !new RegExp(`^${manifest.geography.countyFipsPrefix}\\d{3}$`).test(county)) {
+      throw new InvalidScenarioUrlError("county is not valid for the selected detailed state");
     }
   }
   if (vtd != null) {
-    if (!detailedVtdPattern.test(vtd)) {
-      throw new InvalidScenarioUrlError("vtd is not a Pennsylvania Census VTD GEOID");
+    if (!manifest || county == null) {
+      throw new InvalidScenarioUrlError("precinct selection requires detailed county context");
     }
-    if (county == null || !vtd.startsWith(county)) {
-      throw new InvalidScenarioUrlError("vtd selection does not belong to the selected county");
+    if (manifest.code === "PA") {
+      if (!new RegExp(`^${manifest.geography.countyFipsPrefix}\\d{3}[0-9A-Z]{6}$`).test(vtd)) {
+        throw new InvalidScenarioUrlError("vtd is not a Pennsylvania Census VTD GEOID");
+      }
+      if (!vtd.startsWith(county)) {
+        throw new InvalidScenarioUrlError("vtd selection does not belong to the selected county");
+      }
+    } else {
+      const match = /^WP-(\d{3})-\d{5}-[0-9A-Z]+$/.exec(vtd);
+      if (!match) throw new InvalidScenarioUrlError("precinct is not a Michigan PRECINCTID");
+      if (`${manifest.geography.countyFipsPrefix}${match[1]}` !== county) {
+        throw new InvalidScenarioUrlError("precinct selection does not belong to the selected county");
+      }
     }
   }
   return {

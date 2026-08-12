@@ -1,5 +1,5 @@
 import type { ThirdPartyCandidate } from "../../packages/election-model/src/scenario.ts";
-import type { GeographyInspectorModel } from "../data/paInspector.ts";
+import type { GeographyInspectorModel } from "../data/detailedStateInspector.ts";
 
 type GeographyInspectorProps = {
   model: GeographyInspectorModel;
@@ -35,23 +35,33 @@ function denominatorLabel(status: GeographyInspectorModel["denominatorStatus"]) 
   if (status === "available") return "Available";
   if (status === "mixed") return "Mixed coverage";
   if (status === "ballots_exceed_2020_vap") return "Capacity capped";
+  if (status === "demographic_bridge_unavailable") return "Demographic bridge unavailable";
   return "No matched 2024 result";
 }
 
 function matchLabel(model: GeographyInspectorModel) {
   if (model.kind === "county") {
-    return `${formatNumber(model.coverage.exactSourceUnitCount)} exact units · ${formatNumber(model.coverage.canonicalSourceUnitCount)} name-linked units · ${formatNumber(model.coverage.unmatchedVtdCount)} unmatched VTDs`;
+    return `${formatNumber(model.coverage.exactSourceUnitCount)} exact units · ${formatNumber(model.coverage.canonicalSourceUnitCount)} alternate-key units · ${formatNumber(model.coverage.unmatchedGeographyCount)} unmatched polygons`;
   }
-  if (model.coverage.resultMatchMethod === "exact_vtd_identifier") {
-    return "Exact Census VTD identifier";
-  }
-  if (model.coverage.resultMatchMethod === "exact_canonical_name") {
-    return "Unique canonical-name match";
-  }
-  if (model.coverage.resultMatchMethod === "mixed") {
-    return "Mixed exact-ID and canonical-name links";
-  }
-  return "No matched 2024 return";
+  const electionMatch = model.coverage.resultMatchMethod === "exact_vtd_identifier"
+    ? "Exact Census VTD identifier"
+    : model.coverage.resultMatchMethod === "exact_canonical_name"
+      ? "Unique canonical-name match"
+      : model.coverage.resultMatchMethod === "mixed"
+        ? "Mixed exact-ID and canonical-name links"
+        : model.coverage.resultMatchMethod === "exact_official_ward_key"
+          ? "Exact official ward and precinct key"
+          : model.coverage.resultMatchMethod === "unique_official_precinct_key"
+            ? "Unique official precinct key"
+            : "No matched 2024 return";
+  const demographicMatch = model.coverage.demographicMatchMethod === "official_vtdst_bridge"
+    ? "Direct official 2020 VTD bridge"
+    : model.coverage.demographicMatchMethod === "registered_voter_weighted_vtd_split"
+      ? "Registered-voter-weighted 2020 VTD split"
+      : model.coverage.demographicMatchMethod === "unavailable"
+        ? "Demographic bridge unavailable"
+        : null;
+  return demographicMatch ? `${electionMatch} · ${demographicMatch}` : electionMatch;
 }
 
 export function GeographyInspector({ model, onClearVtd }: GeographyInspectorProps) {
@@ -69,11 +79,11 @@ export function GeographyInspector({ model, onClearVtd }: GeographyInspectorProp
     <section className="inspector-card" aria-label={`Data inspector for ${model.name}`}>
       <div className="inspector-heading">
         <div>
-          <span className="overline">Selected geography · {model.kind === "county" ? "County" : "VTD"}</span>
+          <span className="overline">Selected geography · {model.geographyLabel}</span>
           <strong>{model.name}</strong>
           <small>{model.context}</small>
         </div>
-        {model.kind === "vtd" && (
+        {model.kind === "precinct" && (
           <button onClick={onClearVtd} type="button">County</button>
         )}
       </div>
@@ -140,8 +150,8 @@ export function GeographyInspector({ model, onClearVtd }: GeographyInspectorProp
           {model.kind === "county"
             ? "Official county totals remain authoritative. VTD coverage describes only the ballots linked to audited terrain."
             : model.coverage.resultMatchMethod
-              ? "Election returns are linked to this 2020 Census VTD through the documented Pennsylvania crosswalk."
-              : "This Census polygon has no assigned 2024 return and remains neutral in result-based views."}
+              ? "Election returns are linked to this audited polygon through the documented state crosswalk."
+              : "This polygon has no assigned 2024 return and remains neutral in result-based views."}
         </small>
       </div>
     </section>

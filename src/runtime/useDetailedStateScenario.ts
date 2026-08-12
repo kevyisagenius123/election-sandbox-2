@@ -5,19 +5,24 @@ import type {
 } from "../../packages/election-model/src/scenario.ts";
 import {
   resolveDetailedStateArtifactUrl,
+  type DetailedStateCode,
   type DetailedStateManifest,
 } from "../data/detailedStateManifest.ts";
-import type { PennsylvaniaDemographicFoundation } from "../data/paDemographics.ts";
+import type { DetailedStateFoundation } from "../data/detailedStateFoundation.ts";
 import type {
   DetailedStateWorkerRequest,
   DetailedStateWorkerResponse,
 } from "./detailedStateWorkerProtocol.ts";
 
 interface DetailedStateScenarioRuntime {
-  foundation: PennsylvaniaDemographicFoundation | null;
+  foundation: DetailedStateFoundation | null;
   scenario: BehaviorScenarioResult | null;
   error: string | null;
   pending: boolean;
+}
+
+interface PublishedDetailedStateScenarioRuntime extends DetailedStateScenarioRuntime {
+  stateCode: DetailedStateCode | null;
 }
 
 function settingsSignature(settings: BehaviorScenarioSettings) {
@@ -35,7 +40,8 @@ export function useDetailedStateScenario(
   manifest: DetailedStateManifest,
   settings: BehaviorScenarioSettings,
 ): DetailedStateScenarioRuntime {
-  const [runtime, setRuntime] = useState<DetailedStateScenarioRuntime>({
+  const [runtime, setRuntime] = useState<PublishedDetailedStateScenarioRuntime>({
+    stateCode: null,
     foundation: null,
     scenario: null,
     error: null,
@@ -93,13 +99,19 @@ export function useDetailedStateScenario(
       requestSignatures.delete(response.requestId);
       if (response.type === "error") {
         if (responseSignature !== latestSignatureRef.current && readyRef.current) return;
-        setRuntime((current) => ({ ...current, error: response.message, pending: false }));
+        setRuntime((current) => ({
+          ...current,
+          stateCode: manifest.code,
+          error: response.message,
+          pending: false,
+        }));
         return;
       }
       if (response.type === "ready") {
         readyRef.current = true;
         if (responseSignature === latestSignatureRef.current) {
           setRuntime({
+            stateCode: response.stateCode,
             foundation: response.foundation,
             scenario: response.scenario,
             error: null,
@@ -108,6 +120,7 @@ export function useDetailedStateScenario(
         } else {
           setRuntime((current) => ({
             ...current,
+            stateCode: response.stateCode,
             foundation: response.foundation,
             error: null,
             pending: true,
@@ -119,6 +132,7 @@ export function useDetailedStateScenario(
       if (responseSignature !== latestSignatureRef.current) return;
       setRuntime((current) => ({
         ...current,
+        stateCode: response.stateCode,
         scenario: response.scenario,
         error: null,
         pending: false,
@@ -127,6 +141,7 @@ export function useDetailedStateScenario(
     worker.onerror = () => {
       setRuntime((current) => ({
         ...current,
+        stateCode: manifest.code,
         error: "Detailed state worker could not complete the calculation",
         pending: false,
       }));
@@ -162,5 +177,13 @@ export function useDetailedStateScenario(
     setRuntime((current) => ({ ...current, pending: true, error: null }));
   }, [latestSignature, settings]);
 
-  return runtime;
+  if (runtime.stateCode !== manifest.code) {
+    return { foundation: null, scenario: null, error: null, pending: true };
+  }
+  return {
+    foundation: runtime.foundation,
+    scenario: runtime.scenario,
+    error: runtime.error,
+    pending: runtime.pending,
+  };
 }

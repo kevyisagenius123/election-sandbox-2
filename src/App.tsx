@@ -17,11 +17,25 @@ import {
 } from "../packages/election-model/src/scenario.ts";
 import { GeographyInspector } from "./components/GeographyInspector.tsx";
 import {
-  scenarioVtdMap,
-  toBehaviorModelUnits,
-} from "./data/paDemographics.ts";
-import { pennsylvaniaDetailedStateManifest } from "./data/detailedStateManifest.ts";
-import { buildCountyInspector, buildVtdInspector } from "./data/paInspector.ts";
+  buildDetailedScenarioCounties,
+  getDetailedStateCounties,
+  getDetailedStateElection,
+  getDetailedStateGeographies,
+  getDetailedStateSource,
+  scenarioDetailedGeographyMap,
+  toDetailedBehaviorModelUnits,
+} from "./data/detailedStateData.ts";
+import {
+  getDetailedStateManifest,
+  isDetailedStateCode,
+  pennsylvaniaDetailedStateManifest,
+  type DetailedStateCode,
+} from "./data/detailedStateManifest.ts";
+import {
+  buildDetailedCountyInspector,
+  buildDetailedGeographyInspector,
+} from "./data/detailedStateInspector.ts";
+import { isPennsylvaniaFoundation } from "./data/detailedStateFoundation.ts";
 import {
   buildScenarioUrl,
   decodeScenarioSearch,
@@ -36,11 +50,6 @@ import {
   type ScenarioViewMode,
 } from "./data/scenarioUrl.ts";
 import { states2024 } from "./data/states.ts";
-import {
-  pennsylvaniaCounties2024,
-  pennsylvaniaCountySource,
-  pennsylvania2024,
-} from "./data/pennsylvania.ts";
 import { useDetailedStateScenario } from "./runtime/useDetailedStateScenario.ts";
 
 type ViewMode = ScenarioViewMode;
@@ -192,15 +201,22 @@ export function App() {
     thirdPartyShiftPoints,
     turnoutIncreasePoints,
   ]);
+  const activeDetailedStateCode: DetailedStateCode = isDetailedStateCode(selectedStateCode ?? "")
+    ? selectedStateCode as DetailedStateCode
+    : pennsylvaniaDetailedStateManifest.code;
+  const activeDetailedStateManifest = getDetailedStateManifest(activeDetailedStateCode);
   const {
-    foundation: demographicFoundation,
+    foundation: detailedStateFoundation,
     scenario: behaviorScenario,
     error: demographicError,
     pending: scenarioPending,
   } = useDetailedStateScenario(
-    pennsylvaniaDetailedStateManifest,
+    activeDetailedStateManifest,
     behaviorScenarioSettings,
   );
+  const demographicFoundation = detailedStateFoundation?.stateCode === activeDetailedStateCode
+    ? detailedStateFoundation
+    : null;
 
   const applyScenarioUrlState = useCallback((state: ScenarioUrlState) => {
     setTurnoutIncreasePoints(state.turnoutIncreasePoints);
@@ -231,18 +247,34 @@ export function App() {
     return () => window.removeEventListener("popstate", restoreBrowserHistoryState);
   }, [applyScenarioUrlState]);
 
-  const paActual = states2024.find(
-    (state) => state.code === pennsylvaniaDetailedStateManifest.code,
+  const detailedActual = states2024.find(
+    (state) => state.code === activeDetailedStateCode,
   )!;
+  const detailedCounties = useMemo(
+    () => getDetailedStateCounties(activeDetailedStateCode),
+    [activeDetailedStateCode],
+  );
+  const detailedElection = useMemo(
+    () => getDetailedStateElection(activeDetailedStateCode),
+    [activeDetailedStateCode],
+  );
+  const detailedSource = useMemo(
+    () => getDetailedStateSource(activeDetailedStateCode),
+    [activeDetailedStateCode],
+  );
+  const detailedGeographies = useMemo(
+    () => demographicFoundation ? getDetailedStateGeographies(demographicFoundation) : [],
+    [demographicFoundation],
+  );
   const behaviorModelUnits = useMemo(
-    () => demographicFoundation ? toBehaviorModelUnits(demographicFoundation) : null,
+    () => demographicFoundation ? toDetailedBehaviorModelUnits(demographicFoundation) : null,
     [demographicFoundation],
   );
   const preferenceBase = useMemo(() => ({
-    harrisVotes: paActual.harrisVotes + (behaviorScenario?.turnout.harrisVotes ?? 0),
-    trumpVotes: paActual.trumpVotes + (behaviorScenario?.turnout.trumpVotes ?? 0),
-    totalVotes: paActual.totalVotes + (behaviorScenario?.turnout.addedVotes ?? 0),
-  }), [behaviorScenario, paActual]);
+    harrisVotes: detailedActual.harrisVotes + (behaviorScenario?.turnout.harrisVotes ?? 0),
+    trumpVotes: detailedActual.trumpVotes + (behaviorScenario?.turnout.trumpVotes ?? 0),
+    totalVotes: detailedActual.totalVotes + (behaviorScenario?.turnout.addedVotes ?? 0),
+  }), [behaviorScenario, detailedActual]);
   const preferenceBounds = useMemo(
     () => preferenceShiftBounds(preferenceBase),
     [preferenceBase],
@@ -252,16 +284,16 @@ export function App() {
     Math.max(preferenceBounds.towardTrumpPoints, preferenceShiftPoints),
   );
   const fallbackThirdPartyVotes = thirdPartyCandidate === "stein"
-    ? pennsylvania2024.totals.steinVotes
+    ? detailedElection.totals.steinVotes
     : thirdPartyCandidate === "oliver"
-      ? pennsylvania2024.totals.oliverVotes
-      : pennsylvania2024.totals.residualOtherVotes;
+      ? detailedElection.totals.oliverVotes
+      : detailedElection.totals.residualOtherVotes;
   const thirdPartyBallotTotal = behaviorScenario?.thirdParty.ballotTotal
-    ?? pennsylvania2024.totals.totalVotes;
+    ?? detailedElection.totals.totalVotes;
   const thirdPartyStartingVotes = behaviorScenario?.thirdParty.startingCandidateVotes
     ?? fallbackThirdPartyVotes;
   const thirdPartyExchangeCapacity = behaviorScenario?.thirdParty.exchangeCapacity
-    ?? Math.min(pennsylvania2024.totals.harrisVotes, pennsylvania2024.totals.trumpVotes) * 2;
+    ?? Math.min(detailedElection.totals.harrisVotes, detailedElection.totals.trumpVotes) * 2;
   const thirdPartyMinimumPoints = -(thirdPartyStartingVotes * 100) / thirdPartyBallotTotal;
   const thirdPartyMaximumPoints = (thirdPartyExchangeCapacity * 100) / thirdPartyBallotTotal;
   const effectiveThirdPartyShiftPoints = Math.min(
@@ -316,28 +348,28 @@ export function App() {
     observedScenarioSearch.current = window.location.search;
   }, [demographicFoundation, scenarioPending, scenarioUrlState]);
 
-  const paScenario = useMemo<StatewidePresidentialResult>(() => {
-    if (!behaviorScenario) return paActual;
+  const detailedScenario = useMemo<StatewidePresidentialResult>(() => {
+    if (!behaviorScenario) return detailedActual;
     const harrisWins = behaviorScenario.totals.harrisVotes > behaviorScenario.totals.trumpVotes;
     return {
-      ...paActual,
+      ...detailedActual,
       ...behaviorScenario.totals,
       harrisElectoralVotes: harrisWins
-        ? pennsylvaniaDetailedStateManifest.election.electoralVotes
+        ? activeDetailedStateManifest.election.electoralVotes
         : 0,
       trumpElectoralVotes: harrisWins
         ? 0
-        : pennsylvaniaDetailedStateManifest.election.electoralVotes,
+        : activeDetailedStateManifest.election.electoralVotes,
     };
-  }, [behaviorScenario, paActual]);
+  }, [activeDetailedStateManifest, behaviorScenario, detailedActual]);
 
   const scenarioStates = useMemo(
     () => states2024.map((state) => (
-      state.code === pennsylvaniaDetailedStateManifest.code
-        ? paScenario
+      state.code === activeDetailedStateCode
+        ? detailedScenario
         : state
     )),
-    [paScenario],
+    [activeDetailedStateCode, detailedScenario],
   );
 
   const actualNational = useMemo(() => aggregateNational(states2024), []);
@@ -345,54 +377,16 @@ export function App() {
     () => aggregateNational(scenarioStates),
     [scenarioStates],
   );
-  const scenarioPennsylvaniaCounties = useMemo(
-    () => {
-      if (!behaviorScenario) {
-        return pennsylvaniaCounties2024.map((county) => ({ ...county, netHarrisGain: 0 }));
-      }
-      const totalsByCounty = new Map<string, {
-        harrisVotes: number;
-        trumpVotes: number;
-        steinVotes: number;
-        oliverVotes: number;
-        residualOtherVotes: number;
-        otherVotes: number;
-        totalVotes: number;
-      }>();
-      for (const unit of behaviorScenario.units) {
-        if (!unit.countyFips) continue;
-        const total = totalsByCounty.get(unit.countyFips) ?? {
-          harrisVotes: 0,
-          trumpVotes: 0,
-          steinVotes: 0,
-          oliverVotes: 0,
-          residualOtherVotes: 0,
-          otherVotes: 0,
-          totalVotes: 0,
-        };
-        total.harrisVotes += unit.harrisVotes;
-        total.trumpVotes += unit.trumpVotes;
-        total.steinVotes += unit.steinVotes;
-        total.oliverVotes += unit.oliverVotes;
-        total.residualOtherVotes += unit.residualOtherVotes;
-        total.otherVotes += unit.otherVotes;
-        total.totalVotes += unit.totalVotes;
-        totalsByCounty.set(unit.countyFips, total);
-      }
-      return pennsylvaniaCounties2024.map((county) => {
-        const scenario = totalsByCounty.get(county.fips);
-        if (!scenario) throw new Error(`Scenario is missing county ${county.fips}`);
-        return {
-          ...county,
-          ...scenario,
-          netHarrisGain: scenario.harrisVotes - county.harrisVotes,
-        };
-      });
-    },
-    [behaviorScenario],
+  const scenarioDetailedCounties = useMemo(
+    () => buildDetailedScenarioCounties(
+      detailedCounties,
+      behaviorModelUnits,
+      behaviorScenario?.units ?? null,
+    ),
+    [behaviorModelUnits, behaviorScenario, detailedCounties],
   );
-  const scenarioPennsylvaniaVtds = useMemo(
-    () => scenarioVtdMap(behaviorScenario?.units ?? []),
+  const scenarioDetailedGeographies = useMemo(
+    () => scenarioDetailedGeographyMap(behaviorScenario?.units ?? []),
     [behaviorScenario],
   );
   const contributionSummary = useMemo(() => {
@@ -410,7 +404,7 @@ export function App() {
       behaviorScenario.units,
     );
     const countyNames = new Map(
-      pennsylvaniaCounties2024.map((county) => [county.fips, county.name]),
+      detailedCounties.map((county) => [county.fips, county.name]),
     );
     const countyTotals = new Map<string, number>();
     let statewideMarginDelta = 0;
@@ -438,15 +432,15 @@ export function App() {
       }))
       .filter((row) => row.marginDelta !== 0)
       .sort((left, right) => Math.abs(right.marginDelta) - Math.abs(left.marginDelta));
-    const vtdByGeoid = new Map(demographicFoundation.vtds.map((vtd) => [vtd.geoid, vtd]));
+    const geographyById = new Map(detailedGeographies.map((geography) => [geography.id, geography]));
     const vtds = contributions
       .filter((contribution) => contribution.geometryId && contribution.marginDelta !== 0)
       .map((contribution) => {
-        const vtd = vtdByGeoid.get(contribution.geometryId!);
-        const countyFips = contribution.countyFips ?? contribution.geometryId!.slice(0, 5);
+        const geography = geographyById.get(contribution.geometryId!);
+        const countyFips = contribution.countyFips ?? geography?.countyFips ?? "";
         return {
           id: contribution.geometryId!,
-          name: vtd?.displayName ?? vtd?.censusName ?? contribution.geometryId!,
+          name: geography?.name ?? contribution.geometryId!,
           context: countyNames.get(countyFips) ?? countyFips,
           countyFips,
           vtdGeoid: contribution.geometryId!,
@@ -461,40 +455,41 @@ export function App() {
       outsideCountyMarginDelta: statewideMarginDelta - countyMappedMarginDelta,
       outsideTerrainMarginDelta: statewideMarginDelta - mappedMarginDelta,
     };
-  }, [behaviorModelUnits, behaviorScenario, demographicFoundation]);
+  }, [behaviorModelUnits, behaviorScenario, demographicFoundation, detailedCounties, detailedGeographies]);
 
-  const selectedActual = states2024.find((state) => state.code === selectedStateCode) ?? paActual;
-  const selectedScenario = scenarioStates.find((state) => state.code === selectedStateCode) ?? paScenario;
-  const selectedActualCounty = pennsylvaniaCounties2024.find(
+  const selectedActual = states2024.find((state) => state.code === selectedStateCode) ?? detailedActual;
+  const selectedScenario = scenarioStates.find((state) => state.code === selectedStateCode) ?? detailedScenario;
+  const selectedActualCounty = detailedCounties.find(
     (county) => county.fips === selectedCountyFips,
   );
-  const selectedScenarioCounty = scenarioPennsylvaniaCounties.find(
+  const selectedScenarioCounty = scenarioDetailedCounties.find(
     (county) => county.fips === selectedCountyFips,
   );
   const selectedVtd = useMemo(
     () => selectedVtdGeoid
-      ? demographicFoundation?.vtds.find((vtd) => vtd.geoid === selectedVtdGeoid)
+      ? detailedGeographies.find((geography) => geography.id === selectedVtdGeoid)
       : undefined,
-    [demographicFoundation, selectedVtdGeoid],
+    [detailedGeographies, selectedVtdGeoid],
   );
   const selectedVtdScenario = selectedVtdGeoid
-    ? scenarioPennsylvaniaVtds.get(selectedVtdGeoid)
+    ? scenarioDetailedGeographies.get(selectedVtdGeoid)
     : undefined;
   const selectedInspector = useMemo(() => {
     if (!demographicFoundation || !behaviorScenario) return null;
     if (selectedVtd) {
-      return buildVtdInspector(
+      return buildDetailedGeographyInspector(
         selectedVtd,
         selectedVtdScenario,
-        selectedActualCounty?.name ?? pennsylvaniaDetailedStateManifest.name,
+        selectedActualCounty?.name ?? activeDetailedStateManifest.name,
         thirdPartyCandidate,
       );
     }
     if (selectedActualCounty && selectedScenarioCounty) {
-      return buildCountyInspector(
+      return buildDetailedCountyInspector(
         selectedActualCounty,
         selectedScenarioCounty,
         demographicFoundation,
+        detailedGeographies,
         behaviorScenario.units,
         thirdPartyCandidate,
       );
@@ -502,14 +497,16 @@ export function App() {
     return null;
   }, [
     behaviorScenario,
+    activeDetailedStateManifest,
     demographicFoundation,
+    detailedGeographies,
     selectedActualCounty,
     selectedScenarioCounty,
     selectedVtd,
     selectedVtdScenario,
     thirdPartyCandidate,
   ]);
-  const paFlipped = paScenario.harrisVotes > paScenario.trumpVotes;
+  const detailedStateFlipped = detailedScenario.harrisVotes > detailedScenario.trumpVotes;
   const scenarioChanged = turnoutIncreasePoints !== 0
     || effectivePreferenceShiftPoints !== 0
     || effectiveThirdPartyShiftPoints !== 0;
@@ -558,14 +555,14 @@ export function App() {
   const readoutShift = readoutActualMargin == null || readoutScenarioMargin == null
     ? null
     : readoutScenarioMargin - readoutActualMargin;
-  const selectedGeographyName = selectedVtd?.displayName
+  const selectedGeographyName = selectedVtd?.name
     ?? selectedActualCounty?.name
     ?? (selectedStateCode ? selectedActual.name : "United States");
 
   function selectState(code: string | null) {
     setSelectedVtdGeoid(null);
     setSelectedStateCode(code);
-    if (code !== pennsylvaniaDetailedStateManifest.code) setSelectedCountyFips(null);
+    if (!isDetailedStateCode(code ?? "")) setSelectedCountyFips(null);
   }
 
   function selectNation() {
@@ -603,7 +600,7 @@ export function App() {
   }
 
   function focusContribution(row: ContributionRow) {
-    setSelectedStateCode(pennsylvaniaDetailedStateManifest.code);
+    setSelectedStateCode(activeDetailedStateCode);
     setSelectedCountyFips(row.countyFips);
     setSelectedVtdGeoid(row.vtdGeoid);
   }
@@ -630,7 +627,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Pennsylvania behavior lab · v0.11</div>
+        <div className="build-status"><span />Two-state behavior lab · v0.13</div>
       </header>
 
       <div className="workbench" id="top">
@@ -657,7 +654,7 @@ export function App() {
             <span className="index">01</span>
             <div>
               <strong>No changes means the actual result.</strong>
-              <p>Pennsylvania reconciles to the certified result, with 98.6% of precinct-file votes linked to audited Census voting-district geometry.</p>
+              <p>Pennsylvania and Michigan reconcile to certified results, with unmatched and non-geographic ballots kept explicit outside the terrain.</p>
             </div>
           </div>
 
@@ -667,7 +664,7 @@ export function App() {
               <li className="complete"><span />Independent product</li>
               <li className="complete"><span />State baseline</li>
               <li className="complete"><span />Deterministic mutation</li>
-              <li className="complete"><span />Pennsylvania reporting units</li>
+              <li className="complete"><span />Pennsylvania and Michigan reporting units</li>
               <li className="complete"><span />Precinct geometry crosswalk</li>
               <li className="complete"><span />Demographic denominator</li>
             </ol>
@@ -682,7 +679,7 @@ export function App() {
                 <button onClick={selectNation} type="button">United States</button>
                 {selectedStateCode && <><span>/</span>{selectedCountyFips ? <button onClick={() => selectCounty(null)} type="button">{selectedActual.name}</button> : <strong>{selectedActual.name}</strong>}</>}
                 {selectedActualCounty && <><span>/</span>{selectedVtd ? <button onClick={() => setSelectedVtdGeoid(null)} type="button">{selectedActualCounty.name}</button> : <strong>{selectedActualCounty.name}</strong>}</>}
-                {selectedVtd && <><span>/</span><strong>{selectedVtd.displayName}</strong></>}
+                {selectedVtd && <><span>/</span><strong>{selectedVtd.name}</strong></>}
               </div>
             </div>
             <div className="segmented" aria-label="Map comparison mode">
@@ -705,13 +702,14 @@ export function App() {
                 activeCountyFips={selectedCountyFips}
                 activePrecinctGeoid={selectedVtdGeoid}
                 activeStateCode={selectedStateCode}
-                actualPennsylvaniaCounties={pennsylvaniaCounties2024}
+                activeDetailedStateManifest={selectedStateCode === activeDetailedStateCode ? activeDetailedStateManifest : null}
+                actualDetailedCounties={detailedCounties}
                 actualStates={states2024}
                 onActiveCountyChange={selectCounty}
                 onActivePrecinctChange={setSelectedVtdGeoid}
                 onActiveStateChange={selectState}
-                scenarioPennsylvaniaCounties={scenarioPennsylvaniaCounties}
-                scenarioPennsylvaniaVtds={scenarioPennsylvaniaVtds}
+                scenarioDetailedCounties={scenarioDetailedCounties}
+                scenarioDetailedGeographies={scenarioDetailedGeographies}
                 scenarioStates={scenarioStates}
                 viewMode={viewMode}
               />
@@ -753,7 +751,7 @@ export function App() {
             <div className="card-heading">
               <div><span className="overline">Your scenario</span><strong>Electoral College</strong></div>
               <div className="scenario-actions">
-                <span className="year-chip">{pennsylvaniaDetailedStateManifest.election.year}</span>
+                <span className="year-chip">{activeDetailedStateManifest.election.year}</span>
                 <button
                   className="share-button"
                   disabled={!demographicFoundation || scenarioPending}
@@ -767,12 +765,12 @@ export function App() {
               <div className="score-divider"><span>270</span></div>
               <div><strong className="rep-text">{scenarioNational.trumpElectoralVotes}</strong><span>Trump</span></div>
             </div>
-            <div className="scenario-message" data-flipped={paFlipped}>
+            <div className="scenario-message" data-flipped={detailedStateFlipped}>
               <span className="message-dot" />
-              {paFlipped
-                ? "Pennsylvania flips to Harris"
+              {detailedStateFlipped
+                ? `${activeDetailedStateManifest.name} flips to Harris`
                 : scenarioChanged
-                  ? "Synthetic Pennsylvania behavior scenario active"
+                  ? `Synthetic ${activeDetailedStateManifest.name} behavior scenario active`
                   : "Scenario matches the certified EV baseline"}
             </div>
             <div className="popular-row">
@@ -831,7 +829,7 @@ export function App() {
               </div>
               <div className="field-label">
                 <span>Geography</span>
-                <strong>{pennsylvaniaDetailedStateManifest.name}</strong>
+                <strong>{activeDetailedStateManifest.name}</strong>
               </div>
               <div className="field-label">
                 <span>Population</span>
@@ -850,9 +848,11 @@ export function App() {
                     : "Loading Census denominator"}</span>
                 <strong>{demographicFoundation
                   ? behaviorEditorMode === "turnout"
-                    ? `${formatNumber(demographicFoundation.totals.denominatorStatus.availableVtdCount)} ready · ${formatNumber(demographicFoundation.totals.denominatorStatus.ballotsExceed2020VapVtdCount)} capped`
+                    ? isPennsylvaniaFoundation(demographicFoundation)
+                      ? `${formatNumber(demographicFoundation.totals.denominatorStatus.availableVtdCount)} ready · ${formatNumber(demographicFoundation.totals.denominatorStatus.ballotsExceed2020VapVtdCount)} capped`
+                      : `${formatNumber(demographicFoundation.totals.denominatorStatus.availablePrecinctCount)} ready · ${formatNumber(demographicFoundation.totals.denominatorStatus.ballotsExceed2020VapPrecinctCount)} capped`
                     : behaviorEditorMode === "preference"
-                      ? `${formatNumber(demographicFoundation.join.mappedElectionGeometryCount)} / ${formatNumber(demographicFoundation.join.geometryFeatureCount)} VTDs`
+                      ? `${formatNumber(demographicFoundation.join.mappedElectionGeometryCount)} / ${formatNumber(demographicFoundation.join.geometryFeatureCount)} mapped precincts`
                       : "Stein · Oliver · residual Other"
                   : "…"}</strong>
               </div>
@@ -924,7 +924,7 @@ export function App() {
                   <div className="effect-grid">
                     <div><span>Added ballots</span><strong>{formatCompact(behaviorScenario?.turnout.addedVotes ?? 0)}</strong></div>
                     <div><span>Available capacity</span><strong>{formatCompact(behaviorScenario?.turnout.capacity ?? 0)}</strong></div>
-                    <div><span>PA result</span><strong>{formatMargin(margin(paScenario))}</strong></div>
+                    <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
                 </>
               ) : behaviorEditorMode === "preference" ? (
@@ -985,7 +985,7 @@ export function App() {
                   <div className="effect-grid">
                     <div><span>Ballots transferred</span><strong>{formatCompact(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))}</strong></div>
                     <div><span>State margin movement</span><strong>{formatMarginVotes(contributionSummary.statewideMarginDelta)}</strong></div>
-                    <div><span>PA result</span><strong>{formatMargin(margin(paScenario))}</strong></div>
+                    <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
                 </>
               ) : (
@@ -1090,7 +1090,7 @@ export function App() {
                   <div className="effect-grid">
                     <div><span>{thirdPartyLabels[thirdPartyCandidate]} votes</span><strong>{formatCompact(thirdPartyScenarioVotes)}</strong></div>
                     <div><span>Ballots exchanged</span><strong>{formatCompact(Math.abs(behaviorScenario?.thirdParty.realizedCandidateDelta ?? 0))}</strong></div>
-                    <div><span>PA result</span><strong>{formatMargin(margin(paScenario))}</strong></div>
+                    <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
                 </>
               )}
@@ -1112,7 +1112,7 @@ export function App() {
               <p className="contribution-definition">Change in the Harris minus Trump vote margin across every active operation.</p>
               <div className="contribution-tabs" aria-label="Contribution geography">
                 <button aria-pressed={contributionScope === "county"} onClick={() => setContributionScope("county")} type="button">Counties</button>
-                <button aria-pressed={contributionScope === "vtd"} onClick={() => setContributionScope("vtd")} type="button">VTDs</button>
+                <button aria-pressed={contributionScope === "vtd"} onClick={() => setContributionScope("vtd")} type="button">Precincts</button>
               </div>
               {contributionRows.length > 0 ? (
                 <ol className="contribution-list">
@@ -1138,7 +1138,7 @@ export function App() {
               <div className="contribution-footnote">
                 <span>{contributionScope === "county"
                   ? "County-linked contributions shown"
-                  : "Top mapped VTDs shown"}</span>
+                  : "Top mapped precincts shown"}</span>
                 {contributionScope === "county" && contributionSummary.outsideCountyMarginDelta !== 0 && (
                   <strong>{formatMarginVotes(contributionSummary.outsideCountyMarginDelta)} statewide-only residual</strong>
                 )}
@@ -1185,11 +1185,11 @@ export function App() {
       <footer className="methodology-footer" id="methodology">
         <div>
           <span className="overline">Baseline sources</span>
-          <a href={pennsylvaniaCountySource.sourceUrl} rel="noreferrer" target="_blank">PA election returns · FEC baseline</a>
+          <a href={detailedSource.sourceUrl} rel="noreferrer" target="_blank">{activeDetailedStateCode} official election returns</a>
           <a href="https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html" rel="noreferrer" target="_blank">Census 2020 P.L. 94-171 P4</a>
         </div>
         <div><span className="overline">Actual national vote</span><strong>{formatNumber(actualNational.totalVotes)} ballots</strong></div>
-        <div><span className="overline">Product status</span><strong>Pennsylvania geography audit · not a forecast</strong></div>
+        <div><span className="overline">Product status</span><strong>PA + MI geography audit · not a forecast</strong></div>
       </footer>
     </main>
   );

@@ -67,6 +67,7 @@ export interface PennsylvaniaResidualModelUnit {
 }
 
 export interface PennsylvaniaDemographicFoundation {
+  stateCode: "PA";
   schemaVersion: number;
   encoding: "vtd-row-v1";
   generatedAt: string;
@@ -607,6 +608,7 @@ export function decodePennsylvaniaDemographicFoundation(
   requireString(source.pipelineVersion, "Pennsylvania demographic pipeline version");
 
   return {
+    stateCode: "PA",
     schemaVersion: PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_SCHEMA_VERSION,
     encoding: PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_ENCODING,
     generatedAt: requireString(document.generatedAt, "Pennsylvania demographic generation time"),

@@ -1,6 +1,6 @@
 # Codex handoff: Sandbox 2.0
 
-Last updated: 2026-08-10
+Last updated: 2026-08-11
 
 ## 1. Product boundary
 
@@ -21,8 +21,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.12.0`, Michigan audited data foundation
-- Previous release commit: `4dd04fd Harden scenario replay and runtime performance`
+- Release: `0.13.0`, Michigan runtime integration
+- Previous release commit: `439db1c Add audited Michigan data foundation`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -44,7 +44,7 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Editorial three-column desktop layout and stacked mobile layout.
 - National 3D state terrain with Actual, Scenario, and Shift modes.
 - State click removes the national layer and transitions into state context.
-- Pennsylvania is the only state currently exposed through detailed runtime and interface adapters. Michigan now has verified county, precinct, exact-cycle geometry, and demographic artifacts, but remains intentionally unregistered until its loader is implemented.
+- Pennsylvania and Michigan are production-detailed states. Selecting either state loads its official county result layer, deterministic worker foundation, contribution trace, inspector, and manifest-driven precinct geometry.
 
 ### Pennsylvania election foundation
 
@@ -184,6 +184,19 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Michigan's official `VTDST` bridge maps 4,050 precinct polygons directly. Another 218 polygons share a 2020 VTD and receive deterministic integer P4 allocations weighted by official 2024 registered voters. Seventy-two polygons have no valid 2020 VTD bridge.
 - The compact `mi-precinct-row-v1` artifact reconstructs the certified baseline from 4,340 geometry rows plus 74 residual units and exposes 2,058,704 ballots of fail-closed turnout capacity.
 - This release adds data pipelines, generated artifacts, provenance registries, artifact tests, and decision 0015. It does not yet register Michigan in the worker or change the visible workbench.
+
+### v0.13 Michigan runtime integration
+
+- `mi-precinct-row-v1` now has a strict runtime decoder that validates schema, field order, identifiers, demographic sums, election-link counts, vote reconciliation, residual units, turnout capacity, and sorted unique geometry IDs.
+- The worker protocol carries a discriminated Pennsylvania-or-Michigan foundation. Loader dispatch is keyed by manifest encoding; deterministic calculation contains no state-code branch.
+- Michigan is registered with 15 electoral votes and the shared dataset version advances to `us2024-pa-vtd2020-mi-precinct2024-v1`. Engine semantics remain `pa-behavior-v1` for backward clarity, despite the historical name.
+- `detailedStateData.ts`, `detailedStatePrecincts.ts`, and `detailedStateInspector.ts` normalize state differences at the application boundary.
+- County scenarios are official county totals plus exact per-unit deltas. This prevents Michigan's central-count and statistical-adjustment geography from being fabricated while keeping the statewide scenario exact.
+- Selecting Michigan replaces the national state layer with 83 official counties. Selecting a county removes the parent layer and opens its audited 2024 precinct shard.
+- Michigan `PRECINCTID` selections round-trip through schema-1 URLs and are validated against their selected county. Pennsylvania alphanumeric Census VTD links remain valid.
+- The inspector works for Michigan direct links, alternate official precinct-key links, weighted demographic splits, unavailable bridges, and explicit off-terrain residual coverage.
+- A shared manifest fetch can no longer be poisoned by React Strict Mode cancellation; per-county geometry requests remain abortable.
+- Unit/model verification now contains 35 tests. Playwright contains five real-browser replays, including three Michigan demographic bridge outcomes and stale worker rejection.
 
 ## 4. Demographic source and limitations
 
@@ -469,8 +482,8 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 9. Known issues and deliberate omissions
 
-1. **Only Pennsylvania is visible as production-detailed.** Michigan's production data artifacts exist, but its runtime loader, manifest registration, active-state adapters, URL contract, map drilldown, and inspector are not implemented yet.
-2. **The worker removes decoding and scenario calculation from the interface thread, but the expanded foundation is still cloned back for map and inspector use.** Measure retained memory and transfer cost again when the second detailed state is added; load detailed states on demand rather than retaining every state automatically.
+1. **Only one detailed state is active at a time.** This is intentional for memory control. A Pennsylvania scenario is not retained after switching to Michigan, and vice versa; persistent multi-state scenario composition needs an explicit product and storage contract.
+2. **The worker removes decoding and scenario calculation from the interface thread, but the expanded active foundation is still cloned back for map and inspector use.** Profile Michigan and Pennsylvania transfer/retained memory before adding a third detailed state.
 3. **The deck.gl chunk is about 1.6 MB minified.** It is already lazy, but further code splitting or bundle review is warranted.
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
 5. **No CVAP or 2024 eligibility estimate exists.** The UI correctly discloses the 2020 VAP limitation.
@@ -482,16 +495,14 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-Michigan has passed the source, geometry, and demographic audit. Do not repeat discovery or rebuild the artifacts unless a source changes. The next engineering phase is runtime and interface integration:
+Pennsylvania and Michigan now pass deterministic runtime and browser replay. Do not rebuild their audited artifacts unless a source changes. The next major phase is a path-to-270 analysis layer:
 
-1. Implement a strict `mi-precinct-row-v1` decoder that returns the shared detailed-state foundation contract and validates field order, demographic sums, model-unit reconstruction, denominator counts, and sorted unique geometry IDs.
-2. Replace the Pennsylvania foundation type in the worker protocol with a discriminated shared detailed-state foundation. Dispatch through a loader registry keyed by `manifest.runtime.loader`; do not add `if stateCode === "MI"` calculation logic.
-3. Register Michigan in `src/data/detailedStateManifest.ts` only after the decoder tests pass. Use a new multi-state data version while retaining deterministic engine semantics.
-4. Generalize county result, precinct loader, contribution, and inspector adapters around the active manifest. Preserve the current Pennsylvania UI exactly.
-5. Let Michigan state selection load its county terrain, then remove the parent county layer when its exact 2024 precinct shard opens. Use `PRECINCTID` as the selected reporting-geography identifier.
-6. Extend the URL codec to validate geography through the active manifest rather than Pennsylvania regex constants.
-7. Add browser replays for Michigan baseline, a direct VTD bridge, a registered-voter-weighted split, an unavailable denominator, and rapid stale-response rejection.
-8. Aggregate only loaded, version-compatible detailed-state scenarios nationally and expose the path to 270 after Pennsylvania and Michigan both pass replay.
+1. Define whether a session may hold scenarios for both detailed states simultaneously. The current memory-safe contract intentionally retains only the active detailed state.
+2. If persistent multi-state scenarios are accepted, store only compact assumption payloads and recompute states on demand. Do not retain two expanded demographic foundations on the interface thread without profiling.
+3. Add an Electoral College consequence panel that explains which active state changed, its EV effect, remaining votes to 270, and the exact scenario assumptions responsible.
+4. Add worker transfer and retained-heap profiling for both Pennsylvania and Michigan, including repeated state switches and aborted county geometry requests.
+5. Generalize internal `vtd` URL and contribution names only with a new URL schema; schema 1 must remain replayable.
+6. Consider a third detailed state only after the active-state memory contract and path-to-270 interface pass browser replay.
 
 Uncertainty remains deferred until the deterministic multi-state contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 

@@ -2,12 +2,12 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.12 Michigan audited data foundation
+## Current release: v0.13 Michigan runtime integration
 
 The current build provides:
 
 - The official 2024 presidential baseline, including a reconciled 312 to 226 Electoral College result.
-- An editorial React and deck.gl workbench with national, Pennsylvania county, and Pennsylvania Census voting-district terrain.
+- An editorial React and deck.gl workbench with national terrain, Pennsylvania county and VTD terrain, and Michigan county and exact-cycle precinct terrain.
 - Official Pennsylvania county summaries and 9,189 normalized election reporting units.
 - A versioned crosswalk connecting 9,038 of 9,178 Census VTD polygons to mapped 2024 results.
 - A Census P.L. 94-171 Table P4 voting-age-population denominator for every 2020 Pennsylvania VTD.
@@ -25,21 +25,21 @@ The current build provides:
 - Fail-closed runtime decoding that verifies field order, GEOIDs, demographic cells, mapped votes, coverage counts, and turnout capacity before enabling controls.
 - Checked-in Playwright replays for the canonical complex scenario, an official alphanumeric VTD, and unsupported-future-version fallback.
 - A reproducible Pennsylvania runtime profiler plus allocation hot-path improvements that preserve the engine's exact integer results.
-- A typed detailed-state manifest that owns Pennsylvania's election, compatibility, runtime-artifact, geography, and source contracts.
+- A typed detailed-state manifest and loader registry that own Pennsylvania and Michigan election, compatibility, runtime-artifact, geography, and source contracts.
 - Dedicated Web Worker decoding and scenario calculation with queued-change coalescing and stale-response rejection.
 - GitHub Actions release gates for model tests, lint, production build, and full browser replay.
 - A checksum-verified Michigan source package that reconciles all 5,664,186 presidential votes across 12 named candidates and 83 counties.
 - Exact-cycle Michigan precinct terrain with 4,339 of 4,340 polygons linked and 99.9979% coverage of votes cast in geographic precinct units.
 - Explicit off-map treatment for Michigan central-count votes, statistical corrections, and 114 unmatched geographic votes.
 - A compact Michigan P.L. 94-171 behavior artifact with direct VTD bridges, documented registered-voter-weighted splits, and unavailable denominators kept fail-closed.
-- Exact scenario aggregation from VTD or residual model units to counties, Pennsylvania, the national popular vote, and the Electoral College.
+- Exact scenario aggregation from mapped or residual model units to counties, the active detailed state, the national popular vote, and the Electoral College.
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
 - Reconciliation, allocation, and zero-change tests.
 
 The Pennsylvania source exposes exact Harris, Trump, Stein, and Oliver results by reporting unit, but does not place every write-in or residual vote by county. The model therefore preserves 24,526 certified residual votes in an explicit statewide bucket instead of inventing a county or precinct location. One Philadelphia reconciliation bucket and every unmatched reporting unit also remain explicit.
 
-Michigan is now selected and built as the second detailed-state data foundation, but it is not yet exposed through the workbench. The next release will add its runtime loader and generalize the Pennsylvania-only interface adapters. See [decision 0015](docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md) for the reconciliation and demographic limitations.
+Michigan is now the second production-detailed state. Selecting it loads the audited county result layer, and selecting a county replaces that parent layer with exact-cycle 2024 precinct terrain. The same deterministic behavior engine, contribution trace, inspector, and URL replay contract operate through state adapters. See [decision 0015](docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md) and [decision 0016](docs/decisions/0016-michigan-runtime-integration.md).
 
 ## Behavior model
 
@@ -51,11 +51,11 @@ The model runs three deliberately separate operations:
 
 The contribution panel ranks the counties or mapped VTDs that most changed the state result. Contribution is defined as the scenario change in `Harris votes - Trump votes`. That definition lets all three operations reconcile in the same unit while retaining their separate meanings.
 
-The model is deterministic and integer-reconciled. With all three operations set to zero, it reproduces Pennsylvania's certified result exactly. Third-party exchanges are counterfactual ballot transfers, not an estimate of which candidate those voters historically preferred.
+The model is deterministic and integer-reconciled. With all three operations set to zero, it reproduces Pennsylvania and Michigan certified results exactly. Third-party exchanges are counterfactual ballot transfers, not an estimate of which candidate those voters historically preferred.
 
 ## Selected-geography inspector
 
-Selecting a Pennsylvania county or pinning a mapped VTD opens an audit panel. It separates certified candidate totals from the scenario, reports the 2020 Census VAP denominator and usable turnout capacity, and attributes the local change to turnout, two-party transfer, and third-party exchange operations.
+Selecting a detailed county or pinning a mapped VTD or precinct opens an audit panel. It separates certified candidate totals from the scenario, reports the 2020 Census VAP denominator and usable turnout capacity, and attributes the local change to turnout, two-party transfer, and third-party exchange operations.
 
 County coverage compares VTD-linked ballots with the official county total. VTD match quality distinguishes exact Census identifiers, unique canonical-name links, mixed links, and polygons with no matched return. Unmatched polygons show an explicit unavailable state. The inspector never assigns non-terrain residual ballots to a polygon.
 
@@ -70,7 +70,7 @@ Compatible links restore locally without a backend. Slider changes replace the c
 Current compatibility contract:
 
 - URL schema: `1`
-- Dataset: `us2024-pa-vtd2020-v2`
+- Dataset: `us2024-pa-vtd2020-mi-precinct2024-v1`
 - Engine: `pa-behavior-v1`
 
 ## Compact demographic runtime
@@ -89,13 +89,13 @@ Coverage is explicit:
 
 ## Reliability and runtime profile
 
-The browser suite opens the real application, waits for the compact demographic artifact, and verifies visible scenario outcomes rather than private component state. It locks the canonical replay to Pennsylvania R +5.8 and the ALEPPO VTD inspector, verifies `4200300A000`, and proves that a future URL schema fails closed to the certified baseline.
+The browser suite opens the real application and verifies visible outcomes rather than private component state. It locks the canonical Pennsylvania replay, verifies alphanumeric VTDs, exercises Michigan direct, weighted-split, and unavailable demographic bridges, rejects stale worker results, and proves that future URL schemas fail closed.
 
 The local profiler covers JSON parsing, fail-closed decoding, model-unit conversion, a complex three-operation scenario, and its contribution audit. On repeated runs on the current Windows development machine, the scenario median fell from about 100 ms to roughly 75 ms and the contribution audit from about 16 ms to under 2 ms. These measurements are diagnostic, not cross-device performance guarantees.
 
 ## Multi-state runtime foundation
 
-Pennsylvania is now registered through a typed state manifest instead of scattered runtime constants. URL compatibility versions, the demographic artifact, precinct geometry manifest, election metadata, and source registries resolve through that contract.
+Pennsylvania and Michigan are registered through typed state manifests instead of scattered runtime constants. URL compatibility versions, demographic artifacts, precinct geometry manifests, election metadata, and source registries resolve through those contracts. The worker dispatches by loader encoding, while map, inspector, contribution, county, and URL adapters consume the active state contract.
 
 The demographic artifact is fetched, decoded, validated, and converted to model units inside a dedicated worker. Scenario requests carry monotonically increasing identifiers. Queued slider changes are coalesced, and the interface accepts only the response matching the newest settings. Share links remain disabled while a result is pending, so a copied URL and the displayed result cannot disagree.
 
@@ -127,6 +127,9 @@ npm run build
 src/App.tsx                         Editorial workbench and scenario state
 src/map/AtlasMapScene.tsx           deck.gl national, county, and VTD renderer
 src/data/paDemographics.ts          Versioned demographic artifact loader
+src/data/miDemographics.ts          Strict Michigan precinct artifact decoder
+src/data/detailedStateData.ts       Shared county, geography, and aggregation adapters
+src/data/detailedStatePrecincts.ts  Manifest-driven lazy precinct geometry loader
 src/data/detailedStateManifest.ts   Typed state registration and asset contracts
 src/data/scenarioUrl.ts             Versioned scenario URL codec and compatibility policy
 src/runtime/                         Worker protocol, scenario runtime, and React bridge
@@ -205,10 +208,11 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `docs/decisions/0013-browser-replay-and-runtime-profile.md`
 - `docs/decisions/0014-manifest-driven-worker-runtime.md`
 - `docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md`
+- `docs/decisions/0016-michigan-runtime-integration.md`
 
 ## Next increment
 
-Implement the Michigan runtime loader and manifest entry, then replace Pennsylvania-only map, aggregation, inspector, and URL adapters with active-state implementations. Multi-state national aggregation and a path-to-270 view follow after both detailed states replay deterministically.
+Build the path-to-270 analysis layer on top of the now-deterministic two-state runtime. It should explain which active detailed-state scenarios move Electoral College control, while retaining one loaded detailed state at a time and never implying uncertainty that the model does not estimate.
 
 ## Primary sources
 
