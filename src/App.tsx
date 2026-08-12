@@ -77,6 +77,9 @@ import {
   type PathTo270Route,
   type RouteMetric,
 } from "./data/pathTo270.ts";
+import { installRuntimeDiagnosticsHook } from "./runtime/runtimeDiagnostics.ts";
+
+installRuntimeDiagnosticsHook();
 
 type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
@@ -836,7 +839,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Geographic path lab · v0.17</div>
+        <div className="build-status"><span />Private alpha hardening · v0.18</div>
       </header>
 
       <div className="workbench" id="top">

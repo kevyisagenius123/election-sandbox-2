@@ -17,6 +17,7 @@ export interface DetailedStateManifest {
   runtime: {
     loader: DetailedStateRuntimeLoader;
     artifactPath: string;
+    artifactByteSize: number;
     schemaVersion: number;
     encoding: string;
   };
@@ -46,6 +47,7 @@ export const pennsylvaniaDetailedStateManifest = Object.freeze({
   runtime: {
     loader: "pa-vtd-row-v1",
     artifactPath: "data/pa/2020/vtd-demographics.json",
+    artifactByteSize: 874568,
     schemaVersion: 3,
     encoding: "vtd-row-v1",
   },
@@ -75,6 +77,7 @@ export const michiganDetailedStateManifest = Object.freeze({
   runtime: {
     loader: "mi-precinct-row-v1",
     artifactPath: "data/mi/2020/precinct-demographics.json",
+    artifactByteSize: 628735,
     schemaVersion: 1,
     encoding: "mi-precinct-row-v1",
   },

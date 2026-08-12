@@ -362,6 +362,7 @@ input:focus-visible {
 .map-column {
   display: flex;
   min-width: 0;
+  align-self: start;
   flex-direction: column;
 }
 
@@ -2501,6 +2502,42 @@ input[type="range"]:disabled {
   }
 }
 
+@media (min-width: 1081px) and (max-width: 1350px) {
+  .workbench {
+    grid-template-columns: minmax(190px, 0.55fr) minmax(430px, 1.35fr) minmax(335px, 0.9fr);
+    gap: 18px;
+    padding-right: 22px;
+    padding-left: 22px;
+  }
+
+  .editorial-column h1 {
+    font-size: clamp(43px, 4vw, 52px);
+  }
+
+  .lede {
+    font-size: 12px;
+  }
+
+  .principle-note,
+  .foundation-progress {
+    display: none;
+  }
+
+  .map-stage {
+    min-height: 500px;
+  }
+
+  .route-states > div,
+  .route-states > button {
+    grid-template-columns: minmax(80px, 1.2fr) repeat(2, minmax(50px, 0.8fr)) auto;
+  }
+
+  .route-states > div > span:nth-child(4),
+  .route-states > button > span:nth-child(4) {
+    grid-column: 2 / 4;
+  }
+}
+
 @media (max-width: 1080px) {
   .masthead {
     grid-template-columns: 1fr auto;
@@ -2693,5 +2730,9 @@ input[type="range"]:disabled {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .route-progress-track span {
+    transition: none !important;
   }
 }

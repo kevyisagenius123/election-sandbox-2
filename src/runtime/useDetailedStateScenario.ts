@@ -13,6 +13,7 @@ import type {
   DetailedStateWorkerRequest,
   DetailedStateWorkerResponse,
 } from "./detailedStateWorkerProtocol.ts";
+import { registerDetailedWorker, startScenarioRequest } from "./runtimeDiagnostics.ts";
 
 interface DetailedStateScenarioRuntime {
   foundation: DetailedStateFoundation | null;
@@ -51,6 +52,7 @@ export function useDetailedStateScenario(
   const readyRef = useRef(false);
   const sequenceRef = useRef(0);
   const requestSignaturesRef = useRef(new Map<number, string>());
+  const requestFinishersRef = useRef(new Map<number, () => void>());
   const latestSettingsRef = useRef(settings);
   const latestSignature = settingsSignature(settings);
   const latestSignatureRef = useRef(latestSignature);
@@ -71,19 +73,28 @@ export function useDetailedStateScenario(
       new URL("./detailedStateScenario.worker.ts", import.meta.url),
       { type: "module", name: `${manifest.code.toLowerCase()}-scenario-runtime` },
     );
+    const releaseWorkerDiagnostic = registerDetailedWorker(
+      manifest.code,
+      manifest.runtime.artifactByteSize,
+    );
     workerRef.current = worker;
     readyRef.current = false;
     const requestSignatures = requestSignaturesRef.current;
+    const requestFinishers = requestFinishersRef.current;
     const initialRequestId = ++sequenceRef.current;
     const initialSignature = latestSignatureRef.current;
     requestSignatures.set(initialRequestId, initialSignature);
+    requestFinishers.set(initialRequestId, startScenarioRequest());
 
     function sendLatestCalculation() {
       const activeWorker = workerRef.current;
       if (!activeWorker || !readyRef.current) return;
       const requestId = ++sequenceRef.current;
+      for (const finishRequest of requestFinishers.values()) finishRequest();
+      requestFinishers.clear();
       requestSignatures.clear();
       requestSignatures.set(requestId, latestSignatureRef.current);
+      requestFinishers.set(requestId, startScenarioRequest());
       const request: DetailedStateWorkerRequest = {
         type: "calculate",
         requestId,
@@ -95,6 +106,8 @@ export function useDetailedStateScenario(
 
     worker.onmessage = (event: MessageEvent<DetailedStateWorkerResponse>) => {
       const response = event.data;
+      requestFinishers.get(response.requestId)?.();
+      requestFinishers.delete(response.requestId);
       const responseSignature = requestSignatures.get(response.requestId);
       requestSignatures.delete(response.requestId);
       if (response.type === "error") {
@@ -139,6 +152,8 @@ export function useDetailedStateScenario(
       }));
     };
     worker.onerror = () => {
+      for (const finishRequest of requestFinishers.values()) finishRequest();
+      requestFinishers.clear();
       setRuntime((current) => ({
         ...current,
         stateCode: manifest.code,
@@ -157,17 +172,23 @@ export function useDetailedStateScenario(
 
     return () => {
       worker.terminate();
+      releaseWorkerDiagnostic();
       workerRef.current = null;
       readyRef.current = false;
       requestSignatures.clear();
+      for (const finishRequest of requestFinishers.values()) finishRequest();
+      requestFinishers.clear();
     };
   }, [artifactUrl, manifest]);
 
   useEffect(() => {
     if (!readyRef.current || !workerRef.current) return;
     const requestId = ++sequenceRef.current;
+    for (const finishRequest of requestFinishersRef.current.values()) finishRequest();
+    requestFinishersRef.current.clear();
     requestSignaturesRef.current.clear();
     requestSignaturesRef.current.set(requestId, latestSignature);
+    requestFinishersRef.current.set(requestId, startScenarioRequest());
     const request: DetailedStateWorkerRequest = {
       type: "calculate",
       requestId,

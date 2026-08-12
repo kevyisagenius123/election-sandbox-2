@@ -1,6 +1,6 @@
 {
   "name": "election-sandbox-2",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -15,6 +15,7 @@
     "data:mi:geometry": "node scripts/build-michigan-2024-precinct-geometry.mjs",
     "data:mi:demographics": "node scripts/import-michigan-2020-pl94-demographics.mjs",
     "profile:pa": "node --experimental-strip-types --expose-gc scripts/profile-pennsylvania-runtime.mjs",
+    "profile:runtime": "node scripts/run-runtime-profile.mjs",
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:browser": "playwright test",

@@ -1,6 +1,6 @@
 # Codex handoff: Sandbox 2.0
 
-Last updated: 2026-08-11
+Last updated: 2026-08-12
 
 ## 1. Product boundary
 
@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.17.0`, geographic route construction
+- Release: `0.18.0`, private-alpha hardening
 - Previous release commit: `439db1c Add audited Michigan data foundation`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
@@ -539,10 +539,11 @@ v0.17 additionally adds or changes:
 
 ## 8. Verification state
 
-CLI verification for v0.17:
+CLI verification for v0.18:
 
 - `npm test`: 47 tests pass, including route construction transitions, exact gap arithmetic, replay, split-allocation rejection, and Electoral College invariants.
-- `npm run test:browser`: 8 browser replays pass, including Required to Modeled to Satisfied construction, reload, and reversal.
+- `npm run test:browser`: 17 browser checks cover the original eight journeys, deterministic and hostile runtime ownership, six responsive baselines, and reduced motion.
+- `npm run profile:runtime`: 35 cycles pass; measured median heap growth is 1,170,964 bytes / 2.61%, retained-heap slope is 75,047 bytes per cycle, and cycle-time p95 is 7,279 ms.
 - `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
@@ -606,22 +607,21 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 7. **Residual Other has no historical county geography.** Keep its certified baseline statewide-only; scenario additions may be geographically allocated only as explicitly counterfactual exchanges.
 8. **A balanced third-party exchange can have zero `Harris - Trump` contribution.** This is correct even when exchanged ballot volume is large; the editor displays that volume separately.
 9. **No backend-stored scenarios, authentication, or deployment exist.** Deterministic scenario URLs are client-side and require a compatible build.
-10. **Source redistribution status still needs a formal public-release review.** Official provenance and checksums are present, but legal review is not encoded in code.
+10. **Source redistribution status blocks an open public data release.** `docs/data/REDISTRIBUTION_INVENTORY.md` records the current review and approved delivery decisions; provenance alone is not treated as permission.
 
 ## 10. Exact next phase
 
-The v0.17 geographic route workflow is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next bounded release should be v0.18 private-alpha hardening:
+v0.18 is the engineering gate for a small task-based private alpha. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes, and do not register State #3 yet.
 
-1. Add an automated repeated PA and MI route-switch stress journey that records worker count, retained heap, geometry-cache occupancy, and WebGL context behavior.
-2. Establish explicit pass or fail budgets from repeated local runs instead of relying on a single anecdotal profile.
-3. Audit the 801 to 1350 pixel layout range, where the three-column editorial composition is denser than desktop or phone layouts.
-4. Add visual regression references for the national route, an insufficient detailed-state route, and a satisfied detailed-state route.
-5. Review the deck.gl lazy chunk and identify safe additional splitting without delaying the first interactive map.
-6. Formalize the source, reconciliation, exact-cycle geometry, demographic bridge, runtime size, and browser-test gates required before a third detailed state can register.
-7. Keep unsupported route states mathematical until one passes that complete production foundation checklist.
-8. Complete the public data-redistribution review before describing the repository as production deployable.
+1. Recruit five to ten mixed users: election specialists, technical users, a casual politics user, and a GIS or data reviewer where possible.
+2. Give tasks instead of a feature tour: flip Pennsylvania, find the lowest-net-margin-vote route, stop a supported state short and explain its remaining gap, restore a shared URL, and identify the largest geographic contributions.
+3. Observe completion, wrong mental models, terminology confusion, trust questions, and failures to find the next control.
+4. Separate product-comprehension findings from defects and data questions; prioritize blockers before polish.
+5. Clear the redistribution inventory for the actual alpha delivery model before sending builds or hosted data externally.
+6. Re-run model, browser, visual, bundle, and controlled runtime gates after any alpha-driven changes.
+7. Choose State #3 only after the alpha findings are triaged and that state's admission checklist and exception record pass.
 
-Uncertainty remains deferred until the deterministic multi-state contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
+Uncertainty remains deferred. It must be separately switchable, seeded, calibrated, and clearly distinguished from deterministic scenario construction; decorative random noise is prohibited.
 
 ## 11. Commands
 
@@ -632,6 +632,7 @@ npm run dev
 npm test
 npm run test:browser
 npm run profile:pa
+npm run profile:runtime
 npm run lint
 npm run build
 ```

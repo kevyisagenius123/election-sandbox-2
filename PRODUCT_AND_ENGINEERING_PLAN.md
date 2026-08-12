@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.17 Geographic route construction
+**Status:** v0.18 Private-alpha hardening
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -19,6 +19,8 @@
 ### Current implementation note
 
 Version 0.17 completes the first geographic Path to 270 workflow. A selected route persists as state codes while all progress is reconstructed from certified results and verified recipes. Supported Pennsylvania and Michigan requirements open their existing laboratories, report exact modeled movement and remaining gap, and become Satisfied only after a deterministic winner change. National route markers expose status without relying on color alone. Unsupported states remain mathematical and non-geographic.
+
+Version 0.18 hardens that two-state portfolio for a small external alpha. A deterministic 35-cycle browser profile now enforces worker, WebGL, cache, request, animation, heap-growth, and latency budgets. Hostile state replacement proves delayed geometry cannot reclaim ownership. Six committed responsive baselines cover 390 through 1350 pixels with WebGL masked and map semantics asserted separately. Detailed-state admission, state exceptions, and redistribution review are now explicit product gates. No third detailed state was added.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 
@@ -890,7 +892,7 @@ Pennsylvania is the first end-to-end pilot. It provides competitive statewide po
 
 Pennsylvania and Michigan establish the first persistent multi-state scenario. Arizona, Georgia, Wisconsin, and later states extend the same architecture only after the portfolio foundation is proven.
 
-**Implementation status:** v0.14 Portfolio foundation, v0.15 Consequence ledger, v0.16 Route engine, and v0.17 Geographic route construction are complete.
+**Implementation status:** v0.14 Portfolio foundation, v0.15 Consequence ledger, v0.16 Route engine, v0.17 Geographic route construction, and v0.18 Private-alpha hardening are complete.
 
 The milestone is released in four bounded increments:
 
@@ -898,6 +900,7 @@ The milestone is released in four bounded increments:
 - **v0.15 Consequence ledger**: baseline delta, changed-state causal ledger, EV needed, exact-threshold and 269-269 handling.
 - **v0.16 Route engine**: Actual, Modeled, and Required classifications; bounded deterministic route enumeration; selectable ranking metrics. Complete.
 - **v0.17 Geographic route construction**: selected routes persist, supported rows open detailed state labs, live gaps remain explicit, and only verified winner changes satisfy route contributions. Complete.
+- **v0.18 Private-alpha hardening**: deterministic lifecycle stress and hostile navigation, written resource and performance budgets, responsive and reduced-motion visual gates, state-admission exceptions, and redistribution inventory. Complete.
 
 **Deliverables**
 

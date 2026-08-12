@@ -28,6 +28,12 @@ import type { DetailedStateManifest } from "../data/detailedStateManifest.ts";
 import type { StateDatum } from "../data/states.ts";
 import type { RouteConstructionStatus } from "../data/pathTo270.ts";
 import {
+  publishMapLayerIds,
+  registerMapMount,
+  setMapAnimation,
+  setMapWebglContext,
+} from "../runtime/runtimeDiagnostics.ts";
+import {
   atlasController,
   countyFeatures,
   featureBounds,
@@ -91,6 +97,7 @@ export function AtlasMapScene({
   onActiveCountyChange,
   onActivePrecinctChange,
 }: AtlasMapSceneProps) {
+  const diagnosticTokenRef = useRef(Symbol("atlas-map"));
   const shellRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const viewFrameRef = useRef<number | null>(null);
@@ -201,7 +208,10 @@ export function AtlasMapScene({
   );
 
   const animateCamera = useCallback((destination: AtlasViewState, duration = 780) => {
-    if (cameraAnimationRef.current != null) window.cancelAnimationFrame(cameraAnimationRef.current);
+    if (cameraAnimationRef.current != null) {
+      window.cancelAnimationFrame(cameraAnimationRef.current);
+      setMapAnimation(diagnosticTokenRef.current, "camera", false);
+    }
     const start = performance.now();
     const origin = cameraRef.current;
     const originTarget = [...origin.target] as [number, number, number];
@@ -222,10 +232,19 @@ export function AtlasMapScene({
       cameraRef.current = next;
       setViewState(next);
       if (progress < 1) cameraAnimationRef.current = window.requestAnimationFrame(frame);
-      else cameraAnimationRef.current = null;
+      else {
+        cameraAnimationRef.current = null;
+        setMapAnimation(diagnosticTokenRef.current, "camera", false);
+      }
     };
 
+    setMapAnimation(diagnosticTokenRef.current, "camera", true);
     cameraAnimationRef.current = window.requestAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    const registration = registerMapMount(diagnosticTokenRef.current);
+    return registration.release;
   }, []);
 
   const destinationForBounds = useCallback((
@@ -340,13 +359,16 @@ export function AtlasMapScene({
   useEffect(() => {
     const shell = shellRef.current;
     if (!shell || activeStateCode) return;
+    const diagnosticToken = diagnosticTokenRef.current;
     const updateNationalView = () => {
       if (layoutFrameRef.current != null) window.cancelAnimationFrame(layoutFrameRef.current);
+      setMapAnimation(diagnosticToken, "layout", true);
       layoutFrameRef.current = window.requestAnimationFrame(() => {
         const next = nationalDestination();
         cameraRef.current = next;
         setViewState(next);
         layoutFrameRef.current = null;
+        setMapAnimation(diagnosticToken, "layout", false);
       });
     };
     updateNationalView();
@@ -356,6 +378,7 @@ export function AtlasMapScene({
       resizeObserver.disconnect();
       if (layoutFrameRef.current != null) window.cancelAnimationFrame(layoutFrameRef.current);
       layoutFrameRef.current = null;
+      setMapAnimation(diagnosticToken, "layout", false);
     };
   }, [activeStateCode, nationalDestination]);
 
@@ -416,6 +439,10 @@ export function AtlasMapScene({
     layoutFrameRef.current = null;
     cameraAnimationRef.current = null;
     pendingViewRef.current = null;
+    setMapAnimation(diagnosticTokenRef.current, "camera", false);
+    setMapAnimation(diagnosticTokenRef.current, "layout", false);
+    setMapAnimation(diagnosticTokenRef.current, "view", false);
+    setMapWebglContext(diagnosticTokenRef.current, false);
   }, []);
 
   const layers = useMemo(() => {
@@ -667,6 +694,13 @@ export function AtlasMapScene({
     viewMode,
   ]);
 
+  useEffect(() => {
+    publishMapLayerIds(
+      diagnosticTokenRef.current,
+      layers.map((layer) => String(layer.id)),
+    );
+  }, [layers]);
+
   const inspectedCountyFips = hoveredCountyFips;
   const inspectedActualCounty = inspectedCountyFips ? actualCountyByFips.get(inspectedCountyFips) : undefined;
   const inspectedScenarioCounty = inspectedCountyFips ? scenarioCountyByFips.get(inspectedCountyFips) : undefined;
@@ -691,6 +725,7 @@ export function AtlasMapScene({
         effects={atlasEffects}
         getCursor={({ isDragging, isHovering }) => isDragging ? "grabbing" : isHovering ? "pointer" : "grab"}
         layers={layers}
+        onWebGLInitialized={() => setMapWebglContext(diagnosticTokenRef.current, true)}
         onClick={(info) => {
           if (info.object) return;
           if (activeCountyFips) {
@@ -703,13 +738,16 @@ export function AtlasMapScene({
           if (interactionState.isDragging || interactionState.isZooming) {
             if (cameraAnimationRef.current != null) window.cancelAnimationFrame(cameraAnimationRef.current);
             cameraAnimationRef.current = null;
+            setMapAnimation(diagnosticTokenRef.current, "camera", false);
           }
           const nextView = next as unknown as AtlasViewState;
           cameraRef.current = nextView;
           pendingViewRef.current = nextView;
           if (viewFrameRef.current == null) {
+            setMapAnimation(diagnosticTokenRef.current, "view", true);
             viewFrameRef.current = window.requestAnimationFrame(() => {
               viewFrameRef.current = null;
+              setMapAnimation(diagnosticTokenRef.current, "view", false);
               if (pendingViewRef.current) setViewState(pendingViewRef.current);
             });
           }

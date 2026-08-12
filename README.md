@@ -2,7 +2,9 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.17 Geographic route construction
+## Current release: v0.18 Private-alpha hardening
+
+v0.18 proves the existing Pennsylvania and Michigan portfolio can survive sustained real-browser use before a third detailed state is admitted. It adds a narrow immutable development diagnostic contract, a deterministic PA/MI lifecycle profile with written heap and latency budgets, hostile stale-request replacement, six responsive visual baselines from 390 to 1350 pixels, and audited state-admission, exception, and redistribution records. A medium-screen grid defect that stretched the 3D map to the full editor height was found and fixed during acceptance testing.
 
 The current build provides:
 
@@ -166,6 +168,7 @@ The local application runs at `http://127.0.0.1:4173`.
 npm test
 npm run test:browser
 npm run profile:pa
+npm run profile:runtime
 npm run lint
 npm run build
 ```
@@ -265,10 +268,15 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `docs/decisions/0018-electoral-consequence-ledger.md`
 - `docs/decisions/0019-deterministic-path-to-270.md`
 - `docs/decisions/0020-geographic-route-construction.md`
+- `docs/decisions/0021-private-alpha-hardening.md`
+- `docs/operations/RUNTIME_BUDGETS.md`
+- `docs/data/DETAILED_STATE_ADMISSION.md`
+- `docs/data/STATE_EXCEPTIONS.md`
+- `docs/data/REDISTRIBUTION_INVENTORY.md`
 
 ## Next increment
 
-Harden the completed multi-state private alpha before adding another detailed state. The next bounded increment should automate repeated PA and MI switching profiles, verify worker and WebGL resource release under stress, improve medium-width layout behavior, and define the audited data-foundation checklist for the third state. No third state should be registered until those gates pass.
+Run a task-based private alpha with five to ten deliberately mixed users. Observe whether they can change Pennsylvania, build a route to 270, stop short of a flip and explain the remaining gap, reopen a shared portfolio URL, and identify its leading county or precinct contributions without a guided tour. Log comprehension failures separately from defects. Do not add a third detailed state until the alpha findings are triaged and the redistribution inventory is cleared for the intended delivery model.
 
 ## Primary sources
 

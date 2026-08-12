@@ -1,6 +1,7 @@
 import type { FeatureCollection, Geometry } from "geojson";
 import { feature } from "topojson-client";
 import type { DetailedStateManifest } from "./detailedStateManifest.ts";
+import { publishGeometryCache, startGeometryFetch } from "../runtime/runtimeDiagnostics.ts";
 
 type TopologySource = Parameters<typeof feature>[0];
 type TopologyGeometry = Parameters<typeof feature>[1];
@@ -59,6 +60,13 @@ const manifestCache = new Map<string, Promise<DetailedPrecinctManifestDocument>>
 const countyCache = new Map<string, LoadedDetailedPrecinctCounty>();
 const MAX_CACHED_COUNTY_SHARDS = 6;
 
+function publishCacheDiagnostics() {
+  publishGeometryCache(
+    countyCache.size,
+    [...countyCache.values()].reduce((sum, county) => sum + county.metadata.byteSize, 0),
+  );
+}
+
 function cacheCounty(key: string, county: LoadedDetailedPrecinctCounty) {
   countyCache.delete(key);
   countyCache.set(key, county);
@@ -67,6 +75,7 @@ function cacheCounty(key: string, county: LoadedDetailedPrecinctCounty) {
     if (!oldestKey) break;
     countyCache.delete(oldestKey);
   }
+  publishCacheDiagnostics();
 }
 
 function publicUrl(path: string) {
@@ -78,6 +87,7 @@ function loadManifest(manifest: DetailedStateManifest) {
   const key = manifest.code;
   let request = manifestCache.get(key);
   if (!request) {
+    const finishFetch = startGeometryFetch();
     request = fetch(publicUrl(manifest.geography.precinctGeometryManifestPath))
       .then((response) => {
         if (!response.ok) throw new Error(`Precinct manifest request failed with ${response.status}`);
@@ -86,7 +96,8 @@ function loadManifest(manifest: DetailedStateManifest) {
       .catch((error) => {
         manifestCache.delete(key);
         throw error;
-      });
+      })
+      .finally(finishFetch);
     manifestCache.set(key, request);
   }
   return request;
@@ -107,9 +118,15 @@ export async function loadDetailedPrecinctCounty(
   if (document.stateCode !== manifest.code) throw new Error("Precinct manifest state mismatch");
   const metadata = document.counties.find((county) => county.countyFips === countyFips);
   if (!metadata) throw new Error(`No ${manifest.name} precinct geometry for ${countyFips}`);
-  const response = await fetch(publicUrl(metadata.dataUrl), { signal });
-  if (!response.ok) throw new Error(`Precinct geometry request failed with ${response.status}`);
-  const source = await response.json() as TopologySource;
+  const finishFetch = startGeometryFetch();
+  let source: TopologySource;
+  try {
+    const response = await fetch(publicUrl(metadata.dataUrl), { signal });
+    if (!response.ok) throw new Error(`Precinct geometry request failed with ${response.status}`);
+    source = await response.json() as TopologySource;
+  } finally {
+    finishFetch();
+  }
   const object = (source.objects as Record<string, TopologyGeometry | undefined>).precincts;
   if (!object) throw new Error(`Precinct topology ${countyFips} has no precincts object`);
   const loaded = {
@@ -125,6 +142,7 @@ export function releaseDetailedPrecinctState(stateCode: string) {
   for (const key of countyCache.keys()) {
     if (key.startsWith(prefix)) countyCache.delete(key);
   }
+  publishCacheDiagnostics();
 }
 
 export function detailedPrecinctCacheSize() {

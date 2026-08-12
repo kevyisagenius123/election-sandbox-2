@@ -8,6 +8,7 @@ import {
   type StateScenarioRecipe,
   type StateScenarioSummary,
 } from "../data/scenarioPortfolio.ts";
+import { registerPortfolioWorker, startScenarioRequest } from "./runtimeDiagnostics.ts";
 
 interface PortfolioWorkerResponse {
   type: "complete" | "error";
@@ -39,9 +40,15 @@ export function useScenarioPortfolio(recipes: readonly StateScenarioRecipe[]) {
       new URL("./scenarioPortfolio.worker.ts", import.meta.url),
       { type: "module", name: "scenario-portfolio-hydrator" },
     );
+    const releaseWorkerDiagnostic = registerPortfolioWorker(recipes.reduce(
+      (sum, recipe) => sum + getDetailedStateManifest(recipe.stateCode).runtime.artifactByteSize,
+      0,
+    ));
+    const finishRequestDiagnostic = startScenarioRequest();
     const requestId = ++sequenceRef.current;
     worker.onmessage = (event: MessageEvent<PortfolioWorkerResponse>) => {
       if (event.data.requestId !== requestId) return;
+      finishRequestDiagnostic();
       if (event.data.type === "error") {
         setPublished({ signature, summaries: new Map(), error: event.data.message ?? "Portfolio hydration failed" });
         return;
@@ -53,6 +60,7 @@ export function useScenarioPortfolio(recipes: readonly StateScenarioRecipe[]) {
       });
     };
     worker.onerror = () => {
+      finishRequestDiagnostic();
       setPublished({ signature, summaries: new Map(), error: "Portfolio worker could not complete hydration" });
     };
     const entries = recipes.map((recipe) => ({
@@ -64,7 +72,11 @@ export function useScenarioPortfolio(recipes: readonly StateScenarioRecipe[]) {
       ),
     }));
     worker.postMessage({ type: "hydrate", requestId, entries });
-    return () => worker.terminate();
+    return () => {
+      finishRequestDiagnostic();
+      worker.terminate();
+      releaseWorkerDiagnostic();
+    };
   }, [recipes, signature]);
 
   if (published.signature !== signature) {
