@@ -1,7 +1,9 @@
 # v0.19B Human Alpha Report
 
-**Product build:** v0.19.1  
-**Research status:** Not started  
+**Product build:** v0.19.1
+
+**Research status:** Not started
+
 **Recommendation:** Pending human evidence
 
 This file is the fixed report shell for the first human cycle. Do not enter names, contact details, recordings, IP addresses, or unredacted scenario URLs.

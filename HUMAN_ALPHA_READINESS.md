@@ -1,7 +1,9 @@
 # v0.19B Human Alpha Readiness
 
-**Prepared:** 2026-08-12  
-**Product build:** v0.19.1  
+**Prepared:** 2026-08-12
+
+**Product build:** v0.19.1
+
 **Phase status:** Authorized to enter human testing; participant delivery remains blocked
 
 ## What is ready

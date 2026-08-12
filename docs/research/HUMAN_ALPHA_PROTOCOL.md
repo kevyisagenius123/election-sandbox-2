@@ -1,8 +1,11 @@
 # v0.19B Human Alpha Protocol
 
-**Release under test:** v0.19.1 Alpha Comprehension and Trust Corrections  
-**Research phase:** v0.19B  
-**Status:** Ready to schedule after the delivery and redistribution gate is cleared  
+**Release under test:** v0.19.1 Alpha Comprehension and Trust Corrections
+
+**Research phase:** v0.19B
+
+**Status:** Ready to schedule after the delivery and redistribution gate is cleared
+
 **Canonical public entry:** `https://kevyisagenius123.github.io/election-sandbox-2/app/`
 
 ## Purpose
