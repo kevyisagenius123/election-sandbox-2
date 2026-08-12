@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.18 Private-alpha hardening
+**Status:** v0.18.2 Editorial Home and United States Laboratory
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -20,7 +20,9 @@
 
 Version 0.17 completes the first geographic Path to 270 workflow. A selected route persists as state codes while all progress is reconstructed from certified results and verified recipes. Supported Pennsylvania and Michigan requirements open their existing laboratories, report exact modeled movement and remaining gap, and become Satisfied only after a deterministic winner change. National route markers expose status without relying on color alone. Unsupported states remain mathematical and non-geographic.
 
-Version 0.18 hardens that two-state portfolio for a small external alpha. A deterministic 35-cycle browser profile now enforces worker, WebGL, cache, request, animation, heap-growth, and latency budgets. Hostile state replacement proves delayed geometry cannot reclaim ownership. Six committed responsive baselines cover 390 through 1350 pixels with WebGL masked and map semantics asserted separately. Detailed-state admission, state exceptions, and redistribution review are now explicit product gates. No third detailed state was added.
+Version 0.18 hardens that two-state portfolio for a small external alpha. A deterministic 35-cycle browser profile now enforces worker, WebGL, cache, request, animation, heap-growth, and latency budgets. Hostile state replacement proves delayed geometry cannot reclaim ownership. Detailed-state admission, state exceptions, and redistribution review are explicit product gates. No third detailed state was added.
+
+Version 0.18.1 replaces the detailed-state long page with a fixed viewport Laboratory, bounded national-consequence rail, and collapsed, working, or expanded bottom drawer. Version 0.18.2 then separates the editorial Home from analytical geography. `/` introduces Sandbox; `/app/` is the direct United States Laboratory and shared-scenario entry. National, state, county, and reporting-unit geographies now use the same analytical shell without remounting the renderer or model foundations. Home/Laboratory presentation remains workspace state and is never serialized into an election recipe.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

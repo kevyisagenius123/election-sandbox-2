@@ -1,6 +1,6 @@
 {
   "name": "election-sandbox-2",
-  "version": "0.18.1",
+  "version": "0.18.2",
   "private": true,
   "type": "module",
   "engines": {
@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:pages": "tsc --noEmit && vite build --base=/election-sandbox-2/",
     "data:pa:demographics": "node scripts/import-pennsylvania-2020-pl94-demographics.mjs",
     "data:pa:geometry": "node scripts/build-pennsylvania-vtd-geometry.mjs",
     "data:mi:results": "node scripts/import-michigan-2024.mjs",

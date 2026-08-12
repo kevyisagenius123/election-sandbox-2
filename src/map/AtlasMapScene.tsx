@@ -390,8 +390,10 @@ export function AtlasMapScene({
         maxZoom: 2.25,
         rotationX: 58,
       }), 520);
+      return;
     }
-  }, [activeCountyFips, activeStateFeature, animateCamera, destinationForBounds, fitSelectionRequest, precinctCounty]);
+    animateCamera(nationalDestination(), 520);
+  }, [activeCountyFips, activeStateFeature, animateCamera, destinationForBounds, fitSelectionRequest, nationalDestination, precinctCounty]);
 
   useEffect(() => {
     if (!activeStateCode) return;

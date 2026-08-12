@@ -80,12 +80,138 @@ input:focus-visible {
 }
 
 .brand {
+  padding: 0;
+  border: 0;
+  background: transparent;
   width: fit-content;
   display: flex;
   align-items: center;
   gap: 14px;
   color: var(--ink);
   text-decoration: none;
+}
+
+.open-sandbox-button {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 12px 16px;
+  border: 1px solid rgba(31, 78, 97, 0.22);
+  border-radius: 999px;
+  color: white;
+  background: #28576b;
+  box-shadow: 0 10px 26px rgba(22, 56, 74, 0.14);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.supported-state-links {
+  grid-template-columns: 1fr 1fr;
+}
+
+.supported-state-links > span {
+  grid-column: 1 / -1;
+  color: #72868e;
+  font-family: "DM Mono", monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.national-operation-note,
+.national-drawer-summary,
+.national-portfolio-contributors {
+  max-width: 980px;
+  margin: 0 auto 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(241, 244, 239, 0.75);
+}
+
+.national-operation-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.national-operation-note > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.national-operation-note > div:first-child {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.national-operation-note button {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: #416574;
+  background: var(--paper);
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.national-operation-note span,
+.national-drawer-summary p,
+.national-portfolio-contributors p {
+  color: #6d8189;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.national-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin: 14px 0;
+  background: var(--line);
+}
+
+.national-summary-grid span {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  background: var(--paper);
+}
+
+.national-summary-grid small,
+.national-portfolio-contributors small {
+  color: #778a92;
+  font-size: 8px;
+}
+
+.national-portfolio-contributors > button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.national-portfolio-contributors > button span {
+  display: grid;
+  gap: 3px;
+}
+
+.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"] .national-detail-reference {
+  display: none;
+}
+
+.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"] #laboratory-panel-behavior > .assumption-card {
+  display: none;
 }
 
 .brand strong {
@@ -202,22 +328,6 @@ input:focus-visible {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-}
-
-.application-shell[data-workspace-mode="national"] .laboratory-drawer,
-.application-shell[data-workspace-mode="national"] .drawer-panels {
-  display: contents;
-}
-
-.application-shell[data-workspace-mode="national"] .drawer-grab-handle,
-.application-shell[data-workspace-mode="national"] .drawer-toolbar,
-.application-shell[data-workspace-mode="national"] .drawer-panel:first-child,
-.application-shell[data-workspace-mode="national"] .drawer-empty {
-  display: none;
-}
-
-.application-shell[data-workspace-mode="national"] .drawer-panel {
-  display: block;
 }
 
 @media (min-width: 801px) {

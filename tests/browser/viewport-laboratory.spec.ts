@@ -29,7 +29,7 @@ function laboratoryPath(stateCode: "MI" | "PA" = "PA", preference = 2.5) {
     plan: "FL,MI",
   });
   params.append("recipe", `${stateCode}|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|${preference}|0,50`);
-  return `/?${params.toString()}`;
+  return `/app?${params.toString()}`;
 }
 
 async function diagnostics(page: Page) {
@@ -65,7 +65,7 @@ test("National and Laboratory shells preserve one scenario and one runtime", asy
   const recipe = new URL(page.url()).searchParams.getAll("recipe");
 
   await page.locator(".laboratory-context").getByRole("button", { name: /United States/ }).click();
-  await expect(page.locator('.application-shell[data-workspace-mode="national"]')).toBeVisible();
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
   await expect.poll(async () => diagnostics(page)).toMatchObject({
     detailedWorkerCount: 1,
     mapMountCount: 1,
@@ -74,12 +74,97 @@ test("National and Laboratory shells preserve one scenario and one runtime", asy
   });
   await expect(page.getByTestId("portfolio-state-PA")).toContainText("D");
 
+  await page.getByRole("button", { name: "working", exact: true }).click();
+  await page.getByRole("tab", { name: "Behavior", exact: true }).click();
+  await expect(page.locator("#laboratory-panel-behavior > .assumption-card")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Open Pennsylvania", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open Michigan", exact: true })).toBeVisible();
+
   await page.getByTestId("portfolio-state-PA").click();
   await expect(page.locator('.application-shell[data-workspace-mode="laboratory"]')).toBeVisible();
   expect(new URL(page.url()).searchParams.getAll("recipe")).toEqual(recipe);
   await expect.poll(async () => diagnostics(page)).toMatchObject({
     detailedWorkerCount: 1,
     mapMountCount: 1,
+    portfolioWorkerCount: 1,
+    webglContextCount: 1,
+  });
+});
+
+test("Home opens the United States Laboratory and product navigation returns Home", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('.application-shell[data-workspace-mode="home"]')).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Change America. Watch the map answer." })).toBeVisible();
+  await page.getByRole("button", { name: "Open Sandbox", exact: true }).first().click();
+  await expect(page).toHaveURL(/\/app\/(?:\?|$)/);
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
+  await expect(page.getByRole("region", { name: "Laboratory desk" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Pennsylvania", exact: true }).first().click();
+  await expect(page.locator('.application-shell[data-geography-level="state"]')).toBeVisible();
+  const scenarioSearch = new URL(page.url()).search;
+  await page.getByRole("button", { name: "Sandbox 2.0 editorial home" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator('.application-shell[data-workspace-mode="home"]')).toBeVisible();
+  await page.getByRole("button", { name: "Open Sandbox", exact: true }).first().click();
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="state"]')).toBeVisible();
+  expect(new URL(page.url()).search).toBe(scenarioSearch);
+});
+
+test("shared root scenarios enter Laboratory and geography navigation never opens Home", async ({ page }) => {
+  await page.goto(laboratoryPath("PA").replace("/app", "/"));
+  await expect(page).toHaveURL(/\/app\/\?/);
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="state"]')).toBeVisible();
+  await page.locator(".laboratory-context").getByRole("button", { name: /United States/ }).click();
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Change America. Watch the map answer." })).toBeHidden();
+});
+
+test("county and reporting-unit geography return directly to the national Laboratory", async ({ page }) => {
+  const url = new URL(laboratoryPath("PA", 1.75), "http://127.0.0.1:4173");
+  url.searchParams.set("county", "42003");
+  url.searchParams.set("vtd", "42003000010");
+  await page.goto(`${url.pathname}${url.search}`);
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="reporting-unit"]')).toBeVisible();
+  const recipes = new URL(page.url()).searchParams.getAll("recipe");
+
+  await page.locator(".breadcrumb").getByRole("button", { name: "United States" }).click();
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
+  await expect(page.locator('.application-shell[data-workspace-mode="home"]')).toBeHidden();
+  expect(new URL(page.url()).searchParams.getAll("recipe")).toEqual(recipes);
+  await expect.poll(async () => diagnostics(page)).toMatchObject({
+    detailedWorkerCount: 1,
+    mapMountCount: 1,
+    portfolioWorkerCount: 1,
+    webglContextCount: 1,
+  });
+});
+
+test("repeated national and detailed-state navigation keeps one map and bounded resources", async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.goto("/app/");
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+
+  for (const stateName of ["Pennsylvania", "Michigan", "Pennsylvania", "Michigan"] as const) {
+    await page.locator(".laboratory-context").getByRole("button", { name: stateName, exact: true }).click();
+    await expect(page.locator('.application-shell[data-geography-level="state"]')).toBeVisible();
+    await expect.poll(async () => diagnostics(page)).toMatchObject({
+      detailedWorkerCount: 1,
+      mapMountCount: 1,
+      portfolioWorkerCount: 1,
+      webglContextCount: 1,
+    });
+    await page.locator(".laboratory-context").getByRole("button", { name: /United States/ }).click();
+    await expect(page.locator('.application-shell[data-geography-level="national"]')).toBeVisible();
+  }
+
+  await expect.poll(async () => diagnostics(page)).toMatchObject({
+    activeAnimationHandles: 0,
+    detailedWorkerCount: 1,
+    mapMountCount: 1,
+    pendingGeometryFetches: 0,
+    pendingScenarioRequests: 0,
     portfolioWorkerCount: 1,
     webglContextCount: 1,
   });

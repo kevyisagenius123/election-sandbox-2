@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.18.0`, private-alpha hardening
+- Release: `0.18.2`, Editorial Home and United States Laboratory
 - Previous release commit: `439db1c Add audited Michigan data foundation`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
@@ -537,9 +537,33 @@ v0.17 additionally adds or changes:
 - `docs/decisions/0020-geographic-route-construction.md`
 - release documentation, product plan, and package metadata
 
+### v0.18.2 workspace architecture
+
+- `/` is the editorial Home and `/app/` is the direct analytical entry.
+- Home/Laboratory presentation is independent from national/state/county/reporting-unit geography.
+- Home explains the product with the existing national map; every analytical geography uses the same fixed viewport Laboratory.
+- Geographic navigation stays in the Laboratory. The product logo and explicit Home control return to Home.
+- Root-level legacy scenario queries normalize to `/app/`; copied scenarios always target the Laboratory.
+- Vite emits both `dist/index.html` and `dist/app/index.html` from one shared application bundle for static hosting.
+- `.github/workflows/deploy-pages.yml` publishes the bundle with `/election-sandbox-2/` as its GitHub Pages base path.
+- National Laboratory reuses the existing context rail, map, bounded consequence rail, three-state drawer, worker foundation, and renderer.
+- National Behavior presents PA/MI entry actions only. It does not display a state editor or invent unsupported national operations.
+- National Inspector and Contributors expose only certified national totals and verified detailed-state summaries.
+- Eight canonical visual references replace the old v0.18.1 long-page and state-only reference set.
+- Decision record: `docs/decisions/0023-editorial-home-and-united-states-laboratory.md`.
+
 ## 8. Verification state
 
 CLI verification for v0.18:
+
+v0.18.2 verification completed on 2026-08-12:
+
+- `npm test`: 47 deterministic model and URL-contract tests pass.
+- Scenario replay plus Home/Laboratory navigation: 17 browser tests pass.
+- Canonical visuals: 8 required references plus reduced-motion verification pass.
+- Hostile delayed-geometry replacement passes with one runtime owner.
+- Full 35-cycle PA/MI profile passes: 30 measured cycles after 5 warmups; heap growth 7,050,840 bytes / 17.76%, slope 57,758 bytes per cycle, cycle p95 8,813 ms. Accepted budgets remain 20 MiB, 20%, 524,288 bytes per cycle, and 15,000 ms respectively.
+- Pennsylvania profile, lint, and the two-entry production build pass.
 
 - `npm test`: 47 tests pass, including route construction transitions, exact gap arithmetic, replay, split-allocation rejection, and Electoral College invariants.
 - `npm run test:browser`: 17 browser checks cover the original eight journeys, deterministic and hostile runtime ownership, six responsive baselines, and reduced motion.

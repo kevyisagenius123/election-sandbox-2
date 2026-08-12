@@ -2,9 +2,11 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.18.1 Viewport Laboratory
+## Current release: v0.18.2 Editorial Home and United States Laboratory
 
-v0.18.1 separates national editorial exploration from detailed-state laboratory work without recreating scenario, worker, or map foundations. Detailed desktop views now use a fixed viewport workspace with a bounded consequence rail and a three-state analytical drawer. Camera position survives drawer changes, local contributions open directly into the Inspector, route alternatives leave the permanent rail, and a compact causal strip keeps model input, state movement, and Electoral College consequence visible. Ten new visual references cover National, all drawer states, county inspection, route outcomes, laptop, tablet, and mobile layouts.
+v0.18.2 separates the editorial Home from the analytical application. Home explains the product at `/`; the United States, states, counties, and reporting units now share one viewport-first Laboratory at `/app/`. Geographic navigation stays inside the Laboratory, while explicit Home navigation leaves it without changing the in-memory election scenario. Versioned scenario links open directly in the Laboratory, and the production build emits a real `app/index.html` entry for static hosting. The same map, workers, scenario recipes, drawer, and bounded consequence rail survive every presentation and geography transition. A dedicated GitHub Pages workflow builds with the repository base path and publishes both entry points.
+
+The United States Laboratory adds compact national context, national Inspector and contributor summaries, explicit PA/MI detailed-state entry, `Fit United States`, and the existing three-state drawer. National mode never invents unsupported local operations: behavior editing begins only after opening a supported detailed state. Eight canonical visual references cover editorial Home, national collapsed/working/route states, Pennsylvania, county drilldown, medium width, and the 390px bottom sheet.
 
 The current build provides:
 
@@ -161,6 +163,14 @@ npm run dev
 ```
 
 The local application runs at `http://127.0.0.1:4173`.
+
+## GitHub Pages
+
+The Pages workflow publishes the production bundle at the repository site. It builds with the repository base path and includes both the editorial root and the direct `app/` Laboratory entry, so shared scenario links can open without a server-side router.
+
+```bash
+npm run build:pages
+```
 
 ## Verify
 

@@ -86,6 +86,7 @@ installRuntimeDiagnosticsHook();
 type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
 type ContributionScope = ScenarioContributionScope;
+type WorkspaceMode = "home" | "laboratory";
 type LaboratoryDrawerSnap = "collapsed" | "working" | "expanded";
 type LaboratoryDrawerTab = "behavior" | "contributors" | "inspector" | "assumptions" | "data";
 
@@ -189,9 +190,26 @@ async function writeClipboardText(value: string) {
   }
 }
 
+function isLaboratoryPath(pathname: string) {
+  return /\/app\/?$/.test(pathname);
+}
+
+function workspaceUrl(mode: WorkspaceMode, href = window.location.href) {
+  const url = new URL(href);
+  url.pathname = url.pathname.replace(/\/app\/?$/, "/");
+  if (!url.pathname.endsWith("/")) url.pathname += "/";
+  if (mode === "laboratory") url.pathname += "app/";
+  url.search = "";
+  url.hash = "";
+  return url;
+}
+
 export function App() {
   const [initialScenarioUrlLoad] = useState(() => decodeScenarioSearch(window.location.search));
   const initialScenarioUrlState = initialScenarioUrlLoad.state;
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(() => (
+    isLaboratoryPath(window.location.pathname) || window.location.search ? "laboratory" : "home"
+  ));
   const [selectedStateCode, setSelectedStateCode] = useState<string | null>(
     initialScenarioUrlState.selectedStateCode,
   );
@@ -279,6 +297,7 @@ export function App() {
   const [copiedScenarioUrl, setCopiedScenarioUrl] = useState<string | null>(null);
   const [failedScenarioUrl, setFailedScenarioUrl] = useState<string | null>(null);
   const observedScenarioSearch = useRef(window.location.search);
+  const observedWorkspacePath = useRef(window.location.pathname);
   const behaviorScenarioSettings = useMemo(() => ({
     turnoutIncreasePoints,
     addedVoterHarrisShare: addedVoterHarrisShare / 100,
@@ -354,7 +373,19 @@ export function App() {
 
   useEffect(() => {
     function restoreBrowserHistoryState() {
-      if (window.location.search === observedScenarioSearch.current) return;
+      const nextWorkspaceMode: WorkspaceMode = isLaboratoryPath(window.location.pathname) || window.location.search
+        ? "laboratory"
+        : "home";
+      setWorkspaceMode(nextWorkspaceMode);
+      if (
+        window.location.search === observedScenarioSearch.current
+        && window.location.pathname === observedWorkspacePath.current
+      ) return;
+      observedWorkspacePath.current = window.location.pathname;
+      if (nextWorkspaceMode === "home" && !window.location.search) {
+        observedScenarioSearch.current = "";
+        return;
+      }
       observedScenarioSearch.current = window.location.search;
       const load = decodeScenarioSearch(window.location.search);
       applyScenarioUrlState(load.state);
@@ -512,7 +543,7 @@ export function App() {
   ]);
 
   const currentScenarioShareUrl = useMemo(() => buildScenarioUrl(
-    window.location.href,
+    workspaceUrl("laboratory").toString(),
     scenarioUrlState,
     { force: true, clearHash: true },
   ), [scenarioUrlState]);
@@ -523,13 +554,15 @@ export function App() {
       : "idle";
 
   useEffect(() => {
-    if (!demographicFoundation || scenarioPending) return;
-    const nextUrl = buildScenarioUrl(window.location.href, scenarioUrlState);
+    if (workspaceMode !== "laboratory" || !demographicFoundation || scenarioPending) return;
+    const laboratoryHref = workspaceUrl("laboratory").toString();
+    const nextUrl = buildScenarioUrl(laboratoryHref, scenarioUrlState);
     if (nextUrl !== window.location.href) {
       window.history.replaceState(window.history.state, "", nextUrl);
     }
     observedScenarioSearch.current = window.location.search;
-  }, [demographicFoundation, scenarioPending, scenarioUrlState]);
+    observedWorkspacePath.current = window.location.pathname;
+  }, [demographicFoundation, scenarioPending, scenarioUrlState, workspaceMode]);
 
   const detailedScenario = useMemo<StatewidePresidentialResult>(() => {
     if (!behaviorScenario) return detailedActual;
@@ -776,12 +809,19 @@ export function App() {
     : selectedStateCode
       ? margin(selectedScenario)
       : ((scenarioNational.harrisVotes - scenarioNational.trumpVotes) / scenarioNational.totalVotes) * 100;
-  const readoutShift = readoutActualMargin == null || readoutScenarioMargin == null
-    ? null
-    : readoutScenarioMargin - readoutActualMargin;
   const selectedGeographyName = selectedVtd?.name
     ?? selectedActualCounty?.name
     ?? (selectedStateCode ? selectedActual.name : "United States");
+  const presentedGeographyName = workspaceMode === "home" ? "United States" : selectedGeographyName;
+  const presentedActualMargin = workspaceMode === "home"
+    ? ((actualNational.harrisVotes - actualNational.trumpVotes) / actualNational.totalVotes) * 100
+    : readoutActualMargin;
+  const presentedScenarioMargin = workspaceMode === "home"
+    ? ((scenarioNational.harrisVotes - scenarioNational.trumpVotes) / scenarioNational.totalVotes) * 100
+    : readoutScenarioMargin;
+  const presentedShift = presentedActualMargin == null || presentedScenarioMargin == null
+    ? null
+    : presentedScenarioMargin - presentedActualMargin;
 
   function applyStateRecipeSettings(settings: StateBehaviorRecipeSettings) {
     setTurnoutIncreasePoints(settings.turnoutIncreasePoints);
@@ -802,6 +842,11 @@ export function App() {
     applyStateRecipeSettings(scenarioRecipeRecord[code]?.settings ?? DEFAULT_STATE_BEHAVIOR_SETTINGS);
   }
 
+  function selectMapState(code: string | null) {
+    if (workspaceMode === "home" && code) navigateWorkspace("laboratory");
+    selectState(code);
+  }
+
   function selectRoute(route: PathTo270Route, stateCode?: string) {
     setSelectedRouteStateCodes(route.states.map((state) => state.stateCode).sort());
     if (stateCode) selectState(stateCode);
@@ -818,6 +863,25 @@ export function App() {
     setSelectedCountyFips(null);
     setSelectedStateCode(null);
     setLaboratoryDrawerSnap("collapsed");
+  }
+
+  function navigateWorkspace(mode: WorkspaceMode) {
+    if (mode === "laboratory") {
+      const laboratoryUrl = buildScenarioUrl(
+        workspaceUrl("laboratory").toString(),
+        scenarioUrlState,
+      );
+      window.history.pushState(window.history.state, "", laboratoryUrl);
+      observedScenarioSearch.current = window.location.search;
+      observedWorkspacePath.current = window.location.pathname;
+      setWorkspaceMode("laboratory");
+      return;
+    }
+    const homeUrl = workspaceUrl("home");
+    window.history.pushState(window.history.state, "", homeUrl);
+    observedScenarioSearch.current = "";
+    observedWorkspacePath.current = window.location.pathname;
+    setWorkspaceMode("home");
   }
 
   function selectCounty(fips: string | null) {
@@ -929,40 +993,52 @@ export function App() {
   }
 
   return (
-    <main className="application-shell" data-workspace-mode={selectedStateCode ? "laboratory" : "national"}>
+    <main
+      className="application-shell"
+      data-geography-level={selectedVtdGeoid ? "reporting-unit" : selectedCountyFips ? "county" : selectedStateCode ? "state" : "national"}
+      data-workspace-mode={workspaceMode}
+    >
       <header className="masthead">
-        <a className="brand" href="#top" aria-label="Sandbox 2.0 home">
+        <button className="brand" onClick={() => navigateWorkspace("home")} type="button" aria-label="Sandbox 2.0 editorial home">
           <span className="brand-rule" aria-hidden="true"><i /><i /></span>
           <span>
             <span className="overline">American electorate laboratory</span>
             <strong>Sandbox 2.0</strong>
           </span>
-        </a>
+        </button>
 
         <nav className="primary-nav" aria-label="Primary navigation">
-          <button className="nav-item active" type="button">Explore</button>
-          <button className="nav-item" onClick={() => openLaboratoryPanel("assumptions")} type="button">Assumptions</button>
-          <a className="nav-item" href="#methodology">Sources</a>
+          {workspaceMode === "home" ? <>
+            <button className="nav-item active" type="button">Home</button>
+            <button className="nav-item" onClick={() => navigateWorkspace("laboratory")} type="button">Open Sandbox</button>
+            <a className="nav-item" href="#methodology">Sources</a>
+          </> : <>
+            <button className="nav-item active" type="button">Laboratory</button>
+            <button className="nav-item" onClick={() => openLaboratoryPanel("assumptions")} type="button">Assumptions</button>
+            <button className="nav-item" onClick={() => navigateWorkspace("home")} type="button">Home</button>
+          </>}
         </nav>
 
-        <div className="build-status"><span />Viewport laboratory · v0.18.1</div>
+        <div className="build-status"><span />Editorial + laboratory · v0.18.2</div>
       </header>
 
       <div className="workbench" id="top">
         <section className="editorial-column" aria-labelledby="page-heading">
-          {selectedStateCode && (
+          {workspaceMode === "laboratory" && (
             <div className="laboratory-context">
-              <span className="overline">{selectedActual.name} laboratory</span>
-              <strong>{selectedGeographyName}</strong>
+              <span className="overline">{selectedStateCode ? selectedActual.name : "United States"} laboratory</span>
+              <strong>{selectedStateCode ? selectedGeographyName : "United States"}</strong>
               <div>
                 <span>Actual <b>{readoutActualMargin == null ? "Unavailable" : formatMargin(readoutActualMargin)}</b></span>
                 <span>Scenario <b>{readoutScenarioMargin == null ? "Unavailable" : formatMargin(readoutScenarioMargin)}</b></span>
+                {!selectedStateCode && <span>Electoral College <b>{electoralConsequences.scenarioNational.harrisElectoralVotes}–{electoralConsequences.scenarioNational.trumpElectoralVotes}</b></span>}
               </div>
-              <button onClick={selectedCountyFips ? () => selectCounty(null) : selectNation} type="button">
+              {selectedStateCode && <button onClick={selectedCountyFips ? () => selectCounty(null) : selectNation} type="button">
                 ← {selectedCountyFips ? selectedActual.name : "United States"}
-              </button>
+              </button>}
+              {!selectedStateCode && <div className="supported-state-links"><span>Detailed states</span><button onClick={() => selectState("PA")} type="button">Pennsylvania</button><button onClick={() => selectState("MI")} type="button">Michigan</button></div>}
               <button className="fit-selection-button" onClick={() => setFitSelectionRequest((request) => request + 1)} type="button">
-                Fit selection
+                {selectedStateCode ? "Fit selection" : "Fit United States"}
               </button>
             </div>
           )}
@@ -971,6 +1047,8 @@ export function App() {
           <p className="lede">
             Test an electoral assumption, trace the votes it moves, and follow the consequence from a state to the presidency.
           </p>
+
+          <button className="open-sandbox-button" onClick={() => navigateWorkspace("laboratory")} type="button">Open Sandbox <span aria-hidden="true">→</span></button>
 
           <div className="baseline-lockup">
             <div className="baseline-head">
@@ -1005,15 +1083,17 @@ export function App() {
           </div>
         </section>
 
-        <section className="map-column" aria-label={selectedStateCode ? `${selectedActual.name} election laboratory` : "National election workbench"}>
+        <section className="map-column" aria-label={workspaceMode === "home" ? "National election introduction" : selectedStateCode ? `${selectedActual.name} election laboratory` : "United States election laboratory"}>
           <div className="map-toolbar">
             <div>
               <span className="overline">Geographic scope</span>
               <div className="breadcrumb">
-                <button onClick={selectNation} type="button">United States</button>
-                {selectedStateCode && <><span>/</span>{selectedCountyFips ? <button onClick={() => selectCounty(null)} type="button">{selectedActual.name}</button> : <strong>{selectedActual.name}</strong>}</>}
-                {selectedActualCounty && <><span>/</span>{selectedVtd ? <button onClick={() => selectPrecinct(null)} type="button">{selectedActualCounty.name}</button> : <strong>{selectedActualCounty.name}</strong>}</>}
-                {selectedVtd && <><span>/</span><strong>{selectedVtd.name}</strong></>}
+                {workspaceMode === "home" || !selectedStateCode
+                  ? <strong aria-current="location">United States</strong>
+                  : <button onClick={selectNation} type="button">United States</button>}
+                {workspaceMode === "laboratory" && selectedStateCode && <><span>/</span>{selectedCountyFips ? <button onClick={() => selectCounty(null)} type="button">{selectedActual.name}</button> : <strong aria-current="location">{selectedActual.name}</strong>}</>}
+                {workspaceMode === "laboratory" && selectedActualCounty && <><span>/</span>{selectedVtd ? <button onClick={() => selectPrecinct(null)} type="button">{selectedActualCounty.name}</button> : <strong aria-current="location">{selectedActualCounty.name}</strong>}</>}
+                {workspaceMode === "laboratory" && selectedVtd && <><span>/</span><strong aria-current="location">{selectedVtd.name}</strong></>}
               </div>
             </div>
             <div className="segmented" aria-label="Map comparison mode">
@@ -1033,15 +1113,15 @@ export function App() {
           <div className="map-stage">
             <Suspense fallback={<div className="map-loading"><span /> Preparing the election terrain</div>}>
               <AtlasMapScene
-                activeCountyFips={selectedCountyFips}
-                activePrecinctGeoid={selectedVtdGeoid}
-                activeStateCode={selectedStateCode}
-                activeDetailedStateManifest={selectedStateCode === activeDetailedStateCode ? activeDetailedStateManifest : null}
+                activeCountyFips={workspaceMode === "home" ? null : selectedCountyFips}
+                activePrecinctGeoid={workspaceMode === "home" ? null : selectedVtdGeoid}
+                activeStateCode={workspaceMode === "home" ? null : selectedStateCode}
+                activeDetailedStateManifest={workspaceMode === "laboratory" && selectedStateCode === activeDetailedStateCode ? activeDetailedStateManifest : null}
                 actualDetailedCounties={detailedCounties}
                 actualStates={states2024}
                 onActiveCountyChange={selectCounty}
                 onActivePrecinctChange={selectPrecinct}
-                onActiveStateChange={selectState}
+                onActiveStateChange={selectMapState}
                 scenarioDetailedCounties={scenarioDetailedCounties}
                 scenarioDetailedGeographies={scenarioDetailedGeographies}
                 scenarioStates={scenarioStates}
@@ -1058,21 +1138,21 @@ export function App() {
             <div className="selected-readout" data-drilled={Boolean(selectedStateCode)} aria-live="polite">
               <div>
                 <span className="overline">Selected</span>
-                <strong>{selectedGeographyName}</strong>
+                <strong>{presentedGeographyName}</strong>
               </div>
               <div className="readout-margin">
-                <span>Actual</span><strong>{readoutActualMargin == null ? "NO RETURN" : formatMargin(readoutActualMargin)}</strong>
+                <span>Actual</span><strong>{presentedActualMargin == null ? "NO RETURN" : formatMargin(presentedActualMargin)}</strong>
               </div>
               <div className="readout-arrow" aria-hidden="true">→</div>
               <div className="readout-margin">
-                <span>Scenario</span><strong>{readoutScenarioMargin == null ? "NO RETURN" : formatMargin(readoutScenarioMargin)}</strong>
+                <span>Scenario</span><strong>{presentedScenarioMargin == null ? "NO RETURN" : formatMargin(presentedScenarioMargin)}</strong>
               </div>
-              <div className={`shift-chip ${readoutShift != null && readoutShift > 0.05 ? "toward-dem" : ""}`}>
-                {readoutShift == null
+              <div className={`shift-chip ${presentedShift != null && presentedShift > 0.05 ? "toward-dem" : ""}`}>
+                {presentedShift == null
                   ? "Unavailable"
-                  : Math.abs(readoutShift) < 0.05
+                  : Math.abs(presentedShift) < 0.05
                     ? "No change"
-                    : `${readoutShift > 0 ? "+" : ""}${readoutShift.toFixed(1)} pts D`}
+                    : `${presentedShift > 0 ? "+" : ""}${presentedShift.toFixed(1)} pts D`}
               </div>
             </div>
           </div>
@@ -1084,15 +1164,19 @@ export function App() {
             <i />
             <span>Tile color: statewide winning margin</span>
           </div>
-          {selectedStateCode && (
+          {workspaceMode === "laboratory" && (
             <div className="causal-strip" aria-live="polite">
-              <span>{behaviorEditorMode === "preference"
+              <span>{!selectedStateCode
+                ? `${portfolioRecipes.length} active detailed ${portfolioRecipes.length === 1 ? "state" : "states"}`
+                : behaviorEditorMode === "preference"
                 ? formatPreferenceMovement(effectivePreferenceShiftPoints)
                 : behaviorEditorMode === "turnout"
                   ? `Turnout +${turnoutIncreasePoints.toFixed(1)} pts`
                   : formatThirdPartyMovement(effectiveThirdPartyShiftPoints, thirdPartyCandidate)}</span>
               <i aria-hidden="true">→</i>
-              <strong>{activeDetailedStateCode} {formatMarginVotes(contributionSummary.statewideMarginDelta)} margin</strong>
+              <strong>{selectedStateCode
+                ? `${activeDetailedStateCode} ${formatMarginVotes(contributionSummary.statewideMarginDelta)} margin`
+                : `${electoralConsequences.scenarioNational.harrisElectoralVotes} Harris · ${electoralConsequences.scenarioNational.trumpElectoralVotes} Trump`}</strong>
               {activeRouteConstructionState && <><i aria-hidden="true">→</i><b>{activeRouteConstructionState.status === "satisfied"
                 ? `+${activeRouteConstructionState.electoralVotes} EV verified`
                 : `${formatCompact(activeRouteConstructionState.remainingNetMarginVotes)} still required`}</b></>}
@@ -1256,7 +1340,7 @@ export function App() {
                 >{routeMetricLabels[metric]}</button>
               ))}
             </div>
-            {selectedStateCode && (
+            {workspaceMode === "laboratory" && (
               <button
                 aria-expanded={routeAlternativesOpen}
                 className="route-alternatives-button"
@@ -1385,7 +1469,13 @@ export function App() {
             <div className="drawer-toolbar">
               <div>
                 <span className="overline">Laboratory desk</span>
-                <strong>{laboratoryDrawerSnap === "collapsed" ? `${behaviorEditorMode === "preference" ? formatPreferenceMovement(effectivePreferenceShiftPoints) : behaviorEditorMode} · ${formatMarginVotes(contributionSummary.statewideMarginDelta)}` : selectedGeographyName}</strong>
+                <strong>{!selectedStateCode
+                  ? laboratoryDrawerSnap === "collapsed"
+                    ? `United States · ${portfolioRecipes.length} active ${portfolioRecipes.length === 1 ? "state" : "states"}`
+                    : "United States"
+                  : laboratoryDrawerSnap === "collapsed"
+                    ? `${behaviorEditorMode === "preference" ? formatPreferenceMovement(effectivePreferenceShiftPoints) : behaviorEditorMode} · ${formatMarginVotes(contributionSummary.statewideMarginDelta)}`
+                    : selectedGeographyName}</strong>
               </div>
               <div className="drawer-tabs" role="tablist" aria-label="Laboratory panels">
                 {laboratoryDrawerTabs.map((tab) => (
@@ -1412,12 +1502,22 @@ export function App() {
             </div>
             <div className="drawer-panels">
               <div aria-labelledby="laboratory-tab-inspector" className="drawer-panel" data-active={laboratoryDrawerTab === "inspector"} id="laboratory-panel-inspector" role="tabpanel">
-                {selectedInspector ? (
+                {!selectedStateCode ? <section className="national-drawer-summary" aria-label="United States data inspector">
+                  <div className="card-heading compact"><div><span className="overline">National Inspector</span><strong>Certified and modeled America</strong></div></div>
+                  <div className="national-summary-grid">
+                    <span><small>Actual popular vote</small><strong>{formatMargin(((actualNational.harrisVotes - actualNational.trumpVotes) / actualNational.totalVotes) * 100)}</strong></span>
+                    <span><small>Scenario popular vote</small><strong>{formatMargin(((scenarioNational.harrisVotes - scenarioNational.trumpVotes) / scenarioNational.totalVotes) * 100)}</strong></span>
+                    <span><small>Actual Electoral College</small><strong>{actualNational.harrisElectoralVotes}–{actualNational.trumpElectoralVotes}</strong></span>
+                    <span><small>Scenario Electoral College</small><strong>{scenarioNational.harrisElectoralVotes}–{scenarioNational.trumpElectoralVotes}</strong></span>
+                  </div>
+                  <p>All states use certified statewide totals. Pennsylvania and Michigan provide detailed county and reporting-unit foundations.</p>
+                </section> : selectedInspector ? (
                   <GeographyInspector model={selectedInspector} onClearVtd={() => selectPrecinct(null)} />
                 ) : <div className="drawer-empty"><strong>No local geography selected.</strong><span>Choose a county or precinct to inspect its certified and scenario result.</span></div>}
               </div>
 
               <div aria-labelledby="laboratory-tab-behavior" className="drawer-panel" data-active={laboratoryDrawerTab === "behavior"} id="laboratory-panel-behavior" role="tabpanel">
+          {!selectedStateCode && <div className="national-operation-note"><div><strong>Detailed-state operations</strong><span>Choose a supported state to edit certified reporting-unit behavior. Active recipes continue to aggregate nationally.</span></div><div><button onClick={() => selectState("PA")} type="button">Open Pennsylvania</button><button onClick={() => selectState("MI")} type="button">Open Michigan</button></div></div>}
           <section className="assumption-card">
             <div className="card-heading">
               <div><span className="overline">Behavior editor</span><strong>Change participation or choice</strong></div>
@@ -1720,6 +1820,11 @@ export function App() {
               </div>
 
               <div aria-labelledby="laboratory-tab-contributors" className="drawer-panel" data-active={laboratoryDrawerTab === "contributors"} id="laboratory-panel-contributors" role="tabpanel">
+          {!selectedStateCode && <section className="national-portfolio-contributors">
+            <div className="card-heading compact"><div><span className="overline">National movement</span><strong>Active detailed states</strong></div></div>
+            {electoralConsequences.activeRows.length > 0 ? electoralConsequences.activeRows.map((row) => <button key={row.stateCode} onClick={() => selectState(row.stateCode)} type="button"><span><strong>{row.stateName}</strong><small>{formatMargin(row.actualMargin)} → {formatMargin(row.scenarioMargin)}</small></span><b>{row.targetElectoralDelta === 0 ? "0 EV" : `${row.targetElectoralDelta > 0 ? "+" : "−"}${Math.abs(row.targetElectoralDelta)} EV`}</b></button>) : <p>No detailed state recipe is active. Pennsylvania and Michigan are available for modeling.</p>}
+          </section>}
+          <div className={!selectedStateCode ? "national-detail-reference" : undefined}>
           <section className="contribution-card">
             <div className="card-heading compact contribution-heading">
               <div><span className="overline">Where the result moved</span><strong>Top contributors</strong></div>
@@ -1767,6 +1872,7 @@ export function App() {
               </div>
             </div>
           </section>
+          </div>
               </div>
 
               <div aria-labelledby="laboratory-tab-assumptions" className="drawer-panel" data-active={laboratoryDrawerTab === "assumptions"} id="laboratory-panel-assumptions" role="tabpanel">

@@ -157,8 +157,9 @@ test("unsupported future links fail closed to the certified baseline", async ({ 
   await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText(
     "The scenario matches the certified Electoral College baseline.",
   );
-  await expect(page.getByRole("slider", { name: "Participation increase" })).toHaveValue("0");
-  await expect(page).toHaveURL("http://127.0.0.1:4173/");
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
+  expect(new URL(page.url()).searchParams.getAll("recipe")).toHaveLength(0);
+  await expect(page).toHaveURL("http://127.0.0.1:4173/app/");
 });
 
 test("rapid scenario changes publish only the newest worker result", async ({ page }) => {
@@ -175,6 +176,7 @@ test("rapid scenario changes publish only the newest worker result", async ({ pa
     view: "scenario",
     editor: "preference",
     rank: "county",
+    state: "PA",
   });
   await loadScenario(page, preferenceScenario);
   await openLaboratoryTab(page, "Behavior");
@@ -280,7 +282,10 @@ test("an active state that does not flip remains visible with zero EV consequenc
 test("a Required Michigan route becomes Modeled, Satisfied, replayable, and reversible", async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto("/");
+  await page.getByRole("button", { name: "Open Sandbox", exact: true }).first().click();
+  await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await page.getByRole("button", { name: "Compare alternative routes" }).click();
   const firstRoute = page.getByTestId("path-route-1");
   await expect(firstRoute).toContainText("FL + MI");
   await expect(firstRoute.getByRole("button", { name: /Open Florida/ })).toHaveCount(0);
