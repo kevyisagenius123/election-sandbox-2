@@ -30,6 +30,8 @@ Version 0.19.1 implements that correction scope without adding model features. T
 
 The unchanged eight-persona synthetic rerun is recorded in `SYNTHETIC_ALPHA_RERUN_REPORT.md`. All five target concepts moved from 6–7 of 8 correct interpretations to 8 of 8 in the walkthrough. This is predicted-failure verification, not statistical human evidence; v0.19B remains required.
 
+Version 0.19B is authorized to enter human testing and is operationally specified in `docs/research/HUMAN_ALPHA_PROTOCOL.md`, with a standard session record, confidence-before-explanation measure, fixed `HUMAN_ALPHA_REPORT.md` shell, and explicit readiness gate. The v0.19.1 participant build is frozen through Session 1. It requires at least three genuinely new human participants, preferably five to ten across mixed mental models. Participant invitations remain blocked because the current Pennsylvania and Michigan result artifacts are excluded from external alpha delivery pending permission, applicable legal basis, or an approved replacement. No human evidence has yet been collected, and the product remains v0.19.1 until those sessions produce and close findings.
+
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 
 The product answers one central question:

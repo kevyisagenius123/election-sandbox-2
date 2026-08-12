@@ -572,6 +572,27 @@ v0.17 additionally adds or changes:
 - `SYNTHETIC_ALPHA_RERUN_REPORT.md` repeats the same personas and tasks and records 8/8 comprehension across the five tracked concepts.
 - v0.19B remains a human alpha. The synthetic comparison cannot replace it.
 
+### v0.19B human-alpha readiness
+
+- `docs/research/HUMAN_ALPHA_PROTOCOL.md` is the authoritative moderator protocol for the unchanged five tasks, comprehension prompts, help scale, success criteria, severity rules, and phase-closing gate.
+- `docs/research/HUMAN_ALPHA_SESSION_TEMPLATE.md` is the per-participant evidence format. Keep participant names, contact details, recordings, and unredacted scenario URLs out of the repository.
+- `HUMAN_ALPHA_READINESS.md` records what is ready and what remains. No human evidence exists yet; do not relabel synthetic or automated activity as v0.19B results.
+- At least three genuinely new humans are required to close the phase; five to ten mixed users remains preferred.
+- External participant recruitment remains blocked by the PA/MI result-artifact rows marked Review in `docs/data/REDISTRIBUTION_INVENTORY.md`, unless an approved delivery method replaces public redistribution.
+- The deployed Home and `/app/` were reachable in the 2026-08-12 readiness audit, and `/app/` visibly exposed `Change United States` and `Open controls`.
+- Readiness verification is green: 48 model tests, lint, production build, 33 local browser journeys, the deployed remote smoke, and the Pennsylvania runtime profile all pass. The local aggregate browser command exceeded its four-minute wrapper after 19 successful journeys, so the remaining responsive and visual group was rerun separately and all 18 passed; this was a wrapper timeout, not a test failure.
+- State #3 and Run My Election remain outside this phase. After human findings are triaged and gates pass, State #3 admission is the next product phase; replay-readiness metadata may enter that admission contract without starting the replay engine.
+
+### v0.19B authorization and research freeze
+
+- Supervisor authorization allows human testing but does not mark v0.19B complete.
+- Decision `docs/decisions/0025-human-alpha-research-freeze.md` freezes the v0.19.1 participant build through Session 1. Only delivery blockers, security issues, broken restoration, obvious P0 correctness defects, or minimum approved-delivery changes are permitted.
+- The session template records 1–5 confidence before explanation after every task. High-confidence incorrect answers must be isolated as epistemic-status risks.
+- `HUMAN_ALPHA_REPORT.md` is the required closing report and must recommend exactly one of Advance, Correct and retest, or Block.
+- State #3 requires zero unresolved P0 and P1 findings, no repeated severe misunderstanding of epistemic status, functional and trusted deterministic restoration, discoverable evidence, resolved artifact delivery, and green correction gates.
+- The artifact review did not clear the current result files: PA lacked an explicit grant for the specific pa.gov artifacts, and Michigan.gov terms restrict reuse absent permission or another basis. The result artifacts and dependent crosswalks are excluded from external alpha delivery until permission, an applicable documented legal basis, or an approved replacement is recorded.
+- Do not invite participants to the currently reachable Pages deployment while the exclusion remains.
+
 ## 8. Verification state
 
 CLI verification for v0.18:

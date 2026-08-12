@@ -290,10 +290,15 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `docs/data/DETAILED_STATE_ADMISSION.md`
 - `docs/data/STATE_EXCEPTIONS.md`
 - `docs/data/REDISTRIBUTION_INVENTORY.md`
+- `docs/research/HUMAN_ALPHA_PROTOCOL.md`
+- `docs/research/HUMAN_ALPHA_SESSION_TEMPLATE.md`
+- `HUMAN_ALPHA_READINESS.md`
+- `HUMAN_ALPHA_REPORT.md`
+- `docs/decisions/0025-human-alpha-research-freeze.md`
 
 ## Next increment
 
-Run a task-based private alpha with five to ten deliberately mixed users. Observe whether they can change Pennsylvania, build a route to 270, stop short of a flip and explain the remaining gap, reopen a shared portfolio URL, and identify its leading county or precinct contributions without a guided tour. Log comprehension failures separately from defects. Do not add a third detailed state until the alpha findings are triaged and the redistribution inventory is cleared for the intended delivery model.
+Keep v0.19.1 under the human-alpha research freeze. Once an approved PA/MI artifact-delivery method is recorded, run the v0.19B study using `docs/research/HUMAN_ALPHA_PROTOCOL.md` and its session template. Recruit five to ten deliberately mixed users where possible, with three genuinely new participants as the minimum first-cycle evidence. Every task records correctness and confidence before explanation. Close the cycle in `HUMAN_ALPHA_REPORT.md` with an Advance, Correct and retest, or Block recommendation. Do not add a third detailed state until the report records zero unresolved P0 and P1 findings and every other alpha gate is satisfied.
 
 ## Primary sources
 
