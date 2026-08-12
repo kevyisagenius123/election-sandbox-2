@@ -100,6 +100,8 @@ export function AtlasMapScene({
   onActiveCountyChange,
   onActivePrecinctChange,
 }: AtlasMapSceneProps) {
+  const reportingUnitLabel = activeDetailedStateManifest?.code === "PA" ? "VTD" : "precinct";
+  const reportingUnitLabelPlural = activeDetailedStateManifest?.code === "PA" ? "VTDs" : "precinct reporting units";
   const diagnosticTokenRef = useRef(Symbol("atlas-map"));
   const shellRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
@@ -825,20 +827,20 @@ export function AtlasMapScene({
           </button>
           <div className="atlas-data-note">
             <span className="overline">
-              {activeCountyFips ? "Verified precinct returns" : activeDetailedStateManifest ? "Verified county returns" : "County terrain"}
+              {activeCountyFips ? `Verified ${reportingUnitLabel} returns` : activeDetailedStateManifest ? "Verified county returns" : "County terrain"}
             </span>
             <strong>{activeCountyFips ? activeActualCounty?.name : actualByCode.get(activeStateCode)?.name}</strong>
             {activeCountyFips ? (
               <>
-                {precinctLoading && <p className="atlas-load-status">Loading this county’s audited precinct geometry…</p>}
+                {precinctLoading && <p className="atlas-load-status">Loading this county’s audited {reportingUnitLabel} geometry…</p>}
                 {precinctError && <p className="atlas-load-status error">{precinctError}</p>}
                 {precinctCounty && (
                   <p>
-                    {precinctCounty.metadata.resultVoteCoveragePct.toFixed(1)}% of precinct-file votes map to these polygons.
+                    {precinctCounty.metadata.resultVoteCoveragePct.toFixed(1)}% of source-file votes map to these {reportingUnitLabelPlural}.
                     {" "}{precinctCounty.metadata.unmatchedReportingUnitCount} unmatched reporting units remain outside the terrain.
                   </p>
                 )}
-                <div className="atlas-height-switch" aria-label="Precinct height mode">
+                <div className="atlas-height-switch" aria-label={`${reportingUnitLabel} height mode`}>
                   <span>Height</span>
                   <button aria-pressed={heightMode === "ballots"} onClick={() => setHeightMode("ballots")} type="button">Ballots</button>
                   <button aria-pressed={heightMode === "flat"} onClick={() => setHeightMode("flat")} type="button">Flat</button>
@@ -870,7 +872,7 @@ export function AtlasMapScene({
           )}
           {activeCountyFips && inspectedActualPrecinct && inspectedScenarioPrecinct && (
             <div className="atlas-county-readout atlas-precinct-readout" aria-live="polite">
-              <span className="overline">{hoveredPrecinctGeoid ? "Precinct under cursor" : "Pinned precinct"}</span>
+              <span className="overline">{hoveredPrecinctGeoid ? `${reportingUnitLabel} under cursor` : `Pinned ${reportingUnitLabel}`}</span>
               <strong>{detailedPrecinctName(inspectedActualPrecinct)}</strong>
               <div>
                 <span>{inspectedActualPrecinct.totalVotes.toLocaleString()} named votes</span>

@@ -76,9 +76,11 @@ import {
 import {
   buildPathTo270Model,
   buildRouteConstructionPlan,
+  buildStateFlipRequirement,
   type PathTo270Route,
   type RouteMetric,
 } from "./data/pathTo270.ts";
+import { getStateEvidenceLedger, nationalCoverageRows } from "./data/provenance.ts";
 import { installRuntimeDiagnosticsHook } from "./runtime/runtimeDiagnostics.ts";
 
 installRuntimeDiagnosticsHook();
@@ -719,6 +721,9 @@ export function App() {
 
   const selectedActual = states2024.find((state) => state.code === selectedStateCode) ?? detailedActual;
   const selectedScenario = scenarioStates.find((state) => state.code === selectedStateCode) ?? detailedScenario;
+  const selectedStateFlipRequirement = selectedStateCode
+    ? buildStateFlipRequirement(selectedActual, selectedScenario, targetCandidate)
+    : null;
   const selectedActualCounty = detailedCounties.find(
     (county) => county.fips === selectedCountyFips,
   );
@@ -822,6 +827,13 @@ export function App() {
   const presentedShift = presentedActualMargin == null || presentedScenarioMargin == null
     ? null
     : presentedScenarioMargin - presentedActualMargin;
+  const activeGeographyShortLabel = activeDetailedStateCode === "PA" ? "VTDs" : "Precincts";
+  const activeGeographyFullLabel = activeDetailedStateCode === "PA"
+    ? "Voting districts (VTDs)"
+    : "2024 precinct reporting units";
+  const evidenceLedger = getStateEvidenceLedger(activeDetailedStateCode);
+  const mutationScopeName = selectedActualCounty?.name
+    ?? (selectedStateCode ? selectedActual.name : "United States");
 
   function applyStateRecipeSettings(settings: StateBehaviorRecipeSettings) {
     setTurnoutIncreasePoints(settings.turnoutIncreasePoints);
@@ -903,7 +915,6 @@ export function App() {
 
   function openLaboratoryPanel(tab: LaboratoryDrawerTab) {
     setAssumptionsOpen(true);
-    if (!selectedStateCode) return;
     setLaboratoryDrawerTab(tab);
     if (laboratoryDrawerSnap === "collapsed") changeDrawerSnap("working");
   }
@@ -1019,7 +1030,7 @@ export function App() {
           </>}
         </nav>
 
-        <div className="build-status"><span />Editorial + laboratory · v0.18.2</div>
+        <div className="build-status"><span />Alpha comprehension corrections · v0.19.1</div>
       </header>
 
       <div className="workbench" id="top">
@@ -1195,7 +1206,7 @@ export function App() {
                   disabled={!demographicFoundation || scenarioPending}
                   onClick={copyScenarioLink}
                   type="button"
-                >{shareStatus === "copied" ? "Copied" : shareStatus === "error" ? "Try copy" : "Copy link"}</button>
+                >{shareStatus === "copied" ? "Scenario link copied" : shareStatus === "error" ? "Try copy" : "Copy scenario link"}</button>
               </div>
             </div>
             <div className="target-selector" aria-label="Electoral College target candidate">
@@ -1267,7 +1278,7 @@ export function App() {
             >
               <span>Replay URL v{SCENARIO_URL_SCHEMA_VERSION}</span>
               <span>Data v2 · engine v1</span>
-              <strong aria-live="polite">{scenarioPending ? "Updating scenario" : shareStatus === "copied" ? "Link copied" : shareStatus === "error" ? "Copy unavailable" : ""}</strong>
+              <strong aria-live="polite">{scenarioPending ? "Updating scenario" : shareStatus === "copied" ? "Scenario link copied — this URL reconstructs your current assumptions." : shareStatus === "error" ? "Copy unavailable" : ""}</strong>
             </div>
             {scenarioLinkNotice && (
               <div className="scenario-link-notice" role="status">
@@ -1283,6 +1294,30 @@ export function App() {
               </div>
             )}
           </section>
+
+          {selectedStateFlipRequirement && (
+            <section
+              className="state-flip-card"
+              aria-label={`Flip requirement for ${selectedStateFlipRequirement.stateName}`}
+              data-satisfied={selectedStateFlipRequirement.satisfied}
+            >
+              <div className="card-heading compact">
+                <div>
+                  <span className="overline">To flip {selectedStateFlipRequirement.stateName}</span>
+                  <strong>{selectedStateFlipRequirement.satisfied
+                    ? `${candidateNames[targetCandidate]} now leads this state`
+                    : `${candidateNames[targetCandidate]} needs ${formatNumber(selectedStateFlipRequirement.remainingNetMarginVotes)} net margin votes`}</strong>
+                </div>
+                <span className="state-fact-chip">State fact</span>
+              </div>
+              <div className="state-flip-metrics">
+                <span><small>Certified requirement</small><strong>{formatNumber(selectedStateFlipRequirement.certifiedRequiredNetMarginVotes)}</strong></span>
+                <span><small>Current modeled movement</small><strong>{selectedStateFlipRequirement.modeledNetMarginMovement >= 0 ? "+" : "−"}{formatNumber(Math.abs(selectedStateFlipRequirement.modeledNetMarginMovement))} {targetCandidate === "harris" ? "D" : "R"}</strong></span>
+                <span><small>Still needed</small><strong>{formatNumber(selectedStateFlipRequirement.remainingNetMarginVotes)}</strong></span>
+              </div>
+              <p>The remaining requirement is recalculated from the current effective state result. It does not require a Path to 270 selection.</p>
+            </section>
+          )}
 
           {activeRouteConstructionState && routeConstructionPlan && (
             <section
@@ -1319,7 +1354,7 @@ export function App() {
                 <span><small>Modeled movement</small><strong>{activeRouteConstructionState.modeledNetMarginMovement >= 0 ? "+" : "−"}{formatNumber(Math.abs(activeRouteConstructionState.modeledNetMarginMovement))}</strong></span>
                 <span><small>Remaining gap</small><strong>{formatNumber(activeRouteConstructionState.remainingNetMarginVotes)}</strong></span>
               </div>
-              <p className="route-lab-note">The requirement is reconstructed from the certified state result. Only a verified modeled winner change satisfies it.</p>
+              <p className="route-lab-note"><strong>Modeled</strong> means a detailed {activeDetailedStateCode} scenario is active. <strong>Satisfied</strong> means that scenario actually changes the state winner. This route reuses the state fact above.</p>
             </section>
           )}
 
@@ -1383,6 +1418,11 @@ export function App() {
                     ) : <div key={state.stateCode}>{content}</div>;
                   })}
                 </div>
+                <div className="route-term-guide" aria-label="Route status definitions">
+                  <span><strong>Required</strong>Statewide movement is still needed. Not a forecast.</span>
+                  <span><strong>Modeled</strong>A detailed PA or MI scenario is active.</span>
+                  <span><strong>Satisfied</strong>The detailed scenario changes the state&apos;s electoral winner.</span>
+                </div>
               </div>
             )}
             {pathTo270.electoralVotesNeeded === 0 ? (
@@ -1435,6 +1475,9 @@ export function App() {
                       <span>{formatNumber(route.totalRequiredNetMarginVotes)} net margin votes</span>
                       <span>{route.totalRequiredMarginPoints.toFixed(1)} aggregate margin pts</span>
                     </div>
+                    <p className="route-support-note">{route.states.every((state) => state.detailedModelAvailable)
+                      ? "Every state in this route has detailed geography available."
+                      : "Mathematical route only for unsupported states; no county or precinct behavior is implied."}</p>
                   </li>
                 ))}
               </ol>
@@ -1445,7 +1488,7 @@ export function App() {
               </div>
             )}
             <p className="route-disclosure">
-              Required means mathematical movement only, not geographically modeled votes. Maine and Nebraska are excluded until district allocation is supported.
+              Required means statewide mathematical movement still needed, not a forecast. Modeled means a detailed PA or MI recipe exists. Satisfied means that recipe changes the state&apos;s electoral winner. Maine and Nebraska are excluded until district allocation is supported.
             </p>
           </section>
 
@@ -1467,15 +1510,16 @@ export function App() {
               type="button"
             ><span /></button>
             <div className="drawer-toolbar">
-              <div>
-                <span className="overline">Laboratory desk</span>
-                <strong>{!selectedStateCode
-                  ? laboratoryDrawerSnap === "collapsed"
-                    ? `United States · ${portfolioRecipes.length} active ${portfolioRecipes.length === 1 ? "state" : "states"}`
-                    : "United States"
-                  : laboratoryDrawerSnap === "collapsed"
-                    ? `${behaviorEditorMode === "preference" ? formatPreferenceMovement(effectivePreferenceShiftPoints) : behaviorEditorMode} · ${formatMarginVotes(contributionSummary.statewideMarginDelta)}`
-                    : selectedGeographyName}</strong>
+              <div className="drawer-intent">
+                <span className="overline">Change {mutationScopeName}</span>
+                <strong>{laboratoryDrawerSnap === "collapsed"
+                  ? selectedStateCode
+                    ? "Turnout · Preference · Third party"
+                    : "Choose Pennsylvania or Michigan to model voter behavior"
+                  : selectedGeographyName}</strong>
+                {laboratoryDrawerSnap === "collapsed" && (
+                  <button onClick={() => openLaboratoryPanel("behavior")} type="button">Open controls</button>
+                )}
               </div>
               <div className="drawer-tabs" role="tablist" aria-label="Laboratory panels">
                 {laboratoryDrawerTabs.map((tab) => (
@@ -1494,7 +1538,8 @@ export function App() {
                   </button>
                 ))}
               </div>
-              <div className="drawer-snaps" aria-label="Laboratory drawer size">
+              <div className="drawer-snaps" aria-label="Drawer position">
+                <span className="drawer-position-label">Drawer position</span>
                 {(["collapsed", "working", "expanded"] as LaboratoryDrawerSnap[]).map((snap) => (
                   <button aria-pressed={laboratoryDrawerSnap === snap} key={snap} onClick={() => changeDrawerSnap(snap)} type="button">{snap}</button>
                 ))}
@@ -1513,7 +1558,7 @@ export function App() {
                   <p>All states use certified statewide totals. Pennsylvania and Michigan provide detailed county and reporting-unit foundations.</p>
                 </section> : selectedInspector ? (
                   <GeographyInspector model={selectedInspector} onClearVtd={() => selectPrecinct(null)} />
-                ) : <div className="drawer-empty"><strong>No local geography selected.</strong><span>Choose a county or precinct to inspect its certified and scenario result.</span></div>}
+                ) : <div className="drawer-empty"><strong>No local geography selected.</strong><span>Choose a county or {activeDetailedStateCode === "PA" ? "VTD" : "2024 precinct reporting unit"} to inspect its certified and scenario result.</span></div>}
               </div>
 
               <div aria-labelledby="laboratory-tab-behavior" className="drawer-panel" data-active={laboratoryDrawerTab === "behavior"} id="laboratory-panel-behavior" role="tabpanel">
@@ -1704,6 +1749,10 @@ export function App() {
                     <div><span>State margin movement</span><strong>{formatMarginVotes(contributionSummary.statewideMarginDelta)}</strong></div>
                     <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
+                  <p className="transfer-explainer">
+                    <strong>{formatNumber(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))} ballots transferred → {formatNumber(Math.abs(contributionSummary.statewideMarginDelta))} votes of {effectivePreferenceShiftPoints >= 0 ? "Harris−Trump" : "Trump−Harris"} margin movement.</strong>
+                    Each direct Harris↔Trump transfer changes the two-candidate margin by 2 votes.
+                  </p>
                 </>
               ) : (
                 <>
@@ -1836,7 +1885,7 @@ export function App() {
               <p className="contribution-definition">Change in the Harris minus Trump vote margin across every active operation.</p>
               <div className="contribution-tabs" aria-label="Contribution geography">
                 <button aria-pressed={contributionScope === "county"} onClick={() => setContributionScope("county")} type="button">Counties</button>
-                <button aria-pressed={contributionScope === "vtd"} onClick={() => setContributionScope("vtd")} type="button">Precincts</button>
+                <button aria-pressed={contributionScope === "vtd"} onClick={() => setContributionScope("vtd")} type="button">{activeGeographyShortLabel}</button>
               </div>
               {contributionRows.length > 0 ? (
                 <ol className="contribution-list">
@@ -1862,7 +1911,7 @@ export function App() {
               <div className="contribution-footnote">
                 <span>{contributionScope === "county"
                   ? "County-linked contributions shown"
-                  : "Top mapped precincts shown"}</span>
+                  : `Top mapped ${activeGeographyFullLabel.toLowerCase()} shown`}</span>
                 {contributionScope === "county" && contributionSummary.outsideCountyMarginDelta !== 0 && (
                   <strong>{formatMarginVotes(contributionSummary.outsideCountyMarginDelta)} statewide-only residual</strong>
                 )}
@@ -1904,10 +1953,31 @@ export function App() {
               </div>
 
               <div aria-labelledby="laboratory-tab-data" className="drawer-panel" data-active={laboratoryDrawerTab === "data"} id="laboratory-panel-data" role="tabpanel">
-          <div className="model-warning">
-            <strong>What this model does not claim</strong>
-            <p>Turnout uses 2020 population age 18 and over, not citizen or 2024 eligible population. Third-party exchanges follow the chosen Harris/Trump source share; they are a transparent counterfactual, not an estimate of voter migration.</p>
-          </div>
+          {!selectedStateCode ? (
+            <section className="provenance-ledger national-provenance" aria-label="National data coverage">
+              <div className="card-heading compact"><div><span className="overline">United States data foundation</span><strong>Certified arithmetic and detailed geography coverage</strong></div></div>
+              <div className="coverage-matrix" role="table" aria-label="National model coverage matrix">
+                <div className="coverage-matrix-head" role="row"><span>State</span><span>Electoral model</span><span>Detailed geography</span><span>Geometry contract</span><span>Coverage</span></div>
+                {nationalCoverageRows.map((row) => (
+                  <div className="coverage-matrix-row" role="row" key={row.state}>
+                    <strong>{row.state}</strong><span>{row.electoralModel}</span><span>{row.detailedGeography}</span><span>{row.geometryContract}</span><span>{row.coverage}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="evidence-note">Unsupported means the statewide certified result participates in national arithmetic, but no local geographic behavior model is available.</p>
+            </section>
+          ) : (
+            <section className="provenance-ledger" aria-label={`${evidenceLedger.stateName} data foundation`}>
+              <div className="card-heading compact"><div><span className="overline">{evidenceLedger.stateName} data foundation</span><strong>Source, geography, and coverage ledger</strong></div></div>
+              <div className="evidence-grid">
+                <article><span>Election results</span><strong>{evidenceLedger.election.publisher}</strong><p>{evidenceLedger.election.title}</p><small>Retrieved {evidenceLedger.election.retrievedAt} · {evidenceLedger.election.artifactVersion}</small><a href={evidenceLedger.election.sourceUrl} rel="noreferrer" target="_blank">Open official source</a></article>
+                <article><span>Local geography</span><strong>{evidenceLedger.geography.label}</strong><p>{evidenceLedger.geography.contract}</p><small>{evidenceLedger.geography.method}</small></article>
+                <article><span>Coverage</span><strong>{formatNumber(evidenceLedger.coverage.mappedUnits)} / {formatNumber(evidenceLedger.coverage.totalUnits)} mapped</strong><p>{formatNumber(evidenceLedger.coverage.mappedBallots)} of {formatNumber(evidenceLedger.coverage.certifiedBallots)} ballots appear on terrain.</p><small>{formatNumber(evidenceLedger.coverage.unmatchedUnits)} unmatched polygons or units · {formatNumber(evidenceLedger.coverage.offMapBallots)} off-map ballots</small></article>
+                <article><span>Treatment</span><strong>No invented geography</strong><p>{evidenceLedger.treatment}</p><small>{evidenceLedger.denominator}</small></article>
+              </div>
+              <div className="evidence-actions"><a href={evidenceLedger.methodologyUrl} rel="noreferrer" target="_blank">Full methodology</a><span>Third-party exchanges are transparent counterfactuals, not estimates of voter migration.</span></div>
+            </section>
+          )}
               </div>
             </div>
           </div>

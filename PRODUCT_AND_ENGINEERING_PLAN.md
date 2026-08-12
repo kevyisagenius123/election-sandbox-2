@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.18.2 Editorial Home and United States Laboratory
+**Status:** v0.19.1 Alpha Comprehension and Trust Corrections
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -25,6 +25,10 @@ Version 0.18 hardens that two-state portfolio for a small external alpha. A dete
 Version 0.18.1 replaces the detailed-state long page with a fixed viewport Laboratory, bounded national-consequence rail, and collapsed, working, or expanded bottom drawer. Version 0.18.2 then separates the editorial Home from analytical geography. `/` introduces Sandbox; `/app/` is the direct United States Laboratory and shared-scenario entry. National, state, county, and reporting-unit geographies now use the same analytical shell without remounting the renderer or model foundations. Home/Laboratory presentation remains workspace state and is never serialized into an election recipe.
 
 Version 0.19A is a synthetic usability and comprehension evaluation, not a substitute for human testing. Eight interface-bound personas completed the same five tasks against v0.18.2. The report identifies no P0 model-integrity defect and recommends a bounded correction scope: public deployment, clearer entry into model controls, an always-available exact state threshold, just-in-time model terminology, registry-backed provenance, and state-specific geography labels. See `SYNTHETIC_ALPHA_REPORT.md`. No model or data expansion is authorized by the evaluation itself.
+
+Version 0.19.1 implements that correction scope without adding model features. The drawer leads with geographic intent, the live state-flip requirement is a shared state fact consumed by Path to 270, terminology is defined beside its consequence, preference-transfer arithmetic is explained at the values, Data is a provenance ledger, and PA VTD / MI precinct contracts remain distinct. Scenario sharing now explains that the deterministic URL is the saved object. The Pages workflow includes a post-deployment remote smoke journey.
+
+The unchanged eight-persona synthetic rerun is recorded in `SYNTHETIC_ALPHA_RERUN_REPORT.md`. All five target concepts moved from 6–7 of 8 correct interpretations to 8 of 8 in the walkthrough. This is predicted-failure verification, not statistical human evidence; v0.19B remains required.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 

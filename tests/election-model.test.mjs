@@ -65,7 +65,7 @@ import {
   electoralThresholdDetail,
   electoralThresholdHeadline,
 } from "../src/data/electoralConsequences.ts";
-import { buildPathTo270Model, buildRouteConstructionPlan } from "../src/data/pathTo270.ts";
+import { buildPathTo270Model, buildRouteConstructionPlan, buildStateFlipRequirement } from "../src/data/pathTo270.ts";
 
 const pennsylvaniaCountyDocument = JSON.parse(readFileSync(
   new URL("../src/data/pa-2024-counties.json", import.meta.url),
@@ -1219,6 +1219,39 @@ test("Path to 270 emits no Required route after the target already holds a major
   assert.equal(model.targetElectoralVotes, 312);
   assert.equal(model.electoralVotesNeeded, 0);
   assert.deepEqual(model.routes, []);
+});
+
+test("state flip requirement is canonical, live, and route independent", () => {
+  const actual = states2024.find((state) => state.code === "PA");
+  assert.ok(actual);
+  const partialScenario = {
+    ...actual,
+    harrisVotes: actual.harrisVotes + 35_294,
+    trumpVotes: actual.trumpVotes - 35_294,
+  };
+  const requirement = buildStateFlipRequirement(actual, partialScenario, "harris");
+  assert.equal(requirement.certifiedRequiredNetMarginVotes, 120_267);
+  assert.equal(requirement.modeledNetMarginMovement, 70_588);
+  assert.equal(requirement.remainingNetMarginVotes, 49_679);
+  assert.equal(requirement.satisfied, false);
+
+  const route = buildRouteConstructionPlan(
+    states2024,
+    states2024.map((state) => state.code === "PA" ? partialScenario : state),
+    ["PA"],
+    ["PA", "MI"],
+    ["PA"],
+    "harris",
+  );
+  assert.equal(route?.states[0].remainingNetMarginVotes, requirement.remainingNetMarginVotes);
+
+  const flipped = buildStateFlipRequirement(actual, {
+    ...actual,
+    harrisVotes: actual.harrisVotes + 60_134,
+    trumpVotes: actual.trumpVotes - 60_134,
+  }, "harris");
+  assert.equal(flipped.satisfied, true);
+  assert.equal(flipped.remainingNetMarginVotes, 0);
 });
 
 test("Route construction distinguishes Required, Modeled, and Satisfied states", () => {

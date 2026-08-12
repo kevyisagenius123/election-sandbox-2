@@ -13,12 +13,12 @@ export default defineConfig({
     timeout: 10_000,
   },
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173",
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
     ...devices["Desktop Chrome"],
   },
-  webServer: {
+  webServer: process.env.PLAYWRIGHT_BASE_URL ? undefined : {
     command: "npm run dev -- --strictPort",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,

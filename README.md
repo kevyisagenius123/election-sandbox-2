@@ -2,7 +2,13 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.18.2 Editorial Home and United States Laboratory
+## Current release: v0.19.1 Alpha Comprehension and Trust Corrections
+
+v0.19.1 responds directly to the v0.19A synthetic private alpha. The collapsed laboratory drawer now states the geographic action and exposes `Open controls`; Pennsylvania and Michigan show a live state-flip requirement without requiring a Path to 270 selection; route terminology is defined beside the route; preference-transfer arithmetic is explained beside the values; Data is a state-specific evidence ledger plus national coverage matrix; and Pennsylvania VTDs are no longer described as Michigan-style precinct units. Scenario sharing is explicitly named `Copy scenario link` and explains that the URL is the saved deterministic object.
+
+The GitHub Pages workflow now separates build and deployment and runs a post-deployment smoke journey against the public Home, `/app/`, and a copied scenario URL.
+
+## Previous release: v0.18.2 Editorial Home and United States Laboratory
 
 v0.18.2 separates the editorial Home from the analytical application. Home explains the product at `/`; the United States, states, counties, and reporting units now share one viewport-first Laboratory at `/app/`. Geographic navigation stays inside the Laboratory, while explicit Home navigation leaves it without changing the in-memory election scenario. Versioned scenario links open directly in the Laboratory, and the production build emits a real `app/index.html` entry for static hosting. The same map, workers, scenario recipes, drawer, and bounded consequence rail survive every presentation and geography transition. A dedicated GitHub Pages workflow builds with the repository base path and publishes both entry points.
 
@@ -279,6 +285,7 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `docs/decisions/0019-deterministic-path-to-270.md`
 - `docs/decisions/0020-geographic-route-construction.md`
 - `docs/decisions/0021-private-alpha-hardening.md`
+- `docs/decisions/0024-alpha-comprehension-and-trust-corrections.md`
 - `docs/operations/RUNTIME_BUDGETS.md`
 - `docs/data/DETAILED_STATE_ADMISSION.md`
 - `docs/data/STATE_EXCEPTIONS.md`

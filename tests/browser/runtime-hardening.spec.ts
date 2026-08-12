@@ -69,7 +69,7 @@ async function diagnostics(page: Page) {
 }
 
 async function waitForSettledRuntime(page: Page, stateCode: "MI" | "PA") {
-  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Copy scenario link" })).toBeEnabled();
   await expect.poll(async () => diagnostics(page)).toMatchObject({
     activeDetailedWorker: stateCode,
     detailedWorkerCount: 1,
@@ -82,15 +82,15 @@ async function waitForSettledRuntime(page: Page, stateCode: "MI" | "PA") {
   await expect.poll(async () => (await diagnostics(page)).activeAnimationHandles).toBe(0);
 }
 
-async function openTopPrecinct(page: Page) {
+async function openTopPrecinct(page: Page, stateCode: "MI" | "PA") {
   const contributorsTab = page.getByRole("tab", { name: "Contributors", exact: true });
   if (!(await contributorsTab.isVisible())) await page.getByRole("button", { name: "working", exact: true }).click();
   await contributorsTab.click();
-  await page.getByRole("button", { name: "Precincts", exact: true }).click();
+  await page.getByRole("button", { name: stateCode === "PA" ? "VTDs" : "Precincts", exact: true }).click();
   const firstContribution = page.locator(".contribution-list button").first();
   await expect(firstContribution).toBeVisible();
   await firstContribution.click();
-  await expect(page.locator(".atlas-data-note")).toContainText("Verified precinct returns");
+  await expect(page.locator(".atlas-data-note")).toContainText(stateCode === "PA" ? "Verified VTD returns" : "Verified precinct returns");
   await expect(page.locator(".atlas-load-status")).toHaveCount(0);
   await expect.poll(async () => (await diagnostics(page)).geometryCacheBytes).toBeGreaterThan(0);
   return diagnostics(page);
@@ -117,9 +117,9 @@ test("deterministic PA and MI session holds lifecycle and byte bounds", async ({
 
   for (let cycle = 1; cycle <= STRESS_CYCLES; cycle += 1) {
     const started = performance.now();
-    const michiganLoaded = await openTopPrecinct(page);
+    const michiganLoaded = await openTopPrecinct(page, "MI");
     await switchDetailedState(page, "PA");
-    const pennsylvaniaLoaded = await openTopPrecinct(page);
+    const pennsylvaniaLoaded = await openTopPrecinct(page, "PA");
     await switchDetailedState(page, "MI");
     await cdp.send("HeapProfiler.collectGarbage");
     const heap = await cdp.send("Runtime.getHeapUsage") as { usedSize: number };

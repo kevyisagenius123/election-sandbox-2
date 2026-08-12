@@ -42,7 +42,7 @@ async function diagnostics(page: Page) {
 async function loadLaboratory(page: Page, stateCode: "MI" | "PA" = "PA", preference = 2.5) {
   await page.goto(laboratoryPath(stateCode, preference));
   await expect(page.locator('.application-shell[data-workspace-mode="laboratory"]')).toBeVisible();
-  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Copy scenario link" })).toBeEnabled();
   await expect.poll(async () => diagnostics(page)).toMatchObject({
     activeAnimationHandles: 0,
     detailedWorkerCount: 1,
@@ -144,7 +144,7 @@ test("repeated national and detailed-state navigation keeps one map and bounded 
   test.setTimeout(90_000);
   await page.goto("/app/");
   await expect(page.locator('.application-shell[data-workspace-mode="laboratory"][data-geography-level="national"]')).toBeVisible();
-  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Copy scenario link" })).toBeEnabled();
 
   for (const stateName of ["Pennsylvania", "Michigan", "Pennsylvania", "Michigan"] as const) {
     await page.locator(".laboratory-context").getByRole("button", { name: stateName, exact: true }).click();
@@ -197,7 +197,7 @@ test("contribution selection opens the geography Inspector", async ({ page }) =>
   await loadLaboratory(page);
   await setDrawer(page, "working");
   await page.getByRole("tab", { name: "Contributors", exact: true }).click();
-  await page.getByRole("button", { name: "Precincts", exact: true }).click();
+  await page.getByRole("button", { name: "VTDs", exact: true }).click();
   const contribution = page.locator(".contribution-list button").first();
   await expect(contribution).toBeVisible();
   await contribution.click();

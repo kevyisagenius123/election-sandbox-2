@@ -561,6 +561,17 @@ v0.17 additionally adds or changes:
 - The authorized correction scope does not include new states, model operations, uncertainty, backend work, or a redesign.
 - Human v0.19B remains required after corrections.
 
+### v0.19.1 correction release
+
+- `buildStateFlipRequirement` in `src/data/pathTo270.ts` is the canonical state-threshold calculation. Route construction reuses it.
+- `src/data/provenance.ts` exposes the audited PA/MI evidence contracts. Preserve the PA VTD and MI exact-cycle precinct distinction.
+- The collapsed drawer now leads with `Change {scope}` and `Open controls`; snap names remain secondary position controls.
+- The two-vote margin explanation appears only for direct Harris/Trump preference transfer.
+- `tests/browser/alpha-corrections.spec.ts` locks the bounded UX and trust corrections.
+- `tests/browser/remote-smoke.spec.ts` runs against `PLAYWRIGHT_BASE_URL`; the Pages workflow supplies its deployed URL.
+- `SYNTHETIC_ALPHA_RERUN_REPORT.md` repeats the same personas and tasks and records 8/8 comprehension across the five tracked concepts.
+- v0.19B remains a human alpha. The synthetic comparison cannot replace it.
+
 ## 8. Verification state
 
 CLI verification for v0.18:

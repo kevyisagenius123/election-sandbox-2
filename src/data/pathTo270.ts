@@ -39,6 +39,18 @@ export interface PathTo270Model {
 
 export type RouteConstructionStatus = "required" | "modeled" | "satisfied";
 
+export interface StateFlipRequirement {
+  stateCode: string;
+  stateName: string;
+  targetCandidate: MajorCandidate;
+  certifiedRequiredNetMarginVotes: number;
+  modeledNetMarginMovement: number;
+  remainingNetMarginVotes: number;
+  actualTargetMarginVotes: number;
+  scenarioTargetMarginVotes: number;
+  satisfied: boolean;
+}
+
 export interface RouteConstructionState {
   stateCode: string;
   stateName: string;
@@ -92,6 +104,29 @@ function targetElectoralVotes(state: StatewidePresidentialResult, target: MajorC
 
 function targetMarginVotes(state: StatewidePresidentialResult, target: MajorCandidate) {
   return targetVotes(state, target) - opponentVotes(state, target);
+}
+
+export function buildStateFlipRequirement(
+  actual: NamedStateResult,
+  scenario: NamedStateResult,
+  targetCandidate: MajorCandidate,
+): StateFlipRequirement {
+  if (actual.code !== scenario.code) {
+    throw new Error(`State flip requirement cannot compare ${actual.code} with ${scenario.code}`);
+  }
+  const actualTargetMarginVotes = targetMarginVotes(actual, targetCandidate);
+  const scenarioTargetMarginVotes = targetMarginVotes(scenario, targetCandidate);
+  return {
+    stateCode: actual.code,
+    stateName: actual.name ?? actual.code,
+    targetCandidate,
+    certifiedRequiredNetMarginVotes: Math.max(0, 1 - actualTargetMarginVotes),
+    modeledNetMarginMovement: scenarioTargetMarginVotes - actualTargetMarginVotes,
+    remainingNetMarginVotes: Math.max(0, 1 - scenarioTargetMarginVotes),
+    actualTargetMarginVotes,
+    scenarioTargetMarginVotes,
+    satisfied: scenarioTargetMarginVotes > 0,
+  };
 }
 
 function stateMargin(state: StatewidePresidentialResult) {
@@ -301,14 +336,12 @@ export function buildRouteConstructionPlan(
     const scenario = scenarioByCode.get(stateCode);
     if (!actual || !scenario) throw new Error(`Route construction state ${stateCode} is unavailable`);
     const totalElectoralVotes = scenario.harrisElectoralVotes + scenario.trumpElectoralVotes;
+    const flipRequirement = buildStateFlipRequirement(actual, scenario, targetCandidate);
     const satisfied = targetElectoralVotes(scenario, targetCandidate) === totalElectoralVotes;
     const isModeled = active.has(stateCode);
-    const certifiedRequiredNetMarginVotes = Math.max(0, 1 - targetMarginVotes(actual, targetCandidate));
-    const modeledNetMarginMovement = targetMarginVotes(scenario, targetCandidate)
-      - targetMarginVotes(actual, targetCandidate);
-    const remainingNetMarginVotes = satisfied
-      ? 0
-      : Math.max(0, 1 - targetMarginVotes(scenario, targetCandidate));
+    const certifiedRequiredNetMarginVotes = flipRequirement.certifiedRequiredNetMarginVotes;
+    const modeledNetMarginMovement = flipRequirement.modeledNetMarginMovement;
+    const remainingNetMarginVotes = satisfied ? 0 : flipRequirement.remainingNetMarginVotes;
     return {
       stateCode,
       stateName: actual.name ?? stateCode,

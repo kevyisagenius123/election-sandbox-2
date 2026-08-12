@@ -22,7 +22,7 @@ function scenarioPath(options: { state?: "MI" | "PA"; preference?: number; count
 async function loadVisual(page: Page, path: string, home = false) {
   await page.goto(path);
   if (home) await expect(page.getByRole("button", { name: "Open Sandbox", exact: true }).first()).toBeVisible();
-  else await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  else await expect(page.getByRole("button", { name: "Copy scenario link" })).toBeEnabled();
   await expect.poll(async () => page.evaluate(() => window.__sandboxDiagnostics?.().activeAnimationHandles ?? -1)).toBe(0);
   await expect.poll(async () => page.evaluate(() => window.__sandboxDiagnostics?.().activeDeckLayerIds.length ?? 0)).toBeGreaterThan(0);
   await page.evaluate(() => document.fonts.ready);
@@ -59,8 +59,13 @@ for (const reference of references) {
     await loadVisual(page, reference.path, reference.mode === "home");
     if (reference.snap) {
       const snap = page.getByRole("button", { name: reference.snap, exact: true });
-      await snap.click();
-      await expect(snap).toHaveAttribute("aria-pressed", "true");
+      if (reference.snap === "working" && !(await snap.isVisible())) {
+        await page.getByRole("button", { name: "Open controls" }).click();
+        await expect(page.getByRole("region", { name: "Laboratory desk" })).toHaveAttribute("data-snap", "working");
+      } else {
+        await snap.click();
+        await expect(snap).toHaveAttribute("aria-pressed", "true");
+      }
     }
     await expect(page.locator(`.application-shell[data-workspace-mode="${reference.mode}"]`)).toBeVisible();
     if (reference.geography) await expect(page.locator(`.application-shell[data-geography-level="${reference.geography}"]`)).toBeVisible();
