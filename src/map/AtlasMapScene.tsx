@@ -29,6 +29,7 @@ import type { StateDatum } from "../data/states.ts";
 import type { RouteConstructionStatus } from "../data/pathTo270.ts";
 import {
   publishMapLayerIds,
+  publishMapView,
   registerMapMount,
   setMapAnimation,
   setMapWebglContext,
@@ -58,6 +59,7 @@ type AtlasMapSceneProps = {
   activeStateCode: string | null;
   activeCountyFips: string | null;
   activePrecinctGeoid: string | null;
+  fitSelectionRequest: number;
   viewMode: ViewMode;
   routeIndicators: readonly {
     stateCode: string;
@@ -91,6 +93,7 @@ export function AtlasMapScene({
   activeStateCode,
   activeCountyFips,
   activePrecinctGeoid,
+  fitSelectionRequest,
   viewMode,
   routeIndicators,
   onActiveStateChange,
@@ -105,6 +108,7 @@ export function AtlasMapScene({
   const cameraAnimationRef = useRef<number | null>(null);
   const pendingViewRef = useRef<AtlasViewState | null>(null);
   const cameraRef = useRef<AtlasViewState>(NATIONAL_VIEW);
+  const framedStateCodeRef = useRef<string | null>(null);
   const [viewState, setViewState] = useState<AtlasViewState>(NATIONAL_VIEW);
   const [countyRaised, setCountyRaised] = useState(false);
   const [hoveredStateCode, setHoveredStateCode] = useState<string | null>(null);
@@ -117,6 +121,9 @@ export function AtlasMapScene({
   }>({ stateCode: null, countyFips: null, county: null, error: null });
   const [hoveredPrecinctGeoid, setHoveredPrecinctGeoid] = useState<string | null>(null);
   const [heightMode, setHeightMode] = useState<"ballots" | "flat">("ballots");
+  const publishView = useCallback((view: AtlasViewState) => publishMapView(diagnosticTokenRef.current, [
+    view.target[0], view.target[1], view.target[2], view.zoom, view.rotationX, view.rotationOrbit,
+  ]), []);
   const precinctCounty = activeDetailedStateManifest && activeCountyFips
     && precinctLoad.stateCode === activeDetailedStateManifest.code
     && precinctLoad.countyFips === activeCountyFips
@@ -230,6 +237,7 @@ export function AtlasMapScene({
         rotationOrbit: origin.rotationOrbit + (destination.rotationOrbit - origin.rotationOrbit) * eased,
       };
       cameraRef.current = next;
+      publishView(next);
       setViewState(next);
       if (progress < 1) cameraAnimationRef.current = window.requestAnimationFrame(frame);
       else {
@@ -240,12 +248,13 @@ export function AtlasMapScene({
 
     setMapAnimation(diagnosticTokenRef.current, "camera", true);
     cameraAnimationRef.current = window.requestAnimationFrame(frame);
-  }, []);
+  }, [publishView]);
 
   useEffect(() => {
     const registration = registerMapMount(diagnosticTokenRef.current);
+    publishView(cameraRef.current);
     return registration.release;
-  }, []);
+  }, [publishView]);
 
   const destinationForBounds = useCallback((
     bounds: { minX: number; minY: number; maxX: number; maxY: number },
@@ -279,6 +288,21 @@ export function AtlasMapScene({
       zoom: Math.min(-0.2, Math.log2(Math.max(scale, 0.1))),
     };
   }, []);
+
+  useEffect(() => {
+    if (!activeStateCode || !activeStateFeature || framedStateCodeRef.current === activeStateCode) return;
+    const next = destinationForBounds(featureBounds(activeStateFeature), {
+      widthRatio: 0.72,
+      heightRatio: 0.58,
+      minZoom: 0.85,
+      maxZoom: 2.25,
+      rotationX: 58,
+    });
+    framedStateCodeRef.current = activeStateCode;
+    cameraRef.current = next;
+    publishView(next);
+    setViewState(next);
+  }, [activeStateCode, activeStateFeature, destinationForBounds, publishView]);
 
   const openState = useCallback((code: string) => {
     const fips = stateFipsByCode[code];
@@ -339,10 +363,35 @@ export function AtlasMapScene({
       onActivePrecinctChange(null);
       onActiveCountyChange(null);
       onActiveStateChange(null);
+      framedStateCodeRef.current = null;
       closeTimerRef.current = null;
     }, 260);
     animateCamera(nationalDestination());
   }, [animateCamera, nationalDestination, onActiveCountyChange, onActivePrecinctChange, onActiveStateChange]);
+
+  useEffect(() => {
+    if (fitSelectionRequest === 0) return;
+    if (activeCountyFips && precinctCounty) {
+      const [minX, minY, maxX, maxY] = precinctCounty.metadata.bounds;
+      animateCamera(destinationForBounds({ minX, minY, maxX, maxY }, {
+        widthRatio: 0.72,
+        heightRatio: 0.64,
+        minZoom: 2.3,
+        maxZoom: 6.8,
+        rotationX: 55,
+      }), 520);
+      return;
+    }
+    if (activeStateFeature) {
+      animateCamera(destinationForBounds(featureBounds(activeStateFeature), {
+        widthRatio: 0.72,
+        heightRatio: 0.58,
+        minZoom: 0.85,
+        maxZoom: 2.25,
+        rotationX: 58,
+      }), 520);
+    }
+  }, [activeCountyFips, activeStateFeature, animateCamera, destinationForBounds, fitSelectionRequest, precinctCounty]);
 
   useEffect(() => {
     if (!activeStateCode) return;
@@ -366,6 +415,7 @@ export function AtlasMapScene({
       layoutFrameRef.current = window.requestAnimationFrame(() => {
         const next = nationalDestination();
         cameraRef.current = next;
+        publishView(next);
         setViewState(next);
         layoutFrameRef.current = null;
         setMapAnimation(diagnosticToken, "layout", false);
@@ -380,7 +430,7 @@ export function AtlasMapScene({
       layoutFrameRef.current = null;
       setMapAnimation(diagnosticToken, "layout", false);
     };
-  }, [activeStateCode, nationalDestination]);
+  }, [activeStateCode, nationalDestination, publishView]);
 
   useEffect(() => {
     if (!activeCountyFips || !activeDetailedStateManifest) return;
@@ -422,6 +472,7 @@ export function AtlasMapScene({
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (event.defaultPrevented) return;
       if (activeCountyFips) closeCounty();
       else if (activeStateCode) closeState();
     };
@@ -742,6 +793,7 @@ export function AtlasMapScene({
           }
           const nextView = next as unknown as AtlasViewState;
           cameraRef.current = nextView;
+          publishView(nextView);
           pendingViewRef.current = nextView;
           if (viewFrameRef.current == null) {
             setMapAnimation(diagnosticTokenRef.current, "view", true);

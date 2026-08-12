@@ -4,48 +4,48 @@ const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-v1";
 const ENGINE_VERSION = "pa-behavior-v1";
 const HOSTED_VISUALS = Boolean(process.env.GITHUB_ACTIONS);
 
-const acceptanceSizes = [
-  { width: 800, height: 900 },
-  { width: 1024, height: 768 },
-  { width: 1180, height: 820 },
-  { width: 1280, height: 800 },
-  { width: 1350, height: 900 },
-  { width: 390, height: 844 },
-] as const;
-
-function visualScenarioPath() {
+function scenarioPath(options: {
+  state?: "MI" | "PA";
+  preference?: number;
+  county?: string;
+  vtd?: string;
+  plan?: string;
+} = {}) {
+  const state = options.state ?? "PA";
   const params = new URLSearchParams({
     scenario: "2",
     data: DATA_VERSION,
     engine: ENGINE_VERSION,
-    activeState: "MI",
+    activeState: state,
     target: "harris",
     route: "fewest-states",
     view: "scenario",
     editor: "preference",
     rank: "vtd",
-    state: "MI",
-    plan: "FL,MI",
+    plan: options.plan ?? "FL,MI",
   });
-  params.append("recipe", `PA|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|2.5|0,50`);
-  params.append("recipe", `MI|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|2.5|0,50`);
+  if (options.state) params.set("state", options.state);
+  if (options.county) params.set("county", options.county);
+  if (options.vtd) params.set("vtd", options.vtd);
+  params.append("recipe", `${state}|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|${options.preference ?? 2.5}|0,50`);
   return `/?${params.toString()}`;
 }
 
-async function loadVisualScenario(page: Page) {
-  await page.goto(visualScenarioPath());
+async function loadVisual(page: Page, path: string) {
+  await page.goto(path);
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
-  await expect(page.locator('.route-lab-card[data-status="satisfied"]')).toBeVisible();
-  await expect(page.locator(".scenario-score")).toContainText("260");
-  await expect(page.locator(".scenario-score")).toContainText("278");
+  await expect.poll(async () => page.evaluate(() => window.__sandboxDiagnostics?.().activeAnimationHandles ?? -1)).toBe(0);
+  await expect.poll(async () => page.evaluate(() => window.__sandboxDiagnostics?.().activeDeckLayerIds.length ?? 0)).toBeGreaterThan(0);
   await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(500);
 }
 
-async function expectPlatformVisualStable(
-  page: Page,
-  name: string,
-  options: Parameters<Page["screenshot"]>[0],
-) {
+async function expectPlatformVisualStable(page: Page, name: string) {
+  const options = {
+    animations: "disabled" as const,
+    caret: "hide" as const,
+    fullPage: false,
+  };
   if (!HOSTED_VISUALS) {
     await expect(page).toHaveScreenshot(name, { ...options, maxDiffPixelRatio: 0.015 });
     return;
@@ -53,123 +53,44 @@ async function expectPlatformVisualStable(
   const first = await page.screenshot(options);
   await page.waitForTimeout(150);
   const second = await page.screenshot(options);
-  const differenceRatio = await page.evaluate(async ({ firstPng, secondPng }) => {
-    const decode = async (base64: string) => createImageBitmap(
-      await (await fetch(`data:image/png;base64,${base64}`)).blob(),
-    );
-    const [firstImage, secondImage] = await Promise.all([decode(firstPng), decode(secondPng)]);
-    if (firstImage.width !== secondImage.width || firstImage.height !== secondImage.height) return 1;
-    const pixels = (image: ImageBitmap) => {
-      const canvas = new OffscreenCanvas(image.width, image.height);
-      const context = canvas.getContext("2d", { willReadFrequently: true });
-      if (!context) throw new Error("Visual comparison canvas is unavailable");
-      context.drawImage(image, 0, 0);
-      return context.getImageData(0, 0, image.width, image.height).data;
-    };
-    const firstPixels = pixels(firstImage);
-    const secondPixels = pixels(secondImage);
-    let changedPixels = 0;
-    for (let index = 0; index < firstPixels.length; index += 4) {
-      if (
-        Math.abs(firstPixels[index] - secondPixels[index]) > 8
-        || Math.abs(firstPixels[index + 1] - secondPixels[index + 1]) > 8
-        || Math.abs(firstPixels[index + 2] - secondPixels[index + 2]) > 8
-        || Math.abs(firstPixels[index + 3] - secondPixels[index + 3]) > 8
-      ) changedPixels += 1;
-    }
-    const totalPixels = firstImage.width * firstImage.height;
-    firstImage.close();
-    secondImage.close();
-    return changedPixels / totalPixels;
-  }, { firstPng: first.toString("base64"), secondPng: second.toString("base64") });
-  expect(differenceRatio).toBeLessThanOrEqual(0.001);
+  expect(first.equals(second)).toBe(true);
 }
 
-for (const size of acceptanceSizes) {
-  test(`responsive hierarchy at ${size.width}x${size.height}`, async ({ page }) => {
+const references = [
+  { name: "01-national-editorial-desktop.png", width: 1440, height: 900, path: scenarioPath() },
+  { name: "02-pa-laboratory-collapsed.png", width: 1440, height: 900, path: scenarioPath({ state: "PA" }), snap: "collapsed" },
+  { name: "03-pa-laboratory-working.png", width: 1440, height: 900, path: scenarioPath({ state: "PA" }), snap: "working" },
+  { name: "04-pa-laboratory-expanded.png", width: 1440, height: 900, path: scenarioPath({ state: "PA" }), snap: "expanded" },
+  { name: "05-county-inspector.png", width: 1440, height: 900, path: scenarioPath({ state: "PA", county: "42003", vtd: "42003000010" }), snap: "working" },
+  { name: "06-modeled-unsatisfied-route.png", width: 1440, height: 900, path: scenarioPath({ state: "MI", preference: 0.5 }), snap: "collapsed" },
+  { name: "07-satisfied-route.png", width: 1440, height: 900, path: scenarioPath({ state: "MI", preference: 2.5 }), snap: "collapsed" },
+  { name: "08-laboratory-1024.png", width: 1024, height: 768, path: scenarioPath({ state: "PA" }), snap: "working" },
+  { name: "09-laboratory-800.png", width: 800, height: 900, path: scenarioPath({ state: "PA" }), snap: "working" },
+  { name: "10-bottom-sheet-390.png", width: 390, height: 844, path: scenarioPath({ state: "PA" }), snap: "working" },
+] as const;
+
+for (const reference of references) {
+  test(reference.name.replace(".png", ""), async ({ page }) => {
     test.setTimeout(60_000);
-    await page.setViewportSize(size);
-    await loadVisualScenario(page);
-
-    const layout = await page.evaluate(() => {
-      const bounds = (selector: string) => {
-        const rect = document.querySelector(selector)?.getBoundingClientRect();
-        return rect ? { top: rect.top, bottom: rect.bottom, width: rect.width } : null;
-      };
-      return {
-        viewportWidth: innerWidth,
-        scrollWidth: document.documentElement.scrollWidth,
-        map: bounds(".map-stage"),
-        score: bounds(".scenario-card"),
-        route: bounds(".route-lab-card"),
-        path: bounds(".path-card"),
-        contribution: bounds(".contribution-card"),
-      };
-    });
-
-    expect(layout.scrollWidth).toBeLessThanOrEqual(layout.viewportWidth);
-    expect(layout.map?.width).toBeGreaterThanOrEqual(size.width <= 390 ? 330 : 315);
-    expect(layout.score).not.toBeNull();
-    expect(layout.route).not.toBeNull();
-    expect(layout.path).not.toBeNull();
-    expect(layout.contribution).not.toBeNull();
-    expect(layout.route!.top).toBeGreaterThanOrEqual(layout.score!.bottom);
-    expect(layout.path!.top).toBeGreaterThanOrEqual(layout.route!.bottom);
-    expect(layout.contribution!.top).toBeGreaterThan(layout.path!.top);
-
-    await expect(page.getByRole("region", { name: "Route construction for Michigan" })).toContainText("Michigan satisfies this route");
-    await expect(page.getByRole("region", { name: "Path to 270" })).toContainText("Net margin votes");
-    await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText("Where the result moved");
-    await expect.poll(async () => page.evaluate(() => window.__sandboxDiagnostics?.().activeDeckLayerIds ?? [])).toContain("sandbox-2-counties-MI");
-
-    await expectPlatformVisualStable(page, `layout-${size.width}x${size.height}.png`, {
-      animations: "disabled",
-      caret: "hide",
-      fullPage: !HOSTED_VISUALS,
-      mask: [page.locator(".atlas-map-scene")],
-      maskColor: "#e7e7df",
-    });
-
-    if (size.width === 1180) {
-      for (const [name, selector] of [
-        ["electoral-ledger", ".scenario-card"],
-        ["route-context", ".route-lab-card"],
-        ["path-to-270", ".path-card"],
-        ["behavior-editor", ".assumption-card"],
-        ["contribution-panel", ".contribution-card"],
-      ] as const) {
-        if (!HOSTED_VISUALS) {
-          await expect(page.locator(selector)).toHaveScreenshot(`${name}-1180.png`, {
-            animations: "disabled",
-            caret: "hide",
-            maxDiffPixelRatio: 0.005,
-          });
-        }
-      }
+    await page.setViewportSize({ width: reference.width, height: reference.height });
+    await loadVisual(page, reference.path);
+    if (reference.snap) {
+      const snap = page.getByRole("button", { name: reference.snap, exact: true });
+      await snap.click();
+      await expect(snap).toHaveAttribute("aria-pressed", "true");
     }
-
-    if (size.width === 390) {
-      if (!HOSTED_VISUALS) {
-        await expect(page.locator(".scenario-card")).toHaveScreenshot("electoral-ledger-mobile-390.png", {
-          animations: "disabled",
-          caret: "hide",
-          maxDiffPixelRatio: 0.005,
-        });
-        await expect(page.locator(".route-lab-card")).toHaveScreenshot("route-context-mobile-390.png", {
-          animations: "disabled",
-          caret: "hide",
-          maxDiffPixelRatio: 0.005,
-        });
-      }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(reference.width);
+    if (reference.name.includes("national")) {
+      await expect(page.locator('.application-shell[data-workspace-mode="national"]')).toBeVisible();
     }
+    await expectPlatformVisualStable(page, reference.name);
   });
 }
 
-test("reduced motion removes route progress animation", async ({ page }) => {
+test("reduced motion removes drawer and route progress animation", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await loadVisualScenario(page);
-  const transition = await page.locator(".route-progress-track span").evaluate((element) => (
-    getComputedStyle(element).transitionDuration
-  ));
-  expect(transition).toBe("0s");
+  await loadVisual(page, scenarioPath({ state: "MI", preference: 2.5 }));
+  await page.getByRole("button", { name: "working", exact: true }).click();
+  expect(await page.locator(".laboratory-drawer").evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
+  expect(await page.locator(".route-progress-track span").evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 });

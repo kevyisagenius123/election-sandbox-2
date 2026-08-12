@@ -14,6 +14,7 @@ export interface RuntimeDiagnosticsSnapshot {
   mapMountCount: number;
   webglContextCount: number;
   activeDeckLayerIds: readonly string[];
+  activeMapView: readonly number[] | null;
 }
 
 declare global {
@@ -28,6 +29,7 @@ const mapMounts = new Set<symbol>();
 const webglContexts = new Set<symbol>();
 const mapAnimations = new Map<symbol, Set<string>>();
 const mapLayerIds = new Map<symbol, readonly string[]>();
+const mapViews = new Map<symbol, readonly number[]>();
 let geometryCacheEntries = 0;
 let geometryCacheBytes = 0;
 let pendingGeometryFetches = 0;
@@ -49,6 +51,7 @@ function immutableSnapshot(): RuntimeDiagnosticsSnapshot {
     mapMountCount: mapMounts.size,
     webglContextCount: webglContexts.size,
     activeDeckLayerIds: Object.freeze([...new Set([...mapLayerIds.values()].flat())].sort()),
+    activeMapView: mapViews.size === 1 ? Object.freeze([...mapViews.values()][0]) : null,
   });
 }
 
@@ -108,6 +111,7 @@ export function registerMapMount(token = Symbol("atlas-map")) {
       webglContexts.delete(token);
       mapAnimations.delete(token);
       mapLayerIds.delete(token);
+      mapViews.delete(token);
     },
   };
 }
@@ -127,4 +131,9 @@ export function setMapAnimation(token: symbol, name: string, active: boolean) {
 export function publishMapLayerIds(token: symbol, ids: readonly string[]) {
   if (!mapMounts.has(token)) return;
   mapLayerIds.set(token, Object.freeze([...ids]));
+}
+
+export function publishMapView(token: symbol, view: readonly number[]) {
+  if (!mapMounts.has(token)) return;
+  mapViews.set(token, Object.freeze([...view]));
 }

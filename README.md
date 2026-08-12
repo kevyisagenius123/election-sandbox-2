@@ -2,9 +2,9 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.18 Private-alpha hardening
+## Current release: v0.18.1 Viewport Laboratory
 
-v0.18 proves the existing Pennsylvania and Michigan portfolio can survive sustained real-browser use before a third detailed state is admitted. It adds a narrow immutable development diagnostic contract, a deterministic PA/MI lifecycle profile with written heap and latency budgets, hostile stale-request replacement, six responsive visual baselines from 390 to 1350 pixels, and audited state-admission, exception, and redistribution records. A medium-screen grid defect that stretched the 3D map to the full editor height was found and fixed during acceptance testing.
+v0.18.1 separates national editorial exploration from detailed-state laboratory work without recreating scenario, worker, or map foundations. Detailed desktop views now use a fixed viewport workspace with a bounded consequence rail and a three-state analytical drawer. Camera position survives drawer changes, local contributions open directly into the Inspector, route alternatives leave the permanent rail, and a compact causal strip keeps model input, state movement, and Electoral College consequence visible. Ten new visual references cover National, all drawer states, county inspection, route outcomes, laptop, tablet, and mobile layouts.
 
 The current build provides:
 

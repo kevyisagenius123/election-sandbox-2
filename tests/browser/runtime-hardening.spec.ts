@@ -83,6 +83,9 @@ async function waitForSettledRuntime(page: Page, stateCode: "MI" | "PA") {
 }
 
 async function openTopPrecinct(page: Page) {
+  const contributorsTab = page.getByRole("tab", { name: "Contributors", exact: true });
+  if (!(await contributorsTab.isVisible())) await page.getByRole("button", { name: "working", exact: true }).click();
+  await contributorsTab.click();
   await page.getByRole("button", { name: "Precincts", exact: true }).click();
   const firstContribution = page.locator(".contribution-list button").first();
   await expect(firstContribution).toBeVisible();
@@ -192,6 +195,8 @@ test("hostile state replacement rejects delayed geometry and leaves one owner", 
   await page.goto(portfolioPath());
   await waitForSettledRuntime(page, "MI");
 
+  await page.getByRole("button", { name: "working", exact: true }).click();
+  await page.getByRole("tab", { name: "Contributors", exact: true }).click();
   await page.getByRole("button", { name: "Precincts", exact: true }).click();
   await page.locator(".contribution-list button").first().click();
   await page.getByTestId("portfolio-state-PA").click();

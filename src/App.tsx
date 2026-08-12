@@ -7,6 +7,8 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
   aggregateNational,
@@ -84,6 +86,10 @@ installRuntimeDiagnosticsHook();
 type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
 type ContributionScope = ScenarioContributionScope;
+type LaboratoryDrawerSnap = "collapsed" | "working" | "expanded";
+type LaboratoryDrawerTab = "behavior" | "contributors" | "inspector" | "assumptions" | "data";
+
+const laboratoryDrawerTabs: LaboratoryDrawerTab[] = ["behavior", "contributors", "inspector", "assumptions", "data"];
 
 interface ContributionRow {
   id: string;
@@ -255,6 +261,18 @@ export function App() {
     initialScenarioUrlState.contributionScope,
   );
   const [assumptionsOpen, setAssumptionsOpen] = useState(true);
+  const [laboratoryDrawerSnap, setLaboratoryDrawerSnap] = useState<LaboratoryDrawerSnap>(
+    initialScenarioUrlState.selectedCountyFips || initialScenarioUrlState.selectedVtdGeoid ? "working" : "collapsed",
+  );
+  const [laboratoryDrawerTab, setLaboratoryDrawerTab] = useState<LaboratoryDrawerTab>(
+    initialScenarioUrlState.selectedCountyFips || initialScenarioUrlState.selectedVtdGeoid ? "inspector" : "behavior",
+  );
+  const [laboratoryDrawerDragHeight, setLaboratoryDrawerDragHeight] = useState<number | null>(null);
+  const [fitSelectionRequest, setFitSelectionRequest] = useState(0);
+  const [routeAlternativesOpen, setRouteAlternativesOpen] = useState(false);
+  const laboratoryDrawerRef = useRef<HTMLDivElement>(null);
+  const drawerDragRef = useRef<{ pointerId: number; startY: number; startHeight: number } | null>(null);
+  const routeAlternativesButtonRef = useRef<HTMLButtonElement>(null);
   const [scenarioLinkNotice, setScenarioLinkNotice] = useState<string | null>(
     scenarioUrlNotice(initialScenarioUrlLoad),
   );
@@ -306,6 +324,12 @@ export function App() {
     setSelectedStateCode(state.selectedStateCode);
     setSelectedCountyFips(state.selectedCountyFips);
     setSelectedVtdGeoid(state.selectedVtdGeoid);
+    if (state.selectedCountyFips || state.selectedVtdGeoid) {
+      setLaboratoryDrawerTab("inspector");
+      setLaboratoryDrawerSnap("working");
+    } else if (!state.selectedStateCode) {
+      setLaboratoryDrawerSnap("collapsed");
+    }
     const nextActiveState = state.activeDetailedStateCode
       ?? (isDetailedStateCode(state.selectedStateCode ?? "")
         ? state.selectedStateCode as DetailedStateCode
@@ -341,6 +365,18 @@ export function App() {
     window.addEventListener("popstate", restoreBrowserHistoryState);
     return () => window.removeEventListener("popstate", restoreBrowserHistoryState);
   }, [applyScenarioUrlState]);
+
+  useEffect(() => {
+    if (!routeAlternativesOpen) return;
+    const closeAlternatives = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setRouteAlternativesOpen(false);
+      requestAnimationFrame(() => routeAlternativesButtonRef.current?.focus());
+    };
+    window.addEventListener("keydown", closeAlternatives, true);
+    return () => window.removeEventListener("keydown", closeAlternatives, true);
+  }, [routeAlternativesOpen]);
 
   const detailedActual = states2024.find(
     (state) => state.code === activeDetailedStateCode,
@@ -781,11 +817,45 @@ export function App() {
     setSelectedVtdGeoid(null);
     setSelectedCountyFips(null);
     setSelectedStateCode(null);
+    setLaboratoryDrawerSnap("collapsed");
   }
 
   function selectCounty(fips: string | null) {
     setSelectedVtdGeoid(null);
     setSelectedCountyFips(fips);
+    if (fips) {
+      setLaboratoryDrawerTab("inspector");
+      setLaboratoryDrawerSnap("working");
+    }
+  }
+
+  function selectPrecinct(geoid: string | null) {
+    setSelectedVtdGeoid(geoid);
+    if (geoid) {
+      setLaboratoryDrawerTab("inspector");
+      setLaboratoryDrawerSnap("working");
+    }
+  }
+
+  function openLaboratoryPanel(tab: LaboratoryDrawerTab) {
+    setAssumptionsOpen(true);
+    if (!selectedStateCode) return;
+    setLaboratoryDrawerTab(tab);
+    if (laboratoryDrawerSnap === "collapsed") changeDrawerSnap("working");
+  }
+
+  function handleLaboratoryTabKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, tab: LaboratoryDrawerTab) {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const index = laboratoryDrawerTabs.indexOf(tab);
+    const nextIndex = event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? laboratoryDrawerTabs.length - 1
+        : (index + (event.key === "ArrowRight" ? 1 : -1) + laboratoryDrawerTabs.length) % laboratoryDrawerTabs.length;
+    const nextTab = laboratoryDrawerTabs[nextIndex];
+    openLaboratoryPanel(nextTab);
+    requestAnimationFrame(() => document.getElementById(`laboratory-tab-${nextTab}`)?.focus());
   }
 
   function resetScenario() {
@@ -815,6 +885,42 @@ export function App() {
     selectState(activeDetailedStateCode);
     setSelectedCountyFips(row.countyFips);
     setSelectedVtdGeoid(row.vtdGeoid);
+    setLaboratoryDrawerTab("inspector");
+    setLaboratoryDrawerSnap("working");
+  }
+
+  function changeDrawerSnap(snap: LaboratoryDrawerSnap) {
+    setLaboratoryDrawerDragHeight(null);
+    setLaboratoryDrawerSnap(snap);
+  }
+
+  function handleDrawerPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    const drawer = laboratoryDrawerRef.current;
+    if (!drawer) return;
+    drawerDragRef.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startHeight: drawer.getBoundingClientRect().height,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  function handleDrawerPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+    const drag = drawerDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const minimum = 64;
+    const maximum = Math.max(320, window.innerHeight - 210);
+    setLaboratoryDrawerDragHeight(Math.min(maximum, Math.max(minimum, drag.startHeight + drag.startY - event.clientY)));
+  }
+
+  function handleDrawerPointerEnd(event: ReactPointerEvent<HTMLButtonElement>) {
+    const drag = drawerDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const height = laboratoryDrawerRef.current?.getBoundingClientRect().height ?? 64;
+    drawerDragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    changeDrawerSnap(height < window.innerHeight * 0.25 ? "collapsed" : height > window.innerHeight * 0.6 ? "expanded" : "working");
   }
 
   function chooseThirdPartyCandidate(candidate: ThirdPartyCandidate) {
@@ -823,7 +929,7 @@ export function App() {
   }
 
   return (
-    <main className="application-shell">
+    <main className="application-shell" data-workspace-mode={selectedStateCode ? "laboratory" : "national"}>
       <header className="masthead">
         <a className="brand" href="#top" aria-label="Sandbox 2.0 home">
           <span className="brand-rule" aria-hidden="true"><i /><i /></span>
@@ -835,15 +941,31 @@ export function App() {
 
         <nav className="primary-nav" aria-label="Primary navigation">
           <button className="nav-item active" type="button">Explore</button>
-          <button className="nav-item" onClick={() => setAssumptionsOpen(true)} type="button">Assumptions</button>
+          <button className="nav-item" onClick={() => openLaboratoryPanel("assumptions")} type="button">Assumptions</button>
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Private alpha hardening · v0.18</div>
+        <div className="build-status"><span />Viewport laboratory · v0.18.1</div>
       </header>
 
       <div className="workbench" id="top">
         <section className="editorial-column" aria-labelledby="page-heading">
+          {selectedStateCode && (
+            <div className="laboratory-context">
+              <span className="overline">{selectedActual.name} laboratory</span>
+              <strong>{selectedGeographyName}</strong>
+              <div>
+                <span>Actual <b>{readoutActualMargin == null ? "Unavailable" : formatMargin(readoutActualMargin)}</b></span>
+                <span>Scenario <b>{readoutScenarioMargin == null ? "Unavailable" : formatMargin(readoutScenarioMargin)}</b></span>
+              </div>
+              <button onClick={selectedCountyFips ? () => selectCounty(null) : selectNation} type="button">
+                ← {selectedCountyFips ? selectedActual.name : "United States"}
+              </button>
+              <button className="fit-selection-button" onClick={() => setFitSelectionRequest((request) => request + 1)} type="button">
+                Fit selection
+              </button>
+            </div>
+          )}
           <p className="overline">Historical counterfactual simulator</p>
           <h1 id="page-heading">Change America.<br />Watch the map answer.</h1>
           <p className="lede">
@@ -883,14 +1005,14 @@ export function App() {
           </div>
         </section>
 
-        <section className="map-column" aria-label="National election workbench">
+        <section className="map-column" aria-label={selectedStateCode ? `${selectedActual.name} election laboratory` : "National election workbench"}>
           <div className="map-toolbar">
             <div>
               <span className="overline">Geographic scope</span>
               <div className="breadcrumb">
                 <button onClick={selectNation} type="button">United States</button>
                 {selectedStateCode && <><span>/</span>{selectedCountyFips ? <button onClick={() => selectCounty(null)} type="button">{selectedActual.name}</button> : <strong>{selectedActual.name}</strong>}</>}
-                {selectedActualCounty && <><span>/</span>{selectedVtd ? <button onClick={() => setSelectedVtdGeoid(null)} type="button">{selectedActualCounty.name}</button> : <strong>{selectedActualCounty.name}</strong>}</>}
+                {selectedActualCounty && <><span>/</span>{selectedVtd ? <button onClick={() => selectPrecinct(null)} type="button">{selectedActualCounty.name}</button> : <strong>{selectedActualCounty.name}</strong>}</>}
                 {selectedVtd && <><span>/</span><strong>{selectedVtd.name}</strong></>}
               </div>
             </div>
@@ -918,11 +1040,12 @@ export function App() {
                 actualDetailedCounties={detailedCounties}
                 actualStates={states2024}
                 onActiveCountyChange={selectCounty}
-                onActivePrecinctChange={setSelectedVtdGeoid}
+                onActivePrecinctChange={selectPrecinct}
                 onActiveStateChange={selectState}
                 scenarioDetailedCounties={scenarioDetailedCounties}
                 scenarioDetailedGeographies={scenarioDetailedGeographies}
                 scenarioStates={scenarioStates}
+                fitSelectionRequest={fitSelectionRequest}
                 viewMode={viewMode}
                 routeIndicators={(routeConstructionPlan?.states ?? []).map((state, index) => ({
                   stateCode: state.stateCode,
@@ -961,6 +1084,20 @@ export function App() {
             <i />
             <span>Tile color: statewide winning margin</span>
           </div>
+          {selectedStateCode && (
+            <div className="causal-strip" aria-live="polite">
+              <span>{behaviorEditorMode === "preference"
+                ? formatPreferenceMovement(effectivePreferenceShiftPoints)
+                : behaviorEditorMode === "turnout"
+                  ? `Turnout +${turnoutIncreasePoints.toFixed(1)} pts`
+                  : formatThirdPartyMovement(effectiveThirdPartyShiftPoints, thirdPartyCandidate)}</span>
+              <i aria-hidden="true">→</i>
+              <strong>{activeDetailedStateCode} {formatMarginVotes(contributionSummary.statewideMarginDelta)} margin</strong>
+              {activeRouteConstructionState && <><i aria-hidden="true">→</i><b>{activeRouteConstructionState.status === "satisfied"
+                ? `+${activeRouteConstructionState.electoralVotes} EV verified`
+                : `${formatCompact(activeRouteConstructionState.remainingNetMarginVotes)} still required`}</b></>}
+            </div>
+          )}
         </section>
 
         <aside className={`control-column ${assumptionsOpen ? "open" : ""}`} aria-label="Scenario editor">
@@ -1102,7 +1239,7 @@ export function App() {
             </section>
           )}
 
-          <section className="path-card" aria-label="Path to 270">
+          <section className="path-card" aria-label="Path to 270" data-alternatives-open={routeAlternativesOpen}>
             <div className="card-heading compact">
               <div><span className="overline">Path to {pathTo270.majorityThreshold}</span><strong>Closest mathematical routes</strong></div>
               <span className="route-needed">{pathTo270.electoralVotesNeeded === 0
@@ -1119,6 +1256,15 @@ export function App() {
                 >{routeMetricLabels[metric]}</button>
               ))}
             </div>
+            {selectedStateCode && (
+              <button
+                aria-expanded={routeAlternativesOpen}
+                className="route-alternatives-button"
+                onClick={() => setRouteAlternativesOpen((open) => !open)}
+                ref={routeAlternativesButtonRef}
+                type="button"
+              >{routeAlternativesOpen ? "Close alternative routes" : "Compare alternative routes"}</button>
+            )}
             {routeConstructionPlan && (
               <div className="route-construction" data-status={routeConstructionPlan.status}>
                 <div className="route-construction-heading">
@@ -1219,13 +1365,59 @@ export function App() {
             </p>
           </section>
 
-          {selectedInspector && (
-            <GeographyInspector
-              model={selectedInspector}
-              onClearVtd={() => setSelectedVtdGeoid(null)}
-            />
-          )}
+          <div
+            aria-label="Laboratory desk"
+            className="laboratory-drawer"
+            data-snap={laboratoryDrawerSnap}
+            ref={laboratoryDrawerRef}
+            role="region"
+            style={laboratoryDrawerDragHeight == null ? undefined : { "--drawer-drag-height": `${laboratoryDrawerDragHeight}px` } as CSSProperties}
+          >
+            <button
+              aria-label="Resize laboratory drawer"
+              className="drawer-grab-handle"
+              onPointerCancel={handleDrawerPointerEnd}
+              onPointerDown={handleDrawerPointerDown}
+              onPointerMove={handleDrawerPointerMove}
+              onPointerUp={handleDrawerPointerEnd}
+              type="button"
+            ><span /></button>
+            <div className="drawer-toolbar">
+              <div>
+                <span className="overline">Laboratory desk</span>
+                <strong>{laboratoryDrawerSnap === "collapsed" ? `${behaviorEditorMode === "preference" ? formatPreferenceMovement(effectivePreferenceShiftPoints) : behaviorEditorMode} · ${formatMarginVotes(contributionSummary.statewideMarginDelta)}` : selectedGeographyName}</strong>
+              </div>
+              <div className="drawer-tabs" role="tablist" aria-label="Laboratory panels">
+                {laboratoryDrawerTabs.map((tab) => (
+                  <button
+                    aria-controls={`laboratory-panel-${tab}`}
+                    aria-selected={laboratoryDrawerTab === tab}
+                    id={`laboratory-tab-${tab}`}
+                    key={tab}
+                    onClick={() => openLaboratoryPanel(tab)}
+                    onKeyDown={(event) => handleLaboratoryTabKeyDown(event, tab)}
+                    role="tab"
+                    tabIndex={laboratoryDrawerTab === tab ? 0 : -1}
+                    type="button"
+                  >
+                    {tab[0].toUpperCase() + tab.slice(1)}
+                  </button>
+                ))}
+              </div>
+              <div className="drawer-snaps" aria-label="Laboratory drawer size">
+                {(["collapsed", "working", "expanded"] as LaboratoryDrawerSnap[]).map((snap) => (
+                  <button aria-pressed={laboratoryDrawerSnap === snap} key={snap} onClick={() => changeDrawerSnap(snap)} type="button">{snap}</button>
+                ))}
+              </div>
+            </div>
+            <div className="drawer-panels">
+              <div aria-labelledby="laboratory-tab-inspector" className="drawer-panel" data-active={laboratoryDrawerTab === "inspector"} id="laboratory-panel-inspector" role="tabpanel">
+                {selectedInspector ? (
+                  <GeographyInspector model={selectedInspector} onClearVtd={() => selectPrecinct(null)} />
+                ) : <div className="drawer-empty"><strong>No local geography selected.</strong><span>Choose a county or precinct to inspect its certified and scenario result.</span></div>}
+              </div>
 
+              <div aria-labelledby="laboratory-tab-behavior" className="drawer-panel" data-active={laboratoryDrawerTab === "behavior"} id="laboratory-panel-behavior" role="tabpanel">
           <section className="assumption-card">
             <div className="card-heading">
               <div><span className="overline">Behavior editor</span><strong>Change participation or choice</strong></div>
@@ -1525,7 +1717,9 @@ export function App() {
               </button>
             </div>
           </section>
+              </div>
 
+              <div aria-labelledby="laboratory-tab-contributors" className="drawer-panel" data-active={laboratoryDrawerTab === "contributors"} id="laboratory-panel-contributors" role="tabpanel">
           <section className="contribution-card">
             <div className="card-heading compact contribution-heading">
               <div><span className="overline">Where the result moved</span><strong>Top contributors</strong></div>
@@ -1573,7 +1767,9 @@ export function App() {
               </div>
             </div>
           </section>
+              </div>
 
+              <div aria-labelledby="laboratory-tab-assumptions" className="drawer-panel" data-active={laboratoryDrawerTab === "assumptions"} id="laboratory-panel-assumptions" role="tabpanel">
           <section className="ledger-card">
             <div className="card-heading compact">
               <div><span className="overline">Assumption ledger</span><strong>3 ordered operations</strong></div>
@@ -1599,10 +1795,15 @@ export function App() {
               <b>{effectiveThirdPartyShiftPoints === 0 ? "Off" : formatThirdPartyMovement(effectiveThirdPartyShiftPoints, thirdPartyCandidate)}</b>
             </div>
           </section>
+              </div>
 
+              <div aria-labelledby="laboratory-tab-data" className="drawer-panel" data-active={laboratoryDrawerTab === "data"} id="laboratory-panel-data" role="tabpanel">
           <div className="model-warning">
             <strong>What this model does not claim</strong>
             <p>Turnout uses 2020 population age 18 and over, not citizen or 2024 eligible population. Third-party exchanges follow the chosen Harris/Trump source share; they are a transparent counterfactual, not an estimate of voter migration.</p>
+          </div>
+              </div>
+            </div>
           </div>
         </aside>
       </div>

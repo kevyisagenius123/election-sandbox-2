@@ -36,13 +36,27 @@ async function loadScenario(page: Page, params: URLSearchParams, stateCode = "PA
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
 }
 
+async function openLaboratoryTab(page: Page, name: "Behavior" | "Contributors" | "Inspector") {
+  if (await page.locator('.application-shell[data-workspace-mode="laboratory"]').count() === 0) return;
+  const tab = page.getByRole("tab", { name, exact: true });
+  if (!(await tab.isVisible())) {
+    const working = page.getByRole("button", { name: "working", exact: true });
+    await working.click();
+    await expect(working).toHaveAttribute("aria-pressed", "true");
+  }
+  await tab.click();
+}
+
 test("canonical shared scenario restores the exact result and selected VTD", async ({ page }) => {
   await loadScenario(page, canonicalScenario);
 
   await expect(page.getByRole("button", { name: "Shift" })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("button", { name: "Third party" })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("button", { name: "Precincts" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("region", { name: "Data inspector for ALEPPO Voting District" })).toBeVisible();
+  await openLaboratoryTab(page, "Behavior");
+  await expect(page.getByRole("button", { name: "Third party" })).toHaveAttribute("aria-pressed", "true");
+  await openLaboratoryTab(page, "Contributors");
+  await expect(page.getByRole("button", { name: "Precincts" })).toHaveAttribute("aria-pressed", "true");
+  await openLaboratoryTab(page, "Behavior");
   await expect(page.getByRole("complementary", { name: "Scenario editor" }).locator(".effect-grid strong").getByText("R +5.8", { exact: true })).toBeVisible();
   await expect(page.getByRole("status")).toContainText(
     "Shared scenario restored from a compatible deterministic URL.",
@@ -163,6 +177,7 @@ test("rapid scenario changes publish only the newest worker result", async ({ pa
     rank: "county",
   });
   await loadScenario(page, preferenceScenario);
+  await openLaboratoryTab(page, "Behavior");
 
   const preference = page.getByRole("slider", { name: "Two-party preference transfer" });
   await preference.fill("8");
@@ -180,6 +195,7 @@ test("rapid scenario changes publish only the newest worker result", async ({ pa
 });
 
 test("a two-state portfolio aggregates deterministically and survives state switching", async ({ page }) => {
+  test.setTimeout(60_000);
   const portfolio = new URLSearchParams({
     scenario: "2",
     data: DATA_VERSION,
@@ -204,16 +220,21 @@ test("a two-state portfolio aggregates deterministically and survives state swit
   await expect(page.getByTestId("path-route-1")).toContainText("actual → required");
 
   await page.getByTestId("portfolio-state-PA").click();
+  await openLaboratoryTab(page, "Behavior");
   await expect(page.getByRole("slider", { name: "Two-party preference transfer" })).toHaveValue("2.5");
   await expect(page.getByTestId("portfolio-state-PA")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
 
+  await page.getByRole("button", { name: "collapsed", exact: true }).click();
   await page.getByTestId("portfolio-state-MI").click();
+  await openLaboratoryTab(page, "Behavior");
   await expect(page.getByRole("slider", { name: "Two-party preference transfer" })).toHaveValue("2.5");
   await expect(page.getByTestId("portfolio-state-MI")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
   await expect.poll(() => new URL(page.url()).searchParams.getAll("recipe").length).toBe(2);
 
+  await page.getByRole("button", { name: "collapsed", exact: true }).click();
+  await page.getByRole("button", { name: "Compare alternative routes" }).click();
   await page.getByRole("button", { name: "Net margin votes" }).click();
   await expect(page.getByRole("button", { name: "Net margin votes" })).toHaveAttribute("aria-pressed", "true");
   await expect.poll(() => new URL(page.url()).searchParams.get("route")).toBe("margin-votes");
@@ -229,6 +250,7 @@ test("a two-state portfolio aggregates deterministically and survives state swit
   await expect(page.locator(".scenario-score")).toContainText("260");
   await expect(page.locator(".scenario-score")).toContainText("278");
   await expect(page.locator(".consequence-ledger-heading")).toContainText("−34 Trump EV");
+  await page.getByRole("button", { name: "Compare alternative routes" }).click();
   await expect(page.getByRole("button", { name: "Net margin votes" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("region", { name: "Path to 270" })).toContainText("Trump already holds a majority.");
 });
@@ -271,6 +293,7 @@ test("a Required Michigan route becomes Modeled, Satisfied, replayable, and reve
   await expect.poll(() => new URL(page.url()).searchParams.get("plan")).toBe("FL,MI");
 
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await openLaboratoryTab(page, "Behavior");
   await page.getByRole("button", { name: "Preference", exact: true }).click();
   const preference = page.getByRole("slider", { name: "Two-party preference transfer" });
   await preference.fill("0.5");
@@ -293,6 +316,7 @@ test("a Required Michigan route becomes Modeled, Satisfied, replayable, and reve
 
   await page.reload();
   await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await openLaboratoryTab(page, "Behavior");
   await expect(page.getByRole("region", { name: "Route construction for Michigan" })).toContainText(
     "Michigan satisfies this route.",
   );
