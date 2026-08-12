@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.13 Michigan runtime integration
+## Current release: v0.14 multi-state scenario portfolio
 
 The current build provides:
 
@@ -36,6 +36,11 @@ The current build provides:
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
 - Reconciliation, allocation, and zero-change tests.
+- Simultaneous Pennsylvania and Michigan scenario recipes with exact national popular-vote and Electoral College aggregation.
+- Per-state controls that persist across national navigation and restore when either state is reopened.
+- Sequential inactive-state worker hydration, compact verified summaries, and bounded county-geometry caching instead of retaining both full foundations on the main thread.
+- A compact active-state strip showing each modeled state's current margin and opening its detailed laboratory.
+- URL schema 2 replay for complete multi-state portfolios, while schema 1 links remain supported.
 
 The Pennsylvania source exposes exact Harris, Trump, Stein, and Oliver results by reporting unit, but does not place every write-in or residual vote by county. The model therefore preserves 24,526 certified residual votes in an explicit statewide bucket instead of inventing a county or precinct location. One Philadelphia reconciliation bucket and every unmatched reporting unit also remain explicit.
 
@@ -63,13 +68,13 @@ The turnout denominator is not citizen voting-age population and is not a 2024 e
 
 ## Scenario sharing
 
-Every non-baseline change is written into a readable query string with URL schema, dataset, and deterministic engine versions. The payload includes all three behavior operations, the active editor and map modes, contribution scope, and selected state, county, or VTD. A copied baseline link is also explicit and versioned even though the ordinary baseline page keeps a clean URL.
+Every non-baseline change is written into a readable query string with URL schema, dataset, and deterministic engine versions. Schema 2 stores one authoritative recipe per active detailed state plus the active editor, map mode, contribution scope, and selected geography. Derived results are regenerated locally and are never serialized as a competing source of truth. A copied baseline link is explicit and versioned even though the ordinary baseline page stays clean.
 
 Compatible links restore locally without a backend. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, or engine versions and malformed payloads never apply partially: the application restores the certified baseline and displays the reason.
 
 Current compatibility contract:
 
-- URL schema: `1`
+- URL schema: `2` (`1` remains replayable)
 - Dataset: `us2024-pa-vtd2020-mi-precinct2024-v1`
 - Engine: `pa-behavior-v1`
 
@@ -89,7 +94,7 @@ Coverage is explicit:
 
 ## Reliability and runtime profile
 
-The browser suite opens the real application and verifies visible outcomes rather than private component state. It locks the canonical Pennsylvania replay, verifies alphanumeric VTDs, exercises Michigan direct, weighted-split, and unavailable demographic bridges, rejects stale worker results, and proves that future URL schemas fail closed.
+The browser suite opens the real application and verifies visible outcomes rather than private component state. It locks the canonical Pennsylvania replay, verifies alphanumeric VTDs, exercises Michigan direct, weighted-split, and unavailable demographic bridges, rejects stale worker results, proves that future URL schemas fail closed, and verifies a two-state portfolio through repeated state switching.
 
 The local profiler covers JSON parsing, fail-closed decoding, model-unit conversion, a complex three-operation scenario, and its contribution audit. On repeated runs on the current Windows development machine, the scenario median fell from about 100 ms to roughly 75 ms and the contribution audit from about 16 ms to under 2 ms. These measurements are diagnostic, not cross-device performance guarantees.
 
@@ -98,6 +103,12 @@ The local profiler covers JSON parsing, fail-closed decoding, model-unit convers
 Pennsylvania and Michigan are registered through typed state manifests instead of scattered runtime constants. URL compatibility versions, demographic artifacts, precinct geometry manifests, election metadata, and source registries resolve through those contracts. The worker dispatches by loader encoding, while map, inspector, contribution, county, and URL adapters consume the active state contract.
 
 The demographic artifact is fetched, decoded, validated, and converted to model units inside a dedicated worker. Scenario requests carry monotonically increasing identifiers. Queued slider changes are coalesced, and the interface accepts only the response matching the newest settings. Share links remain disabled while a result is pending, so a copied URL and the displayed result cannot disagree.
+
+## Multi-state scenario portfolio
+
+Recipes are the authoritative resident state. The active state uses the full detailed worker needed by the map, inspector, and contribution panel. Inactive recipes are processed sequentially in a separate worker that returns only compact, fingerprinted summaries. National aggregation accepts a summary only when its fingerprint matches the current recipe; otherwise it temporarily uses that state's certified baseline and keeps sharing disabled.
+
+Switching between Pennsylvania and Michigan snapshots the departing controls and restores the arriving state's own recipe. Leaving a state releases eligible precinct shards, county geometry uses a bounded least-recently-used cache, and both detailed workers are terminated by React lifecycle cleanup. This is the memory-safe foundation for the Path to 270 consequence ledger and route engine.
 
 ## Run locally
 
@@ -132,6 +143,7 @@ src/data/detailedStateData.ts       Shared county, geography, and aggregation ad
 src/data/detailedStatePrecincts.ts  Manifest-driven lazy precinct geometry loader
 src/data/detailedStateManifest.ts   Typed state registration and asset contracts
 src/data/scenarioUrl.ts             Versioned scenario URL codec and compatibility policy
+src/data/scenarioPortfolio.ts       Authoritative recipes and derived state-summary contracts
 src/runtime/                         Worker protocol, scenario runtime, and React bridge
 packages/data-contracts/            Canonical election and demographic contracts
 packages/election-model/            Deterministic allocation and scenario engine

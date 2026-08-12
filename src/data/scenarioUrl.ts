@@ -3,9 +3,17 @@ import {
   getDetailedStateManifest,
   isDetailedStateCode,
   pennsylvaniaDetailedStateManifest,
+  type DetailedStateCode,
 } from "./detailedStateManifest.ts";
+import {
+  createStateScenarioRecipe,
+  DEFAULT_STATE_BEHAVIOR_SETTINGS,
+  type StateBehaviorRecipeSettings,
+  type StateScenarioRecipe,
+} from "./scenarioPortfolio.ts";
 
-export const SCENARIO_URL_SCHEMA_VERSION = "1";
+export const LEGACY_SCENARIO_URL_SCHEMA_VERSION = "1";
+export const SCENARIO_URL_SCHEMA_VERSION = "2";
 export const SCENARIO_DATA_VERSION = pennsylvaniaDetailedStateManifest.compatibility.dataVersion;
 export const SCENARIO_ENGINE_VERSION = pennsylvaniaDetailedStateManifest.compatibility.engineVersion;
 
@@ -26,6 +34,8 @@ export interface ScenarioUrlState {
   selectedStateCode: string | null;
   selectedCountyFips: string | null;
   selectedVtdGeoid: string | null;
+  activeDetailedStateCode?: DetailedStateCode;
+  portfolioRecipes?: StateScenarioRecipe[];
 }
 
 export type ScenarioUrlLoadStatus = "none" | "valid" | "invalid" | "unsupported";
@@ -76,6 +86,8 @@ const scenarioParameterNames = [
   "view",
   "editor",
   "rank",
+  "activeState",
+  "recipe",
   "state",
   "county",
   "vtd",
@@ -102,6 +114,24 @@ function parseNumber(
 ) {
   const raw = params.get(name);
   if (raw == null) return fallback;
+  if (raw.trim() === "") throw new InvalidScenarioUrlError(`${name} is empty`);
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < minimum || value > maximum) {
+    throw new InvalidScenarioUrlError(`${name} is outside its supported range`);
+  }
+  if (integer && !Number.isInteger(value)) {
+    throw new InvalidScenarioUrlError(`${name} must be a whole number`);
+  }
+  return Object.is(value, -0) ? 0 : value;
+}
+
+function parseRawNumber(
+  raw: string,
+  name: string,
+  minimum: number,
+  maximum: number,
+  integer = false,
+) {
   if (raw.trim() === "") throw new InvalidScenarioUrlError(`${name} is empty`);
   const value = Number(raw);
   if (!Number.isFinite(value) || value < minimum || value > maximum) {
@@ -169,9 +199,60 @@ function validateGeography(params: URLSearchParams) {
   };
 }
 
+function decodePortfolioRecipes(params: URLSearchParams) {
+  const recipes: StateScenarioRecipe[] = [];
+  const seen = new Set<string>();
+  for (const encoded of params.getAll("recipe")) {
+    const fields = encoded.split("|");
+    if (fields.length !== 9) throw new InvalidScenarioUrlError("recipe field contract is malformed");
+    const [stateCode, electionId, dataVersion, engineVersion] = fields;
+    if (!isDetailedStateCode(stateCode)) throw new InvalidScenarioUrlError("recipe state is unsupported");
+    if (seen.has(stateCode)) throw new InvalidScenarioUrlError(`recipe ${stateCode} appears more than once`);
+    seen.add(stateCode);
+    const manifest = getDetailedStateManifest(stateCode);
+    if (
+      electionId !== manifest.election.contestId
+      || dataVersion !== manifest.compatibility.dataVersion
+      || engineVersion !== manifest.compatibility.engineVersion
+    ) {
+      throw new InvalidScenarioUrlError(`${stateCode} recipe is incompatible with this build`);
+    }
+    const candidate = fields[6];
+    if (!(["stein", "oliver", "residual_other"] as string[]).includes(candidate)) {
+      throw new InvalidScenarioUrlError(`${stateCode} recipe third-party candidate is not recognized`);
+    }
+    const settings: StateBehaviorRecipeSettings = {
+      turnoutIncreasePoints: parseRawNumber(fields[4], `${stateCode} turnout`, 0, 1.5),
+      addedVoterHarrisShare: parseRawNumber(fields[5], `${stateCode} turnout Harris share`, 0, 100, true),
+      preferenceShiftPoints: parseRawNumber(fields[7], `${stateCode} preference`, -200, 200),
+      thirdPartyCandidate: candidate as ThirdPartyCandidate,
+      thirdPartyShiftPoints: parseRawNumber(fields[8].split(",")[0], `${stateCode} third-party shift`, -100, 100),
+      thirdPartyHarrisExchangeShare: parseRawNumber(fields[8].split(",")[1] ?? "", `${stateCode} third-party Harris share`, 0, 100, true),
+    };
+    recipes.push(createStateScenarioRecipe(stateCode, settings));
+  }
+  return recipes.sort((left, right) => left.stateCode.localeCompare(right.stateCode));
+}
+
+function encodePortfolioRecipe(recipe: StateScenarioRecipe) {
+  const settings = recipe.settings;
+  return [
+    recipe.stateCode,
+    recipe.electionId,
+    recipe.dataVersion,
+    recipe.engineVersion,
+    canonicalNumber(settings.turnoutIncreasePoints),
+    canonicalNumber(settings.addedVoterHarrisShare),
+    settings.thirdPartyCandidate,
+    canonicalNumber(settings.preferenceShiftPoints),
+    `${canonicalNumber(settings.thirdPartyShiftPoints)},${canonicalNumber(settings.thirdPartyHarrisExchangeShare)}`,
+  ].join("|");
+}
+
 export function isDefaultScenarioUrlState(state: ScenarioUrlState) {
+  if ((state.portfolioRecipes?.length ?? 0) > 0) return false;
   return scenarioParameterNames.every((name) => {
-    if (["scenario", "data", "engine"].includes(name)) return true;
+    if (["scenario", "data", "engine", "activeState", "recipe"].includes(name)) return true;
     switch (name) {
       case "turnout": return state.turnoutIncreasePoints === DEFAULT_SCENARIO_URL_STATE.turnoutIncreasePoints;
       case "turnoutHarris": return state.addedVoterHarrisShare === DEFAULT_SCENARIO_URL_STATE.addedVoterHarrisShare;
@@ -196,6 +277,7 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
   }
 
   for (const name of scenarioParameterNames) {
+    if (name === "recipe") continue;
     if (params.getAll(name).length > 1) {
       return {
         status: "invalid",
@@ -206,7 +288,10 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
   }
 
   const schemaVersion = params.get("scenario");
-  if (schemaVersion !== SCENARIO_URL_SCHEMA_VERSION) {
+  if (
+    schemaVersion !== LEGACY_SCENARIO_URL_SCHEMA_VERSION
+    && schemaVersion !== SCENARIO_URL_SCHEMA_VERSION
+  ) {
     return {
       status: "unsupported",
       state: defaultState(),
@@ -232,6 +317,31 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
 
   try {
     const geography = validateGeography(params);
+    if (schemaVersion === SCENARIO_URL_SCHEMA_VERSION) {
+      const portfolioRecipes = decodePortfolioRecipes(params);
+      const activeRaw = params.get("activeState")
+        ?? (geography.selectedStateCode && isDetailedStateCode(geography.selectedStateCode)
+          ? geography.selectedStateCode
+          : pennsylvaniaDetailedStateManifest.code);
+      if (!isDetailedStateCode(activeRaw)) {
+        throw new InvalidScenarioUrlError("active detailed state is unsupported");
+      }
+      const activeRecipe = portfolioRecipes.find((recipe) => recipe.stateCode === activeRaw);
+      const settings = activeRecipe?.settings ?? DEFAULT_STATE_BEHAVIOR_SETTINGS;
+      return {
+        status: "valid",
+        state: {
+          ...settings,
+          viewMode: parseChoice(params, "view", ["actual", "scenario", "difference"] as const, "scenario"),
+          behaviorEditorMode: parseChoice(params, "editor", ["turnout", "preference", "third-party"] as const, "turnout"),
+          contributionScope: parseChoice(params, "rank", ["county", "vtd"] as const, "county"),
+          ...geography,
+          activeDetailedStateCode: activeRaw,
+          portfolioRecipes,
+        },
+        message: "Shared multi-state scenario restored from compatible deterministic recipes.",
+      };
+    }
     return {
       status: "valid",
       state: {
@@ -293,15 +403,23 @@ function setScenarioParameters(
   scenarioParameterNames.forEach((name) => params.delete(name));
   if (!force && isDefaultScenarioUrlState(state)) return;
 
-  params.set("scenario", SCENARIO_URL_SCHEMA_VERSION);
+  const isPortfolio = state.portfolioRecipes !== undefined;
+  params.set("scenario", isPortfolio ? SCENARIO_URL_SCHEMA_VERSION : LEGACY_SCENARIO_URL_SCHEMA_VERSION);
   params.set("data", SCENARIO_DATA_VERSION);
   params.set("engine", SCENARIO_ENGINE_VERSION);
-  params.set("turnout", canonicalNumber(state.turnoutIncreasePoints));
-  params.set("turnoutHarris", canonicalNumber(state.addedVoterHarrisShare));
-  params.set("preference", canonicalNumber(state.preferenceShiftPoints));
-  params.set("thirdParty", state.thirdPartyCandidate);
-  params.set("thirdPartyShift", canonicalNumber(state.thirdPartyShiftPoints));
-  params.set("thirdPartyHarris", canonicalNumber(state.thirdPartyHarrisExchangeShare));
+  if (isPortfolio) {
+    params.set("activeState", state.activeDetailedStateCode ?? pennsylvaniaDetailedStateManifest.code);
+    for (const recipe of [...state.portfolioRecipes!].sort((left, right) => left.stateCode.localeCompare(right.stateCode))) {
+      params.append("recipe", encodePortfolioRecipe(recipe));
+    }
+  } else {
+    params.set("turnout", canonicalNumber(state.turnoutIncreasePoints));
+    params.set("turnoutHarris", canonicalNumber(state.addedVoterHarrisShare));
+    params.set("preference", canonicalNumber(state.preferenceShiftPoints));
+    params.set("thirdParty", state.thirdPartyCandidate);
+    params.set("thirdPartyShift", canonicalNumber(state.thirdPartyShiftPoints));
+    params.set("thirdPartyHarris", canonicalNumber(state.thirdPartyHarrisExchangeShare));
+  }
   params.set("view", state.viewMode);
   params.set("editor", state.behaviorEditorMode);
   params.set("rank", state.contributionScope);

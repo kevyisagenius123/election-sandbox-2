@@ -533,14 +533,72 @@ The explanation is generated from simulation contributions, not free-form genera
 - Remaining residual contribution where applicable.
 - Confidence or approximation warnings.
 
-### 9.7 Path to 270
+### 9.7 Path to 270 and national scenario portfolio
 
-Path to 270 identifies:
+Path to 270 turns the state laboratory into a national electoral strategy tool. It answers:
 
-- Tipping-point state.
-- States closest to changing the Electoral College outcome.
-- Counties most responsible for each relevant state margin.
-- Reporting units most responsible for those county changes.
+> What combination of state-level changes gets a target candidate to 270 electoral votes, and where did those electoral votes come from?
+
+The national interface preserves a compact recipe for every state with active assumptions. A state does not need to remain fully loaded for its scenario to remain active.
+
+#### Scenario classification
+
+Every state in a route has one permanent, visible classification:
+
+1. **Actual**: the certified historical result.
+2. **Modeled**: a detailed scenario the user constructed with a supported state model.
+3. **Required**: a mathematical movement needed to reach the target, without county or reporting-unit allocation.
+
+A Required state must never be presented as geographically modeled. The system may state that Wisconsin requires approximately 29,400 additional net Democratic margin votes to flip, but it must not claim which Wisconsin counties supply them until Wisconsin has a production-ready foundation.
+
+#### National scenario portfolio
+
+Recipes are authoritative. Derived state summaries are disposable caches and must be regenerated whenever their recipe fingerprint, data version, or engine version changes. The portfolio stores only compact inactive-state recipes and verified summaries:
+
+```text
+Pennsylvania: turnout +0.4; added-voter share 58% Harris; preference +1.2 D
+Michigan: turnout +0.2; preference +0.9 D
+```
+
+Heavy county, reporting-unit, demographic, worker, and geometry resources may be released when a user leaves a state. Reopening the state reloads its foundation and deterministically reconstructs the same totals.
+
+#### Electoral consequence panel
+
+Path to 270 provides four views:
+
+- **Score**: candidate EV totals, change from baseline, and EV still needed.
+- **Changed states**: actual margin, scenario margin, winner change, and EV consequence for each active recipe.
+- **Closest paths**: combinations capable of reaching 270, the additional movement required, ranking metric, and Modelled or Required status.
+- **Scenario audit**: every contributing assumption, data and engine version, state vote contribution, and EV consequence.
+
+The panel explains causality. For example: Harris reaches 270 after Pennsylvania and Michigan flip; the two states contribute 34 electoral votes relative to the certified baseline.
+
+#### Route calculation
+
+The route engine uses an explicit target candidate and election-year EV allocation. It computes certified and scenario winners and margins, EV, flip status, additional margin movement required, approximate net margin votes where defensible, model availability, and classification.
+
+`Net margin votes required` means the smallest integer increase in `target candidate votes - opponent votes` needed to move past a tie under the current state total. It is not a claim about turnout, persuasion, counties, or reporting units. A 269-269 result is reported as no Electoral College majority and is never treated as reaching the target.
+
+Routes may be ranked by fewest states, smallest aggregate margin-point movement, smallest aggregate net margin-vote requirement, or user-selected states only. The chosen metric must remain visible. The engine should retain a bounded Pareto frontier and prune dominated partial routes rather than brute-force every national subset.
+
+#### Route completeness
+
+- **Mathematical path**: composed primarily of Required movements.
+- **Partially modeled path**: at least one route state is Modeled and at least one remains Required.
+- **Fully modeled path**: every state responsible for reaching 270 has a detailed scenario.
+
+#### Geographic drilldown
+
+Selecting a route state enters its detailed state laboratory. Returning to the national map preserves every other state recipe. The long-term workflow is:
+
+```text
+Path to 270 -> Required state -> State lab -> Counties -> Reporting units
+            -> user constructs change -> Modeled state -> EV consequence
+```
+
+#### Visual treatment
+
+The national Atlas retains its restrained editorial language: a gold outline for active Modeled states, numbered route markers, a muted dashed treatment for Required states, partisan fill for the current result, and a concise `270 reached` lockup. Required and Modeled states must never rely on color alone, and no celebratory or casino-like animation is used.
 
 ### 9.8 Scenario history and sharing
 
@@ -647,6 +705,45 @@ Inspector open  → detailed demographic cells and provenance
 ```
 
 The application must never load nationwide precinct geometry at startup.
+
+### 10.4.1 Multi-state scenario persistence
+
+Detailed-state resources and national scenario state are separate. The browser maintains lightweight authoritative recipes:
+
+```ts
+interface StateScenarioRecipe {
+  stateCode: string;
+  electionId: string;
+  engineVersion: string;
+  dataVersion: string;
+  settings: StateBehaviorRecipeSettings;
+}
+```
+
+Verified calculations produce disposable summaries:
+
+```ts
+interface StateScenarioSummary {
+  stateCode: string;
+  recipeFingerprint: string;
+  actualMargin: number;
+  scenarioMargin: number;
+  actualWinner: string;
+  scenarioWinner: string;
+  harrisVotes: number;
+  trumpVotes: number;
+  otherVotes: number;
+  totalVotes: number;
+  electoralVotes: number;
+  flipped: boolean;
+}
+```
+
+A summary may be aggregated only when its fingerprint matches the current recipe. National aggregation otherwise uses the certified baseline for that state and reports the recipe as pending or unavailable.
+
+Runtime lifecycle is explicit: `unloaded -> loading -> ready -> releasing -> unloaded`, with a separate fail-closed `error` state. Only one detailed foundation is interactive at a time. Inactive recipes are hydrated sequentially in a worker to compact summaries; heavy foundations are not returned to or retained by the main interface. County geometry uses bounded least-recently-used caching and state-level purge on release.
+
+Scenario URL schema 2 serializes the complete recipe portfolio, active detailed state, interface modes, and selected geography. Schema 1 remains replayable for backward compatibility and is upgraded locally after a successful deterministic calculation.
 
 ### 10.5 Performance targets
 
@@ -789,22 +886,42 @@ Pennsylvania is the first end-to-end pilot. It provides competitive statewide po
 - Every transformation respects turnout and probability constraints.
 - Baseline remains exact after adding and removing mutations.
 
-### Milestone 4: Multi-state private alpha
+### Milestone 4: Multi-state scenario portfolio and Path to 270 private alpha
 
-Add Arizona, Georgia, and Wisconsin after Pennsylvania. These states deliberately test countywide early or mail buckets, diverse reporting structures, and varied geography.
+Pennsylvania and Michigan establish the first persistent multi-state scenario. Arizona, Georgia, Wisconsin, and later states extend the same architecture only after the portfolio foundation is proven.
+
+The milestone is released in four bounded increments:
+
+- **v0.14 Portfolio foundation**: versioned recipes, sequential inactive-state hydration, persistent PA and MI controls, aggregation, changed-state strip, schema-2 replay, and resource release.
+- **v0.15 Consequence ledger**: baseline delta, changed-state causal ledger, EV needed, exact-threshold and 269-269 handling.
+- **v0.16 Route engine**: Actual, Modeled, and Required classifications; bounded deterministic route enumeration; selectable ranking metrics.
+- **v0.17 Geographic route construction**: route rows open detailed state labs and convert Required states to Modeled only after a user constructs supported geography.
 
 **Deliverables**
 
-- Four production-ready states.
-- State-specific ingestion adapters.
-- Non-geographic reporting-bucket support.
-- Cross-state scenario aggregation.
-- Electoral College and Path to 270 interface.
+- Pennsylvania and Michigan production-ready runtime integration.
+- Compact authoritative per-state recipe portfolio and derived summary cache.
+- Persistent assumptions while switching states.
+- Lazy unloading and deterministic state rehydration.
+- Cross-state scenario aggregation with no double counting.
+- National changed-state ledger and Electoral College consequence panel.
+- Explicit target candidate, 270 threshold, and 269-269 logic.
+- Deterministic closest-path enumeration using bounded dominance pruning.
+- Ranking by fewest states, margin-point movement, or net margin-vote requirement.
+- Actual, Modeled, and Required state classifications.
+- Route rows linked to detailed state drilldown.
+- Scenario URL capable of reproducing the same multi-state result.
 
 **Exit criteria**
 
-- Each state passes the same baseline and provenance gates.
-- A national scenario can combine loaded state models without double counting.
+- Pennsylvania and Michigan scenarios coexist without retaining both full foundations on the main thread.
+- Leaving and reopening either state reproduces identical deterministic totals.
+- National popular-vote and EV totals contain no double counting and always equal the election-year allocation.
+- Every changed EV is attributable to a state recipe.
+- Required states never acquire modeled geography or model-derived precision.
+- Route enumeration and ordering are deterministic for a fixed scenario, target, data version, and engine version.
+- A shared multi-state scenario reproduces identical state and national totals after reload.
+- Repeated state switching shows no material heap, worker, or WebGL-resource growth.
 
 ### Milestone 5: Demographic foundation
 
@@ -1006,6 +1123,12 @@ Maintain versioned fixtures for:
 - Verify every height mode has a visible legend.
 - Repeatedly enter and leave geographic levels while monitoring layers, buffers, workers, listeners, and heap growth.
 
+### 15.6 Multi-state and Path to 270 tests
+
+Maintain golden scenarios for Pennsylvania only, Michigan only, both states simultaneously, one Modeled plus one Required state, exactly 270, below 270, multiple valid routes, and Maine or Nebraska district consequences when supported.
+
+End-to-end tests verify that state assumptions survive navigation, rehydration is identical, aggregation is unchanged after unloading, schema-2 links reproduce every recipe and EV total, route ranking is deterministic, Required geography remains unavailable, removing a pivotal state drops the candidate below 270, 269-269 is not a win, and total allocated EV equals the election-year allocation.
+
 ---
 
 ## 16. Release gates
@@ -1062,6 +1185,12 @@ A release candidate must pass five gates.
 | False precision | Users overtrust derived values | Show confidence, ranges, and source quality |
 | Licensing restrictions | Public deployment risk | Verify and record redistribution terms before publication |
 | Feature breadth overwhelms the product | A polished interface without a reliable model | Gate each milestone and release behavior-only MVP first |
+| Multi-state foundations retained simultaneously | Excessive browser memory | Persist compact recipes and summaries; sequentially hydrate inactive states and release heavy resources |
+| Required path confused with Modeled result | False geographic precision | Permanent Actual, Modeled, and Required labels in data and interface contracts |
+| Route ranking implies one definition of easiest | Misleading strategy claims | Show the ranking metric and expose several defensible criteria |
+| State model versions drift | Shared scenarios change over time | Version every recipe and reject incompatible replay rather than silently recalculating |
+| Stale summary enters national aggregation | Incorrect national result | Require an exact recipe-fingerprint match before a derived summary is accepted |
+| Cross-state aggregation double counts | Incorrect popular-vote or EV total | Replace each canonical state exactly once and assert national invariants |
 
 ---
 
@@ -1083,6 +1212,11 @@ In usability testing, users should be able to answer:
 - Which places changed most?
 - Why did the state or Electoral College outcome change?
 - Is this an actual result, a modeled scenario, or a forecast?
+- Which states did I actually model?
+- Which states are only mathematical requirements?
+- How did my changed states alter the Electoral College?
+- What remaining combinations can reach the target?
+- Can I trace a flipped state to the counties and reporting units responsible?
 
 ### Performance
 
@@ -1154,14 +1288,16 @@ The recommended sequence is:
 2. Exact 2024 baseline.
 3. Behavior-only sandbox.
 4. Actual, scenario, difference, and flips.
-5. Electoral College and Path to 270.
-6. Multi-state data expansion.
-7. Census-to-reporting-unit demographic foundation.
-8. Calibrated turnout and candidate-choice model.
-9. Population editor.
-10. Explainability and uncertainty.
-11. Run My Election.
-12. National expansion and sharing ecosystem.
+5. Multi-state scenario portfolio.
+6. Path to 270 and route enumeration.
+7. Geographic drilldown from national route to state, county, and reporting unit.
+8. Additional production-ready state expansion.
+9. Extended Census-to-reporting-unit demographic foundation.
+10. Calibrated turnout and candidate-choice model.
+11. Population editor.
+12. Explainability and uncertainty.
+13. Run My Election.
+14. National expansion and sharing ecosystem.
 
 The demographic editor should not ship until its controls have defensible statistical meaning. Run My Election should not ship until its replay can end at exactly the saved scenario endpoint without giving the projection model direct knowledge of the winner.
 

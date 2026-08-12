@@ -51,6 +51,17 @@ import {
 } from "./data/scenarioUrl.ts";
 import { states2024 } from "./data/states.ts";
 import { useDetailedStateScenario } from "./runtime/useDetailedStateScenario.ts";
+import {
+  createStateScenarioRecipe,
+  DEFAULT_STATE_BEHAVIOR_SETTINGS,
+  isDefaultStateBehaviorSettings,
+  recipesAsRecord,
+  stateScenarioRecipeFingerprint,
+  summaryAsStateResult,
+  type StateBehaviorRecipeSettings,
+  type StateScenarioRecipe,
+} from "./data/scenarioPortfolio.ts";
+import { useScenarioPortfolio } from "./runtime/useScenarioPortfolio.ts";
 
 type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
@@ -154,6 +165,33 @@ export function App() {
   const [selectedVtdGeoid, setSelectedVtdGeoid] = useState<string | null>(
     initialScenarioUrlState.selectedVtdGeoid,
   );
+  const [activeDetailedStateCode, setActiveDetailedStateCode] = useState<DetailedStateCode>(() => (
+    initialScenarioUrlState.activeDetailedStateCode
+      ?? (isDetailedStateCode(initialScenarioUrlState.selectedStateCode ?? "")
+        ? initialScenarioUrlState.selectedStateCode as DetailedStateCode
+        : pennsylvaniaDetailedStateManifest.code)
+  ));
+  const [storedScenarioRecipes, setStoredScenarioRecipes] = useState(() => {
+    if (initialScenarioUrlState.portfolioRecipes) {
+      return recipesAsRecord(initialScenarioUrlState.portfolioRecipes);
+    }
+    const initialSettings: StateBehaviorRecipeSettings = {
+      turnoutIncreasePoints: initialScenarioUrlState.turnoutIncreasePoints,
+      addedVoterHarrisShare: initialScenarioUrlState.addedVoterHarrisShare,
+      preferenceShiftPoints: initialScenarioUrlState.preferenceShiftPoints,
+      thirdPartyCandidate: initialScenarioUrlState.thirdPartyCandidate,
+      thirdPartyShiftPoints: initialScenarioUrlState.thirdPartyShiftPoints,
+      thirdPartyHarrisExchangeShare: initialScenarioUrlState.thirdPartyHarrisExchangeShare,
+    };
+    return isDefaultStateBehaviorSettings(initialSettings)
+      ? {}
+      : recipesAsRecord([createStateScenarioRecipe(
+        isDetailedStateCode(initialScenarioUrlState.selectedStateCode ?? "")
+          ? initialScenarioUrlState.selectedStateCode as DetailedStateCode
+          : pennsylvaniaDetailedStateManifest.code,
+        initialSettings,
+      )]);
+  });
   const [viewMode, setViewMode] = useState<ViewMode>(initialScenarioUrlState.viewMode);
   const [behaviorEditorMode, setBehaviorEditorMode] = useState<BehaviorEditorMode>(
     initialScenarioUrlState.behaviorEditorMode,
@@ -201,15 +239,12 @@ export function App() {
     thirdPartyShiftPoints,
     turnoutIncreasePoints,
   ]);
-  const activeDetailedStateCode: DetailedStateCode = isDetailedStateCode(selectedStateCode ?? "")
-    ? selectedStateCode as DetailedStateCode
-    : pennsylvaniaDetailedStateManifest.code;
   const activeDetailedStateManifest = getDetailedStateManifest(activeDetailedStateCode);
   const {
     foundation: detailedStateFoundation,
     scenario: behaviorScenario,
     error: demographicError,
-    pending: scenarioPending,
+    pending: detailedScenarioPending,
   } = useDetailedStateScenario(
     activeDetailedStateManifest,
     behaviorScenarioSettings,
@@ -231,6 +266,26 @@ export function App() {
     setSelectedStateCode(state.selectedStateCode);
     setSelectedCountyFips(state.selectedCountyFips);
     setSelectedVtdGeoid(state.selectedVtdGeoid);
+    const nextActiveState = state.activeDetailedStateCode
+      ?? (isDetailedStateCode(state.selectedStateCode ?? "")
+        ? state.selectedStateCode as DetailedStateCode
+        : pennsylvaniaDetailedStateManifest.code);
+    setActiveDetailedStateCode(nextActiveState);
+    if (state.portfolioRecipes) {
+      setStoredScenarioRecipes(recipesAsRecord(state.portfolioRecipes));
+    } else {
+      const settings: StateBehaviorRecipeSettings = {
+        turnoutIncreasePoints: state.turnoutIncreasePoints,
+        addedVoterHarrisShare: state.addedVoterHarrisShare,
+        preferenceShiftPoints: state.preferenceShiftPoints,
+        thirdPartyCandidate: state.thirdPartyCandidate,
+        thirdPartyShiftPoints: state.thirdPartyShiftPoints,
+        thirdPartyHarrisExchangeShare: state.thirdPartyHarrisExchangeShare,
+      };
+      setStoredScenarioRecipes(isDefaultStateBehaviorSettings(settings)
+        ? {}
+        : recipesAsRecord([createStateScenarioRecipe(nextActiveState, settings)]));
+    }
   }, []);
 
   useEffect(() => {
@@ -300,6 +355,48 @@ export function App() {
     thirdPartyMaximumPoints,
     Math.max(thirdPartyMinimumPoints, thirdPartyShiftPoints),
   );
+  const currentStateRecipeSettings = useMemo<StateBehaviorRecipeSettings>(() => ({
+    turnoutIncreasePoints,
+    addedVoterHarrisShare,
+    preferenceShiftPoints: effectivePreferenceShiftPoints,
+    thirdPartyCandidate,
+    thirdPartyShiftPoints: effectiveThirdPartyShiftPoints,
+    thirdPartyHarrisExchangeShare,
+  }), [
+    addedVoterHarrisShare,
+    effectivePreferenceShiftPoints,
+    effectiveThirdPartyShiftPoints,
+    thirdPartyCandidate,
+    thirdPartyHarrisExchangeShare,
+    turnoutIncreasePoints,
+  ]);
+  const scenarioRecipeRecord = useMemo(() => {
+    const next = { ...storedScenarioRecipes };
+    if (isDefaultStateBehaviorSettings(currentStateRecipeSettings)) {
+      delete next[activeDetailedStateCode];
+    } else {
+      next[activeDetailedStateCode] = createStateScenarioRecipe(
+        activeDetailedStateCode,
+        currentStateRecipeSettings,
+      );
+    }
+    return next;
+  }, [activeDetailedStateCode, currentStateRecipeSettings, storedScenarioRecipes]);
+  const portfolioRecipes = useMemo(
+    () => (Object.values(scenarioRecipeRecord) as StateScenarioRecipe[])
+      .sort((left, right) => left.stateCode.localeCompare(right.stateCode)),
+    [scenarioRecipeRecord],
+  );
+  const inactivePortfolioRecipes = useMemo(
+    () => portfolioRecipes.filter((recipe) => recipe.stateCode !== activeDetailedStateCode),
+    [activeDetailedStateCode, portfolioRecipes],
+  );
+  const {
+    summaries: inactiveScenarioSummaries,
+    pending: portfolioPending,
+    error: portfolioError,
+  } = useScenarioPortfolio(inactivePortfolioRecipes);
+  const scenarioPending = detailedScenarioPending || portfolioPending;
   const scenarioUrlState = useMemo<ScenarioUrlState>(() => ({
     turnoutIncreasePoints,
     addedVoterHarrisShare,
@@ -313,12 +410,16 @@ export function App() {
     selectedStateCode,
     selectedCountyFips,
     selectedVtdGeoid,
+    activeDetailedStateCode,
+    portfolioRecipes,
   }), [
+    activeDetailedStateCode,
     addedVoterHarrisShare,
     behaviorEditorMode,
     contributionScope,
     effectivePreferenceShiftPoints,
     effectiveThirdPartyShiftPoints,
+    portfolioRecipes,
     selectedCountyFips,
     selectedStateCode,
     selectedVtdGeoid,
@@ -363,14 +464,23 @@ export function App() {
     };
   }, [activeDetailedStateManifest, behaviorScenario, detailedActual]);
 
-  const scenarioStates = useMemo(
-    () => states2024.map((state) => (
-      state.code === activeDetailedStateCode
-        ? detailedScenario
-        : state
-    )),
-    [activeDetailedStateCode, detailedScenario],
-  );
+  const scenarioStates = useMemo(() => states2024.map((state) => {
+    const recipe = scenarioRecipeRecord[state.code as DetailedStateCode];
+    if (!recipe) return state;
+    if (state.code === activeDetailedStateCode) {
+      return detailedScenarioPending ? state : detailedScenario;
+    }
+    const summary = inactiveScenarioSummaries.get(state.code);
+    return summary?.recipeFingerprint === stateScenarioRecipeFingerprint(recipe)
+      ? summaryAsStateResult(summary, state)
+      : state;
+  }), [
+    activeDetailedStateCode,
+    detailedScenario,
+    detailedScenarioPending,
+    inactiveScenarioSummaries,
+    scenarioRecipeRecord,
+  ]);
 
   const actualNational = useMemo(() => aggregateNational(states2024), []);
   const scenarioNational = useMemo(
@@ -507,13 +617,12 @@ export function App() {
     thirdPartyCandidate,
   ]);
   const detailedStateFlipped = detailedScenario.harrisVotes > detailedScenario.trumpVotes;
-  const scenarioChanged = turnoutIncreasePoints !== 0
-    || effectivePreferenceShiftPoints !== 0
-    || effectiveThirdPartyShiftPoints !== 0;
+  const activeScenarioChanged = !isDefaultStateBehaviorSettings(currentStateRecipeSettings);
+  const scenarioChanged = portfolioRecipes.length > 0;
   const contributionRows = contributionScope === "county"
     ? contributionSummary.counties.slice(0, 5)
     : contributionSummary.vtds.slice(0, 5);
-  const contributionEmptyText = scenarioChanged && contributionSummary.statewideMarginDelta === 0
+  const contributionEmptyText = activeScenarioChanged && contributionSummary.statewideMarginDelta === 0
     ? "The active operations change ballots but net to no Harris minus Trump margin movement."
     : contributionScope === "county" && contributionSummary.outsideCountyMarginDelta !== 0
       ? "This movement is confined to the statewide-only residual and has no honest county placement."
@@ -559,13 +668,27 @@ export function App() {
     ?? selectedActualCounty?.name
     ?? (selectedStateCode ? selectedActual.name : "United States");
 
+  function applyStateRecipeSettings(settings: StateBehaviorRecipeSettings) {
+    setTurnoutIncreasePoints(settings.turnoutIncreasePoints);
+    setAddedVoterHarrisShare(settings.addedVoterHarrisShare);
+    setPreferenceShiftPoints(settings.preferenceShiftPoints);
+    setThirdPartyCandidate(settings.thirdPartyCandidate);
+    setThirdPartyShiftPoints(settings.thirdPartyShiftPoints);
+    setThirdPartyHarrisExchangeShare(settings.thirdPartyHarrisExchangeShare);
+  }
+
   function selectState(code: string | null) {
     setSelectedVtdGeoid(null);
+    setSelectedCountyFips(null);
     setSelectedStateCode(code);
-    if (!isDetailedStateCode(code ?? "")) setSelectedCountyFips(null);
+    if (!code || !isDetailedStateCode(code) || code === activeDetailedStateCode) return;
+    setStoredScenarioRecipes(scenarioRecipeRecord);
+    setActiveDetailedStateCode(code);
+    applyStateRecipeSettings(scenarioRecipeRecord[code]?.settings ?? DEFAULT_STATE_BEHAVIOR_SETTINGS);
   }
 
   function selectNation() {
+    setStoredScenarioRecipes(scenarioRecipeRecord);
     setSelectedVtdGeoid(null);
     setSelectedCountyFips(null);
     setSelectedStateCode(null);
@@ -600,7 +723,7 @@ export function App() {
   }
 
   function focusContribution(row: ContributionRow) {
-    setSelectedStateCode(activeDetailedStateCode);
+    selectState(activeDetailedStateCode);
     setSelectedCountyFips(row.countyFips);
     setSelectedVtdGeoid(row.vtdGeoid);
   }
@@ -627,7 +750,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Two-state behavior lab · v0.13</div>
+        <div className="build-status"><span />Multi-state behavior lab · v0.14</div>
       </header>
 
       <div className="workbench" id="top">
@@ -769,10 +892,38 @@ export function App() {
               <span className="message-dot" />
               {detailedStateFlipped
                 ? `${activeDetailedStateManifest.name} flips to Harris`
-                : scenarioChanged
+                : activeScenarioChanged
                   ? `Synthetic ${activeDetailedStateManifest.name} behavior scenario active`
+                  : scenarioChanged
+                    ? `${portfolioRecipes.length} state ${portfolioRecipes.length === 1 ? "scenario" : "scenarios"} active`
                   : "Scenario matches the certified EV baseline"}
             </div>
+            {portfolioRecipes.length > 0 && (
+              <div className="scenario-portfolio" aria-label="Active state scenarios">
+                <span>Active states</span>
+                <div>
+                  {portfolioRecipes.map((recipe) => {
+                    const summary = recipe.stateCode === activeDetailedStateCode
+                      ? detailedScenarioPending
+                        ? null
+                        : { scenarioMargin: margin(detailedScenario) }
+                      : inactiveScenarioSummaries.get(recipe.stateCode);
+                    return (
+                      <button
+                        aria-pressed={recipe.stateCode === activeDetailedStateCode}
+                        data-testid={`portfolio-state-${recipe.stateCode}`}
+                        key={recipe.stateCode}
+                        onClick={() => selectState(recipe.stateCode)}
+                        type="button"
+                      >
+                        <strong>{recipe.stateCode}</strong>
+                        <small>{summary ? formatMargin(summary.scenarioMargin) : "Updating"}</small>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             <div className="popular-row">
               <span>National popular vote</span>
               <strong>{formatMargin(((scenarioNational.harrisVotes - scenarioNational.trumpVotes) / scenarioNational.totalVotes) * 100)}</strong>
@@ -790,6 +941,12 @@ export function App() {
                 <span aria-hidden="true" />
                 <p>{scenarioLinkNotice}</p>
                 <button aria-label="Dismiss shared scenario notice" onClick={() => setScenarioLinkNotice(null)} type="button">Dismiss</button>
+              </div>
+            )}
+            {portfolioError && (
+              <div className="scenario-link-notice error" role="alert">
+                <span aria-hidden="true" />
+                <p>Inactive state verification is unavailable. {portfolioError}</p>
               </div>
             )}
           </section>
@@ -1095,8 +1252,8 @@ export function App() {
                 </>
               )}
 
-              <button className="reset-button" disabled={!scenarioChanged} onClick={resetScenario} type="button">
-                Reset to exact baseline
+              <button className="reset-button" disabled={!activeScenarioChanged} onClick={resetScenario} type="button">
+                Reset {activeDetailedStateCode} to exact baseline
               </button>
             </div>
           </section>

@@ -43,7 +43,7 @@ test("canonical shared scenario restores the exact result and selected VTD", asy
   await expect(page.getByRole("button", { name: "Third party" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: "Precincts" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("region", { name: "Data inspector for ALEPPO Voting District" })).toBeVisible();
-  await expect(page.getByRole("complementary", { name: "Scenario editor" }).getByText("R +5.8", { exact: true })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Scenario editor" }).locator(".effect-grid strong").getByText("R +5.8", { exact: true })).toBeVisible();
   await expect(page.getByRole("status")).toContainText(
     "Shared scenario restored from a compatible deterministic URL.",
   );
@@ -174,6 +174,42 @@ test("rapid scenario changes publish only the newest worker result", async ({ pa
   await expect(page.getByRole("complementary", { name: "Scenario editor" })).toContainText(
     "Pennsylvania flips to Harris",
   );
-  await expect(page.getByRole("complementary", { name: "Scenario editor" }).getByText("D +4.5", { exact: true })).toBeVisible();
-  await expect(page).toHaveURL(new RegExp("preference=6.2(?:&|$)"));
+  await expect(page.getByRole("complementary", { name: "Scenario editor" }).locator(".effect-grid strong").getByText("D +4.5", { exact: true })).toBeVisible();
+  await expect.poll(() => new URL(page.url()).searchParams.get("scenario")).toBe("2");
+  await expect.poll(() => (
+    new URL(page.url()).searchParams.getAll("recipe").find((recipe) => recipe.startsWith("PA|"))
+  )).toContain("|6.2|");
+});
+
+test("a two-state portfolio aggregates deterministically and survives state switching", async ({ page }) => {
+  const portfolio = new URLSearchParams({
+    scenario: "2",
+    data: DATA_VERSION,
+    engine: ENGINE_VERSION,
+    activeState: "MI",
+    view: "scenario",
+    editor: "preference",
+    rank: "county",
+    state: "MI",
+  });
+  portfolio.append("recipe", `PA|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|2.5|0,50`);
+  portfolio.append("recipe", `MI|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|2.5|0,50`);
+
+  await loadScenario(page, portfolio, "MI");
+  const editor = page.getByRole("complementary", { name: "Scenario editor" });
+  await expect(editor.getByText("260", { exact: true })).toBeVisible();
+  await expect(editor.getByText("278", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("portfolio-state-PA")).toContainText("D");
+  await expect(page.getByTestId("portfolio-state-MI")).toContainText("D");
+
+  await page.getByTestId("portfolio-state-PA").click();
+  await expect(page.getByRole("slider", { name: "Two-party preference transfer" })).toHaveValue("2.5");
+  await expect(page.getByTestId("portfolio-state-PA")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+
+  await page.getByTestId("portfolio-state-MI").click();
+  await expect(page.getByRole("slider", { name: "Two-party preference transfer" })).toHaveValue("2.5");
+  await expect(page.getByTestId("portfolio-state-MI")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect.poll(() => new URL(page.url()).searchParams.getAll("recipe").length).toBe(2);
 });

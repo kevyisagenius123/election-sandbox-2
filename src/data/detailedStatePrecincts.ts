@@ -57,6 +57,17 @@ export interface LoadedDetailedPrecinctCounty {
 
 const manifestCache = new Map<string, Promise<DetailedPrecinctManifestDocument>>();
 const countyCache = new Map<string, LoadedDetailedPrecinctCounty>();
+const MAX_CACHED_COUNTY_SHARDS = 6;
+
+function cacheCounty(key: string, county: LoadedDetailedPrecinctCounty) {
+  countyCache.delete(key);
+  countyCache.set(key, county);
+  while (countyCache.size > MAX_CACHED_COUNTY_SHARDS) {
+    const oldestKey = countyCache.keys().next().value as string | undefined;
+    if (!oldestKey) break;
+    countyCache.delete(oldestKey);
+  }
+}
 
 function publicUrl(path: string) {
   const normalized = path.replace(/^\.\//, "").replace(/^\//, "");
@@ -88,7 +99,10 @@ export async function loadDetailedPrecinctCounty(
 ): Promise<LoadedDetailedPrecinctCounty> {
   const key = `${manifest.code}:${countyFips}`;
   const cached = countyCache.get(key);
-  if (cached) return cached;
+  if (cached) {
+    cacheCounty(key, cached);
+    return cached;
+  }
   const document = await loadManifest(manifest);
   if (document.stateCode !== manifest.code) throw new Error("Precinct manifest state mismatch");
   const metadata = document.counties.find((county) => county.countyFips === countyFips);
@@ -102,8 +116,19 @@ export async function loadDetailedPrecinctCounty(
     metadata,
     features: feature(source, object) as unknown as FeatureCollection<Geometry, DetailedPrecinctResultProperties>,
   };
-  countyCache.set(key, loaded);
+  cacheCounty(key, loaded);
   return loaded;
+}
+
+export function releaseDetailedPrecinctState(stateCode: string) {
+  const prefix = `${stateCode}:`;
+  for (const key of countyCache.keys()) {
+    if (key.startsWith(prefix)) countyCache.delete(key);
+  }
+}
+
+export function detailedPrecinctCacheSize() {
+  return countyCache.size;
 }
 
 export function detailedPrecinctName(properties: DetailedPrecinctResultProperties) {

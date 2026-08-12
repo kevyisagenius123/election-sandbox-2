@@ -47,9 +47,18 @@ import {
   buildScenarioUrl,
   decodeScenarioSearch,
   DEFAULT_SCENARIO_URL_STATE,
+  LEGACY_SCENARIO_URL_SCHEMA_VERSION,
   SCENARIO_DATA_VERSION,
   SCENARIO_ENGINE_VERSION,
+  SCENARIO_URL_SCHEMA_VERSION,
 } from "../src/data/scenarioUrl.ts";
+import {
+  buildStateScenarioSummary,
+  createStateScenarioRecipe,
+  recipesAsRecord,
+  stateScenarioRecipeFingerprint,
+  summaryAsStateResult,
+} from "../src/data/scenarioPortfolio.ts";
 
 const pennsylvaniaCountyDocument = JSON.parse(readFileSync(
   new URL("../src/data/pa-2024-counties.json", import.meta.url),
@@ -1040,12 +1049,93 @@ test("versioned scenario URLs round-trip every assumption and selected geography
   const parsedUrl = new URL(url);
   const decoded = decodeScenarioSearch(parsedUrl.search);
 
+  assert.equal(parsedUrl.searchParams.get("scenario"), LEGACY_SCENARIO_URL_SCHEMA_VERSION);
   assert.equal(parsedUrl.searchParams.get("data"), SCENARIO_DATA_VERSION);
   assert.equal(parsedUrl.searchParams.get("engine"), SCENARIO_ENGINE_VERSION);
   assert.equal(parsedUrl.searchParams.get("utm_source"), "review");
   assert.equal(parsedUrl.hash, "");
   assert.equal(decoded.status, "valid");
   assert.deepEqual(decoded.state, state);
+});
+
+test("multi-state portfolio URLs replay authoritative Pennsylvania and Michigan recipes", () => {
+  const paRecipe = createStateScenarioRecipe("PA", {
+    turnoutIncreasePoints: 0.4,
+    addedVoterHarrisShare: 61,
+    preferenceShiftPoints: 1,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: 0,
+    thirdPartyHarrisExchangeShare: 50,
+  });
+  const miRecipe = createStateScenarioRecipe("MI", {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 55,
+    preferenceShiftPoints: -0.8,
+    thirdPartyCandidate: "oliver",
+    thirdPartyShiftPoints: -0.2,
+    thirdPartyHarrisExchangeShare: 35,
+  });
+  const state = {
+    ...DEFAULT_SCENARIO_URL_STATE,
+    ...miRecipe.settings,
+    selectedStateCode: "MI",
+    activeDetailedStateCode: "MI",
+    portfolioRecipes: [miRecipe, paRecipe],
+  };
+  const url = buildScenarioUrl("https://atlas.example/lab/", state, { force: true });
+  const parsedUrl = new URL(url);
+  const decoded = decodeScenarioSearch(parsedUrl.search);
+
+  assert.equal(parsedUrl.searchParams.get("scenario"), SCENARIO_URL_SCHEMA_VERSION);
+  assert.equal(parsedUrl.searchParams.getAll("recipe").length, 2);
+  assert.equal(decoded.status, "valid");
+  assert.deepEqual(decoded.state, {
+    ...state,
+    portfolioRecipes: [miRecipe, paRecipe].sort((left, right) => left.stateCode.localeCompare(right.stateCode)),
+  });
+  assert.deepEqual(Object.keys(recipesAsRecord(decoded.state.portfolioRecipes)).sort(), ["MI", "PA"]);
+});
+
+test("state scenario summaries are deterministic derived caches, not recipe authority", () => {
+  const recipe = createStateScenarioRecipe("PA", {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 55,
+    preferenceShiftPoints: 5,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: 0,
+    thirdPartyHarrisExchangeShare: 50,
+  });
+  const actual = states2024.find((state) => state.code === "PA");
+  assert.ok(actual);
+  const scenario = applyBehaviorScenario([{
+    id: "PA",
+    countyFips: null,
+    geometryId: null,
+    harrisVotes: actual.harrisVotes,
+    trumpVotes: actual.trumpVotes,
+    steinVotes: 0,
+    oliverVotes: 0,
+    residualOtherVotes: actual.otherVotes,
+    otherVotes: actual.otherVotes,
+    totalVotes: actual.totalVotes,
+    turnoutDenominator: null,
+    turnoutCapacity: 0,
+  }], {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.55,
+    preferenceShiftPoints: 5,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: 0,
+    thirdPartyHarrisExchangeShare: 0.5,
+  });
+  const summary = buildStateScenarioSummary(recipe, actual, scenario);
+  const aggregate = summaryAsStateResult(summary, actual);
+
+  assert.equal(summary.recipeFingerprint, stateScenarioRecipeFingerprint(recipe));
+  assert.equal(summary.flipped, true);
+  assert.equal(aggregate.harrisVotes, scenario.totals.harrisVotes);
+  assert.equal(aggregate.harrisElectoralVotes, 19);
+  assert.equal(aggregate.trumpElectoralVotes, 0);
 });
 
 test("versioned scenario URLs preserve official alphanumeric VTD GEOIDs", () => {

@@ -20,6 +20,7 @@ import type {
 import {
   detailedPrecinctName,
   loadDetailedPrecinctCounty,
+  releaseDetailedPrecinctState,
   type DetailedPrecinctResultProperties,
   type LoadedDetailedPrecinctCounty,
 } from "../data/detailedStatePrecincts.ts";
@@ -318,6 +319,12 @@ export function AtlasMapScene({
     const timer = window.setTimeout(() => setCountyRaised(true), 180);
     return () => window.clearTimeout(timer);
   }, [activeStateCode]);
+
+  useEffect(() => {
+    if (!activeDetailedStateManifest) return;
+    const stateCode = activeDetailedStateManifest.code;
+    return () => releaseDetailedPrecinctState(stateCode);
+  }, [activeDetailedStateManifest]);
 
   useEffect(() => {
     const shell = shellRef.current;

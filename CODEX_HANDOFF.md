@@ -21,13 +21,13 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.13.0`, Michigan runtime integration
+- Release: `0.14.0`, multi-state scenario portfolio
 - Previous release commit: `439db1c Add audited Michigan data foundation`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
 - Backend: none
-- Persistence: none
+- Persistence: URL-local versioned scenario recipes; no backend storage
 - Local URL: `http://127.0.0.1:4173/`
 - Required Node: 22.12 or newer
 - Hosting metadata: none; there is no `.openai/hosting.json`
@@ -197,6 +197,21 @@ A local Vite server may still be running on port 4173; check rather than startin
 - The inspector works for Michigan direct links, alternate official precinct-key links, weighted demographic splits, unavailable bridges, and explicit off-terrain residual coverage.
 - A shared manifest fetch can no longer be poisoned by React Strict Mode cancellation; per-county geometry requests remain abortable.
 - Unit/model verification now contains 35 tests. Playwright contains five real-browser replays, including three Michigan demographic bridge outcomes and stale worker rejection.
+
+### v0.14 multi-state scenario portfolio
+
+- `src/data/scenarioPortfolio.ts` defines authoritative per-state recipes, canonical fingerprints, worker-unit conversion, compact derived summaries, and summary-to-state aggregation.
+- `src/runtime/scenarioPortfolio.worker.ts` validates and hydrates inactive recipes sequentially. It never returns or retains expanded foundations on the interface thread.
+- `src/runtime/useScenarioPortfolio.ts` owns inactive-worker lifetime, publishes only the matching recipe signature, and fails closed on load or calculation errors.
+- The active detailed worker still owns the one foundation needed for terrain, contribution analysis, and the selected-geography inspector.
+- Pennsylvania and Michigan controls persist independently. Switching states snapshots the departing recipe, restores the arriving controls, and retains both exact results in the national aggregate.
+- The scenario card includes a compact active-state strip with current margins and direct state-lab navigation.
+- National aggregation replaces each certified state at most once. An inactive summary enters only when its fingerprint exactly matches the current recipe.
+- URL schema 2 stores sorted multi-state recipes and the active detailed state. Schema 1 stays replayable and upgrades locally into a single-state recipe.
+- Precinct geometry now uses a six-shard least-recently-used cache plus state-level release; workers, fetches, and Deck resources remain lifecycle-owned.
+- The amended Path to 270 plan separates Actual, Modeled, and Required states, defines net margin votes, target and tie behavior, and splits delivery into v0.14 through v0.17.
+- Decision 0017 records recipe authority, summary-cache semantics, memory lifecycle, aggregation safety, and replay compatibility.
+- Verification now contains 37 model tests and six real-browser replays, including simultaneous PA and MI aggregation and state-switch restoration.
 
 ## 4. Demographic source and limitations
 
@@ -430,12 +445,33 @@ v0.12 additionally adds or changes:
 - artifact reconciliation coverage in `tests/election-model.test.mjs`
 - `package.json`, `package-lock.json`, `README.md`, `PRODUCT_AND_ENGINEERING_PLAN.md`, and this handoff
 
+v0.13 additionally adds or changes:
+
+- `src/data/miDemographics.ts`
+- `src/data/detailedStateData.ts`, `detailedStateInspector.ts`, `detailedStateRuntimeLoaders.ts`, and `detailedStatePrecincts.ts`
+- `src/data/detailedStateManifest.ts` and shared worker protocol/runtime files
+- `src/App.tsx`, `src/map/AtlasMapScene.tsx`, and `src/styles.css`
+- Michigan runtime, inspector, URL, model, and browser coverage
+- `docs/decisions/0016-michigan-runtime-integration.md`
+
+v0.14 additionally adds or changes:
+
+- `src/data/scenarioPortfolio.ts`
+- `src/runtime/scenarioPortfolio.worker.ts`
+- `src/runtime/useScenarioPortfolio.ts`
+- `src/data/scenarioUrl.ts`
+- `src/data/detailedStatePrecincts.ts`
+- `src/App.tsx`, `src/map/AtlasMapScene.tsx`, and `src/styles.css`
+- `tests/election-model.test.mjs` and `tests/browser/scenario-replay.spec.ts`
+- `docs/decisions/0017-multi-state-scenario-portfolio.md`
+- release documentation, product plan, and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.12:
+CLI verification for v0.14:
 
-- `npm test`: 31 tests pass, including Michigan artifact reconciliation.
-- `npm run test:browser`: 4 browser replays pass.
+- `npm test`: 37 tests pass, including multi-state URL and summary invariants.
+- `npm run test:browser`: 6 browser replays pass, including the two-state portfolio.
 - `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
@@ -449,6 +485,11 @@ Michigan pipeline verification:
 - Compact Michigan runtime artifact: 628,735 bytes.
 
 Browser verification:
+
+- A schema-2 recipe portfolio flips Pennsylvania and Michigan simultaneously and produces Harris 260, Trump 278 from the certified 226 to 312 baseline.
+- Pennsylvania and Michigan recipe controls restore exactly when their active-state chips are selected repeatedly.
+- The inactive state is rehydrated into a compact fingerprinted summary before Copy link is enabled.
+- Legacy schema-1 links remain replayable and are upgraded locally after deterministic calculation.
 
 - v0.11 retains the v0.10 desktop and mobile design; pending calculations use the existing version-status line.
 - The compact artifact loads successfully and enables behavior controls without changing the canonical complex scenario.
@@ -482,8 +523,8 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 9. Known issues and deliberate omissions
 
-1. **Only one detailed state is active at a time.** This is intentional for memory control. A Pennsylvania scenario is not retained after switching to Michigan, and vice versa; persistent multi-state scenario composition needs an explicit product and storage contract.
-2. **The worker removes decoding and scenario calculation from the interface thread, but the expanded active foundation is still cloned back for map and inspector use.** Profile Michigan and Pennsylvania transfer/retained memory before adding a third detailed state.
+1. **Only one expanded detailed foundation is interactive at a time.** Recipes and verified summaries for Pennsylvania and Michigan persist, but returning to a state intentionally reloads its full foundation.
+2. **The inactive portfolio hydrator reloads a foundation whenever that inactive recipe changes.** This is memory-safe and deterministic but not yet optimized with a bounded summary cache across revisits.
 3. **The deck.gl chunk is about 1.6 MB minified.** It is already lazy, but further code splitting or bundle review is warranted.
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
 5. **No CVAP or 2024 eligibility estimate exists.** The UI correctly discloses the 2020 VAP limitation.
@@ -495,14 +536,16 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-Pennsylvania and Michigan now pass deterministic runtime and browser replay. Do not rebuild their audited artifacts unless a source changes. The next major phase is a path-to-270 analysis layer:
+The v0.14 portfolio foundation is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next release is v0.15, the Electoral College consequence ledger:
 
-1. Define whether a session may hold scenarios for both detailed states simultaneously. The current memory-safe contract intentionally retains only the active detailed state.
-2. If persistent multi-state scenarios are accepted, store only compact assumption payloads and recompute states on demand. Do not retain two expanded demographic foundations on the interface thread without profiling.
-3. Add an Electoral College consequence panel that explains which active state changed, its EV effect, remaining votes to 270, and the exact scenario assumptions responsible.
-4. Add worker transfer and retained-heap profiling for both Pennsylvania and Michigan, including repeated state switches and aborted county geometry requests.
-5. Generalize internal `vtd` URL and contribution names only with a new URL schema; schema 1 must remain replayable.
-6. Consider a third detailed state only after the active-state memory contract and path-to-270 interface pass browser replay.
+1. Add an explicit target-candidate control and calculate EV gained or lost from the certified baseline.
+2. Replace the compact active-state strip with a structured changed-state ledger containing Actual margin, Scenario margin, winner change, EV consequence, and direct detailed-state navigation.
+3. Show EV remaining to 270, exact-threshold behavior, and a clear no-majority state at 269-269.
+4. Generate a deterministic causal sentence from the ledger, not free-form text.
+5. Add invariant tests for baseline, one-state and two-state consequences, exact 270, below 270, removal of a pivotal state, and total election-year EV allocation.
+6. Add repeated-switch heap, worker, and WebGL-resource profiling. Tighten cache limits only from measured evidence.
+
+After v0.15, v0.16 implements the bounded route engine and permanent Actual, Modeled, and Required classifications. It must not assign county or reporting-unit geography to Required states.
 
 Uncertainty remains deferred until the deterministic multi-state contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 
