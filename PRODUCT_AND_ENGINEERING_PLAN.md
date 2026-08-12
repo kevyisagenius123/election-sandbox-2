@@ -24,6 +24,8 @@ Version 0.18 hardens that two-state portfolio for a small external alpha. A dete
 
 Version 0.18.1 replaces the detailed-state long page with a fixed viewport Laboratory, bounded national-consequence rail, and collapsed, working, or expanded bottom drawer. Version 0.18.2 then separates the editorial Home from analytical geography. `/` introduces Sandbox; `/app/` is the direct United States Laboratory and shared-scenario entry. National, state, county, and reporting-unit geographies now use the same analytical shell without remounting the renderer or model foundations. Home/Laboratory presentation remains workspace state and is never serialized into an election recipe.
 
+Version 0.19A is a synthetic usability and comprehension evaluation, not a substitute for human testing. Eight interface-bound personas completed the same five tasks against v0.18.2. The report identifies no P0 model-integrity defect and recommends a bounded correction scope: public deployment, clearer entry into model controls, an always-available exact state threshold, just-in-time model terminology, registry-backed provenance, and state-specific geography labels. See `SYNTHETIC_ALPHA_REPORT.md`. No model or data expansion is authorized by the evaluation itself.
+
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 
 The product answers one central question:

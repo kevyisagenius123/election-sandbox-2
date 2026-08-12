@@ -552,6 +552,15 @@ v0.17 additionally adds or changes:
 - Eight canonical visual references replace the old v0.18.1 long-page and state-only reference set.
 - Decision record: `docs/decisions/0023-editorial-home-and-united-states-laboratory.md`.
 
+### v0.19A synthetic private alpha
+
+- `SYNTHETIC_ALPHA_REPORT.md` contains eight structured, interface-bound cognitive walkthroughs.
+- This is explicitly synthetic usability and comprehension evidence, not eight human users.
+- No P0 model-integrity issue was identified.
+- Repeated P1 findings: unavailable public Pages URL, unclear first entry into collapsed drawer controls, exact state gap gated by route selection, unearned Required/Modeled/Satisfied terminology, insufficient in-product provenance, and overly generic precinct vocabulary.
+- The authorized correction scope does not include new states, model operations, uncertainty, backend work, or a redesign.
+- Human v0.19B remains required after corrections.
+
 ## 8. Verification state
 
 CLI verification for v0.18:
