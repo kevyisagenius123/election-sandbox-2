@@ -254,3 +254,58 @@ test("an active state that does not flip remains visible with zero EV consequenc
   await expect(page.locator(".scenario-score")).toContainText("226");
   await expect(page.locator(".scenario-score")).toContainText("312");
 });
+
+test("a Required Michigan route becomes Modeled, Satisfied, replayable, and reversible", async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  const firstRoute = page.getByTestId("path-route-1");
+  await expect(firstRoute).toContainText("FL + MI");
+  await expect(firstRoute.getByRole("button", { name: /Open Florida/ })).toHaveCount(0);
+
+  await firstRoute.getByRole("button", { name: "Open Michigan detailed laboratory" }).click();
+  await expect(page.getByRole("region", { name: "Route construction for Michigan" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Route construction for Michigan" })).toContainText(
+    "Michigan remains a mathematical requirement.",
+  );
+  await expect.poll(() => new URL(page.url()).searchParams.get("plan")).toBe("FL,MI");
+
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await page.getByRole("button", { name: "Preference", exact: true }).click();
+  const preference = page.getByRole("slider", { name: "Two-party preference transfer" });
+  await preference.fill("0.5");
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(page.getByRole("region", { name: "Route construction for Michigan" })).toContainText(
+    "Michigan improved in the model but remains Required.",
+  );
+
+  await preference.fill("2.5");
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  const routeLab = page.getByRole("region", { name: "Route construction for Michigan" });
+  await expect(routeLab).toContainText("Michigan satisfies this route.");
+  await expect(routeLab).toContainText("15 verified electoral votes");
+  await expect(page.locator(".route-construction")).toContainText("1 of 2 states satisfied");
+
+  await page.getByRole("button", { name: "United States", exact: true }).click();
+  await expect(page.locator(".route-construction")).toContainText("Michigan");
+  await expect(page.locator(".route-construction")).toContainText("satisfied");
+  await page.getByRole("button", { name: "Open Michigan route laboratory" }).click();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(page.getByRole("region", { name: "Route construction for Michigan" })).toContainText(
+    "Michigan satisfies this route.",
+  );
+  await expect(page.getByRole("slider", { name: "Two-party preference transfer" })).toHaveValue("2.5");
+
+  await preference.fill("0");
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeEnabled();
+  await expect(page.getByRole("region", { name: "Route construction for Michigan" })).toContainText(
+    "Michigan remains a mathematical requirement.",
+  );
+  await expect(page.locator(".route-construction")).toContainText("0 of 2 states satisfied");
+
+  await page.getByRole("button", { name: "Trump", exact: true }).click();
+  await expect.poll(() => new URL(page.url()).searchParams.get("plan")).toBeNull();
+  await expect(page.locator(".route-construction")).toHaveCount(0);
+});

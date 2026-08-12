@@ -26,6 +26,7 @@ export type ScenarioContributionScope = "county" | "vtd";
 export interface ScenarioUrlState {
   targetCandidate: MajorCandidate;
   routeMetric: RouteMetric;
+  selectedRouteStateCodes: string[];
   turnoutIncreasePoints: number;
   addedVoterHarrisShare: number;
   preferenceShiftPoints: number;
@@ -58,6 +59,7 @@ export interface BuildScenarioUrlOptions {
 export const DEFAULT_SCENARIO_URL_STATE: Readonly<ScenarioUrlState> = Object.freeze({
   targetCandidate: "harris",
   routeMetric: "fewest-states",
+  selectedRouteStateCodes: [],
   turnoutIncreasePoints: 0,
   addedVoterHarrisShare: 55,
   preferenceShiftPoints: 0,
@@ -94,6 +96,7 @@ const scenarioParameterNames = [
   "rank",
   "target",
   "route",
+  "plan",
   "activeState",
   "recipe",
   "state",
@@ -104,7 +107,22 @@ const scenarioParameterNames = [
 class InvalidScenarioUrlError extends Error {}
 
 function defaultState(): ScenarioUrlState {
-  return { ...DEFAULT_SCENARIO_URL_STATE };
+  return { ...DEFAULT_SCENARIO_URL_STATE, selectedRouteStateCodes: [] };
+}
+
+function parseSelectedRouteStateCodes(params: URLSearchParams) {
+  const raw = params.get("plan");
+  if (raw == null) return [];
+  if (raw.trim() === "") throw new InvalidScenarioUrlError("route plan is empty");
+  const codes = raw.split(",");
+  if (codes.length > 10) throw new InvalidScenarioUrlError("route plan contains too many states");
+  if (new Set(codes).size !== codes.length) {
+    throw new InvalidScenarioUrlError("route plan contains a duplicate state");
+  }
+  if (codes.some((code) => !stateCodes.has(code) || code === "ME" || code === "NE")) {
+    throw new InvalidScenarioUrlError("route plan contains an unsupported allocation");
+  }
+  return [...codes].sort();
 }
 
 function canonicalNumber(value: number) {
@@ -273,6 +291,7 @@ export function isDefaultScenarioUrlState(state: ScenarioUrlState) {
       case "rank": return state.contributionScope === DEFAULT_SCENARIO_URL_STATE.contributionScope;
       case "target": return state.targetCandidate === DEFAULT_SCENARIO_URL_STATE.targetCandidate;
       case "route": return state.routeMetric === DEFAULT_SCENARIO_URL_STATE.routeMetric;
+      case "plan": return state.selectedRouteStateCodes.length === 0;
       case "state": return state.selectedStateCode === null;
       case "county": return state.selectedCountyFips === null;
       case "vtd": return state.selectedVtdGeoid === null;
@@ -344,6 +363,7 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
           ...settings,
           targetCandidate: parseChoice(params, "target", ["harris", "trump"] as const, "harris"),
           routeMetric: parseChoice(params, "route", ["fewest-states", "margin-movement", "margin-votes"] as const, "fewest-states"),
+          selectedRouteStateCodes: parseSelectedRouteStateCodes(params),
           viewMode: parseChoice(params, "view", ["actual", "scenario", "difference"] as const, "scenario"),
           behaviorEditorMode: parseChoice(params, "editor", ["turnout", "preference", "third-party"] as const, "turnout"),
           contributionScope: parseChoice(params, "rank", ["county", "vtd"] as const, "county"),
@@ -359,6 +379,7 @@ export function decodeScenarioSearch(search: string): ScenarioUrlLoadResult {
       state: {
         targetCandidate: "harris",
         routeMetric: "fewest-states",
+        selectedRouteStateCodes: [],
         turnoutIncreasePoints: parseNumber(params, "turnout", 0, 0, 1.5),
         addedVoterHarrisShare: parseNumber(params, "turnoutHarris", 55, 0, 100, true),
         preferenceShiftPoints: parseNumber(params, "preference", 0, -200, 200),
@@ -425,6 +446,9 @@ function setScenarioParameters(
     params.set("activeState", state.activeDetailedStateCode ?? pennsylvaniaDetailedStateManifest.code);
     params.set("target", state.targetCandidate);
     params.set("route", state.routeMetric);
+    if (state.selectedRouteStateCodes.length > 0) {
+      params.set("plan", [...state.selectedRouteStateCodes].sort().join(","));
+    }
     for (const recipe of [...state.portfolioRecipes!].sort((left, right) => left.stateCode.localeCompare(right.stateCode))) {
       params.append("recipe", encodePortfolioRecipe(recipe));
     }

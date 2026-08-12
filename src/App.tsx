@@ -73,6 +73,8 @@ import {
 } from "./data/electoralConsequences.ts";
 import {
   buildPathTo270Model,
+  buildRouteConstructionPlan,
+  type PathTo270Route,
   type RouteMetric,
 } from "./data/pathTo270.ts";
 
@@ -222,6 +224,9 @@ export function App() {
     initialScenarioUrlState.targetCandidate,
   );
   const [routeMetric, setRouteMetric] = useState<RouteMetric>(initialScenarioUrlState.routeMetric);
+  const [selectedRouteStateCodes, setSelectedRouteStateCodes] = useState<string[]>(
+    initialScenarioUrlState.selectedRouteStateCodes,
+  );
   const [behaviorEditorMode, setBehaviorEditorMode] = useState<BehaviorEditorMode>(
     initialScenarioUrlState.behaviorEditorMode,
   );
@@ -285,6 +290,7 @@ export function App() {
   const applyScenarioUrlState = useCallback((state: ScenarioUrlState) => {
     setTargetCandidate(state.targetCandidate);
     setRouteMetric(state.routeMetric);
+    setSelectedRouteStateCodes(state.selectedRouteStateCodes);
     setTurnoutIncreasePoints(state.turnoutIncreasePoints);
     setAddedVoterHarrisShare(state.addedVoterHarrisShare);
     setPreferenceShiftPoints(state.preferenceShiftPoints);
@@ -431,6 +437,7 @@ export function App() {
   const scenarioUrlState = useMemo<ScenarioUrlState>(() => ({
     targetCandidate,
     routeMetric,
+    selectedRouteStateCodes,
     turnoutIncreasePoints,
     addedVoterHarrisShare,
     preferenceShiftPoints: effectivePreferenceShiftPoints,
@@ -454,6 +461,7 @@ export function App() {
     effectiveThirdPartyShiftPoints,
     portfolioRecipes,
     routeMetric,
+    selectedRouteStateCodes,
     selectedCountyFips,
     selectedStateCode,
     selectedVtdGeoid,
@@ -542,6 +550,21 @@ export function App() {
     targetCandidate,
     routeMetric,
   ), [electoralConsequences, portfolioRecipes, routeMetric, scenarioStates, targetCandidate]);
+  const routeConstructionPlan = useMemo(() => buildRouteConstructionPlan(
+    states2024,
+    scenarioStates,
+    portfolioRecipes.map((recipe) => recipe.stateCode),
+    listDetailedStateManifests().map((manifest) => manifest.code),
+    selectedRouteStateCodes,
+    targetCandidate,
+  ), [portfolioRecipes, scenarioStates, selectedRouteStateCodes, targetCandidate]);
+  const selectedRouteConstructionState = routeConstructionPlan?.states.find(
+    (state) => state.stateCode === selectedStateCode,
+  ) ?? null;
+  const activeRouteConstructionState = selectedRouteConstructionState?.detailedModelAvailable
+    && selectedStateCode === activeDetailedStateCode
+    ? selectedRouteConstructionState
+    : null;
   const scenarioDetailedCounties = useMemo(
     () => buildDetailedScenarioCounties(
       detailedCounties,
@@ -740,6 +763,16 @@ export function App() {
     applyStateRecipeSettings(scenarioRecipeRecord[code]?.settings ?? DEFAULT_STATE_BEHAVIOR_SETTINGS);
   }
 
+  function selectRoute(route: PathTo270Route, stateCode?: string) {
+    setSelectedRouteStateCodes(route.states.map((state) => state.stateCode).sort());
+    if (stateCode) selectState(stateCode);
+  }
+
+  function changeTargetCandidate(candidate: MajorCandidate) {
+    if (candidate !== targetCandidate) setSelectedRouteStateCodes([]);
+    setTargetCandidate(candidate);
+  }
+
   function selectNation() {
     setStoredScenarioRecipes(scenarioRecipeRecord);
     setSelectedVtdGeoid(null);
@@ -803,7 +836,7 @@ export function App() {
           <a className="nav-item" href="#methodology">Sources</a>
         </nav>
 
-        <div className="build-status"><span />Path to 270 lab · v0.16</div>
+        <div className="build-status"><span />Geographic path lab · v0.17</div>
       </header>
 
       <div className="workbench" id="top">
@@ -888,6 +921,11 @@ export function App() {
                 scenarioDetailedGeographies={scenarioDetailedGeographies}
                 scenarioStates={scenarioStates}
                 viewMode={viewMode}
+                routeIndicators={(routeConstructionPlan?.states ?? []).map((state, index) => ({
+                  stateCode: state.stateCode,
+                  status: state.status,
+                  order: index + 1,
+                }))}
               />
             </Suspense>
 
@@ -943,7 +981,7 @@ export function App() {
                   <button
                     aria-pressed={targetCandidate === candidate}
                     key={candidate}
-                    onClick={() => setTargetCandidate(candidate)}
+                    onClick={() => changeTargetCandidate(candidate)}
                     type="button"
                   >{candidateNames[candidate]}</button>
                 ))}
@@ -1022,6 +1060,45 @@ export function App() {
             )}
           </section>
 
+          {activeRouteConstructionState && routeConstructionPlan && (
+            <section
+              className="route-lab-card"
+              aria-label={`Route construction for ${activeRouteConstructionState.stateName}`}
+              data-status={activeRouteConstructionState.status}
+            >
+              <div className="card-heading compact">
+                <div>
+                  <span className="overline">Active path · {routeConstructionPlan.id.replaceAll("+", " + ")}</span>
+                  <strong>{activeRouteConstructionState.stateName} route requirement</strong>
+                </div>
+                <span className="route-status-chip">{activeRouteConstructionState.status}</span>
+              </div>
+              <div className="route-lab-decision" aria-live="polite">
+                <strong>{activeRouteConstructionState.status === "satisfied"
+                  ? `${activeRouteConstructionState.stateName} satisfies this route.`
+                  : activeRouteConstructionState.status === "modeled"
+                    ? activeRouteConstructionState.modeledNetMarginMovement > 0
+                      ? `${activeRouteConstructionState.stateName} improved in the model but remains Required.`
+                      : activeRouteConstructionState.modeledNetMarginMovement < 0
+                        ? `${activeRouteConstructionState.stateName} is modeled but moved away from the route target.`
+                        : `${activeRouteConstructionState.stateName} is modeled but has not reduced the requirement.`
+                    : `${activeRouteConstructionState.stateName} remains a mathematical requirement.`}</strong>
+                <p>{activeRouteConstructionState.status === "satisfied"
+                  ? `${candidateNames[targetCandidate]} receives ${activeRouteConstructionState.electoralVotes} verified electoral votes from the modeled result.`
+                  : `${formatNumber(activeRouteConstructionState.remainingNetMarginVotes)} additional net ${candidateNames[targetCandidate]} margin votes are still needed to move past a tie.`}</p>
+              </div>
+              <div className="route-progress-track" aria-label={`${activeRouteConstructionState.progressPct.toFixed(1)} percent of certified route movement modeled`}>
+                <span style={{ width: `${activeRouteConstructionState.progressPct}%` }} />
+              </div>
+              <div className="route-lab-metrics">
+                <span><small>Certified requirement</small><strong>{formatNumber(activeRouteConstructionState.certifiedRequiredNetMarginVotes)}</strong></span>
+                <span><small>Modeled movement</small><strong>{activeRouteConstructionState.modeledNetMarginMovement >= 0 ? "+" : "−"}{formatNumber(Math.abs(activeRouteConstructionState.modeledNetMarginMovement))}</strong></span>
+                <span><small>Remaining gap</small><strong>{formatNumber(activeRouteConstructionState.remainingNetMarginVotes)}</strong></span>
+              </div>
+              <p className="route-lab-note">The requirement is reconstructed from the certified state result. Only a verified modeled winner change satisfies it.</p>
+            </section>
+          )}
+
           <section className="path-card" aria-label="Path to 270">
             <div className="card-heading compact">
               <div><span className="overline">Path to {pathTo270.majorityThreshold}</span><strong>Closest mathematical routes</strong></div>
@@ -1039,6 +1116,42 @@ export function App() {
                 >{routeMetricLabels[metric]}</button>
               ))}
             </div>
+            {routeConstructionPlan && (
+              <div className="route-construction" data-status={routeConstructionPlan.status}>
+                <div className="route-construction-heading">
+                  <div>
+                    <span className="overline">Selected construction route</span>
+                    <strong>{routeConstructionPlan.id.replaceAll("+", " + ")}</strong>
+                  </div>
+                  <button onClick={() => setSelectedRouteStateCodes([])} type="button">Clear</button>
+                </div>
+                <div className="route-construction-summary">
+                  <strong>{routeConstructionPlan.status === "complete"
+                    ? `${candidateNames[targetCandidate]} route satisfied`
+                    : routeConstructionPlan.status === "insufficient"
+                      ? "Selected states no longer reach the majority"
+                    : `${routeConstructionPlan.satisfiedStateCount} of ${routeConstructionPlan.states.length} states satisfied`}</strong>
+                  <span>{routeConstructionPlan.targetElectoralVotes} current · {routeConstructionPlan.projectedTargetElectoralVotes} with remaining requirements</span>
+                </div>
+                <div className="route-construction-states">
+                  {routeConstructionPlan.states.map((state, index) => {
+                    const content = <>
+                      <b>{state.status === "satisfied" ? "✓" : index + 1}</b>
+                      <span><strong>{state.stateName}</strong><small>{state.status}</small></span>
+                      <span><small>{state.status === "satisfied" ? "Verified EV" : "Remaining"}</small><strong>{state.status === "satisfied" ? `+${state.electoralVotes} EV` : formatNumber(state.remainingNetMarginVotes)}</strong></span>
+                    </>;
+                    return state.detailedModelAvailable ? (
+                      <button
+                        aria-label={`Open ${state.stateName} route laboratory`}
+                        key={state.stateCode}
+                        onClick={() => selectState(state.stateCode)}
+                        type="button"
+                      >{content}</button>
+                    ) : <div key={state.stateCode}>{content}</div>;
+                  })}
+                </div>
+              </div>
+            )}
             {pathTo270.electoralVotesNeeded === 0 ? (
               <div className="route-complete">
                 <strong>{candidateNames[targetCandidate]} already holds a majority.</strong>
@@ -1048,14 +1161,19 @@ export function App() {
               <ol className="route-list">
                 {pathTo270.routes.slice(0, 3).map((route, index) => (
                   <li data-testid={`path-route-${index + 1}`} key={route.id}>
-                    <div className="route-heading">
+                    <button
+                      aria-pressed={routeConstructionPlan?.id === route.id}
+                      className="route-heading"
+                      onClick={() => selectRoute(route)}
+                      type="button"
+                    >
                       <span>{String(index + 1).padStart(2, "0")}</span>
                       <div>
                         <strong>{route.states.map((state) => state.stateCode).join(" + ")}</strong>
                         <small>{route.completeness.replace("-", " ")} path</small>
                       </div>
                       <b>{pathTo270.targetElectoralVotes} → {route.projectedTargetElectoralVotes} EV</b>
-                    </div>
+                    </button>
                     <div className="route-states">
                       {route.states.map((state) => {
                         const stateContent = (
@@ -1071,7 +1189,7 @@ export function App() {
                           <button
                             aria-label={`Open ${state.stateName} detailed laboratory`}
                             key={state.stateCode}
-                            onClick={() => selectState(state.stateCode)}
+                            onClick={() => selectRoute(route, state.stateCode)}
                             type="button"
                           >{stateContent}</button>
                         ) : (

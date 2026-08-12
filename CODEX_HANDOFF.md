@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.16.0`, deterministic Path to 270
+- Release: `0.17.0`, geographic route construction
 - Previous release commit: `439db1c Add audited Michigan data foundation`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
@@ -241,6 +241,21 @@ A local Vite server may still be running on port 4173; check rather than startin
 - A target already at or above the majority receives no Required route.
 - Decision 0019 records arithmetic, classification, bounded-search, replay, and split-state contracts.
 - Verification contains 46 model tests and seven browser replays.
+
+### v0.17 geographic route construction
+
+- `buildRouteConstructionPlan` preserves a selected state-code blueprint while deriving every status and number from certified and verified scenario states.
+- Selected routes persist through schema-2 `plan` parameters. Computed margins, gaps, statuses, and EV totals are never serialized as authority.
+- Route states transition strictly through Required, Modeled, and Satisfied. Modeled does not imply a flip; Satisfied requires the deterministic statewide allocation to change.
+- The active PA or MI laboratory reports the certified net-margin requirement, signed modeled movement, exact remaining gap, progress, and verified EV contribution.
+- Moving toward the target without flipping explains the remaining gap. Moving away from the target is described honestly and never shown as improvement.
+- Reversing below the winner threshold immediately removes Satisfied status and the state's route EV contribution.
+- The selected construction ledger survives national navigation and state switching while existing recipe and worker lifecycle rules remain authoritative.
+- The national map adds numbered route markers, status-dependent outlines, and a check mark for satisfied states so status does not depend on color alone.
+- Unsupported states remain mathematical and non-geographic. Invalid, duplicate, Maine, and Nebraska route plans fail closed.
+- Changing the target candidate clears the selected route because its directional objective is no longer valid.
+- Decision 0020 records route blueprint, status, replay, geographic honesty, and reversal contracts.
+- Verification contains 47 model tests and eight browser replays.
 
 ## 4. Demographic source and limitations
 
@@ -513,12 +528,21 @@ v0.16 additionally adds or changes:
 - `docs/decisions/0019-deterministic-path-to-270.md`
 - release documentation, product plan, and package metadata
 
+v0.17 additionally adds or changes:
+
+- `src/data/pathTo270.ts` route-construction contract
+- `src/data/scenarioUrl.ts` selected-plan replay
+- `src/App.tsx`, `src/map/AtlasMapScene.tsx`, and `src/styles.css`
+- `tests/election-model.test.mjs` and `tests/browser/scenario-replay.spec.ts`
+- `docs/decisions/0020-geographic-route-construction.md`
+- release documentation, product plan, and package metadata
+
 ## 8. Verification state
 
-CLI verification for v0.16:
+CLI verification for v0.17:
 
-- `npm test`: 46 tests pass, including route arithmetic, deterministic metric ordering, split-allocation exclusion, and Electoral College invariants.
-- `npm run test:browser`: 7 browser replays pass, including exact-270 route display and route-metric URL restoration.
+- `npm test`: 47 tests pass, including route construction transitions, exact gap arithmetic, replay, split-allocation rejection, and Electoral College invariants.
+- `npm run test:browser`: 8 browser replays pass, including Required to Modeled to Satisfied construction, reload, and reversal.
 - `npm run profile:pa`: completes and validates profile invariants.
 - `npm run lint`: passes.
 - `npm run build`: passes.
@@ -586,16 +610,16 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-The v0.16 route engine is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next release is v0.17, geographic route construction:
+The v0.17 geographic route workflow is implemented. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes. The next bounded release should be v0.18 private-alpha hardening:
 
-1. Make a supported Required route row open the correct detailed state laboratory with the route target and exact statewide requirement in context.
-2. Preserve the selected route and target while the user edits that state; returning nationally must rebuild the portfolio and routes from verified recipes.
-3. Mark a state Modeled only when its deterministic detailed scenario actually changes the required allocation. Opening a state or moving toward the target is not enough.
-4. Explain the remaining gap when a detailed scenario improves a state without flipping it.
-5. Replace the Required contribution with the verified Modeled result after a flip and update current EV, route completeness, and alternatives.
-6. Add route-state emphasis on the national map without relying on color alone. Do not fabricate geography for unsupported states.
-7. Lock browser journeys for Required to lab to Modeled transitions, reversal, reload, target switching, and an insufficient partial movement.
-8. Run repeated-switch heap, worker, and WebGL-resource profiling before registering a third detailed state.
+1. Add an automated repeated PA and MI route-switch stress journey that records worker count, retained heap, geometry-cache occupancy, and WebGL context behavior.
+2. Establish explicit pass or fail budgets from repeated local runs instead of relying on a single anecdotal profile.
+3. Audit the 801 to 1350 pixel layout range, where the three-column editorial composition is denser than desktop or phone layouts.
+4. Add visual regression references for the national route, an insufficient detailed-state route, and a satisfied detailed-state route.
+5. Review the deck.gl lazy chunk and identify safe additional splitting without delaying the first interactive map.
+6. Formalize the source, reconciliation, exact-cycle geometry, demographic bridge, runtime size, and browser-test gates required before a third detailed state can register.
+7. Keep unsupported route states mathematical until one passes that complete production foundation checklist.
+8. Complete the public data-redistribution review before describing the repository as production deployable.
 
 Uncertainty remains deferred until the deterministic multi-state contract is stable. It must be separately switchable, seeded, and calibrated; decorative random noise is prohibited.
 

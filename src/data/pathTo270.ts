@@ -37,6 +37,35 @@ export interface PathTo270Model {
   excludedSplitAllocationStates: string[];
 }
 
+export type RouteConstructionStatus = "required" | "modeled" | "satisfied";
+
+export interface RouteConstructionState {
+  stateCode: string;
+  stateName: string;
+  electoralVotes: number;
+  status: RouteConstructionStatus;
+  detailedModelAvailable: boolean;
+  certifiedRequiredNetMarginVotes: number;
+  modeledNetMarginMovement: number;
+  remainingNetMarginVotes: number;
+  progressPct: number;
+  actualTargetMargin: number;
+  scenarioTargetMargin: number;
+}
+
+export interface RouteConstructionPlan {
+  id: string;
+  targetCandidate: MajorCandidate;
+  states: RouteConstructionState[];
+  status: "required" | "in-progress" | "complete" | "insufficient";
+  satisfiedStateCount: number;
+  modeledStateCount: number;
+  electoralVotesSatisfied: number;
+  targetElectoralVotes: number;
+  projectedTargetElectoralVotes: number;
+  majorityThreshold: number;
+}
+
 type NamedStateResult = StatewidePresidentialResult & { name?: string };
 
 interface PartialRoute {
@@ -59,6 +88,10 @@ function opponentVotes(state: StatewidePresidentialResult, target: MajorCandidat
 
 function targetElectoralVotes(state: StatewidePresidentialResult, target: MajorCandidate) {
   return target === "harris" ? state.harrisElectoralVotes : state.trumpElectoralVotes;
+}
+
+function targetMarginVotes(state: StatewidePresidentialResult, target: MajorCandidate) {
+  return targetVotes(state, target) - opponentVotes(state, target);
 }
 
 function stateMargin(state: StatewidePresidentialResult) {
@@ -246,5 +279,87 @@ export function buildPathTo270Model(
     electoralVotesNeeded,
     routes,
     excludedSplitAllocationStates: excludedSplitAllocationStates.sort(),
+  };
+}
+
+export function buildRouteConstructionPlan(
+  actualStates: readonly NamedStateResult[],
+  scenarioStates: readonly NamedStateResult[],
+  activeStateCodes: readonly string[],
+  detailedStateCodes: readonly string[],
+  selectedRouteStateCodes: readonly string[],
+  targetCandidate: MajorCandidate,
+): RouteConstructionPlan | null {
+  const selectedCodes = [...new Set(selectedRouteStateCodes)].sort();
+  if (selectedCodes.length === 0) return null;
+  const actualByCode = new Map(actualStates.map((state) => [state.code, state]));
+  const scenarioByCode = new Map(scenarioStates.map((state) => [state.code, state]));
+  const active = new Set(activeStateCodes);
+  const detailed = new Set(detailedStateCodes);
+  const states = selectedCodes.map((stateCode): RouteConstructionState => {
+    const actual = actualByCode.get(stateCode);
+    const scenario = scenarioByCode.get(stateCode);
+    if (!actual || !scenario) throw new Error(`Route construction state ${stateCode} is unavailable`);
+    const totalElectoralVotes = scenario.harrisElectoralVotes + scenario.trumpElectoralVotes;
+    const satisfied = targetElectoralVotes(scenario, targetCandidate) === totalElectoralVotes;
+    const isModeled = active.has(stateCode);
+    const certifiedRequiredNetMarginVotes = Math.max(0, 1 - targetMarginVotes(actual, targetCandidate));
+    const modeledNetMarginMovement = targetMarginVotes(scenario, targetCandidate)
+      - targetMarginVotes(actual, targetCandidate);
+    const remainingNetMarginVotes = satisfied
+      ? 0
+      : Math.max(0, 1 - targetMarginVotes(scenario, targetCandidate));
+    return {
+      stateCode,
+      stateName: actual.name ?? stateCode,
+      electoralVotes: totalElectoralVotes,
+      status: satisfied ? "satisfied" : isModeled ? "modeled" : "required",
+      detailedModelAvailable: detailed.has(stateCode),
+      certifiedRequiredNetMarginVotes,
+      modeledNetMarginMovement,
+      remainingNetMarginVotes,
+      progressPct: certifiedRequiredNetMarginVotes === 0
+        ? 100
+        : Math.max(0, Math.min(100, modeledNetMarginMovement / certifiedRequiredNetMarginVotes * 100)),
+      actualTargetMargin: targetSignedMargin(actual, targetCandidate),
+      scenarioTargetMargin: targetSignedMargin(scenario, targetCandidate),
+    };
+  });
+  const totalElectoralVotes = scenarioStates.reduce(
+    (sum, state) => sum + state.harrisElectoralVotes + state.trumpElectoralVotes,
+    0,
+  );
+  const majorityThreshold = Math.floor(totalElectoralVotes / 2) + 1;
+  const currentTargetElectoralVotes = scenarioStates.reduce(
+    (sum, state) => sum + targetElectoralVotes(state, targetCandidate),
+    0,
+  );
+  const unsatisfiedElectoralVotes = states.reduce(
+    (sum, state) => sum + (state.status === "satisfied" ? 0 : state.electoralVotes),
+    0,
+  );
+  const satisfiedStateCount = states.filter((state) => state.status === "satisfied").length;
+  const modeledStateCount = states.filter((state) => state.status !== "required").length;
+  const projectedTargetElectoralVotes = currentTargetElectoralVotes + unsatisfiedElectoralVotes;
+  return {
+    id: selectedCodes.join("+"),
+    targetCandidate,
+    states,
+    status: projectedTargetElectoralVotes < majorityThreshold
+      ? "insufficient"
+      : satisfiedStateCount === states.length
+        ? "complete"
+        : modeledStateCount > 0
+          ? "in-progress"
+          : "required",
+    satisfiedStateCount,
+    modeledStateCount,
+    electoralVotesSatisfied: states.reduce(
+      (sum, state) => sum + (state.status === "satisfied" ? state.electoralVotes : 0),
+      0,
+    ),
+    targetElectoralVotes: currentTargetElectoralVotes,
+    projectedTargetElectoralVotes,
+    majorityThreshold,
   };
 }

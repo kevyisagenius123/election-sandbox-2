@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.16 Deterministic Path to 270
+**Status:** v0.17 Geographic route construction
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -18,7 +18,7 @@
 
 ### Current implementation note
 
-Version 0.16 adds a deterministic Path to 270 engine above the verified Pennsylvania and Michigan portfolio. It computes exact statewide net margin-vote requirements, enumerates bounded winning combinations, and ranks them by fewest states, margin movement, or net margin votes. Actual, Modeled, and Required classifications remain explicit. Required states are mathematical only and receive no invented county or reporting-unit geography. Maine and Nebraska remain excluded until district-level electoral allocation is supported.
+Version 0.17 completes the first geographic Path to 270 workflow. A selected route persists as state codes while all progress is reconstructed from certified results and verified recipes. Supported Pennsylvania and Michigan requirements open their existing laboratories, report exact modeled movement and remaining gap, and become Satisfied only after a deterministic winner change. National route markers expose status without relying on color alone. Unsupported states remain mathematical and non-geographic.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 
@@ -890,14 +890,14 @@ Pennsylvania is the first end-to-end pilot. It provides competitive statewide po
 
 Pennsylvania and Michigan establish the first persistent multi-state scenario. Arizona, Georgia, Wisconsin, and later states extend the same architecture only after the portfolio foundation is proven.
 
-**Implementation status:** v0.14 Portfolio foundation, v0.15 Consequence ledger, and v0.16 Route engine are complete. v0.17 Geographic route construction remains planned.
+**Implementation status:** v0.14 Portfolio foundation, v0.15 Consequence ledger, v0.16 Route engine, and v0.17 Geographic route construction are complete.
 
 The milestone is released in four bounded increments:
 
 - **v0.14 Portfolio foundation**: versioned recipes, sequential inactive-state hydration, persistent PA and MI controls, aggregation, changed-state strip, schema-2 replay, and resource release.
 - **v0.15 Consequence ledger**: baseline delta, changed-state causal ledger, EV needed, exact-threshold and 269-269 handling.
 - **v0.16 Route engine**: Actual, Modeled, and Required classifications; bounded deterministic route enumeration; selectable ranking metrics. Complete.
-- **v0.17 Geographic route construction**: route rows open detailed state labs and convert Required states to Modeled only after a user constructs supported geography.
+- **v0.17 Geographic route construction**: selected routes persist, supported rows open detailed state labs, live gaps remain explicit, and only verified winner changes satisfy route contributions. Complete.
 
 **Deliverables**
 

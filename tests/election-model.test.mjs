@@ -65,7 +65,7 @@ import {
   electoralThresholdDetail,
   electoralThresholdHeadline,
 } from "../src/data/electoralConsequences.ts";
-import { buildPathTo270Model } from "../src/data/pathTo270.ts";
+import { buildPathTo270Model, buildRouteConstructionPlan } from "../src/data/pathTo270.ts";
 
 const pennsylvaniaCountyDocument = JSON.parse(readFileSync(
   new URL("../src/data/pa-2024-counties.json", import.meta.url),
@@ -1037,6 +1037,7 @@ test("versioned scenario URLs round-trip every assumption and selected geography
   const state = {
     targetCandidate: "harris",
     routeMetric: "fewest-states",
+    selectedRouteStateCodes: [],
     turnoutIncreasePoints: 1.2,
     addedVoterHarrisShare: 63,
     preferenceShiftPoints: -4.7,
@@ -1220,6 +1221,68 @@ test("Path to 270 emits no Required route after the target already holds a major
   assert.deepEqual(model.routes, []);
 });
 
+test("Route construction distinguishes Required, Modeled, and Satisfied states", () => {
+  const actualMichigan = states2024.find((state) => state.code === "MI");
+  assert.ok(actualMichigan);
+  const partiallyModeled = states2024.map((state) => state.code === "MI" ? {
+    ...state,
+    harrisVotes: state.harrisVotes + 10_000,
+    trumpVotes: state.trumpVotes - 10_000,
+  } : state);
+  const partial = buildRouteConstructionPlan(
+    states2024,
+    partiallyModeled,
+    ["MI"],
+    ["PA", "MI"],
+    ["FL", "MI"],
+    "harris",
+  );
+  assert.ok(partial);
+  const partialMichigan = partial.states.find((state) => state.stateCode === "MI");
+  assert.ok(partialMichigan);
+  assert.equal(partial.status, "in-progress");
+  assert.equal(partialMichigan.status, "modeled");
+  assert.equal(partialMichigan.modeledNetMarginMovement, 20_000);
+  assert.equal(
+    partialMichigan.remainingNetMarginVotes,
+    actualMichigan.trumpVotes - actualMichigan.harrisVotes + 1 - 20_000,
+  );
+
+  const satisfiedScenario = states2024.map((state) => state.code === "MI" ? {
+    ...state,
+    harrisVotes: state.harrisVotes + 50_000,
+    trumpVotes: state.trumpVotes - 50_000,
+    harrisElectoralVotes: 15,
+    trumpElectoralVotes: 0,
+  } : state);
+  const satisfied = buildRouteConstructionPlan(
+    states2024,
+    satisfiedScenario,
+    ["MI"],
+    ["PA", "MI"],
+    ["FL", "MI"],
+    "harris",
+  );
+  assert.ok(satisfied);
+  const satisfiedMichigan = satisfied.states.find((state) => state.stateCode === "MI");
+  assert.equal(satisfiedMichigan?.status, "satisfied");
+  assert.equal(satisfiedMichigan?.remainingNetMarginVotes, 0);
+  assert.equal(satisfied.electoralVotesSatisfied, 15);
+  assert.equal(satisfied.targetElectoralVotes, 241);
+  assert.equal(satisfied.projectedTargetElectoralVotes, 271);
+
+  const insufficient = buildRouteConstructionPlan(
+    states2024,
+    states2024,
+    [],
+    ["PA", "MI"],
+    ["CA"],
+    "harris",
+  );
+  assert.equal(insufficient?.status, "insufficient");
+  assert.equal(insufficient?.projectedTargetElectoralVotes, 226);
+});
+
 test("multi-state portfolio URLs replay authoritative Pennsylvania and Michigan recipes", () => {
   const paRecipe = createStateScenarioRecipe("PA", {
     turnoutIncreasePoints: 0.4,
@@ -1241,6 +1304,7 @@ test("multi-state portfolio URLs replay authoritative Pennsylvania and Michigan 
     ...DEFAULT_SCENARIO_URL_STATE,
     ...miRecipe.settings,
     targetCandidate: "trump",
+    selectedRouteStateCodes: ["FL", "MI"],
     selectedStateCode: "MI",
     activeDetailedStateCode: "MI",
     portfolioRecipes: [miRecipe, paRecipe],
@@ -1415,8 +1479,11 @@ test("malformed scenario values and geography never apply partially", () => {
     `${prefix}&state=PA&county=42003&vtd=42001000010`,
   );
   const duplicateControl = decodeScenarioSearch(`${prefix}&turnout=1&turnout=1.2`);
+  const invalidRoutePlan = decodeScenarioSearch(
+    `?scenario=2&data=${SCENARIO_DATA_VERSION}&engine=${SCENARIO_ENGINE_VERSION}&plan=ME,MI`,
+  );
 
-  for (const result of [malformedNumber, mismatchedVtd, duplicateControl]) {
+  for (const result of [malformedNumber, mismatchedVtd, duplicateControl, invalidRoutePlan]) {
     assert.equal(result.status, "invalid");
     assert.deepEqual(result.state, DEFAULT_SCENARIO_URL_STATE);
   }

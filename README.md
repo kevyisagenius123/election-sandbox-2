@@ -2,7 +2,7 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
-## Current release: v0.16 Deterministic Path to 270
+## Current release: v0.17 Geographic route construction
 
 The current build provides:
 
@@ -52,6 +52,11 @@ The current build provides:
 - Mathematical and partially modeled route labels, exact projected EV totals, and direct links into supported detailed-state laboratories.
 - Route metric persistence in schema-2 URLs, with deterministic ordering after reload.
 - Maine and Nebraska are excluded from route approximation until congressional-district allocation is represented correctly.
+- A persistent selected-route blueprint rebuilt from certified results and verified state recipes rather than serialized computed totals.
+- Live Required, Modeled, and Satisfied route-state transitions inside the Pennsylvania and Michigan laboratories.
+- Exact certified requirement, modeled net-margin movement, remaining gap, and verified EV consequence in the active state lab.
+- Numbered national-map route markers plus distinct Required, Modeled, and Satisfied outlines.
+- Reversible route construction: falling back below the state threshold immediately removes its satisfied status and electoral contribution.
 
 The Pennsylvania source exposes exact Harris, Trump, Stein, and Oliver results by reporting unit, but does not place every write-in or residual vote by county. The model therefore preserves 24,526 certified residual votes in an explicit statewide bucket instead of inventing a county or precinct location. One Philadelphia reconciliation bucket and every unmatched reporting unit also remain explicit.
 
@@ -81,7 +86,7 @@ The turnout denominator is not citizen voting-age population and is not a 2024 e
 
 Every non-baseline change is written into a readable query string with URL schema, dataset, and deterministic engine versions. Schema 2 stores one authoritative recipe per active detailed state plus the active editor, map mode, contribution scope, and selected geography. Derived results are regenerated locally and are never serialized as a competing source of truth. A copied baseline link is explicit and versioned even though the ordinary baseline page stays clean.
 
-Compatible links restore locally without a backend. Schema 2 also restores the selected explanation target and route metric, from which the national score, changed-state ledger, distance to 270, and ranked routes are deterministically rebuilt. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, or engine versions and malformed payloads never apply partially: the application restores the certified baseline and displays the reason.
+Compatible links restore locally without a backend. Schema 2 also restores the selected explanation target, route metric, and selected route-state blueprint, from which the national score, changed-state ledger, distance to 270, ranked routes, and construction progress are deterministically rebuilt. Slider changes replace the current browser-history entry instead of creating hundreds of entries during a drag. Unknown future schema, data, engine, or route allocations never apply partially: the application restores the certified baseline and displays the reason.
 
 Current compatibility contract:
 
@@ -135,6 +140,14 @@ A bounded deterministic search retains competitive partial combinations and rank
 
 Maine and Nebraska are excluded because their split electoral allocation cannot be represented honestly by the current winner-take-all route contract. The route list is an arithmetic strategy tool, not a forecast, probability, or claim that all listed combinations are equally plausible.
 
+## Geographic route construction
+
+Selecting a route preserves its state codes while every result remains derived. A supported Pennsylvania or Michigan row opens the existing detailed laboratory with a route context panel. The panel compares the certified target-margin deficit with the current verified scenario, reports modeled movement and the exact remaining gap, and does not award EV until the scenario actually changes the statewide winner.
+
+The construction ledger distinguishes an untouched Required state, an active Modeled state that has not crossed the threshold, and a Satisfied state whose verified scenario supplies its electoral votes. Reversing a slider below the threshold removes Satisfied status immediately. Returning to the national map retains all state recipes and shows numbered route markers; status is also carried by text and marker symbols rather than color alone.
+
+Unsupported states remain mathematical entries without local controls. The selected route blueprint is persisted in schema-2 URLs, but its status, movement, remaining votes, and national consequences are reconstructed from official data and deterministic recipes after every reload.
+
 ## Run locally
 
 Requirements: Node.js 22.12 or newer.
@@ -170,7 +183,7 @@ src/data/detailedStateManifest.ts   Typed state registration and asset contracts
 src/data/scenarioUrl.ts             Versioned scenario URL codec and compatibility policy
 src/data/scenarioPortfolio.ts       Authoritative recipes and derived state-summary contracts
 src/data/electoralConsequences.ts   Target-aware EV ledger and threshold classification
-src/data/pathTo270.ts               Deterministic bounded route enumeration and ranking
+src/data/pathTo270.ts               Deterministic route enumeration, construction, and progress
 src/runtime/                         Worker protocol, scenario runtime, and React bridge
 packages/data-contracts/            Canonical election and demographic contracts
 packages/election-model/            Deterministic allocation and scenario engine
@@ -251,10 +264,11 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `docs/decisions/0017-multi-state-scenario-portfolio.md`
 - `docs/decisions/0018-electoral-consequence-ledger.md`
 - `docs/decisions/0019-deterministic-path-to-270.md`
+- `docs/decisions/0020-geographic-route-construction.md`
 
 ## Next increment
 
-Build geographic route construction for states that have a production-ready detailed foundation. A Required route state may become Modeled only after the user opens its state laboratory and constructs a scenario whose verified result supplies the needed electoral allocation. Unsupported states must remain mathematical requirements with no invented local geography.
+Harden the completed multi-state private alpha before adding another detailed state. The next bounded increment should automate repeated PA and MI switching profiles, verify worker and WebGL resource release under stress, improve medium-width layout behavior, and define the audited data-foundation checklist for the third state. No third state should be registered until those gates pass.
 
 ## Primary sources
 

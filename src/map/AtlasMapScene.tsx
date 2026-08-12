@@ -7,7 +7,7 @@ import {
   OrbitView,
   type PickingInfo,
 } from "@deck.gl/core";
-import { GeoJsonLayer } from "@deck.gl/layers";
+import { GeoJsonLayer, TextLayer } from "@deck.gl/layers";
 import DeckGL from "@deck.gl/react";
 import type { Feature } from "geojson";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -26,6 +26,7 @@ import {
 } from "../data/detailedStatePrecincts.ts";
 import type { DetailedStateManifest } from "../data/detailedStateManifest.ts";
 import type { StateDatum } from "../data/states.ts";
+import type { RouteConstructionStatus } from "../data/pathTo270.ts";
 import {
   atlasController,
   countyFeatures,
@@ -52,6 +53,11 @@ type AtlasMapSceneProps = {
   activeCountyFips: string | null;
   activePrecinctGeoid: string | null;
   viewMode: ViewMode;
+  routeIndicators: readonly {
+    stateCode: string;
+    status: RouteConstructionStatus;
+    order: number;
+  }[];
   onActiveStateChange: (code: string | null) => void;
   onActiveCountyChange: (fips: string | null) => void;
   onActivePrecinctChange: (geoid: string | null) => void;
@@ -80,6 +86,7 @@ export function AtlasMapScene({
   activeCountyFips,
   activePrecinctGeoid,
   viewMode,
+  routeIndicators,
   onActiveStateChange,
   onActiveCountyChange,
   onActivePrecinctChange,
@@ -130,6 +137,10 @@ export function AtlasMapScene({
   const scenarioByCode = useMemo(
     () => new Map(scenarioStates.map((state) => [state.code, state])),
     [scenarioStates],
+  );
+  const routeIndicatorByCode = useMemo(
+    () => new Map(routeIndicators.map((indicator) => [indicator.stateCode, indicator])),
+    [routeIndicators],
   );
   const actualCountyByFips = useMemo(
     () => new Map(actualDetailedCounties.map((county) => [county.fips, county])),
@@ -417,8 +428,19 @@ export function AtlasMapScene({
       stroked: true,
       pickable: !activeStateCode,
       lineWidthUnits: "pixels",
-      getLineWidth: 1,
-      getLineColor: [255, 255, 247, activeStateCode ? 0 : 185],
+      getLineWidth: (item: Feature) => {
+        if (activeStateCode) return 1;
+        const route = routeIndicatorByCode.get(stateCodeByFips[featureFips(item, 2)]);
+        return route ? route.status === "required" ? 2.5 : 4 : 1;
+      },
+      getLineColor: (item: Feature) => {
+        if (activeStateCode) return [255, 255, 247, 0];
+        const route = routeIndicatorByCode.get(stateCodeByFips[featureFips(item, 2)]);
+        if (!route) return [255, 255, 247, 185];
+        if (route.status === "satisfied") return [50, 108, 91, 255];
+        if (route.status === "modeled") return [193, 142, 53, 255];
+        return [155, 124, 65, 235];
+      },
       getFillColor: (item: Feature) => {
         const code = stateCodeByFips[featureFips(item, 2)];
         const actual = actualByCode.get(code);
@@ -446,6 +468,8 @@ export function AtlasMapScene({
       updateTriggers: {
         getElevation: [activeStateCode],
         getFillColor: [activeStateCode, viewMode, scenarioStates],
+        getLineColor: [activeStateCode, routeIndicators],
+        getLineWidth: [activeStateCode, routeIndicators],
       },
       onHover: (info: PickingInfo) => {
         const item = info.object as Feature | undefined;
@@ -458,7 +482,41 @@ export function AtlasMapScene({
       },
     });
 
-    if (!activeStateCode || !activeStateFeature) return [stateLayer];
+    const routeMarkerData = activeStateCode ? [] : routeIndicators.flatMap((indicator) => {
+      const fips = stateFipsByCode[indicator.stateCode];
+      const item = stateFeatures.features.find((feature) => featureFips(feature, 2) === fips);
+      if (!item) return [];
+      const bounds = featureBounds(item);
+      const result = actualByCode.get(indicator.stateCode);
+      const electoralVotes = (result?.harrisElectoralVotes ?? 0) + (result?.trumpElectoralVotes ?? 0);
+      return [{
+        ...indicator,
+        position: [
+          (bounds.minX + bounds.maxX) / 2,
+          (bounds.minY + bounds.maxY) / 2,
+          20 + Math.max(3, electoralVotes) * 1.15,
+        ],
+      }];
+    });
+    const routeMarkerLayer = new TextLayer({
+      id: "sandbox-2-route-markers",
+      data: routeMarkerData,
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      billboard: true,
+      pickable: false,
+      sizeUnits: "pixels",
+      getPosition: (item) => item.position as [number, number, number],
+      getText: (item) => item.status === "satisfied" ? "✓" : String(item.order),
+      getSize: 16,
+      getColor: (item) => item.status === "satisfied" ? [36, 91, 76, 255] : [112, 79, 24, 255],
+      getTextAnchor: "middle",
+      getAlignmentBaseline: "center",
+      outlineWidth: 5,
+      outlineColor: [249, 247, 238, 245],
+      fontSettings: { sdf: true },
+    });
+
+    if (!activeStateCode || !activeStateFeature) return [stateLayer, routeMarkerLayer];
 
     const countyLayer = new GeoJsonLayer({
       id: `sandbox-2-counties-${activeStateCode}`,
@@ -604,6 +662,8 @@ export function AtlasMapScene({
     scenarioDetailedCounties,
     scenarioPrecinctByGeoid,
     scenarioStates,
+    routeIndicatorByCode,
+    routeIndicators,
     viewMode,
   ]);
 
