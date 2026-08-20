@@ -21,4 +21,6 @@ No invitation or participant distribution is authorized from this inventory. The
 
 The Pennsylvania review used the Department of State's historical election-data page and distinguished it from the separate `data.pa.gov` policy, which applies to datasets made available through that portal. The Michigan review used the statewide Michigan.gov Terms of Use Policy. See decision 0025. This inventory is an engineering release record, not legal advice.
 
+`docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records the full current exposure. The result totals are embedded across 156 runtime files under `public/data/pa` and `public/data/mi`, both bundled county summaries, and repository-only crosswalk and registry records. Partial removal of `reporting-units.json` would not contain the existing public delivery.
+
 Checksums, provenance, and limitations remain mandatory regardless of redistribution status.

@@ -2,11 +2,13 @@
 
 Sandbox 2.0 is an independent, local-first laboratory for historical United States election counterfactuals. It is not connected to the existing Sandbox or Presidential Atlas at runtime. The application owns its code, data contracts, renderer, tests, and future deployment path.
 
+The full research repository is private while PA/MI detailed-result redistribution remains under review. A separate fresh-history, national-only public preview is available at [Sandbox 2.0 public demo](https://kevyisagenius123.github.io/election-sandbox-demo/). The demo contains the FEC statewide baseline and national state geometry, but no county, precinct, VTD, reporting-unit, local demographic, crosswalk, or detailed-state scenario artifacts.
+
 ## Current release: v0.19.1 Alpha Comprehension and Trust Corrections
 
 v0.19.1 responds directly to the v0.19A synthetic private alpha. The collapsed laboratory drawer now states the geographic action and exposes `Open controls`; Pennsylvania and Michigan show a live state-flip requirement without requiring a Path to 270 selection; route terminology is defined beside the route; preference-transfer arithmetic is explained beside the values; Data is a state-specific evidence ledger plus national coverage matrix; and Pennsylvania VTDs are no longer described as Michigan-style precinct units. Scenario sharing is explicitly named `Copy scenario link` and explains that the URL is the saved deterministic object.
 
-The GitHub Pages workflow now separates build and deployment and runs a post-deployment smoke journey against the public Home, `/app/`, and a copied scenario URL.
+The former full-product GitHub Pages workflow was removed during the 2026-08-20 containment cutover. Public product positioning now lives in the separate sanitized demo repository.
 
 ## Previous release: v0.18.2 Editorial Home and United States Laboratory
 
@@ -297,6 +299,7 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `docs/decisions/0025-human-alpha-research-freeze.md`
 - `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md`
 - `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`
+- `docs/data/PUBLIC_EXPOSURE_INVENTORY.md`
 
 ## Next increment
 

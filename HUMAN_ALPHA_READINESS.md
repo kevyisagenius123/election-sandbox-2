@@ -4,7 +4,7 @@
 
 **Product build:** v0.19.1
 
-**Phase status:** Authorized to enter human testing; participant delivery remains blocked
+**Phase status:** Research build contained; participant delivery remains blocked
 
 ## What is ready
 
@@ -31,8 +31,10 @@ Completed on 2026-08-12 against v0.19.1:
 ## What remains before recruitment
 
 - Obtain written permission or an applicable documented legal basis for the Pennsylvania and Michigan result artifacts, or approve a replacement source and delivery method. The current artifacts are explicitly excluded from external alpha delivery.
-- Because the public repository and Pages build currently contain or serve those artifacts, do not treat them as a cleared participant build. Before recruitment, either obtain the required basis, deploy an approved replacement build, or receive approval to suspend that public delivery.
+- The former public repository and Pages deployment have been contained. The full research repository is private, its former Pages URL returns 404, and the current branch no longer contains an automatic Pages workflow.
+- The separate `election-sandbox-demo` repository is a public national-only product preview. It contains no PA/MI local-result derivatives and is not the v0.19B participant build.
 - Permission-request drafts and the evidence tracker are ready in `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md` and `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`. They have not been sent.
+- Permission emails are postponed by owner decision. `docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records the completed containment and replacement-demo verification.
 - Recruit at least three genuinely new users, preferably five to ten across the participant matrix.
 
 ## Evidence that does not yet exist

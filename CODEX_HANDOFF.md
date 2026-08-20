@@ -594,6 +594,11 @@ v0.17 additionally adds or changes:
 - Do not invite participants to the currently reachable Pages deployment while the exclusion remains.
 - `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md` contains unsent, exact-scope drafts for `RA-Elections@pa.gov` and `ElectionData@Michigan.gov` with `Elections@Michigan.gov` copied. Bracketed owner identity fields must be completed before submission.
 - `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md` records the exact derivative checksums, response requirements, follow-up cadence, and fail-closed replacement choices. Silence and automated acknowledgments are not approval.
+- Permission emails are postponed. Do not send the prepared drafts without a new explicit owner instruction.
+- `docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records 156 Pages-delivered PA/MI runtime files totaling 29,194,099 bytes, plus both county summaries bundled into application JavaScript and repository-only source-dependent registries. Candidate totals are embedded in every geometry shard and the compact demographic artifacts, so removing only `reporting-units.json` is insufficient.
+- Containment completed on 2026-08-20: the full repository is private, its former Pages URL returns 404, the automatic Pages workflow was removed from the current branch, and anonymous access checks return 404 for both repository and Pages.
+- A fresh-history public replacement is live at `https://kevyisagenius123.github.io/election-sandbox-demo/`. It contains only FEC statewide totals, national state geometry, and original public-demo code; it contains no PA/MI local-result derivatives.
+- Do not delete research artifacts or rewrite history unless separately authorized after an evidence-backed purge decision.
 
 ## 8. Verification state
 
