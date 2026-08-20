@@ -35,6 +35,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 The full repository is private and the former full-product Pages URL returns 404. The separate `election-sandbox-demo` repository is a national-only public preview with no detailed PA/MI artifacts. The 2026-08-20 supervisor candidate has a fresh green verification record and six screenshots under `docs/review/v0.19.1-supervisor-review/`. Its same-eight regression pass is complete. Its fresh blind-agent pass is not complete: three isolated contexts failed before navigation because the installed evaluator-browser integration rejected its own trusted path. Do not classify that infrastructure failure as a Sandbox P0 or as completed cognitive evidence.
 
+The supervisor's formal verdict is **HOLD**, recorded in `docs/review/v0.19.1-supervisor-review/SUPERVISOR_VERDICT.md`. No product correction is ordered. Gate A is the unresolved PA/MI participant-delivery basis. Gate B is a completed unfamiliar-reviewer session against the exact frozen tag using `SUPERVISOR_INTERACTIVE_SESSION.md`, with no unresolved P0 or P1. Do not move the tag, modify the candidate, begin human alpha, or admit State #3 while either gate is open.
+
 A local Vite server may still be running on port 4173; check rather than starting a duplicate.
 
 ## 3. What is implemented

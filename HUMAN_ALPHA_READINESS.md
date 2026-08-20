@@ -4,7 +4,7 @@
 
 **Product build:** v0.19.1
 
-**Phase status:** Research build contained; participant delivery remains blocked
+**Phase status:** Supervisor HOLD; participant delivery and interactive review remain blocked
 
 ## What is ready
 
@@ -17,6 +17,7 @@
 - Every task now records confidence before explanation on a 1–5 scale.
 - `HUMAN_ALPHA_REPORT.md` is the required closing-report shell.
 - `v0.19.1-supervisor-review` is the frozen supervisor candidate, with its review packet under `docs/review/v0.19.1-supervisor-review/`.
+- The formal supervisor verdict is HOLD with no product correction ordered.
 
 ## Readiness verification
 
@@ -38,6 +39,7 @@ Reverified on 2026-08-20 against the unchanged v0.19.1 product build:
 - Permission emails are postponed by owner decision. `docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records the completed containment and replacement-demo verification.
 - Recruit at least three genuinely new users, preferably five to ten across the participant matrix.
 - Rerun the six-profile fresh-agent cognitive evaluation after the installed evaluator browser can navigate to the local candidate. Three isolated attempts failed before navigation and produced no product evidence.
+- Complete `SUPERVISOR_INTERACTIVE_SESSION.md` against the exact candidate tag through a blind browser-capable reviewer. Gate B requires all seven tasks, all three adversarial questions, and no unresolved P0 or P1.
 
 ## Evidence that does not yet exist
 
@@ -49,6 +51,7 @@ The fresh-agent review-candidate pass also has no task evidence. Its infrastruct
 
 - [ ] External-alpha delivery and redistribution method cleared
 - [x] Participant build frozen and remote smoke passed
+- [ ] Exact frozen-candidate supervisor interactive review completed
 - [ ] H01 completed
 - [ ] H02 completed
 - [ ] H03 completed
