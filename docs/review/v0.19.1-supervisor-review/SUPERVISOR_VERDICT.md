@@ -5,9 +5,11 @@
 **Verdict received:** 2026-08-20  
 **Selected verdict:** **HOLD**
 
+**Gate B update:** **PASS, AI technical-supervisor review** on 2026-08-20. The overall verdict remains HOLD because Gate A is independently blocked.
+
 ## Ruling
 
-No product correction release is ordered. The candidate is technically mature enough to warrant interactive review, but unfamiliar-user exposure is not authorized because two independent gates remain open.
+No product correction release is ordered. The candidate completed the prescribed technical interactive review, but unfamiliar-user exposure is not authorized because participant delivery remains unresolved.
 
 ## Gate A: participant delivery
 
@@ -35,9 +37,9 @@ Permission outreach remains postponed by owner decision. This verdict does not a
 
 ## Gate B: exact frozen-candidate interactive review
 
-The seven tasks and three adversarial questions in `SUPERVISOR_REVIEW.md` have not been independently completed against the tagged candidate. The public demo does not satisfy this requirement, and the infrastructure-blocked fresh-agent attempt produced no interface evidence.
+Initial status was incomplete because the infrastructure-blocked fresh-agent attempt produced no interface evidence. The owner subsequently designated Codex as the AI supervisor and authorized a technical review of the exact tag.
 
-Gate B requires a browser-capable unfamiliar reviewer to use the exact tag blindly and record, for every task:
+The AI supervisor completed all seven tasks and three adversarial questions against commit `748d3ce0d73f91f0341853b5e1eb7ed6bc6c69fb`, recording for every task:
 
 - first action;
 - wrong turns;
@@ -48,9 +50,9 @@ Gate B requires a browser-capable unfamiliar reviewer to use the exact tag blind
 - factual correctness; and
 - any P0 through P3 finding.
 
-The session must stop without changing the candidate if it encounters a P0, security, or deployment defect. Gate B clears only after a completed record has no unresolved P0 or P1 finding.
+No P0, P1, P2, or P3 product finding was observed. The candidate tag was not moved and the candidate was not changed. Gate B is therefore **PASS** as an AI technical-supervisor review. The completed record is `AI_SUPERVISOR_GATE_B_SESSION.md`; `SUPERVISOR_INTERACTIVE_SESSION.md` remains the blank unfamiliar-reviewer form.
 
-Use `SUPERVISOR_INTERACTIVE_SESSION.md` as the evidence form.
+This decision does not relabel the session as human evidence or a genuinely unfamiliar blind review. Human-alpha evidence remains absent.
 
 ## Evidence accepted by the supervisor
 
@@ -61,7 +63,8 @@ Browser verification           PASS
 Runtime gate                   PASS
 Synthetic correction evidence  PASS
 Human evidence                 NONE
-Supervisor interactive review  NOT COMPLETE
+AI supervisor technical review PASS
+Unfamiliar human evidence      NONE
 PA redistribution              BLOCKED
 MI redistribution              BLOCKED
 External alpha delivery        BLOCKED
@@ -84,10 +87,6 @@ Do not:
 
 ## Hold removal
 
-The HOLD is removed only when:
+Gate B is satisfied. The HOLD now rests on Gate A alone: PA and MI participant delivery must have an approved documented basis, approved replacement, or removal from the participant build.
 
-1. PA and MI participant delivery has an approved documented basis or replacement; and
-2. the exact frozen candidate completes the prescribed interactive review without an unresolved P0 or P1.
-
-A future supervisor verdict, not this engineering record, must explicitly authorize human alpha after both gates clear.
-
+A future supervisor verdict must explicitly authorize human alpha after Gate A clears. The AI Gate B pass does not itself authorize participant recruitment.

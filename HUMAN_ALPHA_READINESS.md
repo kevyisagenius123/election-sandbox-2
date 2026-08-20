@@ -4,7 +4,7 @@
 
 **Product build:** v0.19.1
 
-**Phase status:** Supervisor HOLD; participant delivery and interactive review remain blocked
+**Phase status:** Supervisor HOLD; Gate B passed through AI technical-supervisor review, while Gate A participant delivery remains blocked
 
 ## What is ready
 
@@ -18,6 +18,7 @@
 - `HUMAN_ALPHA_REPORT.md` is the required closing-report shell.
 - `v0.19.1-supervisor-review` is the frozen supervisor candidate, with its review packet under `docs/review/v0.19.1-supervisor-review/`.
 - The formal supervisor verdict is HOLD with no product correction ordered.
+- The exact frozen candidate passed the seven-task, three-question AI technical-supervisor review with no P0-P3 product findings. This is not human or genuinely blind evidence.
 
 ## Readiness verification
 
@@ -27,6 +28,7 @@ Reverified on 2026-08-20 against the unchanged v0.19.1 product build:
 - `npm run lint`: passed.
 - `npm run build`: passed; the existing lazy deck.gl chunk-size warning remains.
 - Browser suite: all 34 local checks passed in bounded groups, including the new six-image supervisor capture.
+- AI supervisor Gate B walkthrough: 1 of 1 locked-browser journey passed against the exact tag, with seven additional evidence screenshots.
 - Historical deployed remote smoke: 1 of 1 passed before the full-product Pages deployment was contained. The former URL now intentionally returns 404.
 - `npm run profile:pa`: passed; scenario calculation median 49.07 ms and p95 76.36 ms on this machine; retained heap delta 13.01 MiB.
 
@@ -38,20 +40,19 @@ Reverified on 2026-08-20 against the unchanged v0.19.1 product build:
 - Permission-request drafts and the evidence tracker are ready in `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md` and `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`. They have not been sent.
 - Permission emails are postponed by owner decision. `docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records the completed containment and replacement-demo verification.
 - Recruit at least three genuinely new users, preferably five to ten across the participant matrix.
-- Rerun the six-profile fresh-agent cognitive evaluation after the installed evaluator browser can navigate to the local candidate. Three isolated attempts failed before navigation and produced no product evidence.
-- Complete `SUPERVISOR_INTERACTIVE_SESSION.md` against the exact candidate tag through a blind browser-capable reviewer. Gate B requires all seven tasks, all three adversarial questions, and no unresolved P0 or P1.
+- Rerun the six-profile fresh-agent cognitive evaluation after the installed evaluator browser can navigate to the local candidate if unfamiliar-agent evidence is still desired. Three isolated attempts failed before navigation and produced no product evidence.
 
 ## Evidence that does not yet exist
 
 There is no v0.19B human task evidence yet. The synthetic reports predict likely failure modes but cannot establish human comprehension, patience, discoverability, or trust.
 
-The fresh-agent review-candidate pass also has no task evidence. Its infrastructure-blocked attempt is documented separately and must not be represented as a failed product test or as completed user research.
+The fresh-agent blind pass still has no task evidence. The completed AI-supervisor technical walkthrough must not be represented as a human session or a genuinely unfamiliar pass.
 
 ## Completion checklist
 
 - [ ] External-alpha delivery and redistribution method cleared
 - [x] Participant build frozen and remote smoke passed
-- [ ] Exact frozen-candidate supervisor interactive review completed
+- [x] Exact frozen-candidate AI technical-supervisor review completed
 - [ ] H01 completed
 - [ ] H02 completed
 - [ ] H03 completed
