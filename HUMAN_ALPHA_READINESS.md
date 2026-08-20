@@ -1,6 +1,6 @@
 # v0.19B Human Alpha Readiness
 
-**Prepared:** 2026-08-12
+**Prepared:** 2026-08-20
 
 **Product build:** v0.19.1
 
@@ -16,17 +16,18 @@
 - The v0.19.1 product build is under the decision-0025 research freeze through Session 1.
 - Every task now records confidence before explanation on a 1–5 scale.
 - `HUMAN_ALPHA_REPORT.md` is the required closing-report shell.
+- `v0.19.1-supervisor-review` is the frozen supervisor candidate, with its review packet under `docs/review/v0.19.1-supervisor-review/`.
 
 ## Readiness verification
 
-Completed on 2026-08-12 against v0.19.1:
+Reverified on 2026-08-20 against the unchanged v0.19.1 product build:
 
 - `npm test`: 48 of 48 deterministic model and URL-contract tests passed.
 - `npm run lint`: passed.
 - `npm run build`: passed; the existing lazy deck.gl chunk-size warning remains.
-- Browser suite: all 33 local application journeys passed when the long-running suite was completed in bounded groups; the remote-only smoke is intentionally skipped locally.
-- Deployed remote smoke: 1 of 1 passed against `https://kevyisagenius123.github.io/election-sandbox-2/`, including scenario-link restoration.
-- `npm run profile:pa`: passed; scenario calculation median 63.61 ms and p95 111.51 ms on this machine.
+- Browser suite: all 34 local checks passed in bounded groups, including the new six-image supervisor capture.
+- Historical deployed remote smoke: 1 of 1 passed before the full-product Pages deployment was contained. The former URL now intentionally returns 404.
+- `npm run profile:pa`: passed; scenario calculation median 49.07 ms and p95 76.36 ms on this machine; retained heap delta 13.01 MiB.
 
 ## What remains before recruitment
 
@@ -36,10 +37,13 @@ Completed on 2026-08-12 against v0.19.1:
 - Permission-request drafts and the evidence tracker are ready in `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md` and `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`. They have not been sent.
 - Permission emails are postponed by owner decision. `docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records the completed containment and replacement-demo verification.
 - Recruit at least three genuinely new users, preferably five to ten across the participant matrix.
+- Rerun the six-profile fresh-agent cognitive evaluation after the installed evaluator browser can navigate to the local candidate. Three isolated attempts failed before navigation and produced no product evidence.
 
 ## Evidence that does not yet exist
 
 There is no v0.19B human task evidence yet. The synthetic reports predict likely failure modes but cannot establish human comprehension, patience, discoverability, or trust.
+
+The fresh-agent review-candidate pass also has no task evidence. Its infrastructure-blocked attempt is documented separately and must not be represented as a failed product test or as completed user research.
 
 ## Completion checklist
 
@@ -54,7 +58,7 @@ There is no v0.19B human task evidence yet. The synthetic reports predict likely
 - [ ] No repeated severe epistemic-status misunderstanding remains
 - [ ] Participants can find the evidence chain when asked
 - [ ] Synthetic versus human comparison written
-- [ ] Post-correction repository gates passed
+- [x] Post-correction repository gates passed
 - [ ] v0.19B closing decision recorded
 
 ## Phase boundary

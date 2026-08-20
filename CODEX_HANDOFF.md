@@ -1,6 +1,6 @@
 # Codex handoff: Sandbox 2.0
 
-Last updated: 2026-08-12
+Last updated: 2026-08-20
 
 ## 1. Product boundary
 
@@ -21,8 +21,9 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.18.2`, Editorial Home and United States Laboratory
-- Previous release commit: `439db1c Add audited Michigan data foundation`
+- Release: `0.19.1`, Alpha Comprehension and Trust Corrections
+- Frozen candidate: `v0.19.1-supervisor-review`
+- Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
@@ -31,6 +32,8 @@ The unchanged scenario must always reproduce the official baseline exactly.
 - Local URL: `http://127.0.0.1:4173/`
 - Required Node: 22.12 or newer
 - Hosting metadata: none; there is no `.openai/hosting.json`
+
+The full repository is private and the former full-product Pages URL returns 404. The separate `election-sandbox-demo` repository is a national-only public preview with no detailed PA/MI artifacts. The 2026-08-20 supervisor candidate has a fresh green verification record and six screenshots under `docs/review/v0.19.1-supervisor-review/`. Its same-eight regression pass is complete. Its fresh blind-agent pass is not complete: three isolated contexts failed before navigation because the installed evaluator-browser integration rejected its own trusted path. Do not classify that infrastructure failure as a Sandbox P0 or as completed cognitive evidence.
 
 A local Vite server may still be running on port 4173; check rather than starting a duplicate.
 
