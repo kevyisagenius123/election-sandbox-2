@@ -20,7 +20,6 @@ import type {
 import {
   detailedPrecinctName,
   loadDetailedPrecinctCounty,
-  releaseDetailedPrecinctState,
   type DetailedPrecinctResultProperties,
   type LoadedDetailedPrecinctCounty,
 } from "../data/detailedStatePrecincts.ts";
@@ -100,8 +99,11 @@ export function AtlasMapScene({
   onActiveCountyChange,
   onActivePrecinctChange,
 }: AtlasMapSceneProps) {
-  const reportingUnitLabel = activeDetailedStateManifest?.code === "PA" ? "VTD" : "precinct";
-  const reportingUnitLabelPlural = activeDetailedStateManifest?.code === "PA" ? "VTDs" : "precinct reporting units";
+  const reportingUnitLabel = activeDetailedStateManifest?.geography.unitLabel.toLowerCase() ?? "reporting unit";
+  const reportingUnitLabelPlural = activeDetailedStateManifest?.geography.unitLabelPlural.toLowerCase() ?? "reporting units";
+  const reportingEvidenceLabel = activeDetailedStateManifest?.code === "WI"
+    ? "LTSB reconstructed ward estimates"
+    : `Verified ${activeDetailedStateManifest?.geography.unitLabel ?? "reporting unit"} returns`;
   const diagnosticTokenRef = useRef(Symbol("atlas-map"));
   const shellRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
@@ -402,12 +404,6 @@ export function AtlasMapScene({
     const timer = window.setTimeout(() => setCountyRaised(true), 180);
     return () => window.clearTimeout(timer);
   }, [activeStateCode]);
-
-  useEffect(() => {
-    if (!activeDetailedStateManifest) return;
-    const stateCode = activeDetailedStateManifest.code;
-    return () => releaseDetailedPrecinctState(stateCode);
-  }, [activeDetailedStateManifest]);
 
   useEffect(() => {
     const shell = shellRef.current;
@@ -827,12 +823,12 @@ export function AtlasMapScene({
           </button>
           <div className="atlas-data-note">
             <span className="overline">
-              {activeCountyFips ? `Verified ${reportingUnitLabel} returns` : activeDetailedStateManifest ? "Verified county returns" : "County terrain"}
+              {activeCountyFips ? reportingEvidenceLabel : activeDetailedStateManifest ? "Verified county returns" : "County terrain"}
             </span>
             <strong>{activeCountyFips ? activeActualCounty?.name : actualByCode.get(activeStateCode)?.name}</strong>
             {activeCountyFips ? (
               <>
-                {precinctLoading && <p className="atlas-load-status">Loading this county’s audited {reportingUnitLabel} geometry…</p>}
+                {precinctLoading && <p className="atlas-load-status">Loading this county’s documented {reportingUnitLabel} geometry…</p>}
                 {precinctError && <p className="atlas-load-status error">{precinctError}</p>}
                 {precinctCounty && (
                   <p>

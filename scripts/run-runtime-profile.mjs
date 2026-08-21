@@ -8,7 +8,7 @@ const child = spawn(command, [
   "test",
   "tests/browser/runtime-hardening.spec.ts",
   "--grep",
-  "deterministic PA and MI session",
+  "deterministic PA, MI, and WI session",
 ], {
   env: { ...process.env, SANDBOX_STRESS_CYCLES: "35" },
   stdio: "inherit",

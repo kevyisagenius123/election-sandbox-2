@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-20",
+  "source": {
+    "id": "wi-ltsb-2024-election-data-with-2025-wards",
+    "publisher": "Wisconsin Legislative Technology Services Bureau",
+    "title": "2024 Election Data with 2025 Wards",
+    "sourceUrl": "https://services1.arcgis.com/FDsAtKBk8Hy4cAH0/ArcGIS/rest/services/2024_Election_Data_with_2025_Wards/FeatureServer/0",
+    "itemUrl": "https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e",
+    "retrievedAt": "2026-08-20",
+    "itemId": "878d8826218f42509e07437a82ef6b6e",
+    "itemOwner": "WI_Legislature",
+    "itemModified": 1740000249000,
+    "sourceSnapshotSha256": "02e19c18503b928b1f53826b6224475a6391bbfb8e53afad9fbf4abb143734fd",
+    "licenseStatus": "verified_open_public_data",
+    "license": "This is open and publicly available data. Use this data at your own risk. The LTSB is not liable for any damages or errors that result in using this data.",
+    "limitations": [
+      "LTSB collected the 2024 election data from the Wisconsin Elections Commission and disaggregated reporting-unit returns to wards by population.",
+      "The 2025 ward layer postdates the election; LTSB reaggregated election data through Census blocks into January 2025 wards.",
+      "State and county totals reconcile exactly, but reconstructed ward values must not be described as certified raw ward returns.",
+      "The PERSONS18 denominator is an LTSB estimate produced by aggregating 2020 Census P.L. 94-171 population data to 2025 wards.",
+      "Candidate preference is not observed in Census data and is never inferred from population."
+    ]
+  },
+  "artifact": {
+    "path": "public/data/wi/2020/ward-demographics.json",
+    "schemaVersion": 1,
+    "encoding": "wi-ward-row-v1",
+    "rowCount": 7086,
+    "sha256": "ea77ada6a292fcd3c468c06a9ea2042c7d6dbe39fc05befc3613910202e8f575",
+    "byteSize": 442354
+  },
+  "join": {
+    "method": "official_ltsb_2024_results_population_disaggregated_to_january_2025_wards",
+    "demographicVintage": "2020",
+    "geometryVintage": "2025-01",
+    "electionVintage": "2024",
+    "geometryFeatureCount": 7086,
+    "mappedElectionGeometryCount": 6946,
+    "resultReportingUnitCoveragePct": 100,
+    "statewidePaintedVoteCoveragePct": 100
+  },
+  "totals": {
+    "statewideVotingAgePopulation": 4612300,
+    "mappedVotes": {
+      "harrisVotes": 1668229,
+      "trumpVotes": 1697626,
+      "steinVotes": 12275,
+      "oliverVotes": 10511,
+      "residualOtherVotes": 34277,
+      "otherVotes": 57063,
+      "totalVotes": 3422918
+    },
+    "residualVotes": {
+      "harrisVotes": 0,
+      "trumpVotes": 0,
+      "steinVotes": 0,
+      "oliverVotes": 0,
+      "residualOtherVotes": 0,
+      "otherVotes": 0,
+      "totalVotes": 0
+    },
+    "certifiedVotes": {
+      "harrisVotes": 1668229,
+      "trumpVotes": 1697626,
+      "steinVotes": 12275,
+      "oliverVotes": 10511,
+      "residualOtherVotes": 34277,
+      "otherVotes": 57063,
+      "totalVotes": 3422918
+    },
+    "turnoutCapacity": 1198983,
+    "denominatorStatus": {
+      "availableWardCount": 6785,
+      "ballotsExceed2020VapWardCount": 161,
+      "noMappedResultWardCount": 140
+    }
+  }
+}

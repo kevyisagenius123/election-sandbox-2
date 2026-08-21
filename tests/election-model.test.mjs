@@ -26,6 +26,7 @@ import {
   michiganDetailedStateManifest,
   pennsylvaniaDetailedStateManifest,
   resolveDetailedStateArtifactUrl,
+  wisconsinDetailedStateManifest,
 } from "../src/data/detailedStateManifest.ts";
 import { getDetailedStateRuntimeAdapter } from "../src/data/detailedStateRuntimeLoaders.ts";
 import {
@@ -43,6 +44,11 @@ import {
   PENNSYLVANIA_DEMOGRAPHIC_RUNTIME_SCHEMA_VERSION,
   PENNSYLVANIA_VTD_ROW_FIELDS,
 } from "../src/data/paDemographics.ts";
+import {
+  decodeWisconsinWardFoundation,
+  toWisconsinBehaviorModelUnits,
+  WISCONSIN_WARD_ROW_FIELDS,
+} from "../src/data/wiWards.ts";
 import {
   buildScenarioUrl,
   decodeScenarioSearch,
@@ -118,6 +124,26 @@ const michiganDemographicArtifactBytes = readFileSync(
 const michiganDemographicDocument = JSON.parse(michiganDemographicArtifactBytes.toString("utf8"));
 const michiganDemographicRegistry = JSON.parse(readFileSync(
   new URL("../data-sources/michigan/2020-pl94-precinct-demographics.json", import.meta.url),
+  "utf8",
+));
+const wisconsinCountyDocument = JSON.parse(readFileSync(
+  new URL("../src/data/wi-2024-counties.json", import.meta.url),
+  "utf8",
+));
+const wisconsinReportingUnitDocument = JSON.parse(readFileSync(
+  new URL("../public/data/wi/2024/reporting-units.json", import.meta.url),
+  "utf8",
+));
+const wisconsinGeometryManifest = JSON.parse(readFileSync(
+  new URL("../public/data/wi/2024/precinct-geometry-manifest.json", import.meta.url),
+  "utf8",
+));
+const wisconsinRuntimeArtifactBytes = readFileSync(
+  new URL("../public/data/wi/2020/ward-demographics.json", import.meta.url),
+);
+const wisconsinRuntimeDocument = JSON.parse(wisconsinRuntimeArtifactBytes.toString("utf8"));
+const wisconsinDenominatorRegistry = JSON.parse(readFileSync(
+  new URL("../data-sources/wisconsin/2020-vap-ward-denominator.json", import.meta.url),
   "utf8",
 ));
 
@@ -233,6 +259,79 @@ test("Michigan runtime decoder fails closed on incompatible or corrupted rows", 
     () => decodeMichiganDemographicFoundation(brokenResidual),
     /residual votes HarrisVotes does not reconcile|certified votes HarrisVotes does not reconcile/i,
   );
+});
+
+test("Wisconsin open LTSB source, geometry, and denominator reconcile exactly", () => {
+  const expected = {
+    harrisVotes: 1_668_229,
+    trumpVotes: 1_697_626,
+    steinVotes: 12_275,
+    oliverVotes: 10_511,
+    residualOtherVotes: 34_277,
+    otherVotes: 57_063,
+    totalVotes: 3_422_918,
+  };
+  assert.deepEqual(wisconsinCountyDocument.totals, expected);
+  assert.equal(wisconsinCountyDocument.counties.length, 72);
+  assert.equal(wisconsinReportingUnitDocument.reportingUnits.length, 6_946);
+  assert.ok(wisconsinReportingUnitDocument.reportingUnits.every((unit) => (
+    ["harrisVotes", "trumpVotes", "steinVotes", "oliverVotes", "residualOtherVotes", "otherVotes", "totalVotes"]
+      .every((key) => Number.isSafeInteger(unit[key]) && unit[key] >= 0)
+  )));
+  assert.deepEqual(wisconsinReportingUnitDocument.totals, expected);
+  assert.equal(wisconsinGeometryManifest.totals.geometryFeatureCount, 7_086);
+  assert.equal(wisconsinGeometryManifest.totals.matchedGeometryFeatureCount, 6_946);
+  assert.equal(wisconsinGeometryManifest.totals.unmatchedGeometryFeatureCount, 140);
+  assert.equal(wisconsinGeometryManifest.totals.statewideVoteCoveragePct, 100);
+  assert.equal(wisconsinRuntimeDocument.wardRows.length, 7_086);
+  assert.equal(wisconsinRuntimeDocument.totals.turnoutCapacity, 1_198_983);
+  assert.deepEqual(wisconsinRuntimeDocument.totals.certifiedVotes, expected);
+  assert.equal(
+    createHash("sha256").update(wisconsinRuntimeArtifactBytes).digest("hex"),
+    wisconsinDenominatorRegistry.artifact.sha256,
+  );
+});
+
+test("Wisconsin runtime decoder reconstructs baseline and fails closed", () => {
+  const foundation = decodeWisconsinWardFoundation(wisconsinRuntimeDocument);
+  const modelUnits = toWisconsinBehaviorModelUnits(foundation);
+  const scenario = applyBehaviorScenario(modelUnits, {
+    turnoutIncreasePoints: 0,
+    addedVoterHarrisShare: 0.5,
+    preferenceShiftPoints: 0,
+    thirdPartyCandidate: "stein",
+    thirdPartyShiftPoints: 0,
+    thirdPartyHarrisExchangeShare: 0.5,
+  });
+  assert.equal(foundation.stateCode, "WI");
+  assert.equal(foundation.wards.length, 7_086);
+  assert.equal(modelUnits.length, 6_946);
+  assert.deepEqual(scenario.totals, foundation.totals.certifiedVotes);
+
+  const wrongFields = structuredClone(wisconsinRuntimeDocument);
+  wrongFields.wardFields = [...WISCONSIN_WARD_ROW_FIELDS].reverse();
+  assert.throws(
+    () => decodeWisconsinWardFoundation(wrongFields),
+    /field contract is incompatible/,
+  );
+  const duplicateGeometry = structuredClone(wisconsinRuntimeDocument);
+  duplicateGeometry.wardRows[1][0] = duplicateGeometry.wardRows[0][0];
+  assert.throws(
+    () => decodeWisconsinWardFoundation(duplicateGeometry),
+    /duplicate GEOIDs/,
+  );
+});
+
+test("Wisconsin is registered through the shared detailed-state runtime", () => {
+  const manifest = getDetailedStateManifest("WI");
+  assert.equal(manifest, wisconsinDetailedStateManifest);
+  assert.equal(manifest.compatibility.dataVersion, SCENARIO_DATA_VERSION);
+  assert.equal(manifest.runtime.loader, "wi-ward-row-v1");
+  assert.equal(manifest.election.electoralVotes, 10);
+  const adapter = getDetailedStateRuntimeAdapter(manifest.runtime.loader);
+  const foundation = adapter.decode(wisconsinRuntimeDocument);
+  assert.equal(foundation.stateCode, "WI");
+  assert.equal(adapter.toBehaviorModelUnits(foundation).length, 6_946);
 });
 
 test("Pennsylvania is registered through a versioned detailed-state manifest", () => {
@@ -1425,6 +1524,23 @@ test("versioned scenario URLs preserve Michigan PRECINCTID hierarchy", () => {
 
   const mismatched = new URL(url);
   mismatched.searchParams.set("county", "26003");
+  assert.equal(decodeScenarioSearch(mismatched.search).status, "invalid");
+});
+
+test("versioned scenario URLs preserve Wisconsin alphanumeric ward GEOIDs", () => {
+  const state = {
+    ...DEFAULT_SCENARIO_URL_STATE,
+    selectedStateCode: "WI",
+    selectedCountyFips: "55139",
+    selectedVtdGeoid: "5513988475002A",
+  };
+  const url = buildScenarioUrl("https://atlas.example/", state, { force: true });
+  const decoded = decodeScenarioSearch(new URL(url).search);
+  assert.equal(decoded.status, "valid");
+  assert.deepEqual(decoded.state, state);
+
+  const mismatched = new URL(url);
+  mismatched.searchParams.set("county", "55141");
   assert.equal(decodeScenarioSearch(mismatched.search).status, "invalid");
 });
 

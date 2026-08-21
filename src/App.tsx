@@ -38,7 +38,7 @@ import {
   buildDetailedCountyInspector,
   buildDetailedGeographyInspector,
 } from "./data/detailedStateInspector.ts";
-import { isPennsylvaniaFoundation } from "./data/detailedStateFoundation.ts";
+import { isPennsylvaniaFoundation, isWisconsinFoundation } from "./data/detailedStateFoundation.ts";
 import {
   buildScenarioUrl,
   decodeScenarioSearch,
@@ -827,10 +827,12 @@ export function App() {
   const presentedShift = presentedActualMargin == null || presentedScenarioMargin == null
     ? null
     : presentedScenarioMargin - presentedActualMargin;
-  const activeGeographyShortLabel = activeDetailedStateCode === "PA" ? "VTDs" : "Precincts";
+  const activeGeographyShortLabel = activeDetailedStateManifest.geography.unitLabelPlural;
   const activeGeographyFullLabel = activeDetailedStateCode === "PA"
     ? "Voting districts (VTDs)"
-    : "2024 precinct reporting units";
+    : activeDetailedStateCode === "WI"
+      ? "LTSB reconstructed wards"
+      : "2024 precinct reporting units";
   const evidenceLedger = getStateEvidenceLedger(activeDetailedStateCode);
   const mutationScopeName = selectedActualCounty?.name
     ?? (selectedStateCode ? selectedActual.name : "United States");
@@ -1030,7 +1032,7 @@ export function App() {
           </>}
         </nav>
 
-        <div className="build-status"><span />Alpha comprehension corrections · v0.19.1</div>
+        <div className="build-status"><span />Wisconsin detailed-state foundation · v0.20</div>
       </header>
 
       <div className="workbench" id="top">
@@ -1047,7 +1049,7 @@ export function App() {
               {selectedStateCode && <button onClick={selectedCountyFips ? () => selectCounty(null) : selectNation} type="button">
                 ← {selectedCountyFips ? selectedActual.name : "United States"}
               </button>}
-              {!selectedStateCode && <div className="supported-state-links"><span>Detailed states</span><button onClick={() => selectState("PA")} type="button">Pennsylvania</button><button onClick={() => selectState("MI")} type="button">Michigan</button></div>}
+              {!selectedStateCode && <div className="supported-state-links"><span>Detailed states</span><button onClick={() => selectState("PA")} type="button">Pennsylvania</button><button onClick={() => selectState("MI")} type="button">Michigan</button><button onClick={() => selectState("WI")} type="button">Wisconsin</button></div>}
               <button className="fit-selection-button" onClick={() => setFitSelectionRequest((request) => request + 1)} type="button">
                 {selectedStateCode ? "Fit selection" : "Fit United States"}
               </button>
@@ -1077,7 +1079,7 @@ export function App() {
             <span className="index">01</span>
             <div>
               <strong>No changes means the actual result.</strong>
-              <p>Pennsylvania and Michigan reconcile to certified results, with unmatched and non-geographic ballots kept explicit outside the terrain.</p>
+              <p>Pennsylvania, Michigan, and Wisconsin reconcile to their statewide results. Unmatched geography and reconstructed local values remain explicit.</p>
             </div>
           </div>
 
@@ -1087,8 +1089,8 @@ export function App() {
               <li className="complete"><span />Independent product</li>
               <li className="complete"><span />State baseline</li>
               <li className="complete"><span />Deterministic mutation</li>
-              <li className="complete"><span />Pennsylvania and Michigan reporting units</li>
-              <li className="complete"><span />Precinct geometry crosswalk</li>
+              <li className="complete"><span />Three detailed-state foundations</li>
+              <li className="complete"><span />State-specific geometry contracts</li>
               <li className="complete"><span />Demographic denominator</li>
             </ol>
           </div>
@@ -1555,14 +1557,14 @@ export function App() {
                     <span><small>Actual Electoral College</small><strong>{actualNational.harrisElectoralVotes}–{actualNational.trumpElectoralVotes}</strong></span>
                     <span><small>Scenario Electoral College</small><strong>{scenarioNational.harrisElectoralVotes}–{scenarioNational.trumpElectoralVotes}</strong></span>
                   </div>
-                  <p>All states use certified statewide totals. Pennsylvania and Michigan provide detailed county and reporting-unit foundations.</p>
+                  <p>All states use certified statewide totals. Pennsylvania, Michigan, and Wisconsin provide detailed local foundations with state-specific evidence contracts.</p>
                 </section> : selectedInspector ? (
                   <GeographyInspector model={selectedInspector} onClearVtd={() => selectPrecinct(null)} />
-                ) : <div className="drawer-empty"><strong>No local geography selected.</strong><span>Choose a county or {activeDetailedStateCode === "PA" ? "VTD" : "2024 precinct reporting unit"} to inspect its certified and scenario result.</span></div>}
+                ) : <div className="drawer-empty"><strong>No local geography selected.</strong><span>Choose a county or {activeDetailedStateManifest.geography.unitLabel.toLowerCase()} to inspect its baseline and scenario result.</span></div>}
               </div>
 
               <div aria-labelledby="laboratory-tab-behavior" className="drawer-panel" data-active={laboratoryDrawerTab === "behavior"} id="laboratory-panel-behavior" role="tabpanel">
-          {!selectedStateCode && <div className="national-operation-note"><div><strong>Detailed-state operations</strong><span>Choose a supported state to edit certified reporting-unit behavior. Active recipes continue to aggregate nationally.</span></div><div><button onClick={() => selectState("PA")} type="button">Open Pennsylvania</button><button onClick={() => selectState("MI")} type="button">Open Michigan</button></div></div>}
+          {!selectedStateCode && <div className="national-operation-note"><div><strong>Detailed-state operations</strong><span>Choose a supported state to edit audited local behavior. Active recipes continue to aggregate nationally.</span></div><div><button onClick={() => selectState("PA")} type="button">Open Pennsylvania</button><button onClick={() => selectState("MI")} type="button">Open Michigan</button><button onClick={() => selectState("WI")} type="button">Open Wisconsin</button></div></div>}
           <section className="assumption-card">
             <div className="card-heading">
               <div><span className="overline">Behavior editor</span><strong>Change participation or choice</strong></div>
@@ -1612,9 +1614,11 @@ export function App() {
                   ? behaviorEditorMode === "turnout"
                     ? isPennsylvaniaFoundation(demographicFoundation)
                       ? `${formatNumber(demographicFoundation.totals.denominatorStatus.availableVtdCount)} ready · ${formatNumber(demographicFoundation.totals.denominatorStatus.ballotsExceed2020VapVtdCount)} capped`
-                      : `${formatNumber(demographicFoundation.totals.denominatorStatus.availablePrecinctCount)} ready · ${formatNumber(demographicFoundation.totals.denominatorStatus.ballotsExceed2020VapPrecinctCount)} capped`
+                      : isWisconsinFoundation(demographicFoundation)
+                        ? `${formatNumber(demographicFoundation.totals.denominatorStatus.availableWardCount)} ready · ${formatNumber(demographicFoundation.totals.denominatorStatus.ballotsExceed2020VapWardCount)} capped`
+                        : `${formatNumber(demographicFoundation.totals.denominatorStatus.availablePrecinctCount)} ready · ${formatNumber(demographicFoundation.totals.denominatorStatus.ballotsExceed2020VapPrecinctCount)} capped`
                     : behaviorEditorMode === "preference"
-                      ? `${formatNumber(demographicFoundation.join.mappedElectionGeometryCount)} / ${formatNumber(demographicFoundation.join.geometryFeatureCount)} mapped precincts`
+                      ? `${formatNumber(demographicFoundation.join.mappedElectionGeometryCount)} / ${formatNumber(demographicFoundation.join.geometryFeatureCount)} mapped ${activeDetailedStateManifest.geography.unitLabelPlural.toLowerCase()}`
                       : "Stein · Oliver · residual Other"
                   : "…"}</strong>
               </div>
@@ -1871,7 +1875,7 @@ export function App() {
               <div aria-labelledby="laboratory-tab-contributors" className="drawer-panel" data-active={laboratoryDrawerTab === "contributors"} id="laboratory-panel-contributors" role="tabpanel">
           {!selectedStateCode && <section className="national-portfolio-contributors">
             <div className="card-heading compact"><div><span className="overline">National movement</span><strong>Active detailed states</strong></div></div>
-            {electoralConsequences.activeRows.length > 0 ? electoralConsequences.activeRows.map((row) => <button key={row.stateCode} onClick={() => selectState(row.stateCode)} type="button"><span><strong>{row.stateName}</strong><small>{formatMargin(row.actualMargin)} → {formatMargin(row.scenarioMargin)}</small></span><b>{row.targetElectoralDelta === 0 ? "0 EV" : `${row.targetElectoralDelta > 0 ? "+" : "−"}${Math.abs(row.targetElectoralDelta)} EV`}</b></button>) : <p>No detailed state recipe is active. Pennsylvania and Michigan are available for modeling.</p>}
+            {electoralConsequences.activeRows.length > 0 ? electoralConsequences.activeRows.map((row) => <button key={row.stateCode} onClick={() => selectState(row.stateCode)} type="button"><span><strong>{row.stateName}</strong><small>{formatMargin(row.actualMargin)} → {formatMargin(row.scenarioMargin)}</small></span><b>{row.targetElectoralDelta === 0 ? "0 EV" : `${row.targetElectoralDelta > 0 ? "+" : "−"}${Math.abs(row.targetElectoralDelta)} EV`}</b></button>) : <p>No detailed state recipe is active. Pennsylvania, Michigan, and Wisconsin are available for modeling.</p>}
           </section>}
           <div className={!selectedStateCode ? "national-detail-reference" : undefined}>
           <section className="contribution-card">

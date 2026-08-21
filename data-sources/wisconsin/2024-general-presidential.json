@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-20",
+  "source": {
+    "id": "wi-ltsb-2024-election-data-with-2025-wards",
+    "publisher": "Wisconsin Legislative Technology Services Bureau",
+    "title": "2024 Election Data with 2025 Wards",
+    "sourceUrl": "https://services1.arcgis.com/FDsAtKBk8Hy4cAH0/ArcGIS/rest/services/2024_Election_Data_with_2025_Wards/FeatureServer/0",
+    "itemUrl": "https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e",
+    "retrievedAt": "2026-08-20",
+    "itemId": "878d8826218f42509e07437a82ef6b6e",
+    "itemOwner": "WI_Legislature",
+    "itemModified": 1740000249000,
+    "sourceSnapshotSha256": "02e19c18503b928b1f53826b6224475a6391bbfb8e53afad9fbf4abb143734fd",
+    "licenseStatus": "verified_open_public_data",
+    "license": "This is open and publicly available data. Use this data at your own risk. The LTSB is not liable for any damages or errors that result in using this data.",
+    "limitations": [
+      "LTSB collected the 2024 election data from the Wisconsin Elections Commission and disaggregated reporting-unit returns to wards by population.",
+      "The 2025 ward layer postdates the election; LTSB reaggregated election data through Census blocks into January 2025 wards.",
+      "State and county totals reconcile exactly, but reconstructed ward values must not be described as certified raw ward returns.",
+      "The PERSONS18 denominator is an LTSB estimate produced by aggregating 2020 Census P.L. 94-171 population data to 2025 wards.",
+      "Candidate preference is not observed in Census data and is never inferred from population."
+    ]
+  },
+  "artifact": {
+    "path": "public/data/wi/2024/reporting-units.json",
+    "rowCount": 6946,
+    "sha256": "aca06fe4f4128d6c292e84ae0746f272df0bdb5fb1a7a178e4604984ace47130",
+    "byteSize": 3146492
+  },
+  "totals": {
+    "harrisVotes": 1668229,
+    "trumpVotes": 1697626,
+    "steinVotes": 12275,
+    "oliverVotes": 10511,
+    "residualOtherVotes": 34277,
+    "otherVotes": 57063,
+    "totalVotes": 3422918
+  },
+  "coverage": {
+    "resultReportingUnitCount": 6946,
+    "matchedReportingUnitCount": 6946,
+    "unmatchedReportingUnitCount": 0,
+    "geometryFeatureCount": 7086,
+    "matchedGeometryFeatureCount": 6946,
+    "unmatchedGeometryFeatureCount": 140,
+    "resultVotes": {
+      "harrisVotes": 1668229,
+      "trumpVotes": 1697626,
+      "otherVotes": 57063,
+      "totalVotes": 3422918
+    },
+    "matchedVotes": {
+      "harrisVotes": 1668229,
+      "trumpVotes": 1697626,
+      "otherVotes": 57063,
+      "totalVotes": 3422918
+    },
+    "resultVoteCoveragePct": 100,
+    "statewideVoteCoveragePct": 100
+  }
+}

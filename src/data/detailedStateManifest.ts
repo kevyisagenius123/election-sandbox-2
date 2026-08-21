@@ -1,5 +1,5 @@
-export type DetailedStateCode = "MI" | "PA";
-export type DetailedStateRuntimeLoader = "mi-precinct-row-v1" | "pa-vtd-row-v1";
+export type DetailedStateCode = "MI" | "PA" | "WI";
+export type DetailedStateRuntimeLoader = "mi-precinct-row-v1" | "pa-vtd-row-v1" | "wi-ward-row-v1";
 
 export interface DetailedStateManifest {
   schemaVersion: 1;
@@ -24,6 +24,9 @@ export interface DetailedStateManifest {
   geography: {
     countyFipsPrefix: string;
     precinctGeometryManifestPath: string;
+    unitLabel: "Precinct" | "VTD" | "Ward";
+    unitLabelPlural: string;
+    selectionIdKind: "mi_precinct_id" | "pa_vtd_geoid" | "wi_ward_geoid";
   };
   sources: {
     electionRegistryPath: string;
@@ -41,7 +44,7 @@ export const pennsylvaniaDetailedStateManifest = Object.freeze({
     electoralVotes: 19,
   },
   compatibility: {
-    dataVersion: "us2024-pa-vtd2020-mi-precinct2024-v1",
+    dataVersion: "us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1",
     engineVersion: "pa-behavior-v1",
   },
   runtime: {
@@ -54,6 +57,9 @@ export const pennsylvaniaDetailedStateManifest = Object.freeze({
   geography: {
     countyFipsPrefix: "42",
     precinctGeometryManifestPath: "data/pa/2024/precinct-geometry-manifest.json",
+    unitLabel: "VTD",
+    unitLabelPlural: "VTDs",
+    selectionIdKind: "pa_vtd_geoid",
   },
   sources: {
     electionRegistryPath: "data-sources/pennsylvania/2024-general-presidential.json",
@@ -71,7 +77,7 @@ export const michiganDetailedStateManifest = Object.freeze({
     electoralVotes: 15,
   },
   compatibility: {
-    dataVersion: "us2024-pa-vtd2020-mi-precinct2024-v1",
+    dataVersion: "us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1",
     engineVersion: "pa-behavior-v1",
   },
   runtime: {
@@ -84,6 +90,9 @@ export const michiganDetailedStateManifest = Object.freeze({
   geography: {
     countyFipsPrefix: "26",
     precinctGeometryManifestPath: "data/mi/2024/precinct-geometry-manifest.json",
+    unitLabel: "Precinct",
+    unitLabelPlural: "Precincts",
+    selectionIdKind: "mi_precinct_id",
   },
   sources: {
     electionRegistryPath: "data-sources/michigan/2024-general-presidential.json",
@@ -91,9 +100,43 @@ export const michiganDetailedStateManifest = Object.freeze({
   },
 } as const satisfies DetailedStateManifest);
 
+export const wisconsinDetailedStateManifest = Object.freeze({
+  schemaVersion: 1,
+  code: "WI",
+  name: "Wisconsin",
+  election: {
+    year: 2024,
+    contestId: "2024-president",
+    electoralVotes: 10,
+  },
+  compatibility: {
+    dataVersion: "us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1",
+    engineVersion: "pa-behavior-v1",
+  },
+  runtime: {
+    loader: "wi-ward-row-v1",
+    artifactPath: "data/wi/2020/ward-demographics.json",
+    artifactByteSize: 442354,
+    schemaVersion: 1,
+    encoding: "wi-ward-row-v1",
+  },
+  geography: {
+    countyFipsPrefix: "55",
+    precinctGeometryManifestPath: "data/wi/2024/precinct-geometry-manifest.json",
+    unitLabel: "Ward",
+    unitLabelPlural: "Wards",
+    selectionIdKind: "wi_ward_geoid",
+  },
+  sources: {
+    electionRegistryPath: "data-sources/wisconsin/2024-general-presidential.json",
+    demographicRegistryPath: "data-sources/wisconsin/2020-vap-ward-denominator.json",
+  },
+} as const satisfies DetailedStateManifest);
+
 const manifests = new Map<DetailedStateCode, DetailedStateManifest>([
   [michiganDetailedStateManifest.code, michiganDetailedStateManifest],
   [pennsylvaniaDetailedStateManifest.code, pennsylvaniaDetailedStateManifest],
+  [wisconsinDetailedStateManifest.code, wisconsinDetailedStateManifest],
 ]);
 
 export function isDetailedStateCode(code: string): code is DetailedStateCode {

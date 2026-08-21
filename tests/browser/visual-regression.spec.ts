@@ -1,10 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-v1";
+const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1";
 const ENGINE_VERSION = "pa-behavior-v1";
 const HOSTED_VISUALS = Boolean(process.env.GITHUB_ACTIONS);
 
-function scenarioPath(options: { state?: "MI" | "PA"; preference?: number; county?: string; vtd?: string; plan?: string } = {}) {
+function scenarioPath(options: { state?: "MI" | "PA" | "WI"; preference?: number; county?: string; vtd?: string; plan?: string } = {}) {
   const state = options.state ?? "PA";
   const params = new URLSearchParams({
     scenario: "2", data: DATA_VERSION, engine: ENGINE_VERSION, activeState: state,
@@ -50,6 +50,9 @@ const references = [
   { name: "06-county-laboratory.png", width: 1440, height: 900, path: scenarioPath({ state: "PA", county: "42003", vtd: "42003000010" }), mode: "laboratory", geography: "reporting-unit", snap: "working" },
   { name: "07-us-laboratory-1024.png", width: 1024, height: 768, path: scenarioPath(), mode: "laboratory", geography: "national", snap: "working" },
   { name: "08-us-bottom-sheet-390.png", width: 390, height: 844, path: scenarioPath(), mode: "laboratory", geography: "national", snap: "working" },
+  { name: "09-wi-laboratory.png", width: 1440, height: 900, path: scenarioPath({ state: "WI", preference: 1.5 }), mode: "laboratory", geography: "state", snap: "collapsed" },
+  { name: "10-wi-ward-laboratory.png", width: 1440, height: 900, path: scenarioPath({ state: "WI", preference: 1.5, county: "55001", vtd: "55001002750001" }), mode: "laboratory", geography: "reporting-unit", snap: "working" },
+  { name: "11-wi-bottom-sheet-390.png", width: 390, height: 844, path: scenarioPath({ state: "WI", preference: 1.5 }), mode: "laboratory", geography: "state", snap: "working" },
 ] as const;
 
 for (const reference of references) {

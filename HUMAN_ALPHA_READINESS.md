@@ -1,10 +1,10 @@
-# v0.19B Human Alpha Readiness
+# Deferred Human Alpha Readiness
 
 **Prepared:** 2026-08-20
 
-**Product build:** v0.19.1
+**Current development build:** v0.20.0
 
-**Phase status:** Supervisor HOLD; Gate B passed through AI technical-supervisor review, while Gate A participant delivery remains blocked
+**Phase status:** Deferred by owner decision; not passed or waived. Gate A participant delivery remains blocked.
 
 ## What is ready
 
@@ -13,7 +13,7 @@
 - The public editorial Home and `/app/` laboratory were reachable during the readiness audit.
 - The deployed `/app/` entry exposed the corrected `Change United States` and `Open controls` language.
 - The release continues to distinguish synthetic walkthroughs from human evidence.
-- The v0.19.1 product build is under the decision-0025 research freeze through Session 1.
+- The frozen v0.19.1 supervisor tag remains preserved. Decision 0027 supersedes its product-development freeze only for private internal work.
 - Every task now records confidence before explanation on a 1–5 scale.
 - `HUMAN_ALPHA_REPORT.md` is the required closing-report shell.
 - `v0.19.1-supervisor-review` is the frozen supervisor candidate, with its review packet under `docs/review/v0.19.1-supervisor-review/`.
@@ -22,7 +22,7 @@
 
 ## Readiness verification
 
-Reverified on 2026-08-20 against the unchanged v0.19.1 product build:
+The historical v0.19.1 candidate was reverified on 2026-08-20:
 
 - `npm test`: 48 of 48 deterministic model and URL-contract tests passed.
 - `npm run lint`: passed.
@@ -31,6 +31,8 @@ Reverified on 2026-08-20 against the unchanged v0.19.1 product build:
 - AI supervisor Gate B walkthrough: 1 of 1 locked-browser journey passed against the exact tag, with seven additional evidence screenshots.
 - Historical deployed remote smoke: 1 of 1 passed before the full-product Pages deployment was contained. The former URL now intentionally returns 404.
 - `npm run profile:pa`: passed; scenario calculation median 49.07 ms and p95 76.36 ms on this machine; retained heap delta 13.01 MiB.
+
+Current v0.20 private-development verification is recorded separately in `docs/review/v0.20-wisconsin/VERIFICATION.md`: 52 model checks, 38 current browser journeys, lint, build, three Wisconsin visual references, and the 35-cycle three-state runtime profile pass. This does not change the deferred human-evidence checklist below.
 
 ## What remains before recruitment
 
@@ -67,4 +69,4 @@ The fresh-agent blind pass still has no task evidence. The completed AI-supervis
 
 ## Phase boundary
 
-State #3 and Run My Election remain outside v0.19B. State #3 requires the completed `HUMAN_ALPHA_REPORT.md`, zero unresolved P0 and P1 findings, no repeated severe epistemic-status misunderstanding, trusted deterministic restoration, discoverable evidence, resolved delivery status, and green post-correction gates. The state-admission contract may later carry replay-readiness metadata, but the replay engine remains a separate bounded product track.
+Human testing is postponed until the assembled product can receive a comprehensive end-to-end study. Wisconsin State #3 is admitted for private internal development under decision 0027, with state-by-state technical gates. This does not clear PA/MI delivery rights or authorize a public or paid detailed-state release. Run My Election remains a separate later product track.

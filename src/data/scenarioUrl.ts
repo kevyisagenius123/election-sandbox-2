@@ -203,18 +203,25 @@ function validateGeography(params: URLSearchParams) {
     if (!manifest || county == null) {
       throw new InvalidScenarioUrlError("precinct selection requires detailed county context");
     }
-    if (manifest.code === "PA") {
+    if (manifest.geography.selectionIdKind === "pa_vtd_geoid") {
       if (!new RegExp(`^${manifest.geography.countyFipsPrefix}\\d{3}[0-9A-Z]{6}$`).test(vtd)) {
         throw new InvalidScenarioUrlError("vtd is not a Pennsylvania Census VTD GEOID");
       }
       if (!vtd.startsWith(county)) {
         throw new InvalidScenarioUrlError("vtd selection does not belong to the selected county");
       }
-    } else {
+    } else if (manifest.geography.selectionIdKind === "mi_precinct_id") {
       const match = /^WP-(\d{3})-\d{5}-[0-9A-Z]+$/.exec(vtd);
       if (!match) throw new InvalidScenarioUrlError("precinct is not a Michigan PRECINCTID");
       if (`${manifest.geography.countyFipsPrefix}${match[1]}` !== county) {
         throw new InvalidScenarioUrlError("precinct selection does not belong to the selected county");
+      }
+    } else {
+      if (!/^55[0-9A-Z]{12}$/.test(vtd)) {
+        throw new InvalidScenarioUrlError("ward is not a Wisconsin LTSB GEOID");
+      }
+      if (!vtd.startsWith(county)) {
+        throw new InvalidScenarioUrlError("ward selection does not belong to the selected county");
       }
     }
   }

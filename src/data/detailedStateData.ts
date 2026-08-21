@@ -3,11 +3,13 @@ import type {
   BehaviorScenarioUnit,
 } from "../../packages/election-model/src/scenario.ts";
 import type { DetailedStateFoundation } from "./detailedStateFoundation.ts";
-import { isMichiganFoundation } from "./detailedStateFoundation.ts";
+import { isMichiganFoundation, isWisconsinFoundation } from "./detailedStateFoundation.ts";
 import type { DetailedStateCode } from "./detailedStateManifest.ts";
+import { getDetailedStateManifest } from "./detailedStateManifest.ts";
 import { getDetailedStateRuntimeAdapter } from "./detailedStateRuntimeLoaders.ts";
 import { michigan2024, michiganCounties2024, michiganCountySource } from "./michigan.ts";
 import { pennsylvania2024, pennsylvaniaCounties2024, pennsylvaniaCountySource } from "./pennsylvania.ts";
+import { wisconsin2024, wisconsinCounties2024, wisconsinCountySource } from "./wisconsin.ts";
 
 export interface DetailedCountyResult {
   fips: string;
@@ -32,7 +34,7 @@ export interface DetailedGeographyRecord {
   countyFips: string;
   name: string;
   code: string;
-  geographyLabel: "Precinct" | "VTD";
+  geographyLabel: "Precinct" | "VTD" | "Ward";
   baselineVotes: {
     harrisVotes: number;
     trumpVotes: number;
@@ -54,7 +56,12 @@ export interface DetailedGeographyRecord {
 }
 
 export function getDetailedStateCounties(code: DetailedStateCode): DetailedCountyResult[] {
-  return (code === "MI" ? michiganCounties2024 : pennsylvaniaCounties2024).map((county) => ({
+  const counties = code === "MI"
+    ? michiganCounties2024
+    : code === "WI"
+      ? wisconsinCounties2024
+      : pennsylvaniaCounties2024;
+  return counties.map((county) => ({
     fips: county.fips,
     code: county.code,
     name: county.name,
@@ -70,11 +77,15 @@ export function getDetailedStateCounties(code: DetailedStateCode): DetailedCount
 }
 
 export function getDetailedStateElection(code: DetailedStateCode) {
-  return code === "MI" ? michigan2024 : pennsylvania2024;
+  if (code === "MI") return michigan2024;
+  if (code === "WI") return wisconsin2024;
+  return pennsylvania2024;
 }
 
 export function getDetailedStateSource(code: DetailedStateCode) {
-  return code === "MI" ? michiganCountySource : pennsylvaniaCountySource;
+  if (code === "MI") return michiganCountySource;
+  if (code === "WI") return wisconsinCountySource;
+  return pennsylvaniaCountySource;
 }
 
 export function getDetailedStateGeographies(
@@ -99,6 +110,25 @@ export function getDetailedStateGeographies(
       demographicMatchMethod: precinct.demographicMatchMethod,
     }));
   }
+  if (isWisconsinFoundation(foundation)) {
+    return foundation.wards.map((ward) => ({
+      id: ward.geometryId,
+      countyFips: ward.countyFips,
+      name: ward.wardName,
+      code: ward.geometryId,
+      geographyLabel: "Ward",
+      baselineVotes: ward.baselineVotes,
+      votingAgePopulation: ward.votingAgePopulation,
+      turnoutCapacity: ward.turnoutCapacity,
+      denominatorStatus: ward.denominatorStatus,
+      hasMappedResult: ward.hasMappedResult,
+      sourceUnitCount: ward.sourceUnitCount,
+      exactSourceUnitCount: ward.exactSourceUnitCount,
+      canonicalSourceUnitCount: ward.canonicalSourceUnitCount,
+      resultMatchMethod: ward.resultMatchMethod,
+      demographicMatchMethod: ward.demographicMatchMethod,
+    }));
+  }
   return foundation.vtds.map((vtd) => ({
     id: vtd.geoid,
     countyFips: vtd.countyFips,
@@ -121,7 +151,7 @@ export function getDetailedStateGeographies(
 export function toDetailedBehaviorModelUnits(
   foundation: DetailedStateFoundation,
 ): BehaviorModelUnit[] {
-  const loader = foundation.stateCode === "MI" ? "mi-precinct-row-v1" : "pa-vtd-row-v1";
+  const loader = getDetailedStateManifest(foundation.stateCode).runtime.loader;
   return getDetailedStateRuntimeAdapter(loader).toBehaviorModelUnits(foundation);
 }
 

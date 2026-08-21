@@ -1,0 +1,2215 @@
+{
+  "schemaVersion": 1,
+  "electionId": "2024-president",
+  "stateCode": "WI",
+  "stateFips": "55",
+  "generatedAt": "2026-08-20",
+  "geometrySource": {
+    "id": "wi-ltsb-2024-election-data-with-2025-wards",
+    "publisher": "Wisconsin Legislative Technology Services Bureau",
+    "title": "2024 Election Data with 2025 Wards",
+    "sourceUrl": "https://services1.arcgis.com/FDsAtKBk8Hy4cAH0/ArcGIS/rest/services/2024_Election_Data_with_2025_Wards/FeatureServer/0",
+    "itemUrl": "https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e",
+    "retrievedAt": "2026-08-20",
+    "itemId": "878d8826218f42509e07437a82ef6b6e",
+    "itemOwner": "WI_Legislature",
+    "itemModified": 1740000249000,
+    "sourceSnapshotSha256": "02e19c18503b928b1f53826b6224475a6391bbfb8e53afad9fbf4abb143734fd",
+    "licenseStatus": "verified_open_public_data",
+    "license": "This is open and publicly available data. Use this data at your own risk. The LTSB is not liable for any damages or errors that result in using this data.",
+    "limitations": [
+      "LTSB collected the 2024 election data from the Wisconsin Elections Commission and disaggregated reporting-unit returns to wards by population.",
+      "The 2025 ward layer postdates the election; LTSB reaggregated election data through Census blocks into January 2025 wards.",
+      "State and county totals reconcile exactly, but reconstructed ward values must not be described as certified raw ward returns.",
+      "The PERSONS18 denominator is an LTSB estimate produced by aggregating 2020 Census P.L. 94-171 population data to 2025 wards.",
+      "Candidate preference is not observed in Census data and is never inferred from population."
+    ]
+  },
+  "projection": "geoAlbersUsa().scale(1300).translate([487.5, 305]), then OrbitView Y-axis inversion",
+  "quantization": 50000,
+  "simplificationQuantile": 0.18,
+  "totals": {
+    "resultReportingUnitCount": 6946,
+    "matchedReportingUnitCount": 6946,
+    "unmatchedReportingUnitCount": 0,
+    "geometryFeatureCount": 7086,
+    "matchedGeometryFeatureCount": 6946,
+    "unmatchedGeometryFeatureCount": 140,
+    "resultVotes": {
+      "harrisVotes": 1668229,
+      "trumpVotes": 1697626,
+      "otherVotes": 57063,
+      "totalVotes": 3422918
+    },
+    "matchedVotes": {
+      "harrisVotes": 1668229,
+      "trumpVotes": 1697626,
+      "otherVotes": 57063,
+      "totalVotes": 3422918
+    },
+    "resultVoteCoveragePct": 100,
+    "statewideVoteCoveragePct": 100
+  },
+  "counties": [
+    {
+      "countyFips": "55001",
+      "resultReportingUnitCount": 39,
+      "matchedReportingUnitCount": 39,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 39,
+      "matchedGeometryFeatureCount": 39,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4443,
+        "trumpVotes": 7763,
+        "otherVotes": 676,
+        "totalVotes": 12882
+      },
+      "matchedVotes": {
+        "harrisVotes": 4443,
+        "trumpVotes": 7763,
+        "otherVotes": 676,
+        "totalVotes": 12882
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        594.974,
+        411.269,
+        602.575,
+        425.212
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55001.topo.json",
+      "byteSize": 75650
+    },
+    {
+      "countyFips": "55003",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 41,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 41,
+      "matchedGeometryFeatureCount": 41,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4612,
+        "trumpVotes": 4191,
+        "otherVotes": 152,
+        "totalVotes": 8955
+      },
+      "matchedVotes": {
+        "harrisVotes": 4612,
+        "trumpVotes": 4191,
+        "otherVotes": 152,
+        "totalVotes": 8955
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        577.347,
+        463.27,
+        587.929,
+        488.49
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55003.topo.json",
+      "byteSize": 138627
+    },
+    {
+      "countyFips": "55005",
+      "resultReportingUnitCount": 84,
+      "matchedReportingUnitCount": 84,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 90,
+      "matchedGeometryFeatureCount": 84,
+      "unmatchedGeometryFeatureCount": 6,
+      "resultVotes": {
+        "harrisVotes": 8941,
+        "trumpVotes": 16726,
+        "otherVotes": 1142,
+        "totalVotes": 26809
+      },
+      "matchedVotes": {
+        "harrisVotes": 8941,
+        "trumpVotes": 16726,
+        "otherVotes": 1142,
+        "totalVotes": 26809
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        559.023,
+        444.872,
+        569.199,
+        455.007
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55005.topo.json",
+      "byteSize": 129959
+    },
+    {
+      "countyFips": "55007",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 41,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 41,
+      "matchedGeometryFeatureCount": 41,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6107,
+        "trumpVotes": 4860,
+        "otherVotes": 273,
+        "totalVotes": 11240
+      },
+      "matchedVotes": {
+        "harrisVotes": 6107,
+        "trumpVotes": 4860,
+        "otherVotes": 273,
+        "totalVotes": 11240
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        567.4,
+        466.763,
+        579.724,
+        486.355
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55007.topo.json",
+      "byteSize": 477355
+    },
+    {
+      "countyFips": "55009",
+      "resultReportingUnitCount": 208,
+      "matchedReportingUnitCount": 208,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 208,
+      "matchedGeometryFeatureCount": 208,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 67937,
+        "trumpVotes": 79132,
+        "otherVotes": 2264,
+        "totalVotes": 149333
+      },
+      "matchedVotes": {
+        "harrisVotes": 67937,
+        "trumpVotes": 79132,
+        "otherVotes": 2264,
+        "totalVotes": 149333
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        622.611,
+        426.828,
+        631.111,
+        436.969
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55009.topo.json",
+      "byteSize": 315234
+    },
+    {
+      "countyFips": "55011",
+      "resultReportingUnitCount": 27,
+      "matchedReportingUnitCount": 27,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 27,
+      "matchedGeometryFeatureCount": 27,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2765,
+        "trumpVotes": 5213,
+        "otherVotes": 122,
+        "totalVotes": 8100
+      },
+      "matchedVotes": {
+        "harrisVotes": 2765,
+        "trumpVotes": 5213,
+        "otherVotes": 122,
+        "totalVotes": 8100
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        561.31,
+        418.388,
+        570.503,
+        431.388
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55011.topo.json",
+      "byteSize": 35660
+    },
+    {
+      "countyFips": "55013",
+      "resultReportingUnitCount": 40,
+      "matchedReportingUnitCount": 40,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 40,
+      "matchedGeometryFeatureCount": 40,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3665,
+        "trumpVotes": 7008,
+        "otherVotes": 137,
+        "totalVotes": 10810
+      },
+      "matchedVotes": {
+        "harrisVotes": 3665,
+        "trumpVotes": 7008,
+        "otherVotes": 137,
+        "totalVotes": 10810
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        547.423,
+        454.302,
+        560.987,
+        466.423
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55013.topo.json",
+      "byteSize": 77726
+    },
+    {
+      "countyFips": "55015",
+      "resultReportingUnitCount": 63,
+      "matchedReportingUnitCount": 63,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 65,
+      "matchedGeometryFeatureCount": 63,
+      "unmatchedGeometryFeatureCount": 2,
+      "resultVotes": {
+        "harrisVotes": 12927,
+        "trumpVotes": 19488,
+        "otherVotes": 501,
+        "totalVotes": 32916
+      },
+      "matchedVotes": {
+        "harrisVotes": 12927,
+        "trumpVotes": 19488,
+        "otherVotes": 501,
+        "totalVotes": 32916
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        620.971,
+        418.915,
+        627.492,
+        427.006
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55015.topo.json",
+      "byteSize": 104846
+    },
+    {
+      "countyFips": "55017",
+      "resultReportingUnitCount": 95,
+      "matchedReportingUnitCount": 95,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 102,
+      "matchedGeometryFeatureCount": 95,
+      "unmatchedGeometryFeatureCount": 7,
+      "resultVotes": {
+        "harrisVotes": 14573,
+        "trumpVotes": 23399,
+        "otherVotes": 499,
+        "totalVotes": 38471
+      },
+      "matchedVotes": {
+        "harrisVotes": 14573,
+        "trumpVotes": 23399,
+        "otherVotes": 499,
+        "totalVotes": 38471
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        567.23,
+        437.198,
+        579.514,
+        447.666
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55017.topo.json",
+      "byteSize": 103633
+    },
+    {
+      "countyFips": "55019",
+      "resultReportingUnitCount": 81,
+      "matchedReportingUnitCount": 81,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 81,
+      "matchedGeometryFeatureCount": 81,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4509,
+        "trumpVotes": 10481,
+        "otherVotes": 350,
+        "totalVotes": 15340
+      },
+      "matchedVotes": {
+        "harrisVotes": 4509,
+        "trumpVotes": 10481,
+        "otherVotes": 350,
+        "totalVotes": 15340
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        579.286,
+        428.038,
+        589.822,
+        442.362
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55019.topo.json",
+      "byteSize": 116357
+    },
+    {
+      "countyFips": "55021",
+      "resultReportingUnitCount": 87,
+      "matchedReportingUnitCount": 87,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 89,
+      "matchedGeometryFeatureCount": 87,
+      "unmatchedGeometryFeatureCount": 2,
+      "resultVotes": {
+        "harrisVotes": 16388,
+        "trumpVotes": 17988,
+        "otherVotes": 538,
+        "totalVotes": 34914
+      },
+      "matchedVotes": {
+        "harrisVotes": 16388,
+        "trumpVotes": 17988,
+        "otherVotes": 538,
+        "totalVotes": 34914
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        599.545,
+        403.421,
+        612.802,
+        412.069
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55021.topo.json",
+      "byteSize": 187451
+    },
+    {
+      "countyFips": "55023",
+      "resultReportingUnitCount": 33,
+      "matchedReportingUnitCount": 33,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 33,
+      "matchedGeometryFeatureCount": 33,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3860,
+        "trumpVotes": 5113,
+        "otherVotes": 132,
+        "totalVotes": 9105
+      },
+      "matchedVotes": {
+        "harrisVotes": 3860,
+        "trumpVotes": 5113,
+        "otherVotes": 132,
+        "totalVotes": 9105
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        576.526,
+        395.097,
+        585.764,
+        405.429
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55023.topo.json",
+      "byteSize": 145109
+    },
+    {
+      "countyFips": "55025",
+      "resultReportingUnitCount": 469,
+      "matchedReportingUnitCount": 469,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 485,
+      "matchedGeometryFeatureCount": 469,
+      "unmatchedGeometryFeatureCount": 16,
+      "resultVotes": {
+        "harrisVotes": 273995,
+        "trumpVotes": 85454,
+        "otherVotes": 6480,
+        "totalVotes": 365929
+      },
+      "matchedVotes": {
+        "harrisVotes": 273995,
+        "trumpVotes": 85454,
+        "otherVotes": 6480,
+        "totalVotes": 365929
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        599.329,
+        393.379,
+        613.462,
+        404.051
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55025.topo.json",
+      "byteSize": 1113585
+    },
+    {
+      "countyFips": "55027",
+      "resultReportingUnitCount": 152,
+      "matchedReportingUnitCount": 152,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 155,
+      "matchedGeometryFeatureCount": 152,
+      "unmatchedGeometryFeatureCount": 3,
+      "resultVotes": {
+        "harrisVotes": 16518,
+        "trumpVotes": 33067,
+        "otherVotes": 715,
+        "totalVotes": 50300
+      },
+      "matchedVotes": {
+        "harrisVotes": 16518,
+        "trumpVotes": 33067,
+        "otherVotes": 715,
+        "totalVotes": 50300
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        612.257,
+        402.07,
+        622.651,
+        412.682
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55027.topo.json",
+      "byteSize": 192988
+    },
+    {
+      "countyFips": "55029",
+      "resultReportingUnitCount": 60,
+      "matchedReportingUnitCount": 60,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 60,
+      "matchedGeometryFeatureCount": 60,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10565,
+        "trumpVotes": 10099,
+        "otherVotes": 280,
+        "totalVotes": 20944
+      },
+      "matchedVotes": {
+        "harrisVotes": 10565,
+        "trumpVotes": 10099,
+        "otherVotes": 280,
+        "totalVotes": 20944
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        630.895,
+        437.31,
+        644.904,
+        455.641
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55029.topo.json",
+      "byteSize": 659042
+    },
+    {
+      "countyFips": "55031",
+      "resultReportingUnitCount": 58,
+      "matchedReportingUnitCount": 58,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 58,
+      "matchedGeometryFeatureCount": 58,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 13073,
+        "trumpVotes": 11732,
+        "otherVotes": 429,
+        "totalVotes": 25234
+      },
+      "matchedVotes": {
+        "harrisVotes": 13073,
+        "trumpVotes": 11732,
+        "otherVotes": 429,
+        "totalVotes": 25234
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        555.942,
+        466.262,
+        568.048,
+        480.311
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55031.topo.json",
+      "byteSize": 96816
+    },
+    {
+      "countyFips": "55033",
+      "resultReportingUnitCount": 65,
+      "matchedReportingUnitCount": 65,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 65,
+      "matchedGeometryFeatureCount": 65,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10643,
+        "trumpVotes": 14726,
+        "otherVotes": 309,
+        "totalVotes": 25678
+      },
+      "matchedVotes": {
+        "harrisVotes": 10643,
+        "trumpVotes": 14726,
+        "otherVotes": 309,
+        "totalVotes": 25678
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        559.395,
+        432.963,
+        568.02,
+        445.174
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55033.topo.json",
+      "byteSize": 84253
+    },
+    {
+      "countyFips": "55035",
+      "resultReportingUnitCount": 142,
+      "matchedReportingUnitCount": 142,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 149,
+      "matchedGeometryFeatureCount": 142,
+      "unmatchedGeometryFeatureCount": 7,
+      "resultVotes": {
+        "harrisVotes": 34400,
+        "trumpVotes": 27728,
+        "otherVotes": 1049,
+        "totalVotes": 63177
+      },
+      "matchedVotes": {
+        "harrisVotes": 34400,
+        "trumpVotes": 27728,
+        "otherVotes": 1049,
+        "totalVotes": 63177
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        567.837,
+        431.308,
+        579.832,
+        437.808
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55035.topo.json",
+      "byteSize": 259063
+    },
+    {
+      "countyFips": "55037",
+      "resultReportingUnitCount": 19,
+      "matchedReportingUnitCount": 19,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 19,
+      "matchedGeometryFeatureCount": 19,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 783,
+        "trumpVotes": 2356,
+        "otherVotes": 19,
+        "totalVotes": 3158
+      },
+      "matchedVotes": {
+        "harrisVotes": 783,
+        "trumpVotes": 2356,
+        "otherVotes": 19,
+        "totalVotes": 3158
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        613.369,
+        459.751,
+        623.754,
+        466.667
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55037.topo.json",
+      "byteSize": 50404
+    },
+    {
+      "countyFips": "55039",
+      "resultReportingUnitCount": 116,
+      "matchedReportingUnitCount": 116,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 117,
+      "matchedGeometryFeatureCount": 116,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 20495,
+        "trumpVotes": 37272,
+        "otherVotes": 760,
+        "totalVotes": 58527
+      },
+      "matchedVotes": {
+        "harrisVotes": 20495,
+        "trumpVotes": 37272,
+        "otherVotes": 760,
+        "totalVotes": 58527
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        613.784,
+        410.697,
+        626.214,
+        419.964
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55039.topo.json",
+      "byteSize": 282553
+    },
+    {
+      "countyFips": "55041",
+      "resultReportingUnitCount": 34,
+      "matchedReportingUnitCount": 34,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 34,
+      "matchedGeometryFeatureCount": 34,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1681,
+        "trumpVotes": 3382,
+        "otherVotes": 34,
+        "totalVotes": 5097
+      },
+      "matchedVotes": {
+        "harrisVotes": 1681,
+        "trumpVotes": 3382,
+        "otherVotes": 34,
+        "totalVotes": 5097
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        607.686,
+        451.662,
+        618.533,
+        467.37
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55041.topo.json",
+      "byteSize": 68594
+    },
+    {
+      "countyFips": "55043",
+      "resultReportingUnitCount": 96,
+      "matchedReportingUnitCount": 96,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 96,
+      "matchedGeometryFeatureCount": 96,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10966,
+        "trumpVotes": 15922,
+        "otherVotes": 418,
+        "totalVotes": 27306
+      },
+      "matchedVotes": {
+        "harrisVotes": 10966,
+        "trumpVotes": 15922,
+        "otherVotes": 418,
+        "totalVotes": 27306
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        577.922,
+        384.617,
+        590.603,
+        400.733
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55043.topo.json",
+      "byteSize": 151838
+    },
+    {
+      "countyFips": "55045",
+      "resultReportingUnitCount": 60,
+      "matchedReportingUnitCount": 60,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 60,
+      "matchedGeometryFeatureCount": 60,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10903,
+        "trumpVotes": 10843,
+        "otherVotes": 330,
+        "totalVotes": 22076
+      },
+      "matchedVotes": {
+        "harrisVotes": 10903,
+        "trumpVotes": 10843,
+        "otherVotes": 330,
+        "totalVotes": 22076
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        599.845,
+        385.368,
+        608.204,
+        393.879
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55045.topo.json",
+      "byteSize": 71074
+    },
+    {
+      "countyFips": "55047",
+      "resultReportingUnitCount": 36,
+      "matchedReportingUnitCount": 36,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 39,
+      "matchedGeometryFeatureCount": 36,
+      "unmatchedGeometryFeatureCount": 3,
+      "resultVotes": {
+        "harrisVotes": 3449,
+        "trumpVotes": 7458,
+        "otherVotes": 145,
+        "totalVotes": 11052
+      },
+      "matchedVotes": {
+        "harrisVotes": 3449,
+        "trumpVotes": 7458,
+        "otherVotes": 145,
+        "totalVotes": 11052
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        608.167,
+        411.799,
+        614.224,
+        420.072
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55047.topo.json",
+      "byteSize": 54142
+    },
+    {
+      "countyFips": "55049",
+      "resultReportingUnitCount": 59,
+      "matchedReportingUnitCount": 59,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 60,
+      "matchedGeometryFeatureCount": 59,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 7750,
+        "trumpVotes": 6631,
+        "otherVotes": 296,
+        "totalVotes": 14677
+      },
+      "matchedVotes": {
+        "harrisVotes": 7750,
+        "trumpVotes": 6631,
+        "otherVotes": 296,
+        "totalVotes": 14677
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        589.626,
+        391.767,
+        599.902,
+        401.316
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55049.topo.json",
+      "byteSize": 94759
+    },
+    {
+      "countyFips": "55051",
+      "resultReportingUnitCount": 19,
+      "matchedReportingUnitCount": 19,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 19,
+      "matchedGeometryFeatureCount": 19,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1487,
+        "trumpVotes": 2557,
+        "otherVotes": 40,
+        "totalVotes": 4084
+      },
+      "matchedVotes": {
+        "harrisVotes": 1487,
+        "trumpVotes": 2557,
+        "otherVotes": 40,
+        "totalVotes": 4084
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        583.241,
+        463.839,
+        593.812,
+        477.398
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55051.topo.json",
+      "byteSize": 96461
+    },
+    {
+      "countyFips": "55053",
+      "resultReportingUnitCount": 51,
+      "matchedReportingUnitCount": 51,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 51,
+      "matchedGeometryFeatureCount": 51,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4157,
+        "trumpVotes": 6204,
+        "otherVotes": 141,
+        "totalVotes": 10502
+      },
+      "matchedVotes": {
+        "harrisVotes": 4157,
+        "trumpVotes": 6204,
+        "otherVotes": 141,
+        "totalVotes": 10502
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        575.913,
+        419.75,
+        590.244,
+        431.881
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55053.topo.json",
+      "byteSize": 107976
+    },
+    {
+      "countyFips": "55055",
+      "resultReportingUnitCount": 106,
+      "matchedReportingUnitCount": 106,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 109,
+      "matchedGeometryFeatureCount": 106,
+      "unmatchedGeometryFeatureCount": 3,
+      "resultVotes": {
+        "harrisVotes": 20574,
+        "trumpVotes": 28771,
+        "otherVotes": 801,
+        "totalVotes": 50146
+      },
+      "matchedVotes": {
+        "harrisVotes": 20574,
+        "trumpVotes": 28771,
+        "otherVotes": 801,
+        "totalVotes": 50146
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        612.953,
+        394.098,
+        621.254,
+        402.623
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55055.topo.json",
+      "byteSize": 192758
+    },
+    {
+      "countyFips": "55057",
+      "resultReportingUnitCount": 66,
+      "matchedReportingUnitCount": 66,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 67,
+      "matchedGeometryFeatureCount": 66,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 4854,
+        "trumpVotes": 9525,
+        "otherVotes": 174,
+        "totalVotes": 14553
+      },
+      "matchedVotes": {
+        "harrisVotes": 4854,
+        "trumpVotes": 9525,
+        "otherVotes": 174,
+        "totalVotes": 14553
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        590.116,
+        410.729,
+        599.543,
+        424.976
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55057.topo.json",
+      "byteSize": 90193
+    },
+    {
+      "countyFips": "55059",
+      "resultReportingUnitCount": 175,
+      "matchedReportingUnitCount": 175,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 186,
+      "matchedGeometryFeatureCount": 175,
+      "unmatchedGeometryFeatureCount": 11,
+      "resultVotes": {
+        "harrisVotes": 41826,
+        "trumpVotes": 47478,
+        "otherVotes": 1376,
+        "totalVotes": 90680
+      },
+      "matchedVotes": {
+        "harrisVotes": 41826,
+        "trumpVotes": 47478,
+        "otherVotes": 1376,
+        "totalVotes": 90680
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        625.566,
+        386.972,
+        634.137,
+        391.603
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55059.topo.json",
+      "byteSize": 324153
+    },
+    {
+      "countyFips": "55061",
+      "resultReportingUnitCount": 42,
+      "matchedReportingUnitCount": 42,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 42,
+      "matchedGeometryFeatureCount": 42,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4059,
+        "trumpVotes": 8267,
+        "otherVotes": 158,
+        "totalVotes": 12484
+      },
+      "matchedVotes": {
+        "harrisVotes": 4059,
+        "trumpVotes": 8267,
+        "otherVotes": 158,
+        "totalVotes": 12484
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        630.541,
+        429.343,
+        636.691,
+        437.793
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55061.topo.json",
+      "byteSize": 56829
+    },
+    {
+      "countyFips": "55063",
+      "resultReportingUnitCount": 109,
+      "matchedReportingUnitCount": 109,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 109,
+      "matchedGeometryFeatureCount": 109,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 39008,
+        "trumpVotes": 32247,
+        "otherVotes": 1006,
+        "totalVotes": 72261
+      },
+      "matchedVotes": {
+        "harrisVotes": 39008,
+        "trumpVotes": 32247,
+        "otherVotes": 1006,
+        "totalVotes": 72261
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        572.408,
+        411.795,
+        581.079,
+        420.112
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55063.topo.json",
+      "byteSize": 176338
+    },
+    {
+      "countyFips": "55065",
+      "resultReportingUnitCount": 46,
+      "matchedReportingUnitCount": 46,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 48,
+      "matchedGeometryFeatureCount": 46,
+      "unmatchedGeometryFeatureCount": 2,
+      "resultVotes": {
+        "harrisVotes": 3469,
+        "trumpVotes": 5256,
+        "otherVotes": 107,
+        "totalVotes": 8832
+      },
+      "matchedVotes": {
+        "harrisVotes": 3469,
+        "trumpVotes": 5256,
+        "otherVotes": 107,
+        "totalVotes": 8832
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        590.185,
+        384.795,
+        600.372,
+        392.388
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55065.topo.json",
+      "byteSize": 87381
+    },
+    {
+      "countyFips": "55067",
+      "resultReportingUnitCount": 36,
+      "matchedReportingUnitCount": 36,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 36,
+      "matchedGeometryFeatureCount": 36,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3746,
+        "trumpVotes": 7782,
+        "otherVotes": 136,
+        "totalVotes": 11664
+      },
+      "matchedVotes": {
+        "harrisVotes": 3746,
+        "trumpVotes": 7782,
+        "otherVotes": 136,
+        "totalVotes": 11664
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        602.556,
+        443.403,
+        615.605,
+        453.623
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55067.topo.json",
+      "byteSize": 48654
+    },
+    {
+      "countyFips": "55069",
+      "resultReportingUnitCount": 56,
+      "matchedReportingUnitCount": 56,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 56,
+      "matchedGeometryFeatureCount": 56,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6306,
+        "trumpVotes": 10633,
+        "otherVotes": 270,
+        "totalVotes": 17209
+      },
+      "matchedVotes": {
+        "harrisVotes": 6306,
+        "trumpVotes": 10633,
+        "otherVotes": 270,
+        "totalVotes": 17209
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        592.608,
+        444.587,
+        603.084,
+        455.088
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55069.topo.json",
+      "byteSize": 1716649
+    },
+    {
+      "countyFips": "55071",
+      "resultReportingUnitCount": 86,
+      "matchedReportingUnitCount": 86,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 89,
+      "matchedGeometryFeatureCount": 86,
+      "unmatchedGeometryFeatureCount": 3,
+      "resultVotes": {
+        "harrisVotes": 17399,
+        "trumpVotes": 28200,
+        "otherVotes": 717,
+        "totalVotes": 46316
+      },
+      "matchedVotes": {
+        "harrisVotes": 17399,
+        "trumpVotes": 28200,
+        "otherVotes": 717,
+        "totalVotes": 46316
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        626.804,
+        419.083,
+        635.523,
+        429.665
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55071.topo.json",
+      "byteSize": 127897
+    },
+    {
+      "countyFips": "55073",
+      "resultReportingUnitCount": 161,
+      "matchedReportingUnitCount": 161,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 165,
+      "matchedGeometryFeatureCount": 161,
+      "unmatchedGeometryFeatureCount": 4,
+      "resultVotes": {
+        "harrisVotes": 31529,
+        "trumpVotes": 46213,
+        "otherVotes": 1084,
+        "totalVotes": 78826
+      },
+      "matchedVotes": {
+        "harrisVotes": 31529,
+        "trumpVotes": 46213,
+        "otherVotes": 1084,
+        "totalVotes": 78826
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        589.009,
+        434.451,
+        607.019,
+        445.427
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55073.topo.json",
+      "byteSize": 211930
+    },
+    {
+      "countyFips": "55075",
+      "resultReportingUnitCount": 65,
+      "matchedReportingUnitCount": 65,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 65,
+      "matchedGeometryFeatureCount": 65,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7415,
+        "trumpVotes": 16670,
+        "otherVotes": 330,
+        "totalVotes": 24415
+      },
+      "matchedVotes": {
+        "harrisVotes": 7415,
+        "trumpVotes": 16670,
+        "otherVotes": 330,
+        "totalVotes": 24415
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        617.954,
+        443.82,
+        634.076,
+        462.266
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55075.topo.json",
+      "byteSize": 136552
+    },
+    {
+      "countyFips": "55077",
+      "resultReportingUnitCount": 37,
+      "matchedReportingUnitCount": 37,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 37,
+      "matchedGeometryFeatureCount": 37,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3252,
+        "trumpVotes": 6041,
+        "otherVotes": 134,
+        "totalVotes": 9427
+      },
+      "matchedVotes": {
+        "harrisVotes": 3252,
+        "trumpVotes": 6041,
+        "otherVotes": 134,
+        "totalVotes": 9427
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        602.08,
+        411.505,
+        609.419,
+        419.731
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55077.topo.json",
+      "byteSize": 106077
+    },
+    {
+      "countyFips": "55078",
+      "resultReportingUnitCount": 5,
+      "matchedReportingUnitCount": 5,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 5,
+      "matchedGeometryFeatureCount": 5,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1266,
+        "trumpVotes": 296,
+        "otherVotes": 10,
+        "totalVotes": 1572
+      },
+      "matchedVotes": {
+        "harrisVotes": 1266,
+        "trumpVotes": 296,
+        "otherVotes": 10,
+        "totalVotes": 1572
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        610.166,
+        440.063,
+        618.5,
+        446.278
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55078.topo.json",
+      "byteSize": 26804
+    },
+    {
+      "countyFips": "55079",
+      "resultReportingUnitCount": 604,
+      "matchedReportingUnitCount": 604,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 605,
+      "matchedGeometryFeatureCount": 604,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 316292,
+        "trumpVotes": 138022,
+        "otherVotes": 9793,
+        "totalVotes": 464107
+      },
+      "matchedVotes": {
+        "harrisVotes": 316292,
+        "trumpVotes": 138022,
+        "otherVotes": 9793,
+        "totalVotes": 464107
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        628.473,
+        395.224,
+        633.079,
+        403.398
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55079.topo.json",
+      "byteSize": 647064
+    },
+    {
+      "countyFips": "55081",
+      "resultReportingUnitCount": 82,
+      "matchedReportingUnitCount": 82,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 85,
+      "matchedGeometryFeatureCount": 82,
+      "unmatchedGeometryFeatureCount": 3,
+      "resultVotes": {
+        "harrisVotes": 8476,
+        "trumpVotes": 14563,
+        "otherVotes": 330,
+        "totalVotes": 23369
+      },
+      "matchedVotes": {
+        "harrisVotes": 8476,
+        "trumpVotes": 14563,
+        "otherVotes": 330,
+        "totalVotes": 23369
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        579.488,
+        412.095,
+        590.827,
+        422.436
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55081.topo.json",
+      "byteSize": 281755
+    },
+    {
+      "countyFips": "55083",
+      "resultReportingUnitCount": 66,
+      "matchedReportingUnitCount": 66,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 68,
+      "matchedGeometryFeatureCount": 66,
+      "unmatchedGeometryFeatureCount": 2,
+      "resultVotes": {
+        "harrisVotes": 6967,
+        "trumpVotes": 17675,
+        "otherVotes": 270,
+        "totalVotes": 24912
+      },
+      "matchedVotes": {
+        "harrisVotes": 6967,
+        "trumpVotes": 17675,
+        "otherVotes": 270,
+        "totalVotes": 24912
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        614.561,
+        436.534,
+        629.917,
+        452.338
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55083.topo.json",
+      "byteSize": 123443
+    },
+    {
+      "countyFips": "55085",
+      "resultReportingUnitCount": 64,
+      "matchedReportingUnitCount": 64,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 64,
+      "matchedGeometryFeatureCount": 64,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10080,
+        "trumpVotes": 14455,
+        "otherVotes": 360,
+        "totalVotes": 24895
+      },
+      "matchedVotes": {
+        "harrisVotes": 10080,
+        "trumpVotes": 14455,
+        "otherVotes": 360,
+        "totalVotes": 24895
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        592.128,
+        453.098,
+        608.564,
+        463.208
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55085.topo.json",
+      "byteSize": 252264
+    },
+    {
+      "countyFips": "55087",
+      "resultReportingUnitCount": 199,
+      "matchedReportingUnitCount": 199,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 204,
+      "matchedGeometryFeatureCount": 199,
+      "unmatchedGeometryFeatureCount": 5,
+      "resultVotes": {
+        "harrisVotes": 49438,
+        "trumpVotes": 60827,
+        "otherVotes": 1667,
+        "totalVotes": 111932
+      },
+      "matchedVotes": {
+        "harrisVotes": 49438,
+        "trumpVotes": 60827,
+        "otherVotes": 1667,
+        "totalVotes": 111932
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        614.994,
+        426.156,
+        624.39,
+        434.649
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55087.topo.json",
+      "byteSize": 226844
+    },
+    {
+      "countyFips": "55089",
+      "resultReportingUnitCount": 98,
+      "matchedReportingUnitCount": 98,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 99,
+      "matchedGeometryFeatureCount": 98,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 27874,
+        "trumpVotes": 34504,
+        "otherVotes": 1094,
+        "totalVotes": 63472
+      },
+      "matchedVotes": {
+        "harrisVotes": 27874,
+        "trumpVotes": 34504,
+        "otherVotes": 1094,
+        "totalVotes": 63472
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        628.155,
+        403.163,
+        632.338,
+        411.514
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55089.topo.json",
+      "byteSize": 155765
+    },
+    {
+      "countyFips": "55091",
+      "resultReportingUnitCount": 21,
+      "matchedReportingUnitCount": 21,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 21,
+      "matchedGeometryFeatureCount": 21,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 1523,
+        "trumpVotes": 2798,
+        "otherVotes": 33,
+        "totalVotes": 4354
+      },
+      "matchedVotes": {
+        "harrisVotes": 1523,
+        "trumpVotes": 2798,
+        "otherVotes": 33,
+        "totalVotes": 4354
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        557.436,
+        426.701,
+        568.111,
+        433.283
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55091.topo.json",
+      "byteSize": 35903
+    },
+    {
+      "countyFips": "55093",
+      "resultReportingUnitCount": 59,
+      "matchedReportingUnitCount": 59,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 59,
+      "matchedGeometryFeatureCount": 59,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 10171,
+        "trumpVotes": 14417,
+        "otherVotes": 804,
+        "totalVotes": 25392
+      },
+      "matchedVotes": {
+        "harrisVotes": 10171,
+        "trumpVotes": 14417,
+        "otherVotes": 804,
+        "totalVotes": 25392
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        549.339,
+        429.577,
+        560.352,
+        436.902
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55093.topo.json",
+      "byteSize": 89995
+    },
+    {
+      "countyFips": "55095",
+      "resultReportingUnitCount": 70,
+      "matchedReportingUnitCount": 70,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 70,
+      "matchedGeometryFeatureCount": 70,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 9567,
+        "trumpVotes": 18296,
+        "otherVotes": 359,
+        "totalVotes": 28222
+      },
+      "matchedVotes": {
+        "harrisVotes": 9567,
+        "trumpVotes": 18296,
+        "otherVotes": 359,
+        "totalVotes": 28222
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        547.379,
+        444.515,
+        559.396,
+        456.575
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55095.topo.json",
+      "byteSize": 138774
+    },
+    {
+      "countyFips": "55097",
+      "resultReportingUnitCount": 100,
+      "matchedReportingUnitCount": 100,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 100,
+      "matchedGeometryFeatureCount": 100,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 21503,
+        "trumpVotes": 20987,
+        "otherVotes": 768,
+        "totalVotes": 43258
+      },
+      "matchedVotes": {
+        "harrisVotes": 21503,
+        "trumpVotes": 20987,
+        "otherVotes": 768,
+        "totalVotes": 43258
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        597.036,
+        425.118,
+        607.711,
+        435.517
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55097.topo.json",
+      "byteSize": 166459
+    },
+    {
+      "countyFips": "55099",
+      "resultReportingUnitCount": 38,
+      "matchedReportingUnitCount": 38,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 38,
+      "matchedGeometryFeatureCount": 38,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3005,
+        "trumpVotes": 5763,
+        "otherVotes": 88,
+        "totalVotes": 8856
+      },
+      "matchedVotes": {
+        "harrisVotes": 3005,
+        "trumpVotes": 5763,
+        "otherVotes": 88,
+        "totalVotes": 8856
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        582.017,
+        449.827,
+        592.876,
+        464.112
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55099.topo.json",
+      "byteSize": 129235
+    },
+    {
+      "countyFips": "55101",
+      "resultReportingUnitCount": 198,
+      "matchedReportingUnitCount": 198,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 198,
+      "matchedGeometryFeatureCount": 198,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 49721,
+        "trumpVotes": 56347,
+        "otherVotes": 1618,
+        "totalVotes": 107686
+      },
+      "matchedVotes": {
+        "harrisVotes": 49721,
+        "trumpVotes": 56347,
+        "otherVotes": 1618,
+        "totalVotes": 107686
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        625.133,
+        389.612,
+        634.302,
+        395.54
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55101.topo.json",
+      "byteSize": 203054
+    },
+    {
+      "countyFips": "55103",
+      "resultReportingUnitCount": 47,
+      "matchedReportingUnitCount": 47,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 49,
+      "matchedGeometryFeatureCount": 47,
+      "unmatchedGeometryFeatureCount": 2,
+      "resultVotes": {
+        "harrisVotes": 3985,
+        "trumpVotes": 5207,
+        "otherVotes": 131,
+        "totalVotes": 9323
+      },
+      "matchedVotes": {
+        "harrisVotes": 3985,
+        "trumpVotes": 5207,
+        "otherVotes": 131,
+        "totalVotes": 9323
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        585.196,
+        399.703,
+        593.564,
+        408.891
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55103.topo.json",
+      "byteSize": 62368
+    },
+    {
+      "countyFips": "55105",
+      "resultReportingUnitCount": 166,
+      "matchedReportingUnitCount": 166,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 178,
+      "matchedGeometryFeatureCount": 166,
+      "unmatchedGeometryFeatureCount": 12,
+      "resultVotes": {
+        "harrisVotes": 46642,
+        "trumpVotes": 40218,
+        "otherVotes": 1450,
+        "totalVotes": 88310
+      },
+      "matchedVotes": {
+        "harrisVotes": 46642,
+        "trumpVotes": 40218,
+        "otherVotes": 1450,
+        "totalVotes": 88310
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        607.6,
+        385.767,
+        617.986,
+        394.278
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55105.topo.json",
+      "byteSize": 299086
+    },
+    {
+      "countyFips": "55107",
+      "resultReportingUnitCount": 68,
+      "matchedReportingUnitCount": 68,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 68,
+      "matchedGeometryFeatureCount": 68,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2516,
+        "trumpVotes": 5660,
+        "otherVotes": 94,
+        "totalVotes": 8270
+      },
+      "matchedVotes": {
+        "harrisVotes": 2516,
+        "trumpVotes": 5660,
+        "otherVotes": 94,
+        "totalVotes": 8270
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        568.773,
+        447.173,
+        582.757,
+        455.724
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55107.topo.json",
+      "byteSize": 100244
+    },
+    {
+      "countyFips": "55109",
+      "resultReportingUnitCount": 131,
+      "matchedReportingUnitCount": 131,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 131,
+      "matchedGeometryFeatureCount": 131,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 23870,
+        "trumpVotes": 35537,
+        "otherVotes": 1235,
+        "totalVotes": 60642
+      },
+      "matchedVotes": {
+        "harrisVotes": 23870,
+        "trumpVotes": 35537,
+        "otherVotes": 1235,
+        "totalVotes": 60642
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        549.186,
+        436.618,
+        560.042,
+        444.872
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55109.topo.json",
+      "byteSize": 215663
+    },
+    {
+      "countyFips": "55111",
+      "resultReportingUnitCount": 115,
+      "matchedReportingUnitCount": 115,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 121,
+      "matchedGeometryFeatureCount": 115,
+      "unmatchedGeometryFeatureCount": 6,
+      "resultVotes": {
+        "harrisVotes": 18172,
+        "trumpVotes": 18798,
+        "otherVotes": 614,
+        "totalVotes": 37584
+      },
+      "matchedVotes": {
+        "harrisVotes": 18172,
+        "trumpVotes": 18798,
+        "otherVotes": 614,
+        "totalVotes": 37584
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        590.943,
+        399.702,
+        602.958,
+        411.267
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55111.topo.json",
+      "byteSize": 165192
+    },
+    {
+      "countyFips": "55113",
+      "resultReportingUnitCount": 41,
+      "matchedReportingUnitCount": 41,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 41,
+      "matchedGeometryFeatureCount": 41,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 4599,
+        "trumpVotes": 6422,
+        "otherVotes": 119,
+        "totalVotes": 11140
+      },
+      "matchedVotes": {
+        "harrisVotes": 4599,
+        "trumpVotes": 6422,
+        "otherVotes": 119,
+        "totalVotes": 11140
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        568.047,
+        455.007,
+        582.423,
+        467.197
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55113.topo.json",
+      "byteSize": 79926
+    },
+    {
+      "countyFips": "55115",
+      "resultReportingUnitCount": 76,
+      "matchedReportingUnitCount": 76,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 76,
+      "matchedGeometryFeatureCount": 76,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7336,
+        "trumpVotes": 15850,
+        "otherVotes": 314,
+        "totalVotes": 23500
+      },
+      "matchedVotes": {
+        "harrisVotes": 7336,
+        "trumpVotes": 15850,
+        "otherVotes": 314,
+        "totalVotes": 23500
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        606.454,
+        434.199,
+        622.907,
+        443.675
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55115.topo.json",
+      "byteSize": 182115
+    },
+    {
+      "countyFips": "55117",
+      "resultReportingUnitCount": 120,
+      "matchedReportingUnitCount": 120,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 121,
+      "matchedGeometryFeatureCount": 120,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 27735,
+        "trumpVotes": 38763,
+        "otherVotes": 1064,
+        "totalVotes": 67562
+      },
+      "matchedVotes": {
+        "harrisVotes": 27735,
+        "trumpVotes": 38763,
+        "otherVotes": 1064,
+        "totalVotes": 67562
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        625.537,
+        411.002,
+        633.442,
+        419.53
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55117.topo.json",
+      "byteSize": 299562
+    },
+    {
+      "countyFips": "55119",
+      "resultReportingUnitCount": 39,
+      "matchedReportingUnitCount": 39,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 39,
+      "matchedGeometryFeatureCount": 39,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 2823,
+        "trumpVotes": 8209,
+        "otherVotes": 154,
+        "totalVotes": 11186
+      },
+      "matchedVotes": {
+        "harrisVotes": 2823,
+        "trumpVotes": 8209,
+        "otherVotes": 154,
+        "totalVotes": 11186
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        578.833,
+        441.75,
+        593.221,
+        450.518
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55119.topo.json",
+      "byteSize": 51961
+    },
+    {
+      "countyFips": "55121",
+      "resultReportingUnitCount": 55,
+      "matchedReportingUnitCount": 55,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 55,
+      "matchedGeometryFeatureCount": 55,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6219,
+        "trumpVotes": 9661,
+        "otherVotes": 199,
+        "totalVotes": 16079
+      },
+      "matchedVotes": {
+        "harrisVotes": 6219,
+        "trumpVotes": 9661,
+        "otherVotes": 199,
+        "totalVotes": 16079
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        569.156,
+        417.559,
+        576.733,
+        431.693
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55121.topo.json",
+      "byteSize": 145424
+    },
+    {
+      "countyFips": "55123",
+      "resultReportingUnitCount": 63,
+      "matchedReportingUnitCount": 63,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 63,
+      "matchedGeometryFeatureCount": 63,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 7514,
+        "trumpVotes": 8807,
+        "otherVotes": 288,
+        "totalVotes": 16609
+      },
+      "matchedVotes": {
+        "harrisVotes": 7514,
+        "trumpVotes": 8807,
+        "otherVotes": 288,
+        "totalVotes": 16609
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        575.232,
+        404.951,
+        591.087,
+        412.786
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55123.topo.json",
+      "byteSize": 99290
+    },
+    {
+      "countyFips": "55125",
+      "resultReportingUnitCount": 44,
+      "matchedReportingUnitCount": 44,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 44,
+      "matchedGeometryFeatureCount": 44,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 6119,
+        "trumpVotes": 9837,
+        "otherVotes": 179,
+        "totalVotes": 16135
+      },
+      "matchedVotes": {
+        "harrisVotes": 6119,
+        "trumpVotes": 9837,
+        "otherVotes": 179,
+        "totalVotes": 16135
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        592.014,
+        462.136,
+        609.49,
+        471.398
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55125.topo.json",
+      "byteSize": 212291
+    },
+    {
+      "countyFips": "55127",
+      "resultReportingUnitCount": 152,
+      "matchedReportingUnitCount": 152,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 154,
+      "matchedGeometryFeatureCount": 152,
+      "unmatchedGeometryFeatureCount": 2,
+      "resultVotes": {
+        "harrisVotes": 23161,
+        "trumpVotes": 36603,
+        "otherVotes": 833,
+        "totalVotes": 60597
+      },
+      "matchedVotes": {
+        "harrisVotes": 23161,
+        "trumpVotes": 36603,
+        "otherVotes": 833,
+        "totalVotes": 60597
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        617.37,
+        386.294,
+        625.802,
+        394.876
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55127.topo.json",
+      "byteSize": 241342
+    },
+    {
+      "countyFips": "55129",
+      "resultReportingUnitCount": 37,
+      "matchedReportingUnitCount": 37,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 37,
+      "matchedGeometryFeatureCount": 37,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 3867,
+        "trumpVotes": 6962,
+        "otherVotes": 149,
+        "totalVotes": 10978
+      },
+      "matchedVotes": {
+        "harrisVotes": 3867,
+        "trumpVotes": 6962,
+        "otherVotes": 149,
+        "totalVotes": 10978
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        560.207,
+        454.713,
+        568.772,
+        466.768
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55129.topo.json",
+      "byteSize": 68441
+    },
+    {
+      "countyFips": "55131",
+      "resultReportingUnitCount": 152,
+      "matchedReportingUnitCount": 152,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 169,
+      "matchedGeometryFeatureCount": 152,
+      "unmatchedGeometryFeatureCount": 17,
+      "resultVotes": {
+        "harrisVotes": 28504,
+        "trumpVotes": 61604,
+        "otherVotes": 1299,
+        "totalVotes": 91407
+      },
+      "matchedVotes": {
+        "harrisVotes": 28504,
+        "trumpVotes": 61604,
+        "otherVotes": 1299,
+        "totalVotes": 91407
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        622.304,
+        402.744,
+        628.521,
+        411.152
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55131.topo.json",
+      "byteSize": 223161
+    },
+    {
+      "countyFips": "55133",
+      "resultReportingUnitCount": 376,
+      "matchedReportingUnitCount": 376,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 379,
+      "matchedGeometryFeatureCount": 376,
+      "unmatchedGeometryFeatureCount": 3,
+      "resultVotes": {
+        "harrisVotes": 108478,
+        "trumpVotes": 162768,
+        "otherVotes": 4541,
+        "totalVotes": 275787
+      },
+      "matchedVotes": {
+        "harrisVotes": 108478,
+        "trumpVotes": 162768,
+        "otherVotes": 4541,
+        "totalVotes": 275787
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        620.716,
+        394.586,
+        629.028,
+        403.163
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55133.topo.json",
+      "byteSize": 704636
+    },
+    {
+      "countyFips": "55135",
+      "resultReportingUnitCount": 96,
+      "matchedReportingUnitCount": 96,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 98,
+      "matchedGeometryFeatureCount": 96,
+      "unmatchedGeometryFeatureCount": 2,
+      "resultVotes": {
+        "harrisVotes": 9947,
+        "trumpVotes": 20093,
+        "otherVotes": 363,
+        "totalVotes": 30403
+      },
+      "matchedVotes": {
+        "harrisVotes": 9947,
+        "trumpVotes": 20093,
+        "otherVotes": 363,
+        "totalVotes": 30403
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        607.018,
+        425.578,
+        617.095,
+        436.189
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55135.topo.json",
+      "byteSize": 165164
+    },
+    {
+      "countyFips": "55137",
+      "resultReportingUnitCount": 45,
+      "matchedReportingUnitCount": 45,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 46,
+      "matchedGeometryFeatureCount": 45,
+      "unmatchedGeometryFeatureCount": 1,
+      "resultVotes": {
+        "harrisVotes": 4571,
+        "trumpVotes": 9625,
+        "otherVotes": 167,
+        "totalVotes": 14363
+      },
+      "matchedVotes": {
+        "harrisVotes": 4571,
+        "trumpVotes": 9625,
+        "otherVotes": 167,
+        "totalVotes": 14363
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        601.676,
+        419.224,
+        613.626,
+        425.96
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55137.topo.json",
+      "byteSize": 76440
+    },
+    {
+      "countyFips": "55139",
+      "resultReportingUnitCount": 147,
+      "matchedReportingUnitCount": 147,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 157,
+      "matchedGeometryFeatureCount": 147,
+      "unmatchedGeometryFeatureCount": 10,
+      "resultVotes": {
+        "harrisVotes": 44660,
+        "trumpVotes": 49179,
+        "otherVotes": 1532,
+        "totalVotes": 95371
+      },
+      "matchedVotes": {
+        "harrisVotes": 44660,
+        "trumpVotes": 49179,
+        "otherVotes": 1532,
+        "totalVotes": 95371
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        613.175,
+        418.073,
+        621.029,
+        426.598
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55139.topo.json",
+      "byteSize": 397245
+    },
+    {
+      "countyFips": "55141",
+      "resultReportingUnitCount": 112,
+      "matchedReportingUnitCount": 112,
+      "unmatchedReportingUnitCount": 0,
+      "geometryFeatureCount": 112,
+      "matchedGeometryFeatureCount": 112,
+      "unmatchedGeometryFeatureCount": 0,
+      "resultVotes": {
+        "harrisVotes": 16599,
+        "trumpVotes": 24997,
+        "otherVotes": 620,
+        "totalVotes": 42216
+      },
+      "matchedVotes": {
+        "harrisVotes": 16599,
+        "trumpVotes": 24997,
+        "otherVotes": 620,
+        "totalVotes": 42216
+      },
+      "resultVoteCoveragePct": 100,
+      "bounds": [
+        589.463,
+        424.539,
+        599.621,
+        434.916
+      ],
+      "dataUrl": "./data/wi/2024/precincts/55141.topo.json",
+      "byteSize": 138429
+    }
+  ]
+}

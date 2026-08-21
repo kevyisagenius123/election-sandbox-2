@@ -21,7 +21,7 @@ export interface InspectorVotes {
 
 export interface GeographyInspectorModel {
   kind: "county" | "precinct";
-  geographyLabel: "County" | "Precinct" | "VTD";
+  geographyLabel: "County" | "Precinct" | "VTD" | "Ward";
   id: string;
   name: string;
   context: string;

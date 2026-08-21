@@ -25,3 +25,16 @@
 - **Crosswalk exceptions:** Stable `PRECINCTID` resolves three reviewed jurisdiction-name defects. Shared 2020 VTD counts are split by official 2024 registered-voter weights.
 - **Electoral allocation:** 15 winner-take-all electoral votes in the current 2024 contract.
 - **Known limitations:** Central-count votes remain off terrain; the weighted demographic split is a documented modeling allocation rather than a Census precinct tabulation.
+
+## Wisconsin
+
+- **Reporting model:** 6,946 result-bearing rows from the Wisconsin Legislative Technology Services Bureau's 2024 election layer reconstructed onto January 2025 wards.
+- **Known unmatched result units:** None. All 6,946 result-bearing rows have stable LTSB GEOIDs and map to terrain.
+- **Known unmatched geometry:** 140 of 7,086 ward polygons have no assigned election result and remain explicit neutral geometry.
+- **Non-geographic or central-count treatment:** None. All 3,422,918 statewide ballots are included in the LTSB ward reconstruction and reconcile exactly at county and state level.
+- **Statistical corrections:** LTSB disaggregated Wisconsin Elections Commission reporting-unit returns to Census blocks by population and reaggregated them to 2025 wards. Sandbox performs no additional vote allocation.
+- **Geometry vintage:** January 2025 ward boundaries used with reconstructed 2024 election values.
+- **Behavior denominator:** LTSB `PERSONS18`, an estimate produced from 2020 Census P.L. 94-171 population aggregated to 2025 wards. Of 7,086 polygons, 6,785 are turnout-ready, 161 are capped because ballots exceed the older denominator, and 140 have no mapped result.
+- **Crosswalk exceptions:** None. Election values, geometry, and denominator are fields of the same official LTSB features and share an exact 14-character GEOID.
+- **Electoral allocation:** 10 winner-take-all electoral votes in the current 2024 contract.
+- **Known limitations:** Ward values are population-disaggregated official reconstructions, not certified raw ward returns. The geometry postdates the election and the demographic denominator predates it.

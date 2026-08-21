@@ -14,6 +14,8 @@
 | MI 2024 precinct geometry | State of Michigan Bureau of Elections GIS | Yes | Source manifest records `licenseStatus: verified`; retain source metadata | Michigan GIS attribution and metadata URL | Yes, simplified TopoJSON | Approved with attribution |
 | MI 2020 P.L. 94-171 P4 | U.S. Census Bureau | Yes | U.S. Census public data | Census table, archive, and limitations | Yes, direct and weighted bridges | Approved with attribution |
 | MI election-to-geometry crosswalk | Derived from Michigan results and official geometry | Yes | Source-dependent derived artifact | Both upstream sources documented | Yes | **Excluded from external alpha while MI result artifact is excluded** |
+| WI 2024 election values and 2025 ward geometry | Wisconsin Legislative Technology Services Bureau | Yes, private research repository | ArcGIS item states that the dataset is open and publicly available | LTSB item, service, methodology, and limitations | Yes, normalized and simplified | Approved with attribution and reconstruction disclosure |
+| WI 2020 PERSONS18 denominator | Wisconsin Legislative Technology Services Bureau | Yes, private research repository | Included in the same explicitly open/public LTSB item | LTSB item and 2020 Census-derived estimate disclosure | Yes, compact runtime rows | Approved with attribution and vintage disclosure |
 
 ## Release decision
 
@@ -24,3 +26,5 @@ The Pennsylvania review used the Department of State's historical election-data 
 `docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records the full current exposure. The result totals are embedded across 156 runtime files under `public/data/pa` and `public/data/mi`, both bundled county summaries, and repository-only crosswalk and registry records. Partial removal of `reporting-units.json` would not contain the existing public delivery.
 
 Checksums, provenance, and limitations remain mandatory regardless of redistribution status.
+
+Wisconsin is independently approved through the direct LTSB source statement and does not change the unresolved Pennsylvania or Michigan decisions. The LTSB ward values must be described as population-disaggregated reconstructions, not raw certified ward returns.

@@ -83,6 +83,33 @@ const ledgers: Record<DetailedStateCode, StateEvidenceLedger> = {
     denominator: "2020 VAP bridged to 2024 precincts; weighted splits are documented allocations, not official precinct demographics.",
     methodologyUrl: "https://github.com/kevyisagenius123/election-sandbox-2/blob/main/docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md",
   },
+  WI: {
+    stateCode: "WI",
+    stateName: "Wisconsin",
+    election: {
+      publisher: "Wisconsin Legislative Technology Services Bureau",
+      title: "2024 Election Data with 2025 Wards",
+      sourceUrl: "https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e",
+      retrievedAt: "2026-08-20",
+      artifactVersion: "wi-ltsb-ward-row-v1",
+    },
+    geography: {
+      label: "January 2025 municipal wards",
+      contract: "Official LTSB ward geometry with population-disaggregated 2024 election data",
+      method: "One stable LTSB GEOID per ward; no crosswalk or approximate matching",
+    },
+    coverage: {
+      mappedUnits: 6946,
+      totalUnits: 7086,
+      mappedBallots: 3422918,
+      certifiedBallots: 3422918,
+      unmatchedUnits: 140,
+      offMapBallots: 0,
+    },
+    treatment: "All certified statewide and county votes are carried by LTSB's reconstructed ward layer. The 140 geometry-only wards have no election row, remain neutral, and receive no modeled turnout capacity.",
+    denominator: "LTSB estimate of 2020 population age 18 and over aggregated to 2025 wards; not CVAP or a 2024 eligibility estimate.",
+    methodologyUrl: "https://github.com/kevyisagenius123/election-sandbox-2/blob/main/docs/decisions/0026-wisconsin-ltsb-admission.md",
+  },
 };
 
 export function getStateEvidenceLedger(code: DetailedStateCode) {
@@ -106,10 +133,10 @@ export const nationalCoverageRows = [
   },
   {
     state: "Wisconsin",
-    electoralModel: "Certified arithmetic",
-    detailedGeography: "None",
-    geometryContract: "Unsupported",
-    coverage: "—",
+    electoralModel: "Certified",
+    detailedGeography: "Detailed",
+    geometryContract: "LTSB 2025 reconstructed wards",
+    coverage: "6,946 / 7,086 wards",
   },
   {
     state: "Other 48 jurisdictions",

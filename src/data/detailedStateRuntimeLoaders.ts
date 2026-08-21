@@ -9,6 +9,10 @@ import {
   decodePennsylvaniaDemographicFoundation,
   toBehaviorModelUnits as toPennsylvaniaBehaviorModelUnits,
 } from "./paDemographics.ts";
+import {
+  decodeWisconsinWardFoundation,
+  toWisconsinBehaviorModelUnits,
+} from "./wiWards.ts";
 
 interface DetailedStateRuntimeAdapter {
   decode(value: unknown): DetailedStateFoundation;
@@ -32,6 +36,15 @@ const adapters = {
         throw new Error("Pennsylvania runtime adapter received another state's foundation");
       }
       return toPennsylvaniaBehaviorModelUnits(foundation);
+    },
+  },
+  "wi-ward-row-v1": {
+    decode: decodeWisconsinWardFoundation,
+    toBehaviorModelUnits(foundation) {
+      if (foundation.stateCode !== "WI") {
+        throw new Error("Wisconsin runtime adapter received another state's foundation");
+      }
+      return toWisconsinBehaviorModelUnits(foundation);
     },
   },
 } satisfies Record<DetailedStateRuntimeLoader, DetailedStateRuntimeAdapter>;

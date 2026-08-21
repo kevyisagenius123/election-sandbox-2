@@ -1,9 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 import { resolve } from "node:path";
 
-const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-v1";
+const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1";
 const ENGINE_VERSION = "pa-behavior-v1";
 const screenshotDirectory = resolve(import.meta.dirname, "../../docs/review/v0.19.1-supervisor-review/screenshots");
+
+test.skip(!process.env.SANDBOX_CAPTURE_V0191_REVIEW, "Historical v0.19.1 evidence is captured only from its frozen tag");
 
 function scenarioPath(options: { state?: "MI" | "PA"; preference?: number; plan?: string } = {}) {
   const state = options.state ?? "PA";

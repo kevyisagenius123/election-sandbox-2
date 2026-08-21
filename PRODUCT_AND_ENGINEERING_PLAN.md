@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.19.1 Alpha Comprehension and Trust Corrections
+**Status:** v0.20 Wisconsin Detailed-State Foundation
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -32,9 +32,13 @@ The unchanged eight-persona synthetic rerun is recorded in `SYNTHETIC_ALPHA_RERU
 
 The product is now frozen as `v0.19.1-supervisor-review`. `SUPERVISOR_REVIEW.md` defines the exact review tasks, evidence, limitations, redistribution hold, and three permitted verdicts. A fresh-context blind pass was attempted on 2026-08-20, but three isolated contexts failed at the evaluator browser boundary before navigation. The owner then designated Codex as AI supervisor. The exact-tag technical walkthrough completed all seven tasks and three adversarial questions with no P0-P3 product finding. It is AI evidence, not human or genuinely unfamiliar evidence. The candidate's own 48 model checks, 34 bounded browser checks, lint, build, screenshots, and PA profile remain green.
 
-The supervisor issued **HOLD** without ordering a product correction. Gate B subsequently passed through the owner-authorized AI technical-supervisor review. Gate A still requires a supported participant-delivery disposition for both PA and MI and independently keeps the project on HOLD. `docs/review/v0.19.1-supervisor-review/SUPERVISOR_VERDICT.md` is authoritative. No feature work, State #3 admission, backend, or interface expansion is authorized while the hold remains.
+The supervisor issued **HOLD** without ordering a product correction. Gate B subsequently passed through the owner-authorized AI technical-supervisor review. Gate A still requires a supported participant-delivery disposition for both PA and MI and blocks external participant, public full-product, and paid delivery. `docs/review/v0.19.1-supervisor-review/SUPERVISOR_VERDICT.md` remains authoritative for that frozen candidate.
 
-Version 0.19B is authorized to enter human testing and is operationally specified in `docs/research/HUMAN_ALPHA_PROTOCOL.md`, with a standard session record, confidence-before-explanation measure, fixed `HUMAN_ALPHA_REPORT.md` shell, and explicit readiness gate. The v0.19.1 participant build is frozen through Session 1. It requires at least three genuinely new human participants, preferably five to ten across mixed mental models. Participant invitations remain blocked because the current Pennsylvania and Michigan result artifacts are excluded from external alpha delivery pending permission, applicable legal basis, or an approved replacement. No human evidence has yet been collected, and the product remains v0.19.1 until those sessions produce and close findings.
+Version 0.19B remains operationally specified in `docs/research/HUMAN_ALPHA_PROTOCOL.md`, but the owner has deferred it until the assembled product can receive end-to-end human testing. Decision 0027 permits private internal development in small state batches without treating human validation as passed. PA/MI delivery remains blocked, and public or paid detailed-state release remains prohibited.
+
+Version 0.20 admits Wisconsin as the third detailed state. The official LTSB layer supplies 72 county totals, 7,086 January 2025 ward polygons, a 2020 Census-derived `PERSONS18` denominator, and 6,946 result-bearing local rows. All 3,422,918 statewide ballots reconcile. The ward values are explicitly disclosed as LTSB population-disaggregated reconstructions, not raw certified ward returns. Wisconsin reuses the manifest-driven worker, 3D drilldown, contribution, inspector, portfolio, route, and deterministic URL architecture.
+
+The v0.20 release gate passes 52 model checks, 38 current browser journeys, three Wisconsin visual references, lint, build, and a 35-cycle PA/MI/WI controlled profile. The final profile measured 2.37% retained-heap growth, a 41,238-byte per-cycle slope, and 24.11-second whole-cycle p95. The next expansion starts with admission research for Arizona and Georgia; coding begins only for states whose independent source and delivery contracts pass.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 
@@ -904,9 +908,9 @@ Pennsylvania is the first end-to-end pilot. It provides competitive statewide po
 
 ### Milestone 4: Multi-state scenario portfolio and Path to 270 private alpha
 
-Pennsylvania and Michigan establish the first persistent multi-state scenario. Arizona, Georgia, Wisconsin, and later states extend the same architecture only after the portfolio foundation is proven.
+Pennsylvania and Michigan established the first persistent multi-state scenario. Wisconsin is the first controlled expansion through the proven architecture. Arizona, Georgia, and later states follow only in small audited batches.
 
-**Implementation status:** v0.14 Portfolio foundation, v0.15 Consequence ledger, v0.16 Route engine, v0.17 Geographic route construction, and v0.18 Private-alpha hardening are complete.
+**Implementation status:** v0.14 Portfolio foundation, v0.15 Consequence ledger, v0.16 Route engine, v0.17 Geographic route construction, v0.18 Private-alpha hardening, v0.19.1 comprehension corrections, and the v0.20 Wisconsin admission are complete or in final verification.
 
 The milestone is released in four bounded increments:
 
@@ -915,10 +919,11 @@ The milestone is released in four bounded increments:
 - **v0.16 Route engine**: Actual, Modeled, and Required classifications; bounded deterministic route enumeration; selectable ranking metrics. Complete.
 - **v0.17 Geographic route construction**: selected routes persist, supported rows open detailed state labs, live gaps remain explicit, and only verified winner changes satisfy route contributions. Complete.
 - **v0.18 Private-alpha hardening**: deterministic lifecycle stress and hostile navigation, written resource and performance budgets, responsive and reduced-motion visual gates, state-admission exceptions, and redistribution inventory. Complete.
+- **v0.20 Wisconsin foundation**: open LTSB source admission, exact county and statewide reconciliation, reconstructed-ward disclosure, shared runtime integration, and three-state portfolio support.
 
 **Deliverables**
 
-- Pennsylvania and Michigan production-ready runtime integration.
+- Pennsylvania, Michigan, and Wisconsin production-ready runtime integration.
 - Compact authoritative per-state recipe portfolio and derived summary cache.
 - Persistent assumptions while switching states.
 - Lazy unloading and deterministic state rehydration.
@@ -933,7 +938,7 @@ The milestone is released in four bounded increments:
 
 **Exit criteria**
 
-- Pennsylvania and Michigan scenarios coexist without retaining both full foundations on the main thread.
+- Pennsylvania, Michigan, and Wisconsin scenarios coexist without retaining multiple full foundations on the main thread.
 - Leaving and reopening either state reproduces identical deterministic totals.
 - National popular-vote and EV totals contain no double counting and always equal the election-year allocation.
 - Every changed EV is attributable to a state recipe.

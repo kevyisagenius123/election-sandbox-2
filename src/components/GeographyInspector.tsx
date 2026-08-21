@@ -53,6 +53,8 @@ function matchLabel(model: GeographyInspectorModel) {
           ? "Exact official ward and precinct key"
           : model.coverage.resultMatchMethod === "unique_official_precinct_key"
             ? "Unique official precinct key"
+            : model.coverage.resultMatchMethod === "official_ltsb_population_disaggregation"
+              ? "Official LTSB population-disaggregated ward estimate"
             : "No matched 2024 return";
   const demographicMatch = model.coverage.demographicMatchMethod === "official_vtdst_bridge"
     ? "Direct official 2020 VTD bridge"
@@ -60,6 +62,8 @@ function matchLabel(model: GeographyInspectorModel) {
       ? "Registered-voter-weighted 2020 VTD split"
       : model.coverage.demographicMatchMethod === "unavailable"
         ? "Demographic bridge unavailable"
+        : model.coverage.demographicMatchMethod === "official_ltsb_2020_vap_estimate"
+          ? "LTSB 2020 VAP estimate for the 2025 ward"
         : null;
   return demographicMatch ? `${electionMatch} · ${demographicMatch}` : electionMatch;
 }
@@ -91,7 +95,7 @@ export function GeographyInspector({ model, onClearVtd }: GeographyInspectorProp
       <div className="inspector-section">
         <div className="inspector-section-title">
           <strong>Candidate ledger</strong>
-          <span>Certified → scenario</span>
+          <span>Baseline → scenario</span>
         </div>
         <div className="candidate-ledger">
           {candidateRows.map((candidate) => (
@@ -148,7 +152,7 @@ export function GeographyInspector({ model, onClearVtd }: GeographyInspectorProp
         )}
         <small>
           {model.kind === "county"
-            ? "Official county totals remain authoritative. VTD coverage describes only the ballots linked to audited terrain."
+            ? "Official county totals remain authoritative. Local-unit coverage describes only the ballots linked to audited terrain."
             : model.coverage.resultMatchMethod
               ? "Election returns are linked to this audited polygon through the documented state crosswalk."
               : "This polygon has no assigned 2024 return and remains neutral in result-based views."}

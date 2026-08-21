@@ -137,14 +137,6 @@ export async function loadDetailedPrecinctCounty(
   return loaded;
 }
 
-export function releaseDetailedPrecinctState(stateCode: string) {
-  const prefix = `${stateCode}:`;
-  for (const key of countyCache.keys()) {
-    if (key.startsWith(prefix)) countyCache.delete(key);
-  }
-  publishCacheDiagnostics();
-}
-
 export function detailedPrecinctCacheSize() {
   return countyCache.size;
 }

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-v1";
+const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1";
 const ENGINE_VERSION = "pa-behavior-v1";
 
 const canonicalScenario = new URLSearchParams({
@@ -135,7 +135,7 @@ test("Michigan direct, split, and unavailable precinct bridges replay honestly",
     const inspector = page.getByRole("region", { name: `Data inspector for ${item.name}` });
     await expect(inspector).toBeVisible();
     await expect(inspector).toContainText(item.evidence);
-    await expect(page.getByText(/of source-file votes map to these precinct reporting units/)).toBeVisible();
+    await expect(page.getByText(/of source-file votes map to these precincts/)).toBeVisible();
     await expect(page).toHaveURL(new RegExp(`vtd=${item.precinct}(?:&|$)`));
   }
 });

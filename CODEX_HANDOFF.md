@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.19.1`, Alpha Comprehension and Trust Corrections
+- Release: `0.20.0`, Wisconsin Detailed-State Foundation
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -35,7 +35,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 The full repository is private and the former full-product Pages URL returns 404. The separate `election-sandbox-demo` repository is a national-only public preview with no detailed PA/MI artifacts. The 2026-08-20 supervisor candidate has a fresh green verification record and six release screenshots under `docs/review/v0.19.1-supervisor-review/`. Its same-eight regression pass is complete. Its fresh blind-agent pass is not complete: three isolated contexts failed before navigation because the installed evaluator-browser integration rejected its own trusted path. Do not classify that infrastructure failure as a Sandbox P0 or as completed cognitive evidence. The owner later designated Codex as AI supervisor; that technical exact-tag review completed all tasks, captured seven additional screenshots, and found no P0-P3 product issue. It is not human or genuinely unfamiliar evidence.
 
-The supervisor's formal verdict is **HOLD**, recorded in `docs/review/v0.19.1-supervisor-review/SUPERVISOR_VERDICT.md`. No product correction is ordered. Gate B passed as an AI technical-supervisor walkthrough against the exact frozen tag; its completed record is `AI_SUPERVISOR_GATE_B_SESSION.md`. Gate A is the unresolved PA/MI participant-delivery basis and now independently sustains the HOLD. Do not move the tag, modify the candidate, begin human alpha, or admit State #3 while Gate A remains open.
+The supervisor's formal v0.19.1 verdict is **HOLD**, recorded in `docs/review/v0.19.1-supervisor-review/SUPERVISOR_VERDICT.md`. Gate B passed as an AI technical-supervisor walkthrough; Gate A remains unresolved for PA/MI participant delivery. The owner subsequently deferred human alpha and authorized private state expansion in decision 0027. Do not move the frozen tag or represent human validation as complete. Public or paid delivery of the detailed-state product remains blocked.
 
 A local Vite server may still be running on port 4173; check rather than starting a duplicate.
 
@@ -49,7 +49,7 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Editorial three-column desktop layout and stacked mobile layout.
 - National 3D state terrain with Actual, Scenario, and Shift modes.
 - State click removes the national layer and transitions into state context.
-- Pennsylvania and Michigan are production-detailed states. Selecting either state loads its official county result layer, deterministic worker foundation, contribution trace, inspector, and manifest-driven precinct geometry.
+- Pennsylvania, Michigan, and Wisconsin are production-detailed states. Selecting one loads its county result layer, deterministic worker foundation, contribution trace, inspector, and manifest-driven local geometry.
 
 ### Pennsylvania election foundation
 
@@ -209,11 +209,11 @@ A local Vite server may still be running on port 4173; check rather than startin
 - `src/runtime/scenarioPortfolio.worker.ts` validates and hydrates inactive recipes sequentially. It never returns or retains expanded foundations on the interface thread.
 - `src/runtime/useScenarioPortfolio.ts` owns inactive-worker lifetime, publishes only the matching recipe signature, and fails closed on load or calculation errors.
 - The active detailed worker still owns the one foundation needed for terrain, contribution analysis, and the selected-geography inspector.
-- Pennsylvania and Michigan controls persist independently. Switching states snapshots the departing recipe, restores the arriving controls, and retains both exact results in the national aggregate.
+- Pennsylvania, Michigan, and Wisconsin controls persist independently. Switching states snapshots the departing recipe, restores the arriving controls, and retains every exact result in the national aggregate.
 - The scenario card includes a compact active-state strip with current margins and direct state-lab navigation.
 - National aggregation replaces each certified state at most once. An inactive summary enters only when its fingerprint exactly matches the current recipe.
 - URL schema 2 stores sorted multi-state recipes and the active detailed state. Schema 1 stays replayable and upgrades locally into a single-state recipe.
-- Precinct geometry now uses a six-shard least-recently-used cache plus state-level release; workers, fetches, and Deck resources remain lifecycle-owned.
+- Local geometry uses a six-shard least-recently-used cache across state switches; workers, fetches, and Deck resources remain lifecycle-owned.
 - The amended Path to 270 plan separates Actual, Modeled, and Required states, defines net margin votes, target and tie behavior, and splits delivery into v0.14 through v0.17.
 - Decision 0017 records recipe authority, summary-cache semantics, memory lifecycle, aggregation safety, and replay compatibility.
 - Verification now contains 37 model tests and six real-browser replays, including simultaneous PA and MI aggregation and state-switch restoration.
@@ -240,7 +240,7 @@ A local Vite server may still be running on port 4173; check rather than startin
 - Routes rank deterministically by fewest states, aggregate margin movement, or aggregate net margin votes. Stable secondary comparisons prevent reload-dependent ordering.
 - The bounded search caps excess EV states at the target need and retains a limited Pareto set instead of brute-forcing every national subset.
 - The route panel reports current to projected EV, completeness, individual state requirements, and route totals.
-- Supported Pennsylvania and Michigan rows open their detailed state labs. Unsupported Required states remain noninteractive and receive no county or precinct claims.
+- Supported Pennsylvania, Michigan, and Wisconsin rows open their detailed state labs. Unsupported Required states remain noninteractive and receive no local-geography claims.
 - Maine and Nebraska are excluded until district-level electoral allocation is modeled.
 - Schema-2 URLs persist the selected route metric. Schema-1 URLs retain their prior defaults.
 - A target already at or above the majority receives no Required route.
@@ -552,7 +552,7 @@ v0.17 additionally adds or changes:
 - Vite emits both `dist/index.html` and `dist/app/index.html` from one shared application bundle for static hosting.
 - `.github/workflows/deploy-pages.yml` publishes the bundle with `/election-sandbox-2/` as its GitHub Pages base path.
 - National Laboratory reuses the existing context rail, map, bounded consequence rail, three-state drawer, worker foundation, and renderer.
-- National Behavior presents PA/MI entry actions only. It does not display a state editor or invent unsupported national operations.
+- National Behavior presents PA/MI/WI entry actions only. It does not display a state editor or invent unsupported national operations.
 - National Inspector and Contributors expose only certified national totals and verified detailed-state summaries.
 - Eight canonical visual references replace the old v0.18.1 long-page and state-only reference set.
 - Decision record: `docs/decisions/0023-editorial-home-and-united-states-laboratory.md`.
@@ -605,7 +605,30 @@ v0.17 additionally adds or changes:
 - A fresh-history public replacement is live at `https://kevyisagenius123.github.io/election-sandbox-demo/`. It contains only FEC statewide totals, national state geometry, and original public-demo code; it contains no PA/MI local-result derivatives.
 - Do not delete research artifacts or rewrite history unless separately authorized after an evidence-backed purge decision.
 
+### v0.20 Wisconsin detailed-state foundation
+
+- Decision `docs/decisions/0027-deferred-human-validation.md` defers human alpha until end-to-end product testing and permits controlled private development. It does not count as a human pass.
+- Decision `docs/decisions/0026-wisconsin-ltsb-admission.md` admits Wisconsin through the explicit open/public LTSB ArcGIS item.
+- Wisconsin has 72 county summaries, 7,086 January 2025 ward polygons, 6,946 result-bearing reconstructed wards, and 140 geometry-only wards.
+- The exact statewide baseline is Harris 1,668,229, Trump 1,697,626, Other 57,063, Total 3,422,918.
+- LTSB population-disaggregated WEC reporting-unit results to blocks and reaggregated them to 2025 wards. Never call the ward values certified raw ward returns.
+- `scripts/import-wisconsin-2024-ltsb.mjs` regenerates and validates the county, reporting-unit, geometry, denominator, and source-registry artifacts.
+- `src/data/wiWards.ts` implements strict `wi-ward-row-v1` decoding and fail-closed reconciliation.
+- Compatibility is now `us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1`.
+- PA/MI delivery status is unchanged. Wisconsin's direct source is independently approved with attribution and reconstruction disclosure.
+
 ## 8. Verification state
+
+### v0.20 Wisconsin admission
+
+- `docs/review/v0.20-wisconsin/VERIFICATION.md` is the current release record.
+- 52 model and data-contract tests pass.
+- 38 current browser journeys pass; three environment or historical-capture tests are deliberately skipped.
+- Lint and production build pass. The existing large deck.gl chunk warning remains.
+- Three new visual references cover Wisconsin desktop state, desktop reconstructed ward, and 390px state layouts.
+- The final 35-cycle PA/MI/WI profile passes: 972,572 bytes / 2.37% heap growth, 41,238 bytes per cycle slope, and 24,108 ms cycle p95.
+- The county geometry LRU retains at most six recent shards across state switches. This removed repeated geometry decode churn without creating material retained-heap growth.
+- The v0.20 verdict is PASS for private internal development. It is not a human-validation pass and does not clear PA/MI external delivery.
 
 CLI verification for v0.18:
 
@@ -675,7 +698,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 9. Known issues and deliberate omissions
 
-1. **Only one expanded detailed foundation is interactive at a time.** Recipes and verified summaries for Pennsylvania and Michigan persist, but returning to a state intentionally reloads its full foundation.
+1. **Only one expanded detailed foundation is interactive at a time.** Recipes and verified summaries for Pennsylvania, Michigan, and Wisconsin persist, but returning to a state intentionally reloads its full foundation.
 2. **The inactive portfolio hydrator reloads a foundation whenever that inactive recipe changes.** This is memory-safe and deterministic but not yet optimized with a bounded summary cache across revisits.
 3. **The deck.gl chunk is about 1.6 MB minified.** It is already lazy, but further code splitting or bundle review is warranted.
 4. **No uncertainty model exists.** The deterministic result is intentional; do not add decorative random noise.
@@ -688,15 +711,15 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.18 is the engineering gate for a small task-based private alpha. Do not rebuild Pennsylvania or Michigan artifacts unless an official source changes, and do not register State #3 yet.
+v0.20 is closed for private internal development. Begin a bounded Arizona and Georgia candidate batch:
 
-1. Recruit five to ten mixed users: election specialists, technical users, a casual politics user, and a GIS or data reviewer where possible.
-2. Give tasks instead of a feature tour: flip Pennsylvania, find the lowest-net-margin-vote route, stop a supported state short and explain its remaining gap, restore a shared URL, and identify the largest geographic contributions.
-3. Observe completion, wrong mental models, terminology confusion, trust questions, and failures to find the next control.
-4. Separate product-comprehension findings from defects and data questions; prioritize blockers before polish.
-5. Clear the redistribution inventory for the actual alpha delivery model before sending builds or hosted data externally.
-6. Re-run model, browser, visual, bundle, and controlled runtime gates after any alpha-driven changes.
-7. Choose State #3 only after the alpha findings are triaged and that state's admission checklist and exception record pass.
+1. Locate each state's official 2024 presidential result source, local geography, denominator, terms, stable identifiers, and election-cycle vintages.
+2. Complete the detailed-state admission checklist and exception record independently for each state.
+3. Reject or defer either state if totals, geometry, identifier joins, or delivery basis cannot be supported honestly.
+4. Generate artifacts only after the admission record passes; do not copy Wisconsin's ward method onto a state with a different reporting model.
+5. Integrate admitted states through the existing manifest, loader, map, inspector, portfolio, and URL contracts.
+6. Close the batch with exact zero-change reconciliation, local browser replays, three-to-five-state lifecycle evidence, and visual references.
+7. Preserve the comprehensive human study and PA/MI delivery clearance as mandatory pre-public and pre-paid gates.
 
 Uncertainty remains deferred. It must be separately switchable, seeded, calibrated, and clearly distinguished from deterministic scenario construction; decorative random noise is prohibited.
 

@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 
 const evidenceDirectory = resolve(import.meta.dirname, "../../docs/review/v0.19.1-supervisor-review/ai-supervisor");
 
+test.skip(!process.env.SANDBOX_CAPTURE_V0191_REVIEW, "Historical v0.19.1 evidence is captured only from its frozen tag");
+
 async function waitForScenario(page: Page) {
   await expect(page.getByRole("button", { name: "Copy scenario link" })).toBeEnabled();
   await expect.poll(async () => page.evaluate(() => window.__sandboxDiagnostics?.().activeAnimationHandles ?? -1)).toBe(0);

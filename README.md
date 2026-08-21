@@ -4,13 +4,13 @@ Sandbox 2.0 is an independent, local-first laboratory for historical United Stat
 
 The full research repository is private while PA/MI detailed-result redistribution remains under review. A separate fresh-history, national-only public preview is available at [Sandbox 2.0 public demo](https://kevyisagenius123.github.io/election-sandbox-demo/). The demo contains the FEC statewide baseline and national state geometry, but no county, precinct, VTD, reporting-unit, local demographic, crosswalk, or detailed-state scenario artifacts.
 
-## Current release: v0.19.1 Alpha Comprehension and Trust Corrections
+## Current release: v0.20 Wisconsin Detailed-State Foundation
 
-The exact product build is frozen for supervisor review as `v0.19.1-supervisor-review`. The review packet, required causal-workflow tasks, data-delivery hold, known limitations, three-choice verdict, fresh verification record, six updated screenshots, and synthetic-evidence comparison begin in [`SUPERVISOR_REVIEW.md`](SUPERVISOR_REVIEW.md). The owner-designated AI supervisor subsequently completed the exact-tag technical walkthrough with no P0-P3 product findings. It is explicitly not human or genuinely unfamiliar evidence.
+Wisconsin is the third production-detailed state. Its 72 counties and 7,086 January 2025 ward polygons run through the same deterministic worker, 3D drilldown, contribution, inspector, portfolio, Electoral College, Path to 270, and URL contracts as Pennsylvania and Michigan. All 3,422,918 statewide ballots reconcile; 6,946 result-bearing wards map and 140 geometry-only wards remain neutral.
 
-The formal supervisor verdict remains **HOLD**, with no product correction ordered. Gate B is now PASS as an AI technical-supervisor review; Gate A remains blocked pending a documented PA/MI participant-delivery disposition. See [`SUPERVISOR_VERDICT.md`](docs/review/v0.19.1-supervisor-review/SUPERVISOR_VERDICT.md) and the completed [`AI supervisor session`](docs/review/v0.19.1-supervisor-review/AI_SUPERVISOR_GATE_B_SESSION.md).
+Wisconsin's local values are the Wisconsin Legislative Technology Services Bureau's official population-disaggregated reconstruction onto 2025 wards. They are not described as raw certified ward returns. The direct ArcGIS item says the dataset is open and publicly available. See [decision 0026](docs/decisions/0026-wisconsin-ltsb-admission.md).
 
-v0.19.1 responds directly to the v0.19A synthetic private alpha. The collapsed laboratory drawer now states the geographic action and exposes `Open controls`; Pennsylvania and Michigan show a live state-flip requirement without requiring a Path to 270 selection; route terminology is defined beside the route; preference-transfer arithmetic is explained beside the values; Data is a state-specific evidence ledger plus national coverage matrix; and Pennsylvania VTDs are no longer described as Michigan-style precinct units. Scenario sharing is explicitly named `Copy scenario link` and explains that the URL is the saved deterministic object.
+Human alpha has been deferred by the product owner until the broader project is ready for end-to-end testing. It has not passed or been replaced by AI review. The frozen `v0.19.1-supervisor-review` tag remains unchanged, and unresolved PA/MI delivery rights still block public or paid delivery of the full detailed-state product. See [decision 0027](docs/decisions/0027-deferred-human-validation.md).
 
 The former full-product GitHub Pages workflow was removed during the 2026-08-20 containment cutover. Public product positioning now lives in the separate sanitized demo repository.
 
@@ -24,6 +24,7 @@ The current build provides:
 
 - The official 2024 presidential baseline, including a reconciled 312 to 226 Electoral College result.
 - An editorial React and deck.gl workbench with national terrain, Pennsylvania county and VTD terrain, and Michigan county and exact-cycle precinct terrain.
+- Wisconsin county and January 2025 ward terrain with LTSB reconstructed 2024 local election values.
 - Official Pennsylvania county summaries and 9,189 normalized election reporting units.
 - A versioned crosswalk connecting 9,038 of 9,178 Census VTD polygons to mapped 2024 results.
 - A Census P.L. 94-171 Table P4 voting-age-population denominator for every 2020 Pennsylvania VTD.
@@ -41,7 +42,7 @@ The current build provides:
 - Fail-closed runtime decoding that verifies field order, GEOIDs, demographic cells, mapped votes, coverage counts, and turnout capacity before enabling controls.
 - Checked-in Playwright replays for the canonical complex scenario, an official alphanumeric VTD, and unsupported-future-version fallback.
 - A reproducible Pennsylvania runtime profiler plus allocation hot-path improvements that preserve the engine's exact integer results.
-- A typed detailed-state manifest and loader registry that own Pennsylvania and Michigan election, compatibility, runtime-artifact, geography, and source contracts.
+- A typed detailed-state manifest and loader registry that own Pennsylvania, Michigan, and Wisconsin election, compatibility, runtime-artifact, geography, and source contracts.
 - Dedicated Web Worker decoding and scenario calculation with queued-change coalescing and stale-response rejection.
 - GitHub Actions release gates for model tests, lint, production build, and full browser replay.
 - A checksum-verified Michigan source package that reconciles all 5,664,186 presidential votes across 12 named candidates and 83 counties.
@@ -52,7 +53,7 @@ The current build provides:
 - Actual, scenario, and shift comparison modes, plus ballot and flat terrain modes.
 - Lazy county geometry shards and deterministic, cancellable camera transitions.
 - Reconciliation, allocation, and zero-change tests.
-- Simultaneous Pennsylvania and Michigan scenario recipes with exact national popular-vote and Electoral College aggregation.
+- Simultaneous Pennsylvania, Michigan, and Wisconsin scenario recipes with exact national popular-vote and Electoral College aggregation.
 - Per-state controls that persist across national navigation and restore when either state is reopened.
 - Sequential inactive-state worker hydration, compact verified summaries, and bounded county-geometry caching instead of retaining both full foundations on the main thread.
 - A compact active-state strip showing each modeled state's current margin and opening its detailed laboratory.
@@ -69,7 +70,7 @@ The current build provides:
 - Route metric persistence in schema-2 URLs, with deterministic ordering after reload.
 - Maine and Nebraska are excluded from route approximation until congressional-district allocation is represented correctly.
 - A persistent selected-route blueprint rebuilt from certified results and verified state recipes rather than serialized computed totals.
-- Live Required, Modeled, and Satisfied route-state transitions inside the Pennsylvania and Michigan laboratories.
+- Live Required, Modeled, and Satisfied route-state transitions inside the Pennsylvania, Michigan, and Wisconsin laboratories.
 - Exact certified requirement, modeled net-margin movement, remaining gap, and verified EV consequence in the active state lab.
 - Numbered national-map route markers plus distinct Required, Modeled, and Satisfied outlines.
 - Reversible route construction: falling back below the state threshold immediately removes its satisfied status and electoral contribution.
@@ -88,11 +89,11 @@ The model runs three deliberately separate operations:
 
 The contribution panel ranks the counties or mapped VTDs that most changed the state result. Contribution is defined as the scenario change in `Harris votes - Trump votes`. That definition lets all three operations reconcile in the same unit while retaining their separate meanings.
 
-The model is deterministic and integer-reconciled. With all three operations set to zero, it reproduces Pennsylvania and Michigan certified results exactly. Third-party exchanges are counterfactual ballot transfers, not an estimate of which candidate those voters historically preferred.
+The model is deterministic and integer-reconciled. With all three operations set to zero, it reproduces Pennsylvania and Michigan official results and Wisconsin's exact statewide LTSB totals. Third-party exchanges are counterfactual ballot transfers, not an estimate of which candidate those voters historically preferred.
 
 ## Selected-geography inspector
 
-Selecting a detailed county or pinning a mapped VTD or precinct opens an audit panel. It separates certified candidate totals from the scenario, reports the 2020 Census VAP denominator and usable turnout capacity, and attributes the local change to turnout, two-party transfer, and third-party exchange operations.
+Selecting a detailed county or pinning a mapped VTD, precinct, or reconstructed ward opens an audit panel. It separates baseline candidate totals from the scenario, reports the available 2020 Census-derived VAP denominator and usable turnout capacity, and attributes the local change to turnout, two-party transfer, and third-party exchange operations.
 
 County coverage compares VTD-linked ballots with the official county total. VTD match quality distinguishes exact Census identifiers, unique canonical-name links, mixed links, and polygons with no matched return. Unmatched polygons show an explicit unavailable state. The inspector never assigns non-terrain residual ballots to a polygon.
 
@@ -107,7 +108,7 @@ Compatible links restore locally without a backend. Schema 2 also restores the s
 Current compatibility contract:
 
 - URL schema: `2` (`1` remains replayable)
-- Dataset: `us2024-pa-vtd2020-mi-precinct2024-v1`
+- Dataset: `us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1`
 - Engine: `pa-behavior-v1`
 
 ## Compact demographic runtime
@@ -132,7 +133,7 @@ The local profiler covers JSON parsing, fail-closed decoding, model-unit convers
 
 ## Multi-state runtime foundation
 
-Pennsylvania and Michigan are registered through typed state manifests instead of scattered runtime constants. URL compatibility versions, demographic artifacts, precinct geometry manifests, election metadata, and source registries resolve through those contracts. The worker dispatches by loader encoding, while map, inspector, contribution, county, and URL adapters consume the active state contract.
+Pennsylvania, Michigan, and Wisconsin are registered through typed state manifests instead of scattered runtime constants. URL compatibility versions, demographic artifacts, local geometry manifests, election metadata, and source registries resolve through those contracts. The worker dispatches by loader encoding, while map, inspector, contribution, county, and URL adapters consume the active state contract.
 
 The demographic artifact is fetched, decoded, validated, and converted to model units inside a dedicated worker. Scenario requests carry monotonically increasing identifiers. Queued slider changes are coalesced, and the interface accepts only the response matching the newest settings. Share links remain disabled while a result is pending, so a copied URL and the displayed result cannot disagree.
 
@@ -140,7 +141,7 @@ The demographic artifact is fetched, decoded, validated, and converted to model 
 
 Recipes are the authoritative resident state. The active state uses the full detailed worker needed by the map, inspector, and contribution panel. Inactive recipes are processed sequentially in a separate worker that returns only compact, fingerprinted summaries. National aggregation accepts a summary only when its fingerprint matches the current recipe; otherwise it temporarily uses that state's certified baseline and keeps sharing disabled.
 
-Switching between Pennsylvania and Michigan snapshots the departing controls and restores the arriving state's own recipe. Leaving a state releases eligible precinct shards, county geometry uses a bounded least-recently-used cache, and both detailed workers are terminated by React lifecycle cleanup. This is the memory-safe foundation for the Path to 270 consequence ledger and route engine.
+Switching among Pennsylvania, Michigan, and Wisconsin snapshots the departing controls and restores the arriving state's own recipe. County geometry uses a six-entry least-recently-used cache across state switches, and detailed workers are terminated by React lifecycle cleanup. This keeps repeated navigation responsive while retaining a strict geometry bound.
 
 ## Electoral College consequence ledger
 
@@ -202,6 +203,7 @@ src/App.tsx                         Editorial workbench and scenario state
 src/map/AtlasMapScene.tsx           deck.gl national, county, and VTD renderer
 src/data/paDemographics.ts          Versioned demographic artifact loader
 src/data/miDemographics.ts          Strict Michigan precinct artifact decoder
+src/data/wiWards.ts                 Strict Wisconsin reconstructed-ward decoder
 src/data/detailedStateData.ts       Shared county, geography, and aggregation adapters
 src/data/detailedStatePrecincts.ts  Manifest-driven lazy precinct geometry loader
 src/data/detailedStateManifest.ts   Typed state registration and asset contracts
@@ -216,8 +218,11 @@ public/data/pa/2024/                Runtime Pennsylvania result and geometry art
 public/data/pa/2020/                Runtime P.L. 94-171 VTD demographic artifact
 public/data/mi/2024/                Michigan result and exact-cycle precinct geometry artifacts
 public/data/mi/2020/                Compact Michigan P.L. 94-171 behavior artifact
+public/data/wi/2024/                Wisconsin ward results and county geometry shards
+public/data/wi/2020/                Compact Wisconsin PERSONS18 behavior artifact
 data-sources/pennsylvania/           Small auditable source registries and crosswalks
 data-sources/michigan/               Michigan provenance, reconciliation, and crosswalk registries
+data-sources/wisconsin/              Wisconsin LTSB source and denominator registries
 scripts/                             Reproducible import and geometry pipelines
 tests/                               Model invariants and browser scenario replays
 playwright.config.ts                 Browser-test server and Chromium configuration
@@ -266,6 +271,14 @@ npm run data:mi:demographics -- \
 
 Each Michigan pipeline verifies the audited source checksum before replacing artifacts.
 
+## Rebuild Wisconsin data
+
+```bash
+npm run data:wi
+```
+
+The importer reads the official LTSB ArcGIS item, verifies its identity and open/public statement, and fails closed unless feature counts, identifiers, county totals, statewide totals, and denominator coverage reconcile.
+
 ## Important documents
 
 - `PRODUCT_AND_ENGINEERING_PLAN.md`
@@ -301,13 +314,16 @@ Each Michigan pipeline verifies the audited source checksum before replacing art
 - `HUMAN_ALPHA_READINESS.md`
 - `HUMAN_ALPHA_REPORT.md`
 - `docs/decisions/0025-human-alpha-research-freeze.md`
+- `docs/decisions/0026-wisconsin-ltsb-admission.md`
+- `docs/decisions/0027-deferred-human-validation.md`
+- `docs/review/v0.20-wisconsin/VERIFICATION.md`
 - `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md`
 - `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`
 - `docs/data/PUBLIC_EXPOSURE_INVENTORY.md`
 
 ## Next increment
 
-Keep v0.19.1 under the human-alpha research freeze. Once an approved PA/MI artifact-delivery method is recorded, run the v0.19B study using `docs/research/HUMAN_ALPHA_PROTOCOL.md` and its session template. Recruit five to ten deliberately mixed users where possible, with three genuinely new participants as the minimum first-cycle evidence. Every task records correctness and confidence before explanation. Close the cycle in `HUMAN_ALPHA_REPORT.md` with an Advance, Correct and retest, or Block recommendation. Do not add a third detailed state until the report records zero unresolved P0 and P1 findings and every other alpha gate is satisfied.
+v0.20 is closed for private internal development. The next increment begins with source, geometry, denominator, and delivery audits for a small Arizona and Georgia candidate batch; neither state enters the runtime until its admission contract passes independently. The human study remains required before broad public or paid delivery, and PA/MI delivery rights remain a separate unresolved release gate.
 
 ## Primary sources
 
@@ -316,6 +332,8 @@ Keep v0.19.1 under the human-alpha research freeze. Once an approved PA/MI artif
 - [U.S. Census Bureau, 2020 Pennsylvania VTD TIGER/Line archive](https://www2.census.gov/geo/tiger/TIGER2020PL/STATE/42_PENNSYLVANIA/42/tl_2020_42_vtd20.zip)
 - [Michigan Department of State, election results and data](https://www.michigan.gov/sos/elections/election-results-and-data)
 - [State of Michigan, 2024 voting precinct geometry](https://gisagocss.state.mi.us/arcgis/rest/services/OpenData/boundaries/MapServer/9)
+- [Wisconsin LTSB, 2024 election data with 2025 wards](https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e)
+- [Wisconsin LTSB feature service](https://services1.arcgis.com/FDsAtKBk8Hy4cAH0/ArcGIS/rest/services/2024_Election_Data_with_2025_Wards/FeatureServer/0)
 - [U.S. Census Bureau, 2020 Michigan P.L. 94-171 archive](https://www2.census.gov/programs-surveys/decennial/2020/data/01-Redistricting_File--PL_94-171/Michigan/mi2020.pl.zip)
 - [U.S. Census Bureau, 2020 Redistricting Data summary files](https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html)
 - [U.S. Census Bureau, Table P4 variables](https://api.census.gov/data/2020/dec/pl/groups/P4.html)

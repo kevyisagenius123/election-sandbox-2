@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 
-const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-v1";
+const DATA_VERSION = "us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1";
 const ENGINE_VERSION = "pa-behavior-v1";
 const STRESS_CYCLES = Number(process.env.SANDBOX_STRESS_CYCLES ?? 6);
 const WARMUP_CYCLES = Math.min(5, Math.max(2, Math.floor(STRESS_CYCLES / 3)));
@@ -28,7 +28,7 @@ function linearSlope(values: number[]) {
 }
 
 interface RuntimeDiagnostics {
-  activeDetailedWorker: "MI" | "PA" | null;
+  activeDetailedWorker: "MI" | "PA" | "WI" | null;
   detailedWorkerCount: number;
   portfolioWorkerCount: number;
   activeModelShardBytes: number;
@@ -58,6 +58,7 @@ function portfolioPath() {
   });
   params.append("recipe", `PA|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|2.5|0,50`);
   params.append("recipe", `MI|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|2.5|0,50`);
+  params.append("recipe", `WI|2024-president|${DATA_VERSION}|${ENGINE_VERSION}|0|55|stein|1.5|0,50`);
   return `/?${params.toString()}`;
 }
 
@@ -68,7 +69,7 @@ async function diagnostics(page: Page) {
   }) as Promise<RuntimeDiagnostics>;
 }
 
-async function waitForSettledRuntime(page: Page, stateCode: "MI" | "PA") {
+async function waitForSettledRuntime(page: Page, stateCode: "MI" | "PA" | "WI") {
   await expect(page.getByRole("button", { name: "Copy scenario link" })).toBeEnabled();
   await expect.poll(async () => diagnostics(page)).toMatchObject({
     activeDetailedWorker: stateCode,
@@ -82,27 +83,29 @@ async function waitForSettledRuntime(page: Page, stateCode: "MI" | "PA") {
   await expect.poll(async () => (await diagnostics(page)).activeAnimationHandles).toBe(0);
 }
 
-async function openTopPrecinct(page: Page, stateCode: "MI" | "PA") {
+async function openTopPrecinct(page: Page, stateCode: "MI" | "PA" | "WI") {
   const contributorsTab = page.getByRole("tab", { name: "Contributors", exact: true });
   if (!(await contributorsTab.isVisible())) await page.getByRole("button", { name: "working", exact: true }).click();
   await contributorsTab.click();
-  await page.getByRole("button", { name: stateCode === "PA" ? "VTDs" : "Precincts", exact: true }).click();
+  await page.getByRole("button", { name: stateCode === "PA" ? "VTDs" : stateCode === "WI" ? "Wards" : "Precincts", exact: true }).click();
   const firstContribution = page.locator(".contribution-list button").first();
   await expect(firstContribution).toBeVisible();
   await firstContribution.click();
-  await expect(page.locator(".atlas-data-note")).toContainText(stateCode === "PA" ? "Verified VTD returns" : "Verified precinct returns");
+  await expect(page.locator(".atlas-data-note")).toContainText(
+    stateCode === "PA" ? "Verified VTD returns" : stateCode === "WI" ? "LTSB reconstructed ward estimates" : "Verified Precinct returns",
+  );
   await expect(page.locator(".atlas-load-status")).toHaveCount(0);
   await expect.poll(async () => (await diagnostics(page)).geometryCacheBytes).toBeGreaterThan(0);
   return diagnostics(page);
 }
 
-async function switchDetailedState(page: Page, stateCode: "MI" | "PA") {
+async function switchDetailedState(page: Page, stateCode: "MI" | "PA" | "WI") {
   await page.getByTestId(`portfolio-state-${stateCode}`).click();
   await waitForSettledRuntime(page, stateCode);
 }
 
-test("deterministic PA and MI session holds lifecycle and byte bounds", async ({ page, context }) => {
-  test.setTimeout(Math.max(120_000, STRESS_CYCLES * 25_000));
+test("deterministic PA, MI, and WI session holds lifecycle and byte bounds", async ({ page, context }) => {
+  test.setTimeout(Math.max(120_000, STRESS_CYCLES * 45_000));
   await page.goto(portfolioPath());
   await waitForSettledRuntime(page, "MI");
   const cdp = await context.newCDPSession(page);
@@ -120,6 +123,8 @@ test("deterministic PA and MI session holds lifecycle and byte bounds", async ({
     const michiganLoaded = await openTopPrecinct(page, "MI");
     await switchDetailedState(page, "PA");
     const pennsylvaniaLoaded = await openTopPrecinct(page, "PA");
+    await switchDetailedState(page, "WI");
+    const wisconsinLoaded = await openTopPrecinct(page, "WI");
     await switchDetailedState(page, "MI");
     await cdp.send("HeapProfiler.collectGarbage");
     const heap = await cdp.send("Runtime.getHeapUsage") as { usedSize: number };
@@ -127,7 +132,7 @@ test("deterministic PA and MI session holds lifecycle and byte bounds", async ({
     samples.push({
       cycle,
       usedHeapBytes: heap.usedSize,
-      peakGeometryBytes: Math.max(michiganLoaded.geometryCacheBytes, pennsylvaniaLoaded.geometryCacheBytes),
+      peakGeometryBytes: Math.max(michiganLoaded.geometryCacheBytes, pennsylvaniaLoaded.geometryCacheBytes, wisconsinLoaded.geometryCacheBytes),
       diagnostics: snapshot,
       durationMs: performance.now() - started,
     });
@@ -137,17 +142,16 @@ test("deterministic PA and MI session holds lifecycle and byte bounds", async ({
     expect(snapshot.webglContextCount).toBe(1);
     expect(snapshot.mapMountCount).toBe(1);
     expect(snapshot.geometryCacheEntries).toBeLessThanOrEqual(6);
-    expect(Math.max(michiganLoaded.geometryCacheBytes, pennsylvaniaLoaded.geometryCacheBytes)).toBeGreaterThan(0);
+    expect(Math.max(michiganLoaded.geometryCacheBytes, pennsylvaniaLoaded.geometryCacheBytes, wisconsinLoaded.geometryCacheBytes)).toBeGreaterThan(0);
     expect(snapshot.pendingGeometryFetches).toBe(0);
     expect(snapshot.pendingScenarioRequests).toBe(0);
     expect(snapshot.activeAnimationHandles).toBe(0);
     expect(snapshot.activeDeckLayerIds).toContain("sandbox-2-counties-MI");
   }
 
-  await expect(page.locator(".scenario-score")).toContainText("260");
-  await expect(page.locator(".scenario-score")).toContainText("278");
-  await expect(page.getByTestId("path-route-1")).toContainText("260 → 270 EV");
-  await expect.poll(() => new URL(page.url()).searchParams.getAll("recipe").length).toBe(2);
+  await expect(page.locator(".scenario-score")).toContainText("270");
+  await expect(page.locator(".scenario-score")).toContainText("268");
+  await expect.poll(() => new URL(page.url()).searchParams.getAll("recipe").length).toBe(3);
 
   if (STRESS_CYCLES >= 30) {
     const measured = samples.slice(WARMUP_CYCLES);
@@ -168,7 +172,7 @@ test("deterministic PA and MI session holds lifecycle and byte bounds", async ({
         maximumHeapGrowthBytes: 20 * MEBIBYTE,
         maximumHeapGrowthPct: 20,
         maximumHeapSlopeBytesPerCycle: 0.5 * MEBIBYTE,
-        maximumCycleP95Ms: 15_000,
+        maximumCycleP95Ms: 30_000,
       },
     };
     await mkdir("test-results", { recursive: true });
@@ -180,14 +184,14 @@ test("deterministic PA and MI session holds lifecycle and byte bounds", async ({
     expect(heapGrowthBytes).toBeLessThanOrEqual(20 * MEBIBYTE);
     expect(heapGrowthPct).toBeLessThanOrEqual(20);
     expect(heapSlopeBytesPerCycle).toBeLessThanOrEqual(0.5 * MEBIBYTE);
-    expect(cycleP95Ms).toBeLessThanOrEqual(15_000);
+    expect(cycleP95Ms).toBeLessThanOrEqual(30_000);
   }
 });
 
 test("hostile state replacement rejects delayed geometry and leaves one owner", async ({ page }) => {
   test.setTimeout(90_000);
   let delayedGeometryRequests = 0;
-  await page.route(/\/data\/(pa|mi)\/2024\/precincts\/.*\.json$/, async (route) => {
+  await page.route(/\/data\/(pa|mi|wi)\/2024\/precincts\/.*\.json$/, async (route) => {
     delayedGeometryRequests += 1;
     await new Promise((resolve) => setTimeout(resolve, 700));
     await route.continue();
