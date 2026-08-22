@@ -14,6 +14,7 @@ import {
   aggregateNational,
   deriveBehaviorContributions,
   preferenceShiftBounds,
+  type BehaviorScenarioUnit,
   type StatewidePresidentialResult,
   type ThirdPartyCandidate,
 } from "../packages/election-model/src/scenario.ts";
@@ -65,6 +66,16 @@ import {
   type StateScenarioRecipe,
 } from "./data/scenarioPortfolio.ts";
 import { useScenarioPortfolio } from "./runtime/useScenarioPortfolio.ts";
+import { useReplayExperience } from "./runtime/useReplayExperience.ts";
+import {
+  buildElectionNightChronologyPreview,
+  DEFAULT_ELECTION_NIGHT_BEHAVIOR,
+  ELECTION_NIGHT_PROFILES,
+  validateElectionNightBehavior,
+  type ElectionNightCountyOverride,
+  type ElectionNightBehavior,
+  type ReportingOrder,
+} from "./replay/threeStateElectionNight.ts";
 import {
   buildElectoralConsequenceModel,
   candidateNames,
@@ -89,10 +100,13 @@ type ViewMode = ScenarioViewMode;
 type BehaviorEditorMode = ScenarioEditorMode;
 type ContributionScope = ScenarioContributionScope;
 type WorkspaceMode = "home" | "laboratory";
+type ExperienceMode = "swingometer" | "election-night";
 type LaboratoryDrawerSnap = "collapsed" | "working" | "expanded";
 type LaboratoryDrawerTab = "behavior" | "contributors" | "inspector" | "assumptions" | "data";
+type NightDockTab = "live" | "direct" | "returns" | "method";
 
 const laboratoryDrawerTabs: LaboratoryDrawerTab[] = ["behavior", "contributors", "inspector", "assumptions", "data"];
+const nightDockTabs: readonly NightDockTab[] = ["live", "direct", "returns", "method"];
 
 interface ContributionRow {
   id: string;
@@ -112,6 +126,22 @@ const compactFormat = new Intl.NumberFormat("en-US", {
   notation: "compact",
   maximumFractionDigits: 1,
 });
+const replayClockFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  second: "2-digit",
+  timeZoneName: "short",
+});
+const replayTimeShortFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  weekday: "short",
+  hour: "numeric",
+  minute: "2-digit",
+});
 
 function formatNumber(value: number) {
   return numberFormat.format(value);
@@ -123,6 +153,13 @@ function formatCompact(value: number) {
 
 function margin(result: Pick<StatewidePresidentialResult, "harrisVotes" | "trumpVotes" | "totalVotes">) {
   return ((result.harrisVotes - result.trumpVotes) / result.totalVotes) * 100;
+}
+
+function replayCandidateVotes(
+  value: { candidateVotes: readonly { candidateId: string; votes: number }[] } | null | undefined,
+  candidateId: string,
+) {
+  return value?.candidateVotes.find((candidate) => candidate.candidateId === candidateId)?.votes ?? 0;
 }
 
 function formatMargin(value: number) {
@@ -206,7 +243,55 @@ function workspaceUrl(mode: WorkspaceMode, href = window.location.href) {
   return url;
 }
 
-export function App() {
+const NIGHT_PROFILE_STORAGE_KEY = "sandbox-2-election-night-profiles-v1";
+
+interface SavedNightProfile {
+  id: string;
+  name: string;
+  behavior: ElectionNightBehavior;
+}
+
+function cloneNightBehavior(value: ElectionNightBehavior): ElectionNightBehavior {
+  const behavior = validateElectionNightBehavior(value);
+  return {
+    ...behavior,
+    stateDelayMinutes: { ...behavior.stateDelayMinutes },
+    countyOverrides: behavior.countyOverrides.map((override) => ({ ...override })),
+  };
+}
+
+function nightBehaviorFingerprint(value: ElectionNightBehavior) {
+  return JSON.stringify(validateElectionNightBehavior(value));
+}
+
+function readSavedNightProfiles(): SavedNightProfile[] {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(NIGHT_PROFILE_STORAGE_KEY) ?? "[]") as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((entry): SavedNightProfile[] => {
+      if (!entry || typeof entry !== "object") return [];
+      const candidate = entry as Partial<SavedNightProfile>;
+      if (typeof candidate.id !== "string" || typeof candidate.name !== "string" || !candidate.name.trim() || !candidate.behavior) return [];
+      try {
+        return [{ id: candidate.id, name: candidate.name.slice(0, 40), behavior: cloneNightBehavior(candidate.behavior) }];
+      } catch {
+        return [];
+      }
+    }).slice(0, 12);
+  } catch {
+    return [];
+  }
+}
+
+function persistNightProfiles(profiles: readonly SavedNightProfile[]) {
+  try {
+    window.localStorage.setItem(NIGHT_PROFILE_STORAGE_KEY, JSON.stringify(profiles));
+  } catch {
+    // The editor remains usable when storage is unavailable.
+  }
+}
+
+function ScenarioApp() {
   const [initialScenarioUrlLoad] = useState(() => decodeScenarioSearch(window.location.search));
   const initialScenarioUrlState = initialScenarioUrlLoad.state;
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(() => (
@@ -281,6 +366,31 @@ export function App() {
     initialScenarioUrlState.contributionScope,
   );
   const [assumptionsOpen, setAssumptionsOpen] = useState(true);
+  const [experienceMode, setExperienceMode] = useState<ExperienceMode>("swingometer");
+  const [nightBehavior, setNightBehavior] = useState<ElectionNightBehavior>(() => ({
+    ...DEFAULT_ELECTION_NIGHT_BEHAVIOR,
+    stateDelayMinutes: { ...DEFAULT_ELECTION_NIGHT_BEHAVIOR.stateDelayMinutes },
+    countyOverrides: [],
+  }));
+  const [appliedNightBehavior, setAppliedNightBehavior] = useState<ElectionNightBehavior | null>(null);
+  const [savedNightProfiles, setSavedNightProfiles] = useState<SavedNightProfile[]>(readSavedNightProfiles);
+  const [selectedNightProfileId, setSelectedNightProfileId] = useState("balanced");
+  const [nightProfileName, setNightProfileName] = useState("");
+  const [nightProfileFeedback, setNightProfileFeedback] = useState<string | null>(null);
+  const [nightOverrideState, setNightOverrideState] = useState<DetailedStateCode>("PA");
+  const [nightOverrideCountyId, setNightOverrideCountyId] = useState("");
+  const [nightDockTab, setNightDockTab] = useState<NightDockTab>("live");
+  const replay = useReplayExperience();
+  const nightChronologyPreview = useMemo(
+    () => buildElectionNightChronologyPreview(nightBehavior),
+    [nightBehavior],
+  );
+  const nightOverrideCounties = useMemo(
+    () => getDetailedStateCounties(nightOverrideState),
+    [nightOverrideState],
+  );
+  const nightBehaviorDirty = appliedNightBehavior == null
+    || nightBehaviorFingerprint(appliedNightBehavior) !== nightBehaviorFingerprint(nightBehavior);
   const [laboratoryDrawerSnap, setLaboratoryDrawerSnap] = useState<LaboratoryDrawerSnap>(
     initialScenarioUrlState.selectedCountyFips || initialScenarioUrlState.selectedVtdGeoid ? "working" : "collapsed",
   );
@@ -293,6 +403,8 @@ export function App() {
   const laboratoryDrawerRef = useRef<HTMLDivElement>(null);
   const drawerDragRef = useRef<{ pointerId: number; startY: number; startHeight: number } | null>(null);
   const routeAlternativesButtonRef = useRef<HTMLButtonElement>(null);
+  const replaySeekTimerRef = useRef<number | null>(null);
+  const replayTimelineInputRef = useRef<HTMLInputElement>(null);
   const [scenarioLinkNotice, setScenarioLinkNotice] = useState<string | null>(
     scenarioUrlNotice(initialScenarioUrlLoad),
   );
@@ -410,6 +522,16 @@ export function App() {
     window.addEventListener("keydown", closeAlternatives, true);
     return () => window.removeEventListener("keydown", closeAlternatives, true);
   }, [routeAlternativesOpen]);
+
+  useEffect(() => () => {
+    if (replaySeekTimerRef.current != null) window.clearTimeout(replaySeekTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (replaySeekTimerRef.current == null && replayTimelineInputRef.current) {
+      replayTimelineInputRef.current.value = String(replay.timelineProgressMillionths);
+    }
+  }, [replay.timelineProgressMillionths]);
 
   const detailedActual = states2024.find(
     (state) => state.code === activeDetailedStateCode,
@@ -651,6 +773,80 @@ export function App() {
     () => scenarioDetailedGeographyMap(behaviorScenario?.units ?? []),
     [behaviorScenario],
   );
+  const replayJurisdictions = replay.current?.election.jurisdictions;
+  const replayScenarioStates = useMemo<StatewidePresidentialResult[]>(() => (
+    replayJurisdictions?.flatMap((jurisdiction) => {
+      if (jurisdiction.totalReportedVotes === 0) return [];
+      const harrisVotes = replayCandidateVotes(jurisdiction, "harris");
+      const trumpVotes = replayCandidateVotes(jurisdiction, "trump");
+      return [{
+        code: jurisdiction.jurisdictionId,
+        harrisVotes,
+        trumpVotes,
+        otherVotes: jurisdiction.totalReportedVotes - harrisVotes - trumpVotes,
+        totalVotes: jurisdiction.totalReportedVotes,
+        harrisElectoralVotes: 0,
+        trumpElectoralVotes: 0,
+      }];
+    }) ?? []
+  ), [replayJurisdictions]);
+  const replayDetailedCounties = useMemo(() => {
+    const actualByFips = new Map(detailedCounties.map((county) => [county.fips, county]));
+    return replay.reportedCounties
+      .filter((county) => county.jurisdictionId === activeDetailedStateCode)
+      .flatMap((county) => {
+        const actual = actualByFips.get(county.countyId);
+        if (!actual) return [];
+        const harrisVotes = replayCandidateVotes(county, "harris");
+        const trumpVotes = replayCandidateVotes(county, "trump");
+        return [{
+          ...actual,
+          harrisVotes,
+          trumpVotes,
+          otherVotes: county.totalReportedVotes - harrisVotes - trumpVotes,
+          totalVotes: county.totalReportedVotes,
+          netHarrisGain: 0,
+        }];
+      });
+  }, [activeDetailedStateCode, detailedCounties, replay.reportedCounties]);
+  const replayDetailedGeographies = useMemo(() => {
+    if (!behaviorModelUnits) return new Map<string, BehaviorScenarioUnit>();
+    const reportedByUnitId = new Map(replay.publishedUnits
+      .filter((unit) => unit.jurisdictionId === activeDetailedStateCode)
+      .map((unit) => [unit.unitId, unit]));
+    const reportedUnits = behaviorModelUnits.flatMap((unit): BehaviorScenarioUnit[] => {
+      const reported = reportedByUnitId.get(unit.id);
+      if (!reported || !unit.geometryId || reported.totalReportedVotes === 0) return [];
+      const harrisVotes = replayCandidateVotes(reported, "harris");
+      const trumpVotes = replayCandidateVotes(reported, "trump");
+      return [{
+        ...unit,
+        harrisVotes,
+        trumpVotes,
+        otherVotes: reported.totalReportedVotes - harrisVotes - trumpVotes,
+        steinVotes: replayCandidateVotes(reported, "stein"),
+        oliverVotes: replayCandidateVotes(reported, "oliver"),
+        residualOtherVotes: replayCandidateVotes(reported, "other-residual"),
+        totalVotes: reported.totalReportedVotes,
+        turnoutAddedVotes: 0,
+        turnoutHarrisVotes: 0,
+        turnoutTrumpVotes: 0,
+        preferenceNetHarrisGain: 0,
+        thirdPartyCandidateDelta: 0,
+        netHarrisGain: 0,
+      }];
+    });
+    return scenarioDetailedGeographyMap(reportedUnits);
+  }, [activeDetailedStateCode, behaviorModelUnits, replay.publishedUnits]);
+  const displayedScenarioStates = experienceMode === "election-night"
+    ? replayScenarioStates
+    : scenarioStates;
+  const displayedDetailedCounties = experienceMode === "election-night"
+    ? replayDetailedCounties
+    : scenarioDetailedCounties;
+  const displayedDetailedGeographies = experienceMode === "election-night"
+    ? replayDetailedGeographies
+    : scenarioDetailedGeographies;
   const contributionSummary = useMemo(() => {
     const empty = {
       counties: [] as ContributionRow[],
@@ -739,6 +935,35 @@ export function App() {
   const selectedVtdScenario = selectedVtdGeoid
     ? scenarioDetailedGeographies.get(selectedVtdGeoid)
     : undefined;
+  const replaySelectedState = replay.current?.election.jurisdictions.find(
+    (jurisdiction) => jurisdiction.jurisdictionId === selectedStateCode,
+  ) ?? null;
+  const replaySelectedCounty = replay.reportedCounties.find(
+    (county) => county.jurisdictionId === selectedStateCode && county.countyId === selectedCountyFips,
+  ) ?? null;
+  const replaySelectedModelUnit = selectedVtdGeoid
+    ? behaviorModelUnits?.find((unit) => unit.geometryId === selectedVtdGeoid)
+    : null;
+  const replaySelectedUnit = replaySelectedModelUnit
+    ? replay.publishedUnits.find((unit) => (
+      unit.jurisdictionId === selectedStateCode && unit.unitId === replaySelectedModelUnit.id
+    )) ?? null
+    : null;
+  const replayPresentedResult = replaySelectedUnit
+    ?? replaySelectedCounty
+    ?? replaySelectedState
+    ?? replay.current?.election.national
+    ?? null;
+  const replayPresentedHarrisVotes = replayCandidateVotes(replayPresentedResult, "harris");
+  const replayPresentedTrumpVotes = replayCandidateVotes(replayPresentedResult, "trump");
+  const replayPresentedTotalVotes = replayPresentedResult?.totalReportedVotes ?? 0;
+  const replayPresentedMargin = replayPresentedTotalVotes > 0
+    ? ((replayPresentedHarrisVotes - replayPresentedTrumpVotes) / replayPresentedTotalVotes) * 100
+    : null;
+  const replayNational = replay.current?.election.national ?? null;
+  const replayNationalHarrisVotes = replayCandidateVotes(replayNational, "harris");
+  const replayNationalTrumpVotes = replayCandidateVotes(replayNational, "trump");
+  const replayNationalMarginVotes = replayNationalHarrisVotes - replayNationalTrumpVotes;
   const selectedInspector = useMemo(() => {
     if (!demographicFoundation || !behaviorScenario) return null;
     if (selectedVtd) {
@@ -857,6 +1082,7 @@ export function App() {
   }
 
   function selectMapState(code: string | null) {
+    if (experienceMode === "election-night" && code && !isDetailedStateCode(code)) return;
     if (workspaceMode === "home" && code) navigateWorkspace("laboratory");
     selectState(code);
   }
@@ -891,6 +1117,8 @@ export function App() {
       setWorkspaceMode("laboratory");
       return;
     }
+    replay.stop();
+    setExperienceMode("swingometer");
     const homeUrl = workspaceUrl("home");
     window.history.pushState(window.history.state, "", homeUrl);
     observedScenarioSearch.current = "";
@@ -1005,9 +1233,156 @@ export function App() {
     setThirdPartyShiftPoints(0);
   }
 
+  function beginElectionNight() {
+    if (scenarioPending) return;
+    const recipes = Object.fromEntries((["PA", "MI", "WI"] as const).map((stateCode) => [
+      stateCode,
+      (scenarioRecipeRecord[stateCode]
+        ?? createStateScenarioRecipe(stateCode, DEFAULT_STATE_BEHAVIOR_SETTINGS)).settings,
+    ])) as Record<DetailedStateCode, StateBehaviorRecipeSettings>;
+    replay.start({
+      recipes,
+      behavior: nightBehavior,
+    });
+    setAppliedNightBehavior(cloneNightBehavior(nightBehavior));
+    setNightProfileFeedback("Chronology applied. The count restarted from zero.");
+    if (selectedStateCode && !isDetailedStateCode(selectedStateCode)) selectNation();
+    setViewMode("scenario");
+    if (experienceMode !== "election-night") {
+      window.requestAnimationFrame(() => setFitSelectionRequest((request) => request + 1));
+      setNightDockTab("live");
+      changeDrawerSnap("collapsed");
+    }
+    setExperienceMode("election-night");
+  }
+
+  function returnToSwingometer() {
+    replay.stop();
+    setExperienceMode("swingometer");
+    window.requestAnimationFrame(() => setFitSelectionRequest((request) => request + 1));
+  }
+
+  function updateNightBehavior<Key extends keyof ElectionNightBehavior>(
+    key: Key,
+    value: ElectionNightBehavior[Key],
+  ) {
+    setNightBehavior((current) => ({ ...current, [key]: value }));
+    setSelectedNightProfileId("draft");
+    setNightProfileFeedback(null);
+  }
+
+  function updateStateDelay(stateCode: DetailedStateCode, minutes: number) {
+    setNightBehavior((current) => ({
+      ...current,
+      stateDelayMinutes: { ...current.stateDelayMinutes, [stateCode]: minutes },
+    }));
+    setSelectedNightProfileId("draft");
+    setNightProfileFeedback(null);
+  }
+
+  function loadNightProfile(profileId: string) {
+    const builtIn = ELECTION_NIGHT_PROFILES.find((profile) => profile.id === profileId);
+    const saved = savedNightProfiles.find((profile) => profile.id === profileId);
+    const profile = builtIn ?? saved;
+    if (!profile) return;
+    setNightBehavior(cloneNightBehavior(profile.behavior));
+    setSelectedNightProfileId(profile.id);
+    setNightProfileName("name" in profile ? profile.name : profile.label);
+    setNightProfileFeedback(`${"name" in profile ? profile.name : profile.label} loaded as a draft. Apply it to restart the count.`);
+  }
+
+  function saveNightProfile() {
+    const name = nightProfileName.trim().slice(0, 40);
+    if (!name) {
+      setNightProfileFeedback("Name this chronology before saving it.");
+      return;
+    }
+    const existing = savedNightProfiles.find((profile) => profile.name.toLowerCase() === name.toLowerCase());
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 28) || "chronology";
+    const id = existing?.id ?? `saved:${Date.now().toString(36)}:${slug}`;
+    const entry: SavedNightProfile = { id, name, behavior: cloneNightBehavior(nightBehavior) };
+    const next = existing
+      ? savedNightProfiles.map((profile) => profile.id === existing.id ? entry : profile)
+      : [...savedNightProfiles, entry].slice(-12);
+    setSavedNightProfiles(next);
+    persistNightProfiles(next);
+    setSelectedNightProfileId(id);
+    setNightProfileFeedback(existing ? `Updated ${name} in this browser.` : `Saved ${name} in this browser.`);
+  }
+
+  function deleteNightProfile() {
+    if (!selectedNightProfileId.startsWith("saved:")) return;
+    const next = savedNightProfiles.filter((profile) => profile.id !== selectedNightProfileId);
+    setSavedNightProfiles(next);
+    persistNightProfiles(next);
+    setSelectedNightProfileId("draft");
+    setNightProfileFeedback("Saved chronology removed. The current draft is unchanged.");
+  }
+
+  function addNightCountyOverride() {
+    if (!nightOverrideCountyId) return;
+    const key = `${nightOverrideState}:${nightOverrideCountyId}`;
+    setNightBehavior((current) => ({
+      ...current,
+      countyOverrides: [
+        ...current.countyOverrides.filter((override) => `${override.stateCode}:${override.countyId}` !== key),
+        {
+          stateCode: nightOverrideState,
+          countyId: nightOverrideCountyId,
+          startOffsetMinutes: 0,
+          countDurationPercent: 100,
+        },
+      ],
+    }));
+    setSelectedNightProfileId("draft");
+    setNightProfileFeedback(null);
+  }
+
+  function updateNightCountyOverride(
+    stateCode: DetailedStateCode,
+    countyId: string,
+    changes: Partial<Pick<ElectionNightCountyOverride, "startOffsetMinutes" | "countDurationPercent">>,
+  ) {
+    setNightBehavior((current) => ({
+      ...current,
+      countyOverrides: current.countyOverrides.map((override) => (
+        override.stateCode === stateCode && override.countyId === countyId
+          ? { ...override, ...changes }
+          : override
+      )),
+    }));
+    setSelectedNightProfileId("draft");
+    setNightProfileFeedback(null);
+  }
+
+  function removeNightCountyOverride(stateCode: DetailedStateCode, countyId: string) {
+    setNightBehavior((current) => ({
+      ...current,
+      countyOverrides: current.countyOverrides.filter((override) => (
+        override.stateCode !== stateCode || override.countyId !== countyId
+      )),
+    }));
+    setSelectedNightProfileId("draft");
+    setNightProfileFeedback(null);
+  }
+
+  function openNightDock(tab: NightDockTab) {
+    setNightDockTab(tab);
+    if (laboratoryDrawerSnap === "collapsed") changeDrawerSnap("working");
+  }
+
+  function scheduleReplaySeek(progressMillionths: number) {
+    if (replaySeekTimerRef.current != null) window.clearTimeout(replaySeekTimerRef.current);
+    replaySeekTimerRef.current = window.setTimeout(() => {
+      replaySeekTimerRef.current = null;
+      replay.seek(progressMillionths);
+    }, 140);
+  }
+
   return (
     <main
       className="application-shell"
+      data-experience-mode={experienceMode}
       data-geography-level={selectedVtdGeoid ? "reporting-unit" : selectedCountyFips ? "county" : selectedStateCode ? "state" : "national"}
       data-workspace-mode={workspaceMode}
     >
@@ -1026,25 +1401,55 @@ export function App() {
             <button className="nav-item" onClick={() => navigateWorkspace("laboratory")} type="button">Open Sandbox</button>
             <a className="nav-item" href="#methodology">Sources</a>
           </> : <>
-            <button className="nav-item active" type="button">Laboratory</button>
-            <button className="nav-item" onClick={() => openLaboratoryPanel("assumptions")} type="button">Assumptions</button>
+            <button
+              className={`nav-item ${experienceMode === "swingometer" ? "active" : ""}`}
+              onClick={returnToSwingometer}
+              type="button"
+            >Swingometer</button>
+            <button
+              className={`nav-item ${experienceMode === "election-night" ? "active" : ""}`}
+              disabled={scenarioPending}
+              onClick={beginElectionNight}
+              type="button"
+            >Election Night</button>
             <button className="nav-item" onClick={() => navigateWorkspace("home")} type="button">Home</button>
           </>}
         </nav>
 
-        <div className="build-status"><span />Wisconsin detailed-state foundation · v0.20</div>
+        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · reporting-unit-first" : "Three-state swingometer · v0.23"}</div>
       </header>
 
       <div className="workbench" id="top">
         <section className="editorial-column" aria-labelledby="page-heading">
           {workspaceMode === "laboratory" && (
             <div className="laboratory-context">
-              <span className="overline">{selectedStateCode ? selectedActual.name : "United States"} laboratory</span>
-              <strong>{selectedStateCode ? selectedGeographyName : "United States"}</strong>
+              <span className="overline">{experienceMode === "election-night" ? "Election night replay" : `${selectedStateCode ? selectedActual.name : "United States"} laboratory`}</span>
+              <strong>{experienceMode === "election-night"
+                ? selectedVtd
+                  ? selectedVtd.name
+                  : selectedActualCounty
+                    ? `${selectedActualCounty.name}, unit by unit`
+                    : selectedStateCode
+                      ? `${selectedActual.name}, county by county`
+                      : "America, as the count moves"
+                : selectedStateCode ? selectedGeographyName : "United States"}</strong>
+              {experienceMode === "election-night" && <p className="night-editorial-dek">
+                {selectedActualCounty
+                  ? `Each ${activeDetailedStateManifest.geography.unitLabel.toLowerCase()} publishes once. Those returns continually reshape the county and statewide count.`
+                  : selectedStateCode
+                    ? `Local returns arrive in irregular waves. County margins move first, then determine ${selectedActual.name}'s live color.`
+                    : "Only Pennsylvania, Michigan, and Wisconsin participate. Every visible result is built upward from detailed local returns."}
+              </p>}
               <div>
-                <span>Actual <b>{readoutActualMargin == null ? "Unavailable" : formatMargin(readoutActualMargin)}</b></span>
-                <span>Scenario <b>{readoutScenarioMargin == null ? "Unavailable" : formatMargin(readoutScenarioMargin)}</b></span>
-                {!selectedStateCode && <span>Electoral College <b>{electoralConsequences.scenarioNational.harrisElectoralVotes}–{electoralConsequences.scenarioNational.trumpElectoralVotes}</b></span>}
+                {experienceMode === "election-night" ? <>
+                  <span>Reported <b>{replayPresentedMargin == null ? "No return" : formatMargin(replayPresentedMargin)}</b></span>
+                  <span>Ballots <b>{formatCompact(replayPresentedTotalVotes)}</b></span>
+                  <span>Returns <b>{replaySelectedState?.returnsPublished ?? replay.current?.election.national.returnsPublished ?? 0}</b></span>
+                </> : <>
+                  <span>Actual <b>{readoutActualMargin == null ? "Unavailable" : formatMargin(readoutActualMargin)}</b></span>
+                  <span>Scenario <b>{readoutScenarioMargin == null ? "Unavailable" : formatMargin(readoutScenarioMargin)}</b></span>
+                  {!selectedStateCode && <span>Electoral College <b>{electoralConsequences.scenarioNational.harrisElectoralVotes}–{electoralConsequences.scenarioNational.trumpElectoralVotes}</b></span>}
+                </>}
               </div>
               {selectedStateCode && <button onClick={selectedCountyFips ? () => selectCounty(null) : selectNation} type="button">
                 ← {selectedCountyFips ? selectedActual.name : "United States"}
@@ -1055,13 +1460,13 @@ export function App() {
               </button>
             </div>
           )}
-          <p className="overline">Historical counterfactual simulator</p>
-          <h1 id="page-heading">Change America.<br />Watch the map answer.</h1>
+          <p className="overline">Election modeling and replay studio</p>
+          <h1 id="page-heading">Build the electorate.<br />Then watch it count.</h1>
           <p className="lede">
-            Test an electoral assumption, trace the votes it moves, and follow the consequence from a state to the presidency.
+            Create a detailed counterfactual, trace where every vote moves, and direct how the result arrives on election night.
           </p>
 
-          <button className="open-sandbox-button" onClick={() => navigateWorkspace("laboratory")} type="button">Open Sandbox <span aria-hidden="true">→</span></button>
+          <button className="open-sandbox-button" onClick={() => navigateWorkspace("laboratory")} type="button">Enter the laboratory <span aria-hidden="true">→</span></button>
 
           <div className="baseline-lockup">
             <div className="baseline-head">
@@ -1109,7 +1514,9 @@ export function App() {
                 {workspaceMode === "laboratory" && selectedVtd && <><span>/</span><strong aria-current="location">{selectedVtd.name}</strong></>}
               </div>
             </div>
-            <div className="segmented" aria-label="Map comparison mode">
+            {experienceMode === "election-night" ? (
+              <div className="night-map-status"><span />Reported returns</div>
+            ) : <div className="segmented" aria-label="Map comparison mode">
               {(["actual", "scenario", "difference"] as ViewMode[]).map((mode) => (
                 <button
                   aria-pressed={viewMode === mode}
@@ -1120,7 +1527,7 @@ export function App() {
                   {mode === "difference" ? "Shift" : mode[0].toUpperCase() + mode.slice(1)}
                 </button>
               ))}
-            </div>
+            </div>}
           </div>
 
           <div className="map-stage">
@@ -1135,12 +1542,18 @@ export function App() {
                 onActiveCountyChange={selectCounty}
                 onActivePrecinctChange={selectPrecinct}
                 onActiveStateChange={selectMapState}
-                scenarioDetailedCounties={scenarioDetailedCounties}
-                scenarioDetailedGeographies={scenarioDetailedGeographies}
-                scenarioStates={scenarioStates}
+                scenarioDetailedCounties={displayedDetailedCounties}
+                scenarioDetailedGeographies={displayedDetailedGeographies}
+                scenarioStates={displayedScenarioStates}
                 fitSelectionRequest={fitSelectionRequest}
-                viewMode={viewMode}
-                routeIndicators={(routeConstructionPlan?.states ?? []).map((state, index) => ({
+                viewMode={experienceMode === "election-night" ? "scenario" : viewMode}
+                scenarioIsPartial={experienceMode === "election-night"}
+                highlightedReturn={experienceMode === "election-night" && replay.currentReturn ? {
+                  stateCode: replay.currentReturn.jurisdictionId,
+                  countyFips: replay.currentReturn.countyId,
+                  precinctGeoid: replay.currentReturn.geometryId,
+                } : null}
+                routeIndicators={experienceMode === "election-night" ? [] : (routeConstructionPlan?.states ?? []).map((state, index) => ({
                   stateCode: state.stateCode,
                   status: state.status,
                   order: index + 1,
@@ -1148,7 +1561,22 @@ export function App() {
               />
             </Suspense>
 
-            <div className="selected-readout" data-drilled={Boolean(selectedStateCode)} aria-live="polite">
+            {experienceMode === "election-night" && replay.phase !== "ready" && (
+              <div className="night-initialization" role="status">
+                <span aria-hidden="true" />
+                <div>
+                  <strong>{replay.phase === "error"
+                    ? "Election night could not start"
+                    : replay.phase === "loading-data"
+                      ? "Locking your Swingometer scenario"
+                      : "Compiling precinct-level returns off-thread"}</strong>
+                  <p>{replay.error ?? "The same map stays mounted while the deterministic return timeline is prepared. First load can take about half a minute."}</p>
+                </div>
+                {replay.phase === "error" && <button onClick={returnToSwingometer} type="button">Back to Swingometer</button>}
+              </div>
+            )}
+
+            {experienceMode === "swingometer" && <div className="selected-readout" data-drilled={Boolean(selectedStateCode)} aria-live="polite">
               <div>
                 <span className="overline">Selected</span>
                 <strong>{presentedGeographyName}</strong>
@@ -1167,7 +1595,7 @@ export function App() {
                     ? "No change"
                     : `${presentedShift > 0 ? "+" : ""}${presentedShift.toFixed(1)} pts D`}
               </div>
-            </div>
+            </div>}
           </div>
 
           <div className="legend-row">
@@ -1179,6 +1607,17 @@ export function App() {
           </div>
           {workspaceMode === "laboratory" && (
             <div className="causal-strip" aria-live="polite">
+              {experienceMode === "election-night" ? <>
+                <span>{replay.current?.controller.status ?? replay.phase}</span>
+                <i aria-hidden="true">→</i>
+                <strong>{replayPresentedMargin == null
+                  ? `${selectedGeographyName} has no published return`
+                  : `${selectedGeographyName} ${formatMargin(replayPresentedMargin)} reported`}</strong>
+                <i aria-hidden="true">→</i>
+                <b>{replaySelectedState?.geographyAvailability === "detailed"
+                  ? `${replaySelectedState.returnsPublished} reporting-unit returns`
+                  : "Statewide-only capability"}</b>
+              </> : <>
               <span>{!selectedStateCode
                 ? `${portfolioRecipes.length} active detailed ${portfolioRecipes.length === 1 ? "state" : "states"}`
                 : behaviorEditorMode === "preference"
@@ -1193,11 +1632,33 @@ export function App() {
               {activeRouteConstructionState && <><i aria-hidden="true">→</i><b>{activeRouteConstructionState.status === "satisfied"
                 ? `+${activeRouteConstructionState.electoralVotes} EV verified`
                 : `${formatCompact(activeRouteConstructionState.remainingNetMarginVotes)} still required`}</b></>}
+              </>}
             </div>
           )}
         </section>
 
         <aside className={`control-column ${assumptionsOpen ? "open" : ""}`} aria-label="Scenario editor">
+          {experienceMode === "election-night" && (
+            <section className="night-three-state-card" aria-label="Three-state election night desk">
+              <div className="card-heading"><div><span className="overline">Election night desk</span><strong>Detailed states only</strong></div><span className="year-chip">2024</span></div>
+              <p>Only jurisdictions with approved reporting-unit data enter this count.</p>
+              <div className="night-state-ledger">
+                {(["PA", "MI", "WI"] as const).map((stateCode) => {
+                  const state = replayJurisdictions?.find((item) => item.jurisdictionId === stateCode);
+                  const harris = replayCandidateVotes(state, "harris");
+                  const trump = replayCandidateVotes(state, "trump");
+                  const reportedMargin = state?.totalReportedVotes
+                    ? (harris - trump) / state.totalReportedVotes * 100
+                    : null;
+                  return <div className="night-state-row" data-selected={selectedStateCode === stateCode} key={stateCode}>
+                    <span><strong>{stateCode}</strong><small>{getDetailedStateManifest(stateCode).geography.unitLabelPlural}</small></span>
+                    <span><b>{reportedMargin == null ? "NO RETURNS" : formatMargin(reportedMargin)}</b><small>{state?.returnsPublished ?? 0} / {state?.expectedReturns ?? 0}</small></span>
+                  </div>;
+                })}
+              </div>
+              <div className="night-exclusion-note"><span />48 other jurisdictions excluded. No statewide fallback returns.</div>
+            </section>
+          )}
           <section className="scenario-card">
             <div className="card-heading">
               <div><span className="overline">Your scenario</span><strong>Electoral College</strong></div>
@@ -1494,7 +1955,204 @@ export function App() {
             </p>
           </section>
 
-          <div
+          {experienceMode === "election-night" && <div
+            aria-label="Election night controls"
+            className="laboratory-drawer night-command-dock"
+            data-snap={laboratoryDrawerSnap}
+            ref={laboratoryDrawerRef}
+            role="region"
+            style={laboratoryDrawerDragHeight == null ? undefined : { "--drawer-drag-height": `${laboratoryDrawerDragHeight}px` } as CSSProperties}
+          >
+            <button
+              aria-label="Resize Election Night dock"
+              className="drawer-grab-handle"
+              onPointerCancel={handleDrawerPointerEnd}
+              onPointerDown={handleDrawerPointerDown}
+              onPointerMove={handleDrawerPointerMove}
+              onPointerUp={handleDrawerPointerEnd}
+              type="button"
+            ><span /></button>
+            <div className="drawer-toolbar night-dock-toolbar">
+              <div className="drawer-intent night-dock-clock">
+                <span className="overline">Run my election</span>
+                <strong>{replay.current
+                  ? replayClockFormat.format(new Date(replay.current.controller.logicalReplayTimeMs))
+                  : "Preparing election night"}</strong>
+                <small>{replay.current?.controller.appliedEventCount ?? 0} returns · {formatNumber(replayNational?.totalReportedVotes ?? 0)} ballots</small>
+              </div>
+              <div className="night-dock-playback" aria-label="Playback controls">
+                <button
+                  className="primary"
+                  disabled={replay.phase !== "ready" || replay.current?.controller.status === "complete"}
+                  onClick={replay.current?.controller.status === "playing" ? replay.pause : replay.play}
+                  type="button"
+                >{replay.current?.controller.status === "playing" ? "Pause" : "Play"}</button>
+                <button disabled={replay.phase !== "ready"} onClick={replay.step} type="button">Next return</button>
+                <button disabled={replay.phase !== "ready"} onClick={replay.reset} type="button">Reset</button>
+                <button className="night-mobile-edit" onClick={returnToSwingometer} type="button">Edit Swingometer</button>
+                <label><span>Speed</span><select aria-label="Election night speed" value={replay.speed} onChange={(event) => replay.setSpeed(Number(event.currentTarget.value))}>
+                  {[0.1, 0.5, 1, 4, 12].map((speed) => <option key={speed} value={speed}>{speed}×</option>)}
+                </select></label>
+              </div>
+              <label className="night-dock-timeline">
+                <span><b>Start</b><b>{Math.round(replay.timelineProgressMillionths / 10_000)}%</b><b>End</b></span>
+                <input
+                  aria-label="Election night timeline"
+                  defaultValue={0}
+                  disabled={replay.phase !== "ready"}
+                  max={1_000_000}
+                  min={0}
+                  onChange={(event) => scheduleReplaySeek(Number(event.currentTarget.value))}
+                  ref={replayTimelineInputRef}
+                  step={1_000}
+                  type="range"
+                />
+              </label>
+              <div className="drawer-tabs" role="tablist" aria-label="Election Night dock panels">
+                {nightDockTabs.map((tab) => (
+                  <button
+                    aria-controls={`night-dock-panel-${tab}`}
+                    aria-selected={nightDockTab === tab}
+                    id={`night-dock-tab-${tab}`}
+                    key={tab}
+                    onClick={() => openNightDock(tab)}
+                    role="tab"
+                    tabIndex={nightDockTab === tab ? 0 : -1}
+                    type="button"
+                  >{tab === "direct" ? "Direct the count" : tab[0].toUpperCase() + tab.slice(1)}</button>
+                ))}
+              </div>
+              <div className="drawer-snaps" aria-label="Dock position">
+                <button onClick={returnToSwingometer} type="button">Edit Swingometer</button>
+                {(["collapsed", "working", "expanded"] as LaboratoryDrawerSnap[]).map((snap) => (
+                  <button aria-pressed={laboratoryDrawerSnap === snap} key={snap} onClick={() => changeDrawerSnap(snap)} type="button">{snap}</button>
+                ))}
+              </div>
+            </div>
+            <div className="drawer-panels night-dock-panels">
+              <div aria-labelledby="night-dock-tab-live" className="drawer-panel" data-active={nightDockTab === "live"} id="night-dock-panel-live" role="tabpanel">
+                <section className="night-live-grid">
+                  <article className="night-live-lead">
+                    <span className="overline">Three-state reported vote</span>
+                    <strong>{replayNational?.totalReportedVotes
+                      ? `${replayNationalMarginVotes >= 0 ? "Harris" : "Trump"} +${formatNumber(Math.abs(replayNationalMarginVotes))}`
+                      : "No returns"}</strong>
+                    <p>PA, MI, and WI are built upward from published local units. No other state participates.</p>
+                  </article>
+                  <div className="night-live-states">
+                    {(["PA", "MI", "WI"] as const).map((stateCode) => {
+                      const state = replayJurisdictions?.find((item) => item.jurisdictionId === stateCode);
+                      const harris = replayCandidateVotes(state, "harris");
+                      const trump = replayCandidateVotes(state, "trump");
+                      const reportedMargin = state?.totalReportedVotes ? (harris - trump) / state.totalReportedVotes * 100 : null;
+                      return <button key={stateCode} onClick={() => selectState(stateCode)} type="button">
+                        <span><b>{stateCode}</b><small>{state?.returnsPublished ?? 0} / {state?.expectedReturns ?? 0} units</small></span>
+                        <strong>{reportedMargin == null ? "No returns" : formatMargin(reportedMargin)}</strong>
+                      </button>;
+                    })}
+                  </div>
+                  <article className="night-latest-return">
+                    <span className="overline">Latest return</span>
+                    <strong>{replay.currentReturn ? `${replay.currentReturn.jurisdictionId} · ${replay.currentReturn.unitId}` : "Waiting for the first unit"}</strong>
+                    <p>{replay.currentReturn ? `${formatNumber(replay.currentReturn.totalVotes)} ballots published into the live county and state totals.` : "Press Play or Next return when the scenario is ready."}</p>
+                  </article>
+                </section>
+              </div>
+
+              <div aria-labelledby="night-dock-tab-direct" className="drawer-panel" data-active={nightDockTab === "direct"} id="night-dock-panel-direct" role="tabpanel">
+                <section className="night-dock-editor" aria-label="Election night behavior editor">
+                  <div className="night-dock-section-heading"><div><span className="overline">Count behavior</span><strong>You direct how the result arrives</strong></div><p>Chronology changes. Every Swingometer vote stays locked.</p></div>
+
+                  <div className="night-profile-bar">
+                    <label><span>Reporting profile</span><select aria-label="Reporting profile" value={selectedNightProfileId} onChange={(event) => loadNightProfile(event.currentTarget.value)}>
+                      {selectedNightProfileId === "draft" && <option value="draft" disabled>Unsaved draft</option>}
+                      <optgroup label="Atlas profiles">{ELECTION_NIGHT_PROFILES.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}</optgroup>
+                      {savedNightProfiles.length > 0 && <optgroup label="Saved in this browser">{savedNightProfiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}</option>)}</optgroup>}
+                    </select></label>
+                    <label className="night-profile-name"><span>Save this chronology</span><input aria-label="Chronology profile name" maxLength={40} onChange={(event) => setNightProfileName(event.currentTarget.value)} placeholder="Profile name" type="text" value={nightProfileName} /></label>
+                    <button onClick={saveNightProfile} type="button">Save</button>
+                    {selectedNightProfileId.startsWith("saved:") && <button onClick={deleteNightProfile} type="button">Delete</button>}
+                    <p aria-live="polite">{nightProfileFeedback ?? ELECTION_NIGHT_PROFILES.find((profile) => profile.id === selectedNightProfileId)?.description ?? "Custom draft. Save it to reuse this chronology in this browser."}</p>
+                  </div>
+
+                  <div className="night-behavior-grid">
+                    <label><span>Reporting order</span><select value={nightBehavior.reportingOrder} onChange={(event) => updateNightBehavior("reportingOrder", event.currentTarget.value as ReportingOrder)}><option value="mixed">Mixed geography</option><option value="rural-first">Smaller areas first</option><option value="urban-first">Larger areas first</option></select></label>
+                    <label><span>Count duration <b>{nightBehavior.durationHours}h</b></span><input min={2} max={36} step={1} type="range" value={nightBehavior.durationHours} onChange={(event) => updateNightBehavior("durationHours", Number(event.currentTarget.value))} /></label>
+                    <label><span>Timing volatility <b>{nightBehavior.volatility}%</b></span><input min={0} max={100} step={1} type="range" value={nightBehavior.volatility} onChange={(event) => updateNightBehavior("volatility", Number(event.currentTarget.value))} /></label>
+                    <label><span>Bursts and stalls <b>{nightBehavior.stallIntensity}%</b></span><input min={0} max={100} step={1} type="range" value={nightBehavior.stallIntensity} onChange={(event) => updateNightBehavior("stallIntensity", Number(event.currentTarget.value))} /></label>
+                  </div>
+                  <div className="night-state-delays">
+                    <span>State activation delay after poll close</span>
+                    {(["PA", "MI", "WI"] as const).map((stateCode) => <label key={stateCode}><b>{stateCode}</b><input min={0} max={360} step={1} type="number" value={nightBehavior.stateDelayMinutes[stateCode]} onChange={(event) => updateStateDelay(stateCode, Math.max(0, Math.min(360, Number(event.currentTarget.value))))} /><small>min</small></label>)}
+                    <label><b>Seed</b><input step={1} type="number" value={nightBehavior.seed} onChange={(event) => updateNightBehavior("seed", Math.round(Number(event.currentTarget.value)))} /></label>
+                  </div>
+
+                  <section className="night-chronology-preview" aria-label="Chronology preview">
+                    <div className="night-preview-heading"><div><span className="overline">Before you restart</span><strong>Planned reporting windows</strong></div><span data-dirty={nightBehaviorDirty}>{nightBehaviorDirty ? "Draft differs from running count" : "Running chronology"}</span></div>
+                    <div className="night-preview-axis"><span>{replayTimeShortFormat.format(new Date(nightChronologyPreview.startsAtMs))}</span><span>{replayTimeShortFormat.format(new Date(nightChronologyPreview.endsAtMs))}</span></div>
+                    <div className="night-preview-lanes">
+                      {nightChronologyPreview.states.map((state) => {
+                        const span = Math.max(1, nightChronologyPreview.endsAtMs - nightChronologyPreview.startsAtMs);
+                        const left = (state.activationMs - nightChronologyPreview.startsAtMs) / span * 100;
+                        const width = (state.plannedFinishMs - state.activationMs) / span * 100;
+                        return <div className="night-preview-lane" key={state.stateCode}>
+                          <b>{state.stateCode}</b>
+                          <div><span style={{ left: `${left}%`, width: `${width}%` }} /></div>
+                          <small>{replayTimeShortFormat.format(new Date(state.activationMs))}{state.overrideCount ? ` · ${state.overrideCount} local ${state.overrideCount === 1 ? "exception" : "exceptions"}` : ""}</small>
+                        </div>;
+                      })}
+                    </div>
+                    <p>These are statewide planning windows. Deterministic county waves, stalls, and local exceptions determine the exact return times inside them.</p>
+                  </section>
+
+                  <section className="night-county-overrides" aria-label="County timing overrides">
+                    <div className="night-dock-section-heading compact"><div><span className="overline">Local exceptions</span><strong>County timing overrides</strong></div><p>Adjust chronology only. Candidate shares are never inputs.</p></div>
+                    <div className="night-override-picker">
+                      <label><span>State</span><select aria-label="County override state" value={nightOverrideState} onChange={(event) => { setNightOverrideState(event.currentTarget.value as DetailedStateCode); setNightOverrideCountyId(""); }}><option value="PA">Pennsylvania</option><option value="MI">Michigan</option><option value="WI">Wisconsin</option></select></label>
+                      <label><span>County</span><select aria-label="County override county" value={nightOverrideCountyId} onChange={(event) => setNightOverrideCountyId(event.currentTarget.value)}><option value="">Choose county</option>{nightOverrideCounties.map((county) => <option key={county.fips} value={county.fips}>{county.name}</option>)}</select></label>
+                      <button disabled={!nightOverrideCountyId} onClick={addNightCountyOverride} type="button">Add override</button>
+                    </div>
+                    {nightBehavior.countyOverrides.length > 0 ? <div className="night-override-list">
+                      {nightBehavior.countyOverrides.map((override) => {
+                        const county = getDetailedStateCounties(override.stateCode).find((candidate) => candidate.fips === override.countyId);
+                        return <article key={`${override.stateCode}:${override.countyId}`}>
+                          <div><strong>{county?.name ?? override.countyId}</strong><small>{override.stateCode} · {county?.reportingUnitCount ?? 0} reporting units</small></div>
+                          <label><span>Start shift</span><input aria-label={`${override.stateCode} ${county?.name ?? override.countyId} start shift`} max={360} min={-240} onChange={(event) => updateNightCountyOverride(override.stateCode, override.countyId, { startOffsetMinutes: Number(event.currentTarget.value) })} step={5} type="number" value={override.startOffsetMinutes} /><small>min</small></label>
+                          <label><span>Count length</span><input aria-label={`${override.stateCode} ${county?.name ?? override.countyId} count length`} max={300} min={25} onChange={(event) => updateNightCountyOverride(override.stateCode, override.countyId, { countDurationPercent: Number(event.currentTarget.value) })} step={5} type="number" value={override.countDurationPercent} /><small>%</small></label>
+                          <button aria-label={`Remove ${override.stateCode} ${county?.name ?? override.countyId} override`} onClick={() => removeNightCountyOverride(override.stateCode, override.countyId)} type="button">Remove</button>
+                        </article>;
+                      })}
+                    </div> : <p className="night-override-empty">No county exceptions. Every county follows its state profile.</p>}
+                  </section>
+
+                  <div className="night-apply-row"><p>{nightBehavior.countyOverrides.length} county {nightBehavior.countyOverrides.length === 1 ? "override" : "overrides"} · {nightBehavior.durationHours} hour plan · seed {nightBehavior.seed}</p><button className="night-apply-behavior" disabled={!nightBehaviorDirty || scenarioPending} onClick={beginElectionNight} type="button">Apply and restart count</button></div>
+                </section>
+              </div>
+
+              <div aria-labelledby="night-dock-tab-returns" className="drawer-panel" data-active={nightDockTab === "returns"} id="night-dock-panel-returns" role="tabpanel">
+                <section className="night-returns-panel">
+                  <div className="night-dock-section-heading"><div><span className="overline">Geographic return ledger</span><strong>{selectedStateCode ? selectedGeographyName : "Three detailed states"}</strong></div><p>Click the map or state desk to change scope.</p></div>
+                  <div className="night-return-metrics">
+                    <span><small>Reported margin</small><strong>{replayPresentedMargin == null ? "No return" : formatMargin(replayPresentedMargin)}</strong></span>
+                    <span><small>Ballots</small><strong>{formatNumber(replayPresentedTotalVotes)}</strong></span>
+                    <span><small>Published units</small><strong>{replaySelectedState?.returnsPublished ?? replayNational?.returnsPublished ?? 0}</strong></span>
+                    <span><small>Status</small><strong>{replay.current?.controller.status ?? replay.phase}</strong></span>
+                  </div>
+                </section>
+              </div>
+
+              <div aria-labelledby="night-dock-tab-method" className="drawer-panel" data-active={nightDockTab === "method"} id="night-dock-panel-method" role="tabpanel">
+                <section className="night-method-grid">
+                  <article><span>Final result</span><strong>Locked by Swingometer</strong><p>Timing controls never alter candidate totals at any reporting unit.</p></article>
+                  <article><span>Atomicity</span><strong>One unit, one return</strong><p>No invented 20%, 50%, or 80% partial precinct batches appear.</p></article>
+                  <article><span>Chronology</span><strong>Deterministic reconstruction</strong><p>County windows, bursts, stalls, and jitter are reproducible from the selected seed.</p></article>
+                  <article><span>Coverage</span><strong>PA · MI · WI only</strong><p>The remaining 48 jurisdictions stay inert because they lack approved detailed inputs.</p></article>
+                </section>
+              </div>
+            </div>
+          </div>}
+
+          {experienceMode === "swingometer" && <div
             aria-label="Laboratory desk"
             className="laboratory-drawer"
             data-snap={laboratoryDrawerSnap}
@@ -1984,9 +2642,52 @@ export function App() {
           )}
               </div>
             </div>
-          </div>
+          </div>}
         </aside>
       </div>
+
+      {workspaceMode === "home" && <div className="home-product-story">
+        <section className="home-capabilities" aria-labelledby="home-capabilities-heading">
+          <div className="home-section-heading">
+            <span className="overline">One continuous workflow</span>
+            <h2 id="home-capabilities-heading">Model the result. Direct the night. Understand the change.</h2>
+            <p>The scenario engine, reporting-unit map, and replay timeline share one deterministic election foundation.</p>
+          </div>
+          <div className="home-capability-grid">
+            <article><span>01</span><strong>Model</strong><p>Change turnout, two-party preference, and third-party support across detailed local geography.</p><small>Swingometer</small></article>
+            <article><span>02</span><strong>Direct</strong><p>Choose reporting order, pace, volatility, stalls, and state activation without changing the final result.</p><small>Election Night</small></article>
+            <article><span>03</span><strong>Understand</strong><p>Follow the counties and reporting units responsible for every statewide and Electoral College consequence.</p><small>Contribution ledger</small></article>
+          </div>
+        </section>
+
+        <section className="home-workflow" aria-labelledby="home-workflow-heading">
+          <div className="home-workflow-copy">
+            <span className="overline">Analyst workflow</span>
+            <h2 id="home-workflow-heading">From certified baseline to a replayable election.</h2>
+            <p>Every scenario is constructed in a visible order, preserved as a compact recipe, and rebuilt through the same state-specific evidence contracts.</p>
+            <button onClick={() => navigateWorkspace("laboratory")} type="button">Start with Pennsylvania <span>→</span></button>
+          </div>
+          <ol>
+            <li><b>01</b><div><strong>Select detailed geography</strong><p>Begin nationally, enter a supported state, then drill through county and reporting-unit terrain.</p></div></li>
+            <li><b>02</b><div><strong>Change voter behavior</strong><p>Separate participation, preference, and third-party operations keep the arithmetic understandable.</p></div></li>
+            <li><b>03</b><div><strong>Inspect the consequence</strong><p>See which places moved the margin and whether the Electoral College result changed.</p></div></li>
+            <li><b>04</b><div><strong>Run election night</strong><p>Reuse the scenario on the same map and publish local returns through a user-directed chronology.</p></div></li>
+          </ol>
+        </section>
+
+        <section className="home-foundation" aria-labelledby="home-foundation-heading">
+          <div className="home-section-heading compact">
+            <span className="overline">Evidence before spectacle</span>
+            <h2 id="home-foundation-heading">Different state data models, one honest interface.</h2>
+          </div>
+          <div className="home-foundation-grid">
+            <article><strong>Pennsylvania</strong><span>VTD-linked model units</span><p>Official 2024 reporting units linked to Census voting-district terrain with unmatched coverage retained explicitly.</p></article>
+            <article><strong>Michigan</strong><span>Exact-cycle precincts</span><p>2024 precinct reporting units use their corresponding local geometry, including explicit off-map structures.</p></article>
+            <article><strong>Wisconsin</strong><span>Detailed wards</span><p>Ward-level reconstructed values remain labeled as reconstruction and reconcile to the certified statewide result.</p></article>
+          </div>
+          <div className="home-final-cta"><div><span className="overline">American electorate laboratory</span><strong>A scenario should be reproducible before it is persuasive.</strong></div><button onClick={() => navigateWorkspace("laboratory")} type="button">Open Sandbox 2.0</button></div>
+        </section>
+      </div>}
 
       <footer className="methodology-footer" id="methodology">
         <div>
@@ -1999,4 +2700,8 @@ export function App() {
       </footer>
     </main>
   );
+}
+
+export function App() {
+  return <ScenarioApp />;
 }

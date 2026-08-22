@@ -1,5 +1,5 @@
 import type { CountyPresidentialResult } from "../../packages/election-model/src/scenario.ts";
-import sourceDocument from "./pa-2024-counties.json";
+import sourceDocument from "./pa-2024-counties.json" with { type: "json" };
 
 export interface PennsylvaniaCountyResult extends CountyPresidentialResult {
   code: number;
@@ -27,6 +27,7 @@ interface PennsylvaniaSource {
   title: string;
   sourceUrl: string;
   retrievedAt: string;
+  checksumSha256?: string;
   limitations: string[];
 }
 

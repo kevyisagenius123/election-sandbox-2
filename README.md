@@ -4,7 +4,17 @@ Sandbox 2.0 is an independent, local-first laboratory for historical United Stat
 
 The full research repository is private while PA/MI detailed-result redistribution remains under review. A separate fresh-history, national-only public preview is available at [Sandbox 2.0 public demo](https://kevyisagenius123.github.io/election-sandbox-demo/). The demo contains the FEC statewide baseline and national state geometry, but no county, precinct, VTD, reporting-unit, local demographic, crosswalk, or detailed-state scenario artifacts.
 
-## Current release: v0.20 Wisconsin Detailed-State Foundation
+## Current release: v0.23A Integrated Three-State Election Night
+
+v0.23A adds Election Night directly to the existing Swingometer at `/app/`. The same mounted deck.gl map reveals the current Swingometer result through Pennsylvania VTD, Michigan precinct, and Wisconsin ward returns. No separate replay route or replacement map exists.
+
+One dedicated worker loads all three foundations, applies their stored Swingometer recipes, and creates deterministic Atlas-style county windows with reporting-unit bursts and stalls. Users control duration, geographic order, volatility, stall intensity, state delays, and seed. They can also load four candidate-blind reporting profiles, save reusable custom chronologies in their browser, and add explicit county start/count-length exceptions. A planning preview shows the three state windows and local-exception count before a draft restarts the replay. These controls alter chronology but never votes. Election Night reorganizes the persistent map into an Atlas-style full-stage composition with an editorial headline, read-only three-state desk, and the same resizable bottom-dock architecture used by the Laboratory. Playback, speed, timeline, count direction, return inspection, methodology, and the Swingometer handoff live in that one dock. The editorial home also follows the original Sandbox's map-led product story while retaining the warm Atlas visual system. See [v0.23A verification](docs/review/v0.23a-visible-replay/VERIFICATION.md) and [decision 0039](docs/decisions/0039-first-visible-replay-slice.md).
+
+State color means reported-vote leader, never a call. The other 48 jurisdictions are excluded from the visible count and receive no coarse statewide fallback event. The accepted v0.21 and v0.22 kernel remains tested infrastructure but does not drive this three-state presentation. Decision Desk logic, projections, calls, backend, memberships, rooms, export, and video remain excluded.
+
+Read the [v0.23 Election Night release notes](docs/releases/v0.23-election-night.md) for the complete user-facing and architectural update.
+
+## Previous release: v0.20 Wisconsin Detailed-State Foundation
 
 Wisconsin is the third production-detailed state. Its 72 counties and 7,086 January 2025 ward polygons run through the same deterministic worker, 3D drilldown, contribution, inspector, portfolio, Electoral College, Path to 270, and URL contracts as Pennsylvania and Michigan. All 3,422,918 statewide ballots reconcile; 6,946 result-bearing wards map and 140 geometry-only wards remain neutral.
 
@@ -14,7 +24,13 @@ Human alpha has been deferred by the product owner until the broader project is 
 
 The former full-product GitHub Pages workflow was removed during the 2026-08-20 containment cutover. Public product positioning now lives in the separate sanitized demo repository.
 
-## Previous release: v0.18.2 Editorial Home and United States Laboratory
+## Next phase: supervisor review of v0.23A
+
+The pre-authorized visible slice is complete. The exact next action is supervisor review of `docs/review/v0.23a-visible-replay/VERIFICATION.md` and explicit selection of v0.23B. No Decision Desk or public restricted-data release begins automatically.
+
+The complete implementation specification is [Run My Election Engine Plan](RUN_MY_ELECTION_ENGINE_PLAN.md), and the constitutional subsystem boundary is recorded in [decision 0028](docs/decisions/0028-election-night-engine-boundary.md). Arizona and Georgia admission research remains postponed.
+
+## Earlier release: v0.18.2 Editorial Home and United States Laboratory
 
 v0.18.2 separates the editorial Home from the analytical application. Home explains the product at `/`; the United States, states, counties, and reporting units now share one viewport-first Laboratory at `/app/`. Geographic navigation stays inside the Laboratory, while explicit Home navigation leaves it without changing the in-memory election scenario. Versioned scenario links open directly in the Laboratory, and the production build emits a real `app/index.html` entry for static hosting. The same map, workers, scenario recipes, drawer, and bounded consequence rail survive every presentation and geography transition. A dedicated GitHub Pages workflow builds with the repository base path and publishes both entry points.
 
@@ -316,6 +332,23 @@ The importer reads the official LTSB ArcGIS item, verifies its identity and open
 - `docs/decisions/0025-human-alpha-research-freeze.md`
 - `docs/decisions/0026-wisconsin-ltsb-admission.md`
 - `docs/decisions/0027-deferred-human-validation.md`
+- `docs/decisions/0028-election-night-engine-boundary.md`
+- `docs/decisions/0029-headless-pennsylvania-event-compiler.md`
+- `docs/decisions/0030-multi-jurisdiction-replay-contracts.md`
+- `docs/decisions/0031-headless-michigan-event-compiler.md`
+- `docs/decisions/0032-headless-national-replay-composition.md`
+- `docs/decisions/0033-headless-replay-reducer.md`
+- `docs/decisions/0038-minimal-replay-worker-runtime.md`
+- `docs/decisions/0039-first-visible-replay-slice.md`
+- `RUN_MY_ELECTION_ENGINE_PLAN.md`
+- `docs/review/v0.21a-replay-contracts/VERIFICATION.md`
+- `docs/review/v0.21b-pa-event-compiler/VERIFICATION.md`
+- `docs/review/v0.21c-multi-jurisdiction-contracts/VERIFICATION.md`
+- `docs/review/v0.21d-michigan-event-compiler/VERIFICATION.md`
+- `docs/review/v0.21e-national-replay-composition/VERIFICATION.md`
+- `docs/review/v0.22a-replay-reducer/VERIFICATION.md`
+- `docs/review/v0.22f-replay-worker-runtime/VERIFICATION.md`
+- `docs/review/v0.23a-visible-replay/VERIFICATION.md`
 - `docs/review/v0.20-wisconsin/VERIFICATION.md`
 - `docs/operations/ALPHA_DATA_PERMISSION_REQUESTS.md`
 - `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md`
@@ -323,7 +356,7 @@ The importer reads the official LTSB ArcGIS item, verifies its identity and open
 
 ## Next increment
 
-v0.20 is closed for private internal development. The next increment begins with source, geometry, denominator, and delivery audits for a small Arizona and Georgia candidate batch; neither state enters the runtime until its admission contract passes independently. The human study remains required before broad public or paid delivery, and PA/MI delivery rights remain a separate unresolved release gate.
+v0.22F and v0.23A are implemented and verified as supervisor-review candidates. The exact next action is review of `docs/review/v0.23a-visible-replay/VERIFICATION.md` and selection of the next bounded vertical slice. The human study remains required before broad public or paid delivery, and PA/MI delivery rights remain a separate unresolved release gate.
 
 ## Primary sources
 

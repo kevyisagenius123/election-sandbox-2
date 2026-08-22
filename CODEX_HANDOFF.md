@@ -1,6 +1,6 @@
 # Codex handoff: Sandbox 2.0
 
-Last updated: 2026-08-20
+Last updated: 2026-08-22
 
 ## 1. Product boundary
 
@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.20.0`, Wisconsin Detailed-State Foundation
+- Release: `0.23.0`, v0.23A First Visible Election Replay candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -617,11 +617,167 @@ v0.17 additionally adds or changes:
 - Compatibility is now `us2024-pa-vtd2020-mi-precinct2024-wi-ward2025-v1`.
 - PA/MI delivery status is unchanged. Wisconsin's direct source is independently approved with attribution and reconstruction disclosure.
 
+### v0.21A Run My Election endpoint law
+
+- `RUN_MY_ELECTION_ENGINE_PLAN.md` is the authoritative 26-section implementation specification for the election-night engine, Replay Studio, later backend, and eventual video architecture.
+- Decision `docs/decisions/0028-election-night-engine-boundary.md` authorizes the bounded replay core for private development and postpones Arizona/Georgia admission.
+- `docs/data/DETAILED_STATE_ADMISSION.md` now has a separate replay-readiness supplement. Exact local results do not imply defensible historical chronology.
+- The scenario engine remains deterministic and timeless. Replay variation begins only after an exact endpoint is locked.
+- Event-level evidence status distinguishes documented, reconstructed, modeled, user-defined, synthetic, and exact-endpoint claims.
+- The Decision Desk must run through a sanitized contract with no future candidate totals, future batches, or final winner.
+- The first implementation is local-first and worker-driven. Backend, memberships, live rooms, and rendering services remain later stages.
+- v0.21A is implemented as headless contracts, endpoint fixtures, checksums, deterministic named streams, and invariant tests only.
+- `packages/election-replay/src/` owns canonical serialization, SHA-256 fingerprints, endpoint lock/restore, PRNG derivation, and event identity. It has no React or deck.gl dependency.
+- `src/replay/pennsylvaniaEndpoint.ts` adapts the existing exact scenario into a 51-jurisdiction endpoint with 9,140 PA reporting units and honest jurisdiction-total units elsewhere.
+- Baseline content fingerprint: `sha256:bbb5c3e94b2413829b7d9d8d243fcb9ed44e68ddfd4bde567cec1e91079b91c9`.
+- Complex content fingerprint: `sha256:07de00195da9ab840f9b82947fa7b75c3e64400f086605926836d516e9c716d2`.
+- `docs/review/v0.21a-replay-contracts/VERIFICATION.md` is the accepted endpoint-law package.
+
+### v0.21B Pennsylvania compiler
+
+- Decision `docs/decisions/0029-headless-pennsylvania-event-compiler.md` records the supervisor-authorized compiler boundary.
+- `packages/election-replay/src/pennsylvaniaCompiler.ts` schedules and audits Pennsylvania atomic return events in the pure package.
+- Scheduling consumes administrative identity and total-workload fields only. Candidate vectors are attached after scheduling and never influence timing.
+- Every one of 9,140 locked Pennsylvania reporting units emits exactly one indivisible `RETURN_PUBLISHED` event. No invented reporting percentages or internal batches exist.
+- The two profiles are `pa-synthetic-rural-first-v1` and `pa-synthetic-metropolitan-late-v1`. They are synthetic, not historical chronology.
+- Canonical order is replay time, unsigned deterministic tie breaker, then event ID. Sequence and time do not participate in identity.
+- Baseline stream fingerprint: `sha256:db1aacfd512c448fb68c87f8c6bd9062486d4aca47a572034dfb342ca84ed38c`.
+- Complex stream fingerprint: `sha256:8c1071719d5fe2efb9e0ae0896646227c65eafb9b23dc7fe6ef8ad36634516e8`.
+- `docs/review/v0.21b-pa-event-compiler/VERIFICATION.md` is the accepted Pennsylvania compiler package.
+
+### v0.21C multi-jurisdiction replay law
+
+- Decision `docs/decisions/0030-multi-jurisdiction-replay-contracts.md` records the authorized contract-only boundary.
+- `packages/election-replay/src/jurisdictionContracts.ts` owns generic serialization, validation, capability, clock, evidence, audit, and admission.
+- `packages/election-replay/src/coarseFixtureCompiler.ts` exists only to prove an honest one-return jurisdiction-total contract for unsupported jurisdictions.
+- `packages/election-replay/src/jurisdictionComposition.ts` revalidates independently admitted streams and merges them by absolute UTC milliseconds, unsigned tie breaker, and event identity.
+- Pennsylvania remains `detailed`, with 2024 reporting units explicitly distinguished from 2020 Census VTD map terrain and unmatched units explicit off-map.
+- Wisconsin remains a coarse contract fixture in replay. Michigan now has a separate detailed compiler under v0.21D.
+- Composition reports `partial` or `complete` coverage, sums only accepted endpoints, and separately preserves the source election's exact 538 EV.
+- Pennsylvania golden event-stream fingerprints remain unchanged.
+- `docs/review/v0.21c-multi-jurisdiction-contracts/VERIFICATION.md` is the accepted generic-contract package.
+
+### v0.21D Michigan compiler
+
+- Decision `docs/decisions/0031-headless-michigan-event-compiler.md` records the bounded supervisor authorization.
+- `src/replay/michiganEndpoint.ts` builds certified and complex locked Michigan endpoints through the existing scenario engine.
+- `packages/election-replay/src/michiganCompiler.ts` produces one atomic event for each of 4,413 Michigan model units using two explicit synthetic profiles.
+- 4,339 exact-cycle units remain mapped. Eight unmatched precincts, 65 central-count units, and one statewide adjustment remain explicit off-map returns.
+- Scheduling is candidate-blind and uses Michigan-owned PRNG namespaces. Four Central Time counties receive a neutral one-hour local-close gate.
+- Certified endpoint/stream fingerprints: `sha256:4a9bb791497c487eea16c7fcab13af628afff27c6bf1f9c9ba91f8c82b7612c1` / `sha256:61aa67ca75647c66da60b8bdfd296ff54b499cabd681184df95a017455deb484`.
+- Complex endpoint/stream fingerprints: `sha256:2a81ff04b0ad19c583ce805f0af09455d227ece17151ba196caa87307c2b5e24` / `sha256:a5391fbda94477926d06f90885e22120d4e8801e8fdcd49e9063d55f1461dba6`.
+- `src/replay/pennsylvaniaMichiganEndpoint.ts` exists only for the authorized shared-endpoint detailed PA+MI composition fixture.
+- Generic admission and composition contain no Michigan branch. Pennsylvania compiled goldens remain unchanged.
+- `docs/review/v0.21d-michigan-event-compiler/VERIFICATION.md` is the current supervisor-review package.
+
+### v0.21E national composition
+
+- Decision `docs/decisions/0032-headless-national-replay-composition.md` records the bounded supervisor authorization.
+- `packages/election-replay/src/nationalClock.ts` owns the versioned 51-jurisdiction poll-close and coarse atomic-return eligibility table.
+- `packages/election-replay/src/nationalComposition.ts` compiles, admits, composes, serializes, fingerprints, and audits the complete national stream.
+- Pennsylvania and Michigan remain detailed and retain their accepted compiler-owned timing, evidence, geography, and stream fingerprints.
+- The remaining 49 jurisdictions each emit one exact statewide five-candidate return with no invented local geography or intermediate batches.
+- The complete stream has 13,704 events: 13,602 returns and 102 jurisdiction control events.
+- Both national fixtures reconcile all five candidate buckets at every prefix and exactly 538 electoral votes at the locked endpoint.
+- Certified endpoint/stream fingerprints: `sha256:ede060670bd8ece5d2933055c62a2053c3a87e4b2275546440993a5c10939aab` / `sha256:e3239ba2fcd783207709582f4b7a75498b364e717951a04285909c399e8d3696`.
+- Complex endpoint/stream fingerprints: `sha256:05c391f4ecda01cfb831552f350793e9dcedfc303cf42441e80de29880212de1` / `sha256:eb90e5c85c43cdf41b2c7ac1e5d66933283dddb36fa09c89a73c9912e17a9089`.
+- `tests/national-replay-composition.test.mjs` contains 11 grouped tests covering the supervisor's 40 release-blocking invariants.
+- `docs/review/v0.21e-national-replay-composition/VERIFICATION.md` is the current supervisor-review package.
+
+### v0.22A replay reducer
+
+- Decision `docs/decisions/0033-headless-replay-reducer.md` records the supervisor-authorized future-isolation and reducer boundary.
+- `packages/election-replay/src/reducer.ts` owns canonical zero state, strict pure event application, normalized reported hierarchy, state serialization, fingerprints, and time lookup.
+- `packages/election-replay/src/reducerCheckpoint.ts` owns stream-bound checkpoints, validation, checkpoint generation, event-count seek, and absolute-time seek.
+- Only `POLL_CLOSE`, `RETURN_PUBLISHED`, and `REPLAY_COMPLETED` are accepted.
+- Observable state includes applied vote vectors, exact return counts, lifecycle facts, normalized detailed geography, and explicit mapped/off-map totals. It contains no endpoint, remaining-vote, percentage, leader, projection, or call data.
+- Detailed unit state is a deterministic sparse 257-bucket structure. An unpublished known unit resolves to an exact five-candidate zero vector without cloning all 13,553 detailed units on every transition.
+- Final certified and complex states reconcile 13,602 returns, 51 completed jurisdictions, every PA/MI unit and county, all five national candidate buckets, and the exact locked endpoint.
+- Six certified and six complex reducer positions are frozen in `tests/replay-fixtures/reducer-goldens.mjs`.
+- `tests/replay-reducer.test.mjs` contains 14 grouped tests covering the supervisor's 45 release-blocking checks.
+- `scripts/benchmark-replay-reducer.mjs` measures seven complete reductions and 100 deterministic checkpoint seeks.
+- Initial baseline: 6,129 ms median full reduction; 35 ms median checkpoint seek; 5,333,517-byte final serialized state; 80,206,132-byte 29-checkpoint set.
+- `docs/review/v0.22a-replay-reducer/VERIFICATION.md` is the current supervisor-review package.
+
+### v0.22B reported-state analytics
+
+- `packages/election-replay/src/reportedAnalytics.ts` consumes only `ReplayObservableState` and derives reported-vote arithmetic without endpoint or future-event access.
+- Overall leadership considers all five candidates; ties and zero are first-class, while Harris-Trump margin and shares remain separately named.
+- Headline APIs cover national, jurisdiction, county, and unit facts; the full canonical snapshot supports audit and frozen fingerprints.
+- `tests/reported-analytics.test.mjs` passes 8 of 8 grouped tests. Twelve certified/complex position fingerprints are frozen in `tests/replay-fixtures/reported-analytics-goldens.mjs`.
+- Exact evidence is in `docs/review/v0.22b-reported-state-analytics/VERIFICATION.md` and `PERFORMANCE.md`.
+
+### v0.22C seek/checkpoint optimization
+
+- `packages/election-replay/src/replaySeekIndex.ts` creates an immutable process-local checkpoint index using structurally shared canonical reducer states.
+- The accepted cadence is 250 events: 56 checkpoints over 13,704 events and at most 249 tail transitions per seek.
+- Indexes have no serializer, cannot accept untrusted clones, cache no analytics, and never become an alternate state authority.
+- `tests/replay-seek-index.test.mjs` passes 6 of 6 grouped tests, including 20 deterministic random positions per fixture and hostile backward/forward movement.
+- `npm run benchmark:seek` records both fixtures. Random-seek median improves from 1,319.334 ms to 17.813 ms certified and from 1,259.712 ms to 20.385 ms complex.
+- Measured index heap increase is 26.4 MB certified and 27.6 MB complex. Logical full-checkpoint serialization would exceed 152 MB, which is why no persistence format is authorized.
+- Exact evidence is in `docs/review/v0.22c-seek-checkpoint-optimization/VERIFICATION.md` and `PERFORMANCE.md`; decision 0035 defines the authority boundary.
+
+### v0.22D deterministic playback cursor
+
+- `packages/election-replay/src/playbackCursor.ts` owns immutable paused, playing, and complete cursor state over the reducer and seek index.
+- Commands are play, pause, reset, integer logical-time advance, event/time seek, and step to the next canonical timestamp.
+- The zero boundary is one millisecond before the first event. Events sharing a timestamp are always applied as one atomic group; event-count seeks inside a group snap forward.
+- The controller reads no wall clock and imports no timer, animation, UI, map, analytics, endpoint, or Decision Desk contract.
+- `tests/playback-cursor.test.mjs` passes 8 of 8 grouped tests across certified and complex fixtures.
+- `npm run benchmark:playback` records 100 random seeks, 1,000-partition full playback, and every canonical timestamp group. Random controller seek p50 is about 26 ms; forward advance p95 is about 10–11 ms.
+- Exact evidence is in `docs/review/v0.22d-playback-cursor/VERIFICATION.md` and `PERFORMANCE.md`; decision 0036 defines controller time and atomicity law.
+
+### v0.22E sanitized playback observation
+
+- `packages/election-replay/src/playbackObservation.ts` is the current-knowledge firewall for future presentation code.
+- Snapshots expose controller status/current time/applied count, accepted national and jurisdiction analytics, currently reporting counties, and published units.
+- Transitions expose direction, previous/current sanitized controller positions, newly observed timestamp groups, and changed jurisdictions.
+- No stream fingerprint, final time boundary, next event, endpoint total, remaining structure, inference, editorial message, map instruction, or transport object crosses the contract.
+- Certified and complex streams serialize byte-identically at identical observed prefixes and transitions despite divergent futures.
+- `tests/playback-observation.test.mjs` passes 8 of 8 grouped tests.
+- `npm run benchmark:observation` shows one-group transitions at 526 bytes and 6–9 ms median. Final current-state snapshots are about 4.87 MB and 152–226 ms median, so this contract must not be treated as a per-frame feed.
+- Exact evidence is in `docs/review/v0.22e-playback-observation/VERIFICATION.md` and `PERFORMANCE.md`; decision 0037 defines the blindness law.
+
+### v0.22F replay worker/runtime bridge
+
+- `src/runtime/replayWorkerProtocol.ts` defines only initialize, command, and resynchronize requests plus ready, update, resynchronized, and error responses.
+- `src/runtime/replayWorkerRuntime.ts` exclusively owns national compilation, reducer context, the 250-event seek index, playback cursor, and sanitized observation derivation.
+- `src/runtime/replayRuntime.worker.ts` serializes every request through one worker-owned promise queue; initialization is single-use.
+- Ordinary updates send the accepted transition plus current national/state headline, not a full county/unit snapshot. Backward movement recommends an explicit resynchronization.
+- Normalized integer progress enables a scrubber without exposing final boundary, remaining events, next-event time, endpoint totals, or stream fingerprints.
+- `tests/replay-worker-runtime.test.mjs` passes 3 of 3 grouped gates. `npm run benchmark:worker` measures about 32.3 seconds initialization, 8.7 ms median step commands, 52–64 KB ordinary updates, and a 2.75 MB midpoint resynchronization.
+- Exact evidence is in `docs/review/v0.22f-replay-worker-runtime/`; decision 0038 defines the transport boundary.
+
+### v0.23A integrated three-state Election Night
+
+- Election Night is a mode inside `/app/`; there is no `/replay/` entry or separate map.
+- `src/runtime/threeStateNight.worker.ts` loads the PA, MI, and WI detailed foundations, applies their current Swingometer recipes, and schedules one return per VTD, precinct, or ward.
+- `src/replay/threeStateElectionNight.ts` owns deterministic user-directed duration, geographic order, volatility, burst/stall, state-delay, and seed behavior.
+- The other 48 jurisdictions never enter the visible count. The audited 51-jurisdiction kernel remains unchanged but is not used by this presentation.
+- The existing AtlasMapScene stays mounted. Published local returns recolor and raise reporting units, counties, and states; the newest return receives a gold outline.
+- Election Night restyles the existing Laboratory surface into the Atlas composition without changing routes or remounting the map: full-stage terrain, a large contextual headline at left, the read-only PA/MI/WI desk at upper right, and one shared resizable bottom command dock.
+- The dock reuses the Laboratory's collapsed/working/expanded interaction. It owns playback, 0.1× through 12× speed, seeking, the full count-behavior editor, return inspection, methodology, and the handoff back to the Swingometer. There is no second floating behavior panel or playback console.
+- Count direction now includes four deterministic built-in profiles, browser-local named custom profiles, a pre-apply PA/MI/WI chronology preview, and explicit county start/count-length overrides. County overrides are validated, candidate-blind, and affect timing only; atomic reporting-unit vote vectors remain unchanged.
+- The editorial home now adapts the original Sandbox's map-led hero and staged product explanation to the warm Atlas system. It explains Model, Direct, and Understand; shows the four-step workflow; and discloses the distinct PA/MI/WI evidence contracts before entering the lab.
+- `tests/three-state-election-night.test.mjs` proves jurisdiction scope, determinism, vote immutability, and rejection of missing or unsupported states.
+- `tests/browser/replay-experience.spec.ts` proves same-canvas and same-route integration, three-state-only disclosure, real worker playback, behavior editing, and return to the Swingometer.
+- Current evidence is in `docs/review/v0.23a-visible-replay/`; decision 0039 records the corrected product law.
+
 ## 8. Verification state
+
+### v0.22A replay reducer
+
+- `docs/review/v0.22a-replay-reducer/VERIFICATION.md` is the current supervisor-review record.
+- The dedicated v0.22A test group passes 14 of 14 grouped reducer contract tests.
+- `npm test` passes 122 of 122 tests. Lint, production build, benchmark, and `git diff --check` pass; the existing deck.gl chunk warning remains.
+- The aggregate browser run passed 36 current journeys, skipped three deliberate review/environment tests, and timed out on two navigation-heavy journeys after abnormal suite delay. Both timed-out journeys passed immediately in isolation, giving a documented combined disposition of 38 of 38 current journeys passing.
+- National, PA, MI, zero-state, checkpoint-position, midpoint, and final-state fingerprints are frozen.
+- v0.22A through v0.22E passed supervisor review. v0.22F and v0.23A are the current verified supervisor-review candidates.
+- v0.23A adds only the first local visible replay slice. No Decision Desk, projection, call, backend, membership, room, export, or video functionality was added.
 
 ### v0.20 Wisconsin admission
 
-- `docs/review/v0.20-wisconsin/VERIFICATION.md` is the current release record.
+- `docs/review/v0.20-wisconsin/VERIFICATION.md` is the prior detailed-state release record.
 - 52 model and data-contract tests pass.
 - 38 current browser journeys pass; three environment or historical-capture tests are deliberately skipped.
 - Lint and production build pass. The existing large deck.gl chunk warning remains.
@@ -708,20 +864,16 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 8. **A balanced third-party exchange can have zero `Harris - Trump` contribution.** This is correct even when exchanged ballot volume is large; the editor displays that volume separately.
 9. **No backend-stored scenarios, authentication, or deployment exist.** Deterministic scenario URLs are client-side and require a compatible build.
 10. **Source redistribution status blocks an open public data release.** `docs/data/REDISTRIBUTION_INVENTORY.md` records the current review and approved delivery decisions; provenance alone is not treated as permission.
+11. **Replay initialization is visibly slow.** Certified compilation and checkpoint creation take about 32 seconds locally. The worker prevents a UI-thread freeze, but no cache or precompiled replay artifact exists yet.
+12. **Detailed county snapshots are intentionally periodic.** During active playback the national/state headline is current while the county list discloses that it refreshes on pause. Continuous multi-megabyte county snapshots are prohibited.
 
 ## 10. Exact next phase
 
-v0.20 is closed for private internal development. Begin a bounded Arizona and Georgia candidate batch:
+v0.22F and the pre-authorized v0.23A visible slice are implemented and verified. The exact next action is supervisor review of `docs/review/v0.23a-visible-replay/VERIFICATION.md` and explicit selection of v0.23B.
 
-1. Locate each state's official 2024 presidential result source, local geography, denominator, terms, stable identifiers, and election-cycle vintages.
-2. Complete the detailed-state admission checklist and exception record independently for each state.
-3. Reject or defer either state if totals, geometry, identifier joins, or delivery basis cannot be supported honestly.
-4. Generate artifacts only after the admission record passes; do not copy Wisconsin's ward method onto a state with a different reporting model.
-5. Integrate admitted states through the existing manifest, loader, map, inspector, portfolio, and URL contracts.
-6. Close the batch with exact zero-change reconciliation, local browser replays, three-to-five-state lifecycle evidence, and visual references.
-7. Preserve the comprehensive human study and PA/MI delivery clearance as mandatory pre-public and pre-paid gates.
+Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
 
-Uncertainty remains deferred. It must be separately switchable, seeded, calibrated, and clearly distinguished from deterministic scenario construction; decorative random noise is prohibited.
+Uncertainty in the final election result remains deferred. Reporting variation is deterministic from explicit profiles and named seeds, must be evidence-labeled, and may never become decorative noise.
 
 ## 11. Commands
 

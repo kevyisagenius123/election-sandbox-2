@@ -1,6 +1,6 @@
 {
   "name": "election-sandbox-2",
-  "version": "0.20.0",
+  "version": "0.23.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -18,6 +18,12 @@
     "data:wi": "node scripts/import-wisconsin-2024-ltsb.mjs",
     "profile:pa": "node --experimental-strip-types --expose-gc scripts/profile-pennsylvania-runtime.mjs",
     "profile:runtime": "node scripts/run-runtime-profile.mjs",
+    "benchmark:reducer": "node --experimental-strip-types scripts/benchmark-replay-reducer.mjs",
+    "benchmark:analytics": "node --experimental-strip-types scripts/benchmark-reported-analytics.mjs",
+    "benchmark:seek": "node --experimental-strip-types --expose-gc scripts/benchmark-replay-seek-index.mjs",
+    "benchmark:playback": "node --experimental-strip-types scripts/benchmark-playback-cursor.mjs",
+    "benchmark:observation": "node --experimental-strip-types scripts/benchmark-playback-observation.mjs",
+    "benchmark:worker": "node --experimental-strip-types scripts/benchmark-replay-worker-runtime.mjs",
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:browser": "playwright test",

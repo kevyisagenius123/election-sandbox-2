@@ -59,3 +59,54 @@ Known limitations:
 ```
 
 Admission is a release decision, not an adapter implementation detail.
+
+## Replay-readiness supplement
+
+Detailed-state admission does not automatically authorize Historical Replay or Scenario Night. A state may support deterministic counterfactual modeling while lacking defensible election-night chronology. Before a state is registered in Run My Election, commit an independent replay-readiness record containing:
+
+### Administration and clock
+
+- Poll-close rules, release restrictions, timezone, and election-date rollover.
+- Reporting authority and whether results are precinct-counted, county-counted, centrally counted, or mixed.
+- Treatment of mail, early in-person, Election Day, provisional, cured, residual, and correction buckets.
+
+### Timing evidence
+
+- Availability, publisher, retrieval date, checksum, and permitted delivery basis for timestamped returns.
+- Explicit classification as documented, reconstructed, modeled, user-defined, or synthetic.
+- Reconstruction or calibration method and known blind spots.
+- State quality tier: documented, calibrated, provisional, or synthetic-only.
+
+### Endpoint fitness
+
+- Atomic units that must report once.
+- Units with defensible documented or modeled multi-batch behavior.
+- Off-map and non-geographic reporting treatment.
+- Stable join between timing records and locked result units.
+- Exact candidate and ballot reconciliation after batching.
+
+### Projection priors
+
+- Public expected-turnout basis and uncertainty.
+- Geographic and administrative reporting classes.
+- Vote-mode priors and limitations.
+- Minimum coverage, anomaly, and poll-close gates.
+- Evidence that the projection contract can operate without future candidate totals.
+
+### Required replay declaration
+
+```text
+Replay mode admitted:
+Evidence quality tier:
+Poll-close source:
+Timestamp source or modeled basis:
+Ballot-mode treatment:
+Atomic-unit rules:
+Off-map treatment:
+Outstanding-vote basis:
+Projection-prior basis:
+Known limitations:
+Public/paid delivery disposition:
+```
+
+The complete replay architecture and release gates are defined in `../../RUN_MY_ELECTION_ENGINE_PLAN.md`.

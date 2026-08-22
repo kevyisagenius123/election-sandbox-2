@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.20 Wisconsin Detailed-State Foundation
+**Status:** v0.22E Headless Sanitized Playback Observation Contract implemented for supervisor review
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -38,7 +38,23 @@ Version 0.19B remains operationally specified in `docs/research/HUMAN_ALPHA_PROT
 
 Version 0.20 admits Wisconsin as the third detailed state. The official LTSB layer supplies 72 county totals, 7,086 January 2025 ward polygons, a 2020 Census-derived `PERSONS18` denominator, and 6,946 result-bearing local rows. All 3,422,918 statewide ballots reconcile. The ward values are explicitly disclosed as LTSB population-disaggregated reconstructions, not raw certified ward returns. Wisconsin reuses the manifest-driven worker, 3D drilldown, contribution, inspector, portfolio, route, and deterministic URL architecture.
 
-The v0.20 release gate passes 52 model checks, 38 current browser journeys, three Wisconsin visual references, lint, build, and a 35-cycle PA/MI/WI controlled profile. The final profile measured 2.37% retained-heap growth, a 41,238-byte per-cycle slope, and 24.11-second whole-cycle p95. The next expansion starts with admission research for Arizona and Georgia; coding begins only for states whose independent source and delivery contracts pass.
+The v0.20 release gate passes 52 model checks, 38 current browser journeys, three Wisconsin visual references, lint, build, and a 35-cycle PA/MI/WI controlled profile. The final profile measured 2.37% retained-heap growth, a 41,238-byte per-cycle slope, and 24.11-second whole-cycle p95.
+
+Decision 0028 authorizes v0.21 Run My Election as the next private engineering phase and postpones the Arizona/Georgia admission batch. The current implementation target is the headless replay boundary: an immutable exact endpoint, state-specific evidence-labeled reporting profiles, a deterministic event compiler, and a Decision Desk isolated from future results. `RUN_MY_ELECTION_ENGINE_PLAN.md` is the authoritative implementation specification. No public or paid release is authorized by this sequencing decision.
+
+Version 0.21A implements only the constitutional endpoint boundary: pure contracts, canonical serialization, exact national and local reconciliation, content fingerprints, a versioned deterministic seed namespace, stable event identity, Pennsylvania fixtures, and adversarial tests. Its exact verification is recorded in `docs/review/v0.21a-replay-contracts/VERIFICATION.md`. That endpoint law passed supervisor review before v0.21B began.
+
+Version 0.21B implements the separately authorized private Pennsylvania compiler. Each locked reporting unit becomes one atomic return, scheduled without candidate shares or winner knowledge and then populated with its exact five-candidate endpoint vector. Canonical event ordering, named timing streams, prefix conservation, geographic reconciliation, explicit off-map treatment, endpoint immutability, and two frozen compiled-stream fingerprints are enforced by the headless audit. No reducer, Decision Desk, UI, other-state compiler, or backend was added. Its evidence is recorded in `docs/review/v0.21b-pa-event-compiler/VERIFICATION.md`; the Pennsylvania compiler passed supervisor review before v0.21C began.
+
+Version 0.21C introduced jurisdiction-independent stream admission and composition law while preserving Pennsylvania byte-for-byte. Version 0.21D proved that law with Michigan as a second detailed state. Version 0.21E now admits all 50 states and District of Columbia on one deterministic zero-to-endpoint timeline: Pennsylvania and Michigan remain detailed, the other 49 jurisdictions remain exact statewide atomic returns, and complete composition conserves the five candidate buckets and 538 electoral votes. A versioned return-eligibility clock prevents coarse multi-boundary jurisdictions from publishing before all territory represented by their indivisible return has closed. Evidence is recorded in `docs/review/v0.21e-national-replay-composition/VERIFICATION.md`. A headless replay reducer remains separately review-gated.
+
+Version 0.22A consumes that immutable timeline through a strict pure reducer. Canonical zero state, exact hierarchy accumulation, lifecycle assertions, future-data isolation, versioned state fingerprints, validated checkpoints, and deterministic sequence/time reseeking are implemented for both accepted national fixtures. Observable state exposes only applied facts and no endpoint totals, remaining-vote arithmetic, percentages, leaders, projections, or calls. The first measured baseline records full-reduction, seek, and serialized-memory costs without imposing an unreviewed performance limit. Evidence is recorded in `docs/review/v0.22a-replay-reducer/VERIFICATION.md`. Derived reported-state analytics remain separately review-gated.
+
+Version 0.22B derives only arithmetic facts from already-applied observable reducer state: five-candidate reported leaders and rankings, exact margins, explicit-denominator shares, return counts, and honest available geography summaries. Version 0.22C adds a process-local immutable seek index that reconstructs from the nearest canonical checkpoint without creating persistence or caching analytics. Certified and complex random-seek torture tests remain byte-identical to full-prefix reducer and analytics output. The v0.22C performance record shows roughly 62x to 74x random-seek median improvement at a 250-event cadence. Replay UI remains separately review-gated.
+
+Version 0.22D builds a pure logical playback controller over that accepted infrastructure. Explicit play, pause, reset, logical-time advance, event/time seek, completion, and next-timestamp commands remain immutable and process-local. Logical-time partitioning cannot change state, simultaneous events are exposed atomically, and no wall clock, timer, presentation behavior, analytics cache, or Decision Desk inference enters the controller. Evidence is recorded in `docs/review/v0.22d-playback-cursor/VERIFICATION.md`.
+
+Version 0.22E gives future presentation a structural current-knowledge boundary rather than access to kernel objects. Sanitized snapshots contain current controller position, accepted reported analytics, and compact already-published geography. Sanitized transitions contain only applied timestamp groups and changed jurisdictions. Critical certified/complex tests prove that identical observed prefixes and transitions serialize byte-identically despite divergent futures. No transport, subscription, worker, UI, narrative, or inference behavior was added.
 
 Sandbox 2.0 lets a user change turnout, candidate preference, and eventually population composition, then see those assumptions propagate from reporting units to counties, states, the national popular vote, and the Electoral College.
 
@@ -1012,6 +1028,8 @@ The milestone is released in four bounded increments:
 
 ### Milestone 9: Run My Election
 
+The detailed architecture, release sequence, evidence taxonomy, realism model, backend staging, and verification gates are defined in `RUN_MY_ELECTION_ENGINE_PLAN.md`. Decision 0028 moves the bounded replay core ahead of further state expansion so the existing PA/MI/WI contracts can test the architecture before national scale.
+
 **Deliverables**
 
 - Conversion from scenario endpoint to counterfactual reporting-unit totals.
@@ -1315,13 +1333,14 @@ The recommended sequence is:
 5. Multi-state scenario portfolio.
 6. Path to 270 and route enumeration.
 7. Geographic drilldown from national route to state, county, and reporting unit.
-8. Additional production-ready state expansion.
-9. Extended Census-to-reporting-unit demographic foundation.
-10. Calibrated turnout and candidate-choice model.
-11. Population editor.
-12. Explainability and uncertainty.
-13. Run My Election.
-14. National expansion and sharing ecosystem.
+8. Run My Election replay contracts, event compiler, Decision Desk, and interactive proof across existing detailed states.
+9. Additional production-ready and replay-ready state expansion.
+10. Extended Census-to-reporting-unit demographic foundation.
+11. Calibrated turnout and candidate-choice model.
+12. Population editor.
+13. Explainability and uncertainty.
+14. Run My Election production services, Director Mode, and export.
+15. National expansion and sharing ecosystem.
 
 The demographic editor should not ship until its controls have defensible statistical meaning. Run My Election should not ship until its replay can end at exactly the saved scenario endpoint without giving the projection model direct knowledge of the winner.
 

@@ -60,6 +60,12 @@ type AtlasMapSceneProps = {
   activePrecinctGeoid: string | null;
   fitSelectionRequest: number;
   viewMode: ViewMode;
+  scenarioIsPartial?: boolean;
+  highlightedReturn?: {
+    stateCode: string;
+    countyFips: string | null;
+    precinctGeoid: string | null;
+  } | null;
   routeIndicators: readonly {
     stateCode: string;
     status: RouteConstructionStatus;
@@ -94,6 +100,8 @@ export function AtlasMapScene({
   activePrecinctGeoid,
   fitSelectionRequest,
   viewMode,
+  scenarioIsPartial = false,
+  highlightedReturn = null,
   routeIndicators,
   onActiveStateChange,
   onActiveCountyChange,
@@ -181,6 +189,7 @@ export function AtlasMapScene({
     for (const item of precinctCounty.features.features) {
       const actual = item.properties;
       const scenario = scenarioDetailedGeographies.get(actual.geoid);
+      if (!scenario && scenarioIsPartial) continue;
       map.set(actual.geoid, scenario ? {
         ...actual,
         harrisVotes: scenario.harrisVotes,
@@ -191,7 +200,7 @@ export function AtlasMapScene({
       } : { ...actual, netHarrisGain: 0 });
     }
     return map;
-  }, [precinctCounty, scenarioDetailedGeographies]);
+  }, [precinctCounty, scenarioDetailedGeographies, scenarioIsPartial]);
   const maxPrecinctVotes = useMemo(
     () => Math.max(
       ...(precinctCounty?.features.features.map((item) => item.properties.totalVotes) ?? []),
@@ -513,6 +522,8 @@ export function AtlasMapScene({
       },
       getLineColor: (item: Feature) => {
         if (activeStateCode) return [255, 255, 247, 0];
+        const code = stateCodeByFips[featureFips(item, 2)];
+        if (code === highlightedReturn?.stateCode) return [220, 164, 56, 255];
         const route = routeIndicatorByCode.get(stateCodeByFips[featureFips(item, 2)]);
         if (!route) return [255, 255, 247, 185];
         if (route.status === "satisfied") return [50, 108, 91, 255];
@@ -546,7 +557,7 @@ export function AtlasMapScene({
       updateTriggers: {
         getElevation: [activeStateCode],
         getFillColor: [activeStateCode, viewMode, scenarioStates],
-        getLineColor: [activeStateCode, routeIndicators],
+        getLineColor: [activeStateCode, highlightedReturn?.stateCode, routeIndicators],
         getLineWidth: [activeStateCode, routeIndicators],
       },
       onHover: (info: PickingInfo) => {
@@ -609,7 +620,9 @@ export function AtlasMapScene({
       highlightColor: [255, 248, 226, 95],
       lineWidthUnits: "pixels",
       getLineWidth: 1.1,
-      getLineColor: [65, 77, 74, 160],
+      getLineColor: (item: Feature) => featureFips(item, 5) === highlightedReturn?.countyFips
+        ? [220, 164, 56, 255]
+        : [65, 77, 74, 160],
       getFillColor: (item: Feature) => {
         const fips = featureFips(item, 5);
         const actual = actualCountyByFips.get(fips);
@@ -625,8 +638,11 @@ export function AtlasMapScene({
       getElevation: (item: Feature) => {
         const actual = actualCountyByFips.get(featureFips(item, 5));
         const scenario = scenarioCountyByFips.get(featureFips(item, 5));
-        const result = viewMode === "actual" ? actual : scenario ?? actual;
-        if (!result) return 4;
+        const result = viewMode === "actual" ? actual : scenario;
+        if (!result) {
+          if (scenarioIsPartial || !actual) return 4;
+          return 4 + 18 * Math.sqrt(actual.totalVotes / maxDetailedCountyVotes);
+        }
         if (heightMode === "flat") return 7;
         return 4 + 18 * Math.sqrt(result.totalVotes / maxDetailedCountyVotes);
       },
@@ -638,6 +654,7 @@ export function AtlasMapScene({
       updateTriggers: {
         getElevation: [heightMode, maxDetailedCountyVotes, scenarioDetailedCounties, viewMode],
         getFillColor: [viewMode, scenarioDetailedCounties],
+        getLineColor: [highlightedReturn?.countyFips],
       },
       onHover: (info: PickingInfo) => {
         const item = info.object as Feature | undefined;
@@ -663,7 +680,12 @@ export function AtlasMapScene({
         highlightColor: [255, 248, 226, 105],
         lineWidthUnits: "pixels",
         getLineWidth: 0.8,
-        getLineColor: [61, 75, 72, 150],
+        getLineColor: (item: Feature) => {
+          const actual = item.properties as unknown as DetailedPrecinctResultProperties;
+          return actual.geoid === highlightedReturn?.precinctGeoid
+            ? [220, 164, 56, 255]
+            : [61, 75, 72, 150];
+        },
         getFillColor: (item: Feature) => {
           const actual = item.properties as unknown as DetailedPrecinctResultProperties;
           const scenario = scenarioPrecinctByGeoid.get(actual.geoid);
@@ -685,7 +707,10 @@ export function AtlasMapScene({
           const actual = item.properties as unknown as DetailedPrecinctResultProperties;
           const result = viewMode === "actual"
             ? actual
-            : scenarioPrecinctByGeoid.get(actual.geoid) ?? actual;
+            : scenarioPrecinctByGeoid.get(actual.geoid);
+          if (!result) return scenarioIsPartial ? precinctElevationUnit * 0.18 : precinctElevationUnit * (
+            0.32 + 1.48 * Math.sqrt(actual.totalVotes / maxPrecinctVotes)
+          );
           if (result.totalVotes === 0) return precinctElevationUnit * 0.18;
           if (heightMode === "flat") return precinctElevationUnit * 0.72;
           return precinctElevationUnit * (
@@ -698,8 +723,9 @@ export function AtlasMapScene({
           getFillColor: { duration: 520 },
         },
         updateTriggers: {
-          getElevation: [heightMode, maxPrecinctVotes, precinctElevationUnit, scenarioPrecinctByGeoid, viewMode],
+          getElevation: [heightMode, maxPrecinctVotes, precinctElevationUnit, scenarioIsPartial, scenarioPrecinctByGeoid, viewMode],
           getFillColor: [viewMode, scenarioPrecinctByGeoid],
+          getLineColor: [highlightedReturn?.precinctGeoid],
         },
         onHover: (info: PickingInfo) => {
           const item = info.object as Feature | undefined;
@@ -728,6 +754,7 @@ export function AtlasMapScene({
     actualByCode,
     countyRaised,
     heightMode,
+    highlightedReturn,
     maxDetailedCountyVotes,
     maxPrecinctVotes,
     openCounty,
@@ -739,6 +766,7 @@ export function AtlasMapScene({
     scenarioCountyByFips,
     scenarioDetailedCounties,
     scenarioPrecinctByGeoid,
+    scenarioIsPartial,
     scenarioStates,
     routeIndicatorByCode,
     routeIndicators,
