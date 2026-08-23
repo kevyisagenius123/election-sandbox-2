@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.25.0`, v0.25D Editorial Analytics Workspace candidate
+- Release: `0.26.0`, v0.26A Reported Margin Timeline candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -837,6 +837,20 @@ v0.17 additionally adds or changes:
 - The aggregate passes 197 of 197 tests in 586.307 seconds. Lint and production build pass with only the existing lazy deck.gl chunk warning.
 - Decision 0046, `docs/releases/v0.25d-editorial-analytics-workspace.md`, and `docs/review/v0.25d-editorial-analytics-workspace/VERIFICATION.md` define the accepted evidence.
 
+### v0.26A reported margin timeline
+
+- Regular ECharts 6.1 is installed. ECharts GL is not installed and deck.gl remains the sole geographic renderer. The production dependency audit reports zero vulnerabilities.
+- `src/replay/visibleReplayTimeline.ts` builds an immutable cumulative margin index inside the replay worker and derives only the observed prefix for delivery.
+- The visible timeline carries national, PA, MI, and WI reported margins, return identity, local geography, ballot volume, replay time, and progress. It contains no future event.
+- Output is bounded to 320 deterministic display points and retains the latest return plus lead changes before neutral sampling.
+- `SET_MARGIN_TIMELINE_VISIBILITY` subscribes the browser only while the Timeline tab is open. Hidden tabs receive null timeline payloads.
+- `src/components/ElectionNightMarginTimeline.tsx` is dynamically imported, uses one regular ECharts canvas, coalesces updates through ECharts, observes its container, and disposes the observer and chart on unmount.
+- Chart clicks seek the existing three-state worker and therefore update the same deck.gl map, state desk, returns, and descriptive analytics.
+- Desktop and mobile timeline references are stored in `docs/review/v0.26a-election-night-analytical-lenses/screenshots/`.
+- Four dedicated timeline tests cover empty-prefix honesty, exact reconstruction, deterministic bounds, and hidden-future isolation. The focused integrated browser journey covers seek, one-canvas disposal, remount, restart, and mobile layout.
+- The aggregate passes 201 of 201 tests in 467.518 seconds. Lint, production build, and the zero-vulnerability production dependency audit pass. Regular ECharts is isolated in a 536.18 kB minified, 181.02 kB compressed lazy chunk.
+- Decision 0047, `docs/plans/v0.26-analytical-lenses.md`, `docs/releases/v0.26a-reported-margin-timeline.md`, and the v0.26A verification record define the accepted boundary.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -943,9 +957,9 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.25A through v0.25D are implemented and verified. v0.25 is complete. The next step is supervisor review of the visible editorial workspace and a separately scoped roadmap decision. There is no authorized v0.26 implementation yet.
+v0.26A is implemented and verified. The exact next implementation, after supervisor review, is v0.26B Reporting Velocity and State Comparison. It should add ballots-per-logical-minute and returns-per-logical-minute views plus separate PA, MI, and WI activation, pace, stall, and progress comparisons through the same visible-tab subscription and disposal contract.
 
-Do not add projections, calls, Decision Desk inference, demographic calibration, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. The strongest bounded candidates are performance hardening for the visible analytics path, a fresh full browser and runtime profile, or a separately researched next product capability.
+Do not add ECharts GL in v0.26B. Its one-view count-landscape prototype is deferred to the v0.26C research gate and must beat a two-dimensional alternative on comprehension and runtime evidence. Do not add projections, calls, Decision Desk inference, demographic calibration, backend, memberships, rooms, public restricted-data delivery, or video without later authorization.
 
 Uncertainty in the final election result remains deferred. Reporting variation is deterministic from explicit profiles and named seeds, must be evidence-labeled, and may never become decorative noise.
 

@@ -13,13 +13,13 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.25D: Editorial analytics workspace
+### v0.26A: Reported margin timeline
 
-The accepted analytics are now visible in the shared-map product. Swingometer leads with a `What changed?` explanation, Actual/Scenario/Delta values, a signed operation waterfall, and ledger-backed county and reporting-unit contributors. Election Night now shows exact five-, fifteen-, and thirty-minute movement windows, separate return and represented-ballot progress, mathematical openness, chronology stalls, and recent local movers inside its bottom dock.
+Election Night now includes its first interactive analytical lens. A regular ECharts timeline shows how the reported national, Pennsylvania, Michigan, and Wisconsin margins moved across logical replay time. Clicking the chart seeks the existing replay worker and updates the same deck.gl map.
 
-The visible replay adapter runs inside the existing worker and passes only the observed PA, MI, and WI event prefix into the descriptive contract. Future candidate returns cannot influence the current display. Mathematical openness remains arithmetic under an explicit ballot denominator, not a forecast or race call.
+The worker sends a maximum of 320 deterministic display points, drawn only from published local returns, and only while the Timeline tab is open. Leaving the tab disposes the single chart canvas and stops timeline payloads. ECharts GL is not installed; deck.gl remains the sole map renderer.
 
-[Read the v0.25D release notes](docs/releases/v0.25d-editorial-analytics-workspace.md), the [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md), or the [v0.25D verification record](docs/review/v0.25d-editorial-analytics-workspace/VERIFICATION.md).
+[Read the v0.26A release notes](docs/releases/v0.26a-reported-margin-timeline.md), the [v0.26 plan](docs/plans/v0.26-analytical-lenses.md), or the [v0.26A verification record](docs/review/v0.26a-election-night-analytical-lenses/VERIFICATION.md).
 
 Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
 
@@ -106,8 +106,11 @@ Important implementation areas:
 ```text
 src/App.tsx                         Product shell and scenario orchestration
 src/map/AtlasMapScene.tsx           Persistent national and detailed 3D renderer
+src/components/ElectionNightMarginTimeline.tsx
+                                    Lazy regular-ECharts reported-margin lens
 src/replay/threeStateElectionNight.ts
                                     PA/MI/WI visible replay scheduling
+src/replay/visibleReplayTimeline.ts Bounded current-prefix timeline contract
 src/runtime/threeStateNight.worker.ts
                                     Dedicated Election Night worker
 src/runtime/useReplayExperience.ts  Playback and React integration
@@ -155,11 +158,11 @@ npm run build:pages
 
 ## Verification
 
-The v0.25D release passed:
+The v0.26A release passed:
 
-- 197 of 197 aggregate model, replay, and analytics tests
-- 4 of 4 visible-replay adapter tests
-- 6 of 6 focused three-state scheduling tests
+- 201 of 201 aggregate model, replay, and analytics tests
+- 4 of 4 dedicated visible-timeline tests
+- 14 of 14 focused chronology and current-prefix tests
 - 1 of 1 focused integrated browser journey
 - TypeScript production build
 - ESLint

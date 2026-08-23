@@ -109,11 +109,11 @@ type WorkspaceMode = "home" | "laboratory";
 type ExperienceMode = "swingometer" | "election-night";
 type LaboratoryDrawerSnap = "collapsed" | "working" | "expanded";
 type LaboratoryDrawerTab = "behavior" | "contributors" | "inspector" | "assumptions" | "data";
-type NightDockTab = "live" | "direct" | "returns" | "method";
+type NightDockTab = "live" | "timeline" | "direct" | "returns" | "method";
 type ContributionOperation = "all" | ScenarioDeltaOperationId;
 
 const laboratoryDrawerTabs: LaboratoryDrawerTab[] = ["behavior", "contributors", "inspector", "assumptions", "data"];
-const nightDockTabs: readonly NightDockTab[] = ["live", "direct", "returns", "method"];
+const nightDockTabs: readonly NightDockTab[] = ["live", "timeline", "direct", "returns", "method"];
 
 interface ContributionRow {
   id: string;
@@ -127,6 +127,10 @@ interface ContributionRow {
 const AtlasMapScene = lazy(() => import("./map/AtlasMapScene.tsx").then((module) => ({
   default: module.AtlasMapScene,
 })));
+
+const ElectionNightMarginTimeline = lazy(() => import(
+  "./components/ElectionNightMarginTimeline.tsx"
+));
 
 const numberFormat = new Intl.NumberFormat("en-US");
 const compactFormat = new Intl.NumberFormat("en-US", {
@@ -403,6 +407,7 @@ function ScenarioApp() {
   const [nightOverrideCountyId, setNightOverrideCountyId] = useState("");
   const [nightDockTab, setNightDockTab] = useState<NightDockTab>("live");
   const replay = useReplayExperience();
+  const setReplayMarginTimelineVisible = replay.setMarginTimelineVisible;
   const nightChronologyPreview = useMemo(
     () => buildElectionNightChronologyPreview(nightBehavior),
     [nightBehavior],
@@ -554,6 +559,12 @@ function ScenarioApp() {
       replayTimelineInputRef.current.value = String(replay.timelineProgressMillionths);
     }
   }, [replay.timelineProgressMillionths]);
+
+  useEffect(() => {
+    setReplayMarginTimelineVisible(
+      experienceMode === "election-night" && nightDockTab === "timeline",
+    );
+  }, [experienceMode, nightDockTab, setReplayMarginTimelineVisible]);
 
   const detailedActual = states2024.find(
     (state) => state.code === activeDetailedStateCode,
@@ -1452,6 +1463,10 @@ function ScenarioApp() {
 
   function openNightDock(tab: NightDockTab) {
     setNightDockTab(tab);
+    if (tab === "timeline" && window.matchMedia("(max-width: 800px)").matches) {
+      changeDrawerSnap("expanded");
+      return;
+    }
     if (laboratoryDrawerSnap === "collapsed") changeDrawerSnap("working");
   }
 
@@ -1500,7 +1515,7 @@ function ScenarioApp() {
           </>}
         </nav>
 
-        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · current-prefix analytics · v0.25D" : "Three-state swingometer · scenario ledger · v0.25D"}</div>
+        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · analytical timeline · v0.26A" : "Three-state swingometer · scenario ledger · v0.26A"}</div>
       </header>
 
       <div className="workbench" id="top">
@@ -2167,6 +2182,45 @@ function ScenarioApp() {
                       </li>)}
                     </ol> : <div className="night-tape-empty"><strong>Waiting for the first unit</strong><p>Press Play or Next return when the scenario is ready.</p></div>}
                   </article>
+                </section>
+              </div>
+
+              <div aria-labelledby="night-dock-tab-timeline" className="drawer-panel" data-active={nightDockTab === "timeline"} id="night-dock-panel-timeline" role="tabpanel">
+                <section className="night-timeline-panel">
+                  <div className="night-dock-section-heading">
+                    <div><span className="overline">Analytical lens</span><strong>How the reported margin moved</strong></div>
+                    <p>Only published PA, MI, and WI returns appear. Click the chart to seek the same map and count.</p>
+                  </div>
+                  {nightDockTab === "timeline" && replay.marginTimeline ? <div className="night-timeline-layout">
+                    <article className="night-timeline-chart-card">
+                      <Suspense fallback={<div className="night-timeline-loading" role="status">Loading timeline lens</div>}>
+                        <ElectionNightMarginTimeline
+                          focusStateCode={selectedStateCode && isDetailedStateCode(selectedStateCode)
+                            ? selectedStateCode
+                            : null}
+                          onSeek={replay.seek}
+                          timeline={replay.marginTimeline}
+                        />
+                      </Suspense>
+                      <div className="night-timeline-axis-note"><span>Republican lead</span><b>Reported margin</b><span>Democratic lead</span></div>
+                    </article>
+                    <aside className="night-timeline-readout">
+                      <span className="overline">Visible prefix</span>
+                      <strong>{formatNumber(replay.marginTimeline.observedReturnCount)} returns</strong>
+                      <p>{replay.marginTimeline.sampled
+                        ? `${formatNumber(replay.marginTimeline.points.length)} deterministic display points preserve the latest return and lead changes.`
+                        : "Every published return is represented in the displayed line."}</p>
+                      <dl>
+                        {(["PA", "MI", "WI"] as const).map((stateCode) => {
+                          const latest = replay.marginTimeline?.points.at(-1);
+                          const marginParts = latest?.jurisdictionMarginPartsPerMillion[stateCode] ?? null;
+                          const state = replay.current?.election.jurisdictions.find((row) => row.jurisdictionId === stateCode);
+                          return <div key={stateCode}><dt>{stateCode}</dt><dd>{marginParts === null ? "No return" : formatMargin(marginParts / 10_000)}</dd><small>{formatNumber(state?.returnsPublished ?? 0)} units</small></div>;
+                        })}
+                      </dl>
+                      <small>Above zero is a Democratic reported-vote lead. Below zero is Republican. This is observation, not projection.</small>
+                    </aside>
+                  </div> : <div className="night-timeline-loading" role="status">Timeline becomes available when the three-state replay is ready.</div>}
                 </section>
               </div>
 

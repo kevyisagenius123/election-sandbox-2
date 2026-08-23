@@ -4,11 +4,11 @@ import { expect, test } from "@playwright/test";
 
 const screenshotDirectory = resolve(
   import.meta.dirname,
-  "../../docs/review/v0.23b-election-night-refinement/screenshots",
+  "../../docs/review/v0.26a-election-night-analytical-lenses/screenshots",
 );
 
 test("Election Night runs the Swingometer result on the persistent atlas map", async ({ page }) => {
-  test.setTimeout(150_000);
+  test.setTimeout(180_000);
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
@@ -72,7 +72,28 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   const pennsylvaniaMarginAtQuarter = await page.locator(".night-state-ledger .night-state-row").first().locator("b").textContent();
   await page.getByLabel("Election night timeline").fill("420000");
   await expect(page.locator(".night-state-ledger .night-state-row").first().locator("b")).not.toHaveText(pennsylvaniaMarginAtQuarter ?? "", { timeout: 30_000 });
+  await page.getByRole("tab", { name: "Timeline", exact: true }).click();
+  await expect(page.getByText("How the reported margin moved", { exact: true })).toBeVisible();
+  const marginTimeline = page.getByRole("img", { name: "Reported margin timeline. Click to seek the count." });
+  await expect(marginTimeline).toBeVisible();
+  await expect(marginTimeline.locator("canvas")).toHaveCount(1);
+  await expect(page.locator(".night-timeline-readout")).toContainText("Visible prefix");
+  const timelineProgressBeforeClick = await page.getByLabel("Election night timeline").inputValue();
+  const timelineBox = await marginTimeline.boundingBox();
+  expect(timelineBox).not.toBeNull();
+  await page.mouse.click(timelineBox!.x + timelineBox!.width * 0.74, timelineBox!.y + timelineBox!.height * 0.54);
+  await expect(page.getByLabel("Election night timeline")).not.toHaveValue(timelineProgressBeforeClick, { timeout: 30_000 });
+  await page.getByRole("tab", { name: "Returns", exact: true }).click();
+  await expect(page.locator(".night-margin-timeline-chart canvas")).toHaveCount(0);
+  await page.getByRole("tab", { name: "Timeline", exact: true }).click();
+  await expect(page.locator(".night-margin-timeline-chart canvas")).toHaveCount(1);
   mkdirSync(screenshotDirectory, { recursive: true });
+  await page.screenshot({
+    path: resolve(screenshotDirectory, "margin-timeline-desktop.png"),
+    fullPage: true,
+  });
+  await page.getByRole("tab", { name: "Live", exact: true }).click();
+  await expect(page.locator(".night-return-tape")).toContainText("Local return tape");
   await page.screenshot({
     path: resolve(screenshotDirectory, "election-night-local-return-tape.png"),
     fullPage: true,
@@ -126,6 +147,21 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   await page.screenshot({
     path: resolve(screenshotDirectory, "integrated-election-night-mobile.png"),
     fullPage: true,
+  });
+  const mobileHandleBox = await consoleHandle.boundingBox();
+  expect(mobileHandleBox).not.toBeNull();
+  await page.mouse.move(mobileHandleBox!.x + mobileHandleBox!.width / 2, mobileHandleBox!.y + mobileHandleBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(mobileHandleBox!.x + mobileHandleBox!.width / 2, mobileHandleBox!.y - 280, { steps: 8 });
+  await page.mouse.up();
+  await expect(consoleRegion).toHaveAttribute("data-snap", "working");
+  await page.getByRole("tab", { name: "Timeline", exact: true }).click();
+  await expect(page.locator(".night-margin-timeline-chart canvas")).toHaveCount(1);
+  await page.getByLabel("Election night timeline").fill("420000");
+  await expect(page.locator(".night-timeline-readout")).not.toContainText("0 returns", { timeout: 30_000 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({
+    path: resolve(screenshotDirectory, "margin-timeline-mobile.png"),
   });
 
   await page.getByRole("button", { name: "Edit Swingometer", exact: true }).click();

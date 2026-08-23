@@ -21,6 +21,11 @@ import {
   type VisibleReplayAnalyticsIndex,
 } from "../replay/visibleReplayAnalytics.ts";
 import {
+  buildNightMarginTimelineIndex,
+  deriveNightMarginTimeline,
+  type NightMarginTimelineIndex,
+} from "../replay/visibleReplayTimeline.ts";
+import {
   NIGHT_PROGRESS_MAX,
   THREE_STATE_NIGHT_PROTOCOL,
   type NightAggregate,
@@ -107,6 +112,8 @@ class ThreeStateNightRuntime {
   foundationUnits = new Map<string, readonly BehaviorModelUnit[]>();
   scenarioUnits = new Map<string, readonly BehaviorScenarioUnit[]>();
   analyticsIndex: VisibleReplayAnalyticsIndex | null = null;
+  marginTimelineIndex: NightMarginTimelineIndex | null = null;
+  marginTimelineVisible = false;
   stallThresholdMs = 25 * 60_000;
 
   async handle(request: ThreeStateNightWorkerRequest): Promise<ThreeStateNightWorkerResponse> {
@@ -161,6 +168,7 @@ class ThreeStateNightRuntime {
     }));
     this.replay = compileThreeStateElectionNight(scenarios, request.behavior);
     this.analyticsIndex = buildVisibleReplayAnalyticsIndex(this.replay);
+    this.marginTimelineIndex = buildNightMarginTimelineIndex(this.replay);
     this.stallThresholdMs = request.behavior.stallThresholdMinutes * 60_000;
     this.playheadMs = this.replay.startsAtMs;
     this.resetAggregates();
@@ -171,7 +179,7 @@ class ThreeStateNightRuntime {
     requestId: number,
     command: Extract<ThreeStateNightWorkerRequest, { type: "COMMAND" }>["command"],
   ): ThreeStateNightWorkerResponse {
-    if (!this.replay || !this.analyticsIndex) throw new Error("Election-night worker is not initialized");
+    if (!this.replay || !this.analyticsIndex || !this.marginTimelineIndex) throw new Error("Election-night worker is not initialized");
     if (command.type === "PLAY") {
       if (this.status !== "complete") this.status = "playing";
       return this.response(requestId, "UPDATE", [], [], false);
@@ -184,6 +192,10 @@ class ThreeStateNightRuntime {
       this.playheadMs = this.replay.startsAtMs;
       this.resetAggregates();
       return this.response(requestId, "UPDATE", [], [], true);
+    }
+    if (command.type === "SET_MARGIN_TIMELINE_VISIBILITY") {
+      this.marginTimelineVisible = command.visible;
+      return this.response(requestId, "UPDATE", [], [], false);
     }
     let target = this.playheadMs;
     if (command.type === "STEP_NEXT_EVENT_TIME") {
@@ -312,7 +324,7 @@ class ThreeStateNightRuntime {
     replaceLocalState: boolean,
     recentReturns: readonly NightCurrentReturn[] = [],
   ): ThreeStateNightWorkerResponse {
-    if (!this.replay || !this.analyticsIndex) throw new Error("Election-night worker is not initialized");
+    if (!this.replay || !this.analyticsIndex || !this.marginTimelineIndex) throw new Error("Election-night worker is not initialized");
     const jurisdictions = (["PA", "MI", "WI"] as const).map((jurisdictionId): NightJurisdiction => ({
       jurisdictionId,
       geographyAvailability: "detailed",
@@ -346,6 +358,13 @@ class ThreeStateNightRuntime {
       recentReturns,
       replaceLocalState,
       timelineProgressMillionths: Math.max(0, Math.min(NIGHT_PROGRESS_MAX, progress)),
+      marginTimeline: this.marginTimelineVisible
+        ? deriveNightMarginTimeline(
+          this.marginTimelineIndex,
+          this.eventIndex,
+          this.playheadMs,
+        )
+        : null,
       analytics: deriveVisibleReplayAnalytics({
         index: this.analyticsIndex,
         logicalReplayTimeMs: this.playheadMs,
