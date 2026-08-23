@@ -2,7 +2,17 @@
 
 An interactive 3D laboratory for building United States presidential-election counterfactuals and watching those scenarios unfold through detailed local returns.
 
-![Sandbox 2.0 Swingometer model contract](docs/review/v0.24-swingometer-semantics/screenshots/pennsylvania-turnout-contract.png)
+<p>
+  <img alt="Release v0.27A" src="https://img.shields.io/badge/release-v0.27A-285b70" />
+  <img alt="215 tests passing" src="https://img.shields.io/badge/tests-215%20passing-4c8d78" />
+  <img alt="React 19" src="https://img.shields.io/badge/React-19-3b7f9d" />
+  <img alt="deck.gl 9" src="https://img.shields.io/badge/deck.gl-9-b55240" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-315f83" />
+</p>
+
+[Public demo](https://electaris.github.io/election-sandbox-demo/) · [Current release](docs/releases/v0.27a-scenario-explanation.md) · [Methodology](docs/methodology/ANALYTICS_CONSTITUTION.md) · [Architecture](#architecture)
+
+![Pennsylvania 3D Swingometer laboratory](docs/review/v0.19.1-supervisor-review/screenshots/03-pennsylvania-3d-laboratory.png)
 
 Sandbox 2.0 combines two connected experiences on one persistent deck.gl map:
 
@@ -11,6 +21,17 @@ Sandbox 2.0 combines two connected experiences on one persistent deck.gl map:
 
 The product is local-first, deterministic, and designed to explain why an election changes rather than only display a new winner.
 
+<table>
+  <tr>
+    <td width="50%"><img alt="Swingometer contribution analysis" src="docs/review/v0.19.1-supervisor-review/screenshots/04-pennsylvania-contributors.png" /></td>
+    <td width="50%"><img alt="Integrated Election Night workspace" src="docs/review/v0.26b-reporting-velocity/screenshots/integrated-election-night-desktop.png" /></td>
+  </tr>
+  <tr>
+    <td><strong>Explain the scenario.</strong> Trace explicit assumptions through counties and local reporting units to the Electoral College.</td>
+    <td><strong>Direct the count.</strong> Control pace, order, stalls, and local timing without changing a single final vote.</td>
+  </tr>
+</table>
+
 ## Current release
 
 ### v0.27A: Scenario explanation hierarchy
@@ -18,6 +39,8 @@ The product is local-first, deterministic, and designed to explain why an electi
 The Swingometer now connects every detailed-state scenario into one compact causal chain: the operation responsible for most of the movement, the strongest county and mapped local-unit contribution, and the exact Electoral College consequence. The chain is derived from the same accepted certified-to-scenario ledger as the detailed rankings, so it adds no second calculation path.
 
 The canonical Pennsylvania review scenario now explains that Preference is the main driver, Allegheny County is the strongest county contribution, and Pennsylvania flips from Trump to Harris with 19 electoral votes changing hands. Desktop uses a three-step row; mobile uses one readable column with no horizontal overflow.
+
+![The v0.27A operation, geography, and Electoral College explanation](docs/review/v0.27a-scenario-explanation/screenshots/scenario-explanation-desktop.png)
 
 [Read the v0.27A release notes](docs/releases/v0.27a-scenario-explanation.md), the [explanation decision](docs/decisions/0050-causal-scenario-explanation.md), the [v0.27 plan](docs/plans/v0.27-swingometer-explanation.md), the [analytics inventory](docs/research/SWINGOMETER_ANALYTICS_INVENTORY.md), or the [v0.27A verification record](docs/review/v0.27a-scenario-explanation/VERIFICATION.md).
 
@@ -238,8 +261,9 @@ A separate national-only sanitized preview is available at [Sandbox 2.0 public d
 - [Product and Engineering Plan](PRODUCT_AND_ENGINEERING_PLAN.md)
 - [Run My Election Engine Plan](RUN_MY_ELECTION_ENGINE_PLAN.md)
 - [Codex Handoff](CODEX_HANDOFF.md)
-- [v0.23 Release Notes](docs/releases/v0.23-election-night.md)
-- [v0.23 Verification](docs/review/v0.23a-visible-replay/VERIFICATION.md)
+- [v0.27A Release Notes](docs/releases/v0.27a-scenario-explanation.md)
+- [v0.27A Verification](docs/review/v0.27a-scenario-explanation/VERIFICATION.md)
+- [Swingometer Explanation Plan](docs/plans/v0.27-swingometer-explanation.md)
 - [Election Night Engine Boundary](docs/decisions/0028-election-night-engine-boundary.md)
 - [First Visible Replay Slice](docs/decisions/0039-first-visible-replay-slice.md)
 - [Runtime Budgets](docs/operations/RUNTIME_BUDGETS.md)
@@ -247,4 +271,4 @@ A separate national-only sanitized preview is available at [Sandbox 2.0 public d
 
 ## Status
 
-v0.23 is implemented and verified as a supervisor-review candidate. The next bounded release should be selected from the v0.23 review rather than adding projections, unsupported states, or public restricted-data delivery implicitly.
+v0.27A is implemented and verified. The next bounded release is v0.27B, which will redesign third-party allocation geographically before adding honest Stein and Oliver plurality colors. Demographic behavior begins only after v0.27, with a separate evidence contract in v0.28A.
