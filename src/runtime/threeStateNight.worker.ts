@@ -1,6 +1,15 @@
-import { applyBehaviorScenario } from "../../packages/election-model/src/scenario.ts";
+import {
+  applyBehaviorScenario,
+  type BehaviorModelUnit,
+  type BehaviorScenarioUnit,
+} from "../../packages/election-model/src/scenario.ts";
 import { getDetailedStateRuntimeAdapter } from "../data/detailedStateRuntimeLoaders.ts";
-import { toBehaviorScenarioSettings } from "../data/scenarioPortfolio.ts";
+import {
+  createStateScenarioRecipe,
+  isDefaultStateBehaviorSettings,
+  stateScenarioRecipeFingerprint,
+  toBehaviorScenarioSettings,
+} from "../data/scenarioPortfolio.ts";
 import {
   compileThreeStateElectionNight,
   type CompiledThreeStateNight,
@@ -68,6 +77,18 @@ function add(target: MutableAggregate, event: ThreeStateReturnEvent) {
   target.returns += 1;
 }
 
+function unchangedScenarioUnits(units: readonly BehaviorModelUnit[]): readonly BehaviorScenarioUnit[] {
+  return units.map((unit) => ({
+    ...unit,
+    turnoutAddedVotes: 0,
+    turnoutHarrisVotes: 0,
+    turnoutTrumpVotes: 0,
+    preferenceNetHarrisGain: 0,
+    thirdPartyCandidateDelta: 0,
+    netHarrisGain: 0,
+  }));
+}
+
 class ThreeStateNightRuntime {
   replay: CompiledThreeStateNight | null = null;
   playheadMs = 0;
@@ -78,6 +99,8 @@ class ThreeStateNightRuntime {
   counties = new Map<string, MutableAggregate>();
   units = new Map<string, NightPublishedUnit>();
   currentReturn: NightCurrentReturn | null = null;
+  foundationUnits = new Map<string, readonly BehaviorModelUnit[]>();
+  scenarioUnits = new Map<string, readonly BehaviorScenarioUnit[]>();
 
   async handle(request: ThreeStateNightWorkerRequest): Promise<ThreeStateNightWorkerResponse> {
     try {
@@ -98,16 +121,35 @@ class ThreeStateNightRuntime {
   }
 
   async initialize(request: Extract<ThreeStateNightWorkerRequest, { type: "INITIALIZE" }>) {
-    if (this.replay) throw new Error("Election-night worker can initialize only once");
     const scenarios = await Promise.all(request.states.map(async (state) => {
-      const response = await fetch(state.artifactUrl);
-      if (!response.ok) throw new Error(`${state.stateCode} data returned ${response.status}`);
-      const adapter = getDetailedStateRuntimeAdapter(state.loader);
-      const foundation = adapter.decode(await response.json());
-      const units = adapter.toBehaviorModelUnits(foundation);
+      const foundationKey = `${state.loader}:${state.artifactUrl}`;
+      let units = this.foundationUnits.get(foundationKey);
+      if (!units) {
+        const response = await fetch(state.artifactUrl);
+        if (!response.ok) throw new Error(`${state.stateCode} data returned ${response.status}`);
+        const adapter = getDetailedStateRuntimeAdapter(state.loader);
+        const foundation = adapter.decode(await response.json());
+        units = adapter.toBehaviorModelUnits(foundation);
+        this.foundationUnits.set(foundationKey, units);
+      }
+      if (!units) throw new Error(`${state.stateCode} data did not produce reporting units`);
+      const recipeKey = stateScenarioRecipeFingerprint(
+        createStateScenarioRecipe(state.stateCode, state.settings),
+      );
+      let scenario = this.scenarioUnits.get(recipeKey);
+      if (!scenario) {
+        scenario = isDefaultStateBehaviorSettings(state.settings)
+          ? unchangedScenarioUnits(units)
+          : applyBehaviorScenario(units, toBehaviorScenarioSettings(state.settings)).units;
+        if (this.scenarioUnits.size >= 3) {
+          const oldestKey = this.scenarioUnits.keys().next().value;
+          if (oldestKey) this.scenarioUnits.delete(oldestKey);
+        }
+        this.scenarioUnits.set(recipeKey, scenario);
+      }
       return {
         stateCode: state.stateCode,
-        units: applyBehaviorScenario(units, toBehaviorScenarioSettings(state.settings)).units,
+        units: scenario,
       };
     }));
     this.replay = compileThreeStateElectionNight(scenarios, request.behavior);
@@ -155,10 +197,12 @@ class ThreeStateNightRuntime {
     if (backward) this.resetAggregates();
     const changedCounties = new Set<string>();
     const changedUnits: NightPublishedUnit[] = [];
+    const recentReturns: NightCurrentReturn[] = [];
     while (this.eventIndex < this.replay.events.length) {
       const event = this.replay.events[this.eventIndex];
       if (event.atMs > target) break;
       this.applyEvent(event, changedCounties, changedUnits);
+      if (this.currentReturn) recentReturns.push(this.currentReturn);
       this.eventIndex += 1;
     }
     this.playheadMs = target;
@@ -170,6 +214,7 @@ class ThreeStateNightRuntime {
       backward ? this.allCounties() : this.countiesFor(changedCounties),
       backward ? [...this.units.values()] : changedUnits,
       backward,
+      recentReturns.slice(-12),
     );
   }
 
@@ -188,11 +233,16 @@ class ThreeStateNightRuntime {
     changedCounties: Set<string>,
     changedUnits: NightPublishedUnit[],
   ) {
+    const state = this.states.get(event.stateCode)!;
+    const stateMarginBeforeVotes = state.harris - state.trump;
+    const countyKey = event.countyId ? `${event.stateCode}:${event.countyId}` : null;
+    const countyBefore = countyKey ? this.counties.get(countyKey) : null;
+    const countyMarginBeforeVotes = countyBefore ? countyBefore.harris - countyBefore.trump : 0;
     add(this.national, event);
-    add(this.states.get(event.stateCode)!, event);
+    add(state, event);
     if (event.countyId) {
-      const key = `${event.stateCode}:${event.countyId}`;
-      const county = this.counties.get(key) ?? zero();
+      const key = countyKey!;
+      const county = countyBefore ?? zero();
       add(county, event);
       this.counties.set(key, county);
       changedCounties.add(key);
@@ -216,6 +266,15 @@ class ThreeStateNightRuntime {
       unitId: event.unitId,
       geometryId: event.geometryId,
       totalVotes: event.totalVotes,
+      harrisVotes: event.harrisVotes,
+      trumpVotes: event.trumpVotes,
+      netHarrisMarginVotes: event.harrisVotes - event.trumpVotes,
+      stateMarginBeforeVotes,
+      stateMarginAfterVotes: state.harris - state.trump,
+      countyMarginBeforeVotes: event.countyId ? countyMarginBeforeVotes : null,
+      countyMarginAfterVotes: event.countyId
+        ? (this.counties.get(countyKey!)!.harris - this.counties.get(countyKey!)!.trump)
+        : null,
     };
   }
 
@@ -242,6 +301,7 @@ class ThreeStateNightRuntime {
     reportedCounties: readonly NightReportedCounty[],
     publishedUnits: readonly NightPublishedUnit[],
     replaceLocalState: boolean,
+    recentReturns: readonly NightCurrentReturn[] = [],
   ): ThreeStateNightWorkerResponse {
     if (!this.replay) throw new Error("Election-night worker is not initialized");
     const jurisdictions = (["PA", "MI", "WI"] as const).map((jurisdictionId): NightJurisdiction => ({
@@ -274,6 +334,7 @@ class ThreeStateNightRuntime {
       reportedCounties,
       publishedUnits,
       currentReturn: this.currentReturn,
+      recentReturns,
       replaceLocalState,
       timelineProgressMillionths: Math.max(0, Math.min(NIGHT_PROGRESS_MAX, progress)),
     };

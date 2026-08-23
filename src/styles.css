@@ -4470,6 +4470,7 @@ input[type="range"]:disabled {
 .night-live-states button {
   display: flex;
   min-width: 0;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -4477,6 +4478,28 @@ input[type="range"]:disabled {
   color: var(--ink);
   text-align: left;
   cursor: pointer;
+}
+
+.night-live-states button[data-fresh="true"] {
+  border-color: rgba(210, 162, 52, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(210, 162, 52, 0.08);
+}
+
+.night-live-states button > em {
+  display: block;
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(70, 102, 112, 0.1);
+}
+
+.night-live-states button > em > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3d88a5, #d5a73b);
+  transition: width 180ms ease-out;
 }
 
 .night-live-states button span {
@@ -4495,6 +4518,73 @@ input[type="range"]:disabled {
   color: #7a8c92;
   font-size: 7px;
   text-transform: uppercase;
+}
+
+.night-return-tape {
+  min-width: 0;
+}
+
+.night-return-tape ol {
+  display: grid;
+  gap: 0;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.night-return-tape li {
+  display: grid;
+  grid-template-columns: minmax(74px, 0.55fr) minmax(120px, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-top: 1px solid rgba(77, 104, 112, 0.12);
+}
+
+.night-return-tape li > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.night-return-tape li b {
+  color: #bd9a3f;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+}
+
+.night-return-tape li strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 8px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.night-return-tape li small {
+  overflow: hidden;
+  color: #7a8c92;
+  font-size: 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.night-tape-empty {
+  margin-top: 8px;
+}
+
+.night-tape-empty > strong {
+  display: block;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.night-tape-empty > p {
+  margin: 5px 0 0;
+  color: #6e828a;
+  font-size: 8px;
 }
 
 .night-dock-editor,

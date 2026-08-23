@@ -2,7 +2,7 @@
 
 ## Election-Night Engine, Replay Studio, and Production Architecture
 
-**Status:** v0.22D accepted; v0.22E sanitized playback observation contract implemented and verified for review
+**Status:** v0.23B integrated three-state Election Night refinement implemented and verified for review
 
 **Target starting release:** v0.21
 
@@ -1550,13 +1550,11 @@ The election-night system is complete only when a user can:
 
 ## 26. Exact next action
 
-v0.21A through v0.22D have passed supervisor review. v0.22E is implemented under its bounded authorization, and its verification evidence is recorded in `docs/review/v0.22e-playback-observation/VERIFICATION.md`.
+v0.21A through v0.22E have passed supervisor review. v0.22F established the worker boundary, v0.23A integrated the first visible three-state replay, and v0.23B added bounded active-session caching plus current-only local return explanations. The current evidence is recorded in `docs/review/v0.23b-election-night-refinement/VERIFICATION.md`.
 
-The next action is supervisor review of that exact candidate. Do not begin worker transport, Decision Desk modeling, or replay UI until another milestone is explicitly scoped and authorized.
+The next action is supervisor review of that exact candidate, followed by a bounded v0.24 return to the Swingometer model roadmap. The demographic inputs and slider semantics should be audited before population editing, uncertainty, or further state expansion.
 
-A likely next milestone is a headless runtime adapter/worker protocol over the controller and sanitized observation contract. It remains a proposal until authorized.
-
-The map, timeline UI, backend, Decision Desk, memberships, live rooms, and video export remain out of scope.
+Decision Desk modeling, projections, calls, backend, memberships, live rooms, and video export remain out of scope until separately authorized.
 
 The completed v0.22A proof is deliberately simple:
 

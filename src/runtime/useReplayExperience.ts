@@ -28,6 +28,7 @@ interface ReplayExperienceState {
   error: string | null;
   current: NightHeadline | null;
   currentReturn: NightCurrentReturn | null;
+  recentReturns: readonly NightCurrentReturn[];
   reportedCounties: readonly NightReportedCounty[];
   publishedUnits: readonly NightPublishedUnit[];
   timelineProgressMillionths: number;
@@ -38,6 +39,7 @@ const INITIAL_STATE: ReplayExperienceState = {
   error: null,
   current: null,
   currentReturn: null,
+  recentReturns: [],
   reportedCounties: [],
   publishedUnits: [],
   timelineProgressMillionths: 0,
@@ -52,6 +54,7 @@ export function useReplayExperience() {
   const [speed, setSpeed] = useState(1);
   const workerRef = useRef<Worker | null>(null);
   const requestIdRef = useRef(0);
+  const initializationRequestIdRef = useRef(0);
   const countyMapRef = useRef(new Map<string, NightReportedCounty>());
   const unitMapRef = useRef(new Map<string, NightPublishedUnit>());
 
@@ -75,52 +78,65 @@ export function useReplayExperience() {
   }, []);
 
   const start = useCallback((configuration: ReplayStartConfiguration) => {
-    workerRef.current?.terminate();
     countyMapRef.current.clear();
     unitMapRef.current.clear();
     setState({ ...INITIAL_STATE, phase: "loading-data" });
-    const worker = new Worker(
-      new URL("./threeStateNight.worker.ts", import.meta.url),
-      { type: "module", name: "three-state-election-night" },
-    );
-    workerRef.current = worker;
-    worker.onmessage = (event: MessageEvent<ThreeStateNightWorkerResponse>) => {
-      if (workerRef.current !== worker) return;
-      const response = event.data;
-      if (response.protocolVersion !== THREE_STATE_NIGHT_PROTOCOL) return;
-      if (response.type === "ERROR") {
-        setState((current) => ({ ...current, phase: "error", error: response.message }));
-        return;
-      }
-      if (response.replaceLocalState) {
-        countyMapRef.current.clear();
-        unitMapRef.current.clear();
-      }
-      for (const county of response.reportedCounties) {
-        countyMapRef.current.set(localKey(county.jurisdictionId, county.countyId), county);
-      }
-      for (const unit of response.publishedUnits) {
-        unitMapRef.current.set(localKey(unit.jurisdictionId, unit.unitId), unit);
-      }
-      setState({
-        phase: "ready",
-        error: null,
-        current: response.current,
-        currentReturn: response.currentReturn,
-        reportedCounties: [...countyMapRef.current.values()],
-        publishedUnits: [...unitMapRef.current.values()],
-        timelineProgressMillionths: response.timelineProgressMillionths,
-      });
-    };
-    worker.onerror = () => {
-      if (workerRef.current !== worker) return;
-      setState((current) => ({
-        ...current,
-        phase: "error",
-        error: "The three-state election-night worker could not start",
-      }));
-    };
+    let worker = workerRef.current;
+    if (!worker) {
+      worker = new Worker(
+        new URL("./threeStateNight.worker.ts", import.meta.url),
+        { type: "module", name: "three-state-election-night" },
+      );
+      workerRef.current = worker;
+      worker.onmessage = (event: MessageEvent<ThreeStateNightWorkerResponse>) => {
+        if (workerRef.current !== worker) return;
+        const response = event.data;
+        if (response.protocolVersion !== THREE_STATE_NIGHT_PROTOCOL) return;
+        if (response.requestId < initializationRequestIdRef.current) return;
+        if (response.type === "ERROR") {
+          setState((current) => ({ ...current, phase: "error", error: response.message }));
+          return;
+        }
+        if (response.replaceLocalState) {
+          countyMapRef.current.clear();
+          unitMapRef.current.clear();
+        }
+        for (const county of response.reportedCounties) {
+          countyMapRef.current.set(localKey(county.jurisdictionId, county.countyId), county);
+        }
+        for (const unit of response.publishedUnits) {
+          unitMapRef.current.set(localKey(unit.jurisdictionId, unit.unitId), unit);
+        }
+        setState((current) => {
+          const incomingReturns = [...response.recentReturns].reverse();
+          const recentReturns = response.replaceLocalState
+            ? incomingReturns
+            : [...incomingReturns, ...current.recentReturns]
+              .filter((item, index, values) => values.findIndex((candidate) => candidate.eventId === item.eventId) === index)
+              .slice(0, 12);
+          return {
+            phase: "ready",
+            error: null,
+            current: response.current,
+            currentReturn: response.currentReturn,
+            recentReturns,
+            reportedCounties: [...countyMapRef.current.values()],
+            publishedUnits: [...unitMapRef.current.values()],
+            timelineProgressMillionths: response.timelineProgressMillionths,
+          };
+        });
+      };
+      worker.onerror = () => {
+        if (workerRef.current !== worker) return;
+        setState((current) => ({
+          ...current,
+          phase: "error",
+          error: "The three-state election-night worker could not start",
+        }));
+      };
+    }
     requestIdRef.current += 1;
+    initializationRequestIdRef.current = requestIdRef.current;
     const states = (["PA", "MI", "WI"] as const).map((stateCode) => {
       const manifest = getDetailedStateManifest(stateCode);
       return {

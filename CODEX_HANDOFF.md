@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.23.0`, v0.23A First Visible Election Replay candidate
+- Release: `0.23.1`, v0.23B Election Night Refinement candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -763,6 +763,16 @@ v0.17 additionally adds or changes:
 - `tests/browser/replay-experience.spec.ts` proves same-canvas and same-route integration, three-state-only disclosure, real worker playback, behavior editing, and return to the Swingometer.
 - Current evidence is in `docs/review/v0.23a-visible-replay/`; decision 0039 records the corrected product law.
 
+### v0.23B Election Night refinement
+
+- `src/runtime/useReplayExperience.ts` reuses the active Election Night worker for chronology restarts instead of destroying and rebuilding it.
+- `src/runtime/threeStateNight.worker.ts` caches exactly three decoded detailed-state foundations and at most three scenario endpoint arrays for the active session. Default recipes use an exact zero-change projection; non-default recipes still use the accepted scenario engine.
+- Leaving Election Night terminates the worker and releases the cache. No persistent or cross-product replay cache was added.
+- Worker responses now include current-only local-return arithmetic: candidate votes, net two-party movement, and state/county margins immediately before and after the return.
+- The bottom dock displays a twelve-entry local return tape, reporting-unit progress bars, and a restrained newest-state highlight.
+- `tests/browser/replay-experience.spec.ts` verifies the return tape and a less-than-30-second active-session chronology restart.
+- 161 model/replay tests, build, lint, and 2 focused browser journeys pass. Evidence and regenerated screenshots are in `docs/review/v0.23b-election-night-refinement/`; decision 0040 records the cache and observation boundary.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -772,8 +782,8 @@ v0.17 additionally adds or changes:
 - `npm test` passes 122 of 122 tests. Lint, production build, benchmark, and `git diff --check` pass; the existing deck.gl chunk warning remains.
 - The aggregate browser run passed 36 current journeys, skipped three deliberate review/environment tests, and timed out on two navigation-heavy journeys after abnormal suite delay. Both timed-out journeys passed immediately in isolation, giving a documented combined disposition of 38 of 38 current journeys passing.
 - National, PA, MI, zero-state, checkpoint-position, midpoint, and final-state fingerprints are frozen.
-- v0.22A through v0.22E passed supervisor review. v0.22F and v0.23A are the current verified supervisor-review candidates.
-- v0.23A adds only the first local visible replay slice. No Decision Desk, projection, call, backend, membership, room, export, or video functionality was added.
+- v0.22A through v0.22E passed supervisor review. v0.22F, v0.23A, and v0.23B are verified supervisor-review candidates.
+- v0.23B refines only the local visible replay slice. No Decision Desk, projection, call, backend, membership, room, export, or video functionality was added.
 
 ### v0.20 Wisconsin admission
 
@@ -864,12 +874,12 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 8. **A balanced third-party exchange can have zero `Harris - Trump` contribution.** This is correct even when exchanged ballot volume is large; the editor displays that volume separately.
 9. **No backend-stored scenarios, authentication, or deployment exist.** Deterministic scenario URLs are client-side and require a compatible build.
 10. **Source redistribution status blocks an open public data release.** `docs/data/REDISTRIBUTION_INVENTORY.md` records the current review and approved delivery decisions; provenance alone is not treated as permission.
-11. **Replay initialization is visibly slow.** Certified compilation and checkpoint creation take about 32 seconds locally. The worker prevents a UI-thread freeze, but no cache or precompiled replay artifact exists yet.
+11. **The audited national replay kernel still has a heavy cold initialization.** Its certified compilation and checkpoint creation take about 32 seconds locally. The visible three-state Election Night now has a bounded active-session cache and an exact default-recipe shortcut, but no persistent or precompiled national replay artifact exists.
 12. **Detailed county snapshots are intentionally periodic.** During active playback the national/state headline is current while the county list discloses that it refreshes on pause. Continuous multi-megabyte county snapshots are prohibited.
 
 ## 10. Exact next phase
 
-v0.22F and the pre-authorized v0.23A visible slice are implemented and verified. The exact next action is supervisor review of `docs/review/v0.23a-visible-replay/VERIFICATION.md` and explicit selection of v0.23B.
+v0.23B is implemented and verified. The exact next action is supervisor review of `docs/review/v0.23b-election-night-refinement/VERIFICATION.md`, followed by a bounded v0.24 return to the Swingometer roadmap: audit demographic inputs and slider semantics before population editing, uncertainty, or additional states.
 
 Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
 

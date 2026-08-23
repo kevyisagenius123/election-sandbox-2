@@ -2,7 +2,7 @@
 
 An interactive 3D laboratory for building United States presidential-election counterfactuals and watching those scenarios unfold through detailed local returns.
 
-![Sandbox 2.0 Election Night](docs/review/v0.23a-visible-replay/screenshots/integrated-election-night-desktop.png)
+![Sandbox 2.0 Election Night](docs/review/v0.23b-election-night-refinement/screenshots/election-night-local-return-tape.png)
 
 Sandbox 2.0 combines two connected experiences on one persistent deck.gl map:
 
@@ -13,7 +13,7 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.23: Integrated three-state Election Night
+### v0.23B: Refined three-state Election Night
 
 Election Night now lives directly inside the main laboratory at `/app/`. It shares the Swingometer's scenario, mounted 3D map, camera, and geographic selection instead of opening a separate replay product.
 
@@ -27,7 +27,9 @@ The visible count currently includes only the three states with admitted detaile
 
 The other 48 jurisdictions stay inert during Election Night. The application does not invent statewide or county fallback returns where detailed local data are unavailable.
 
-[Read the complete v0.23 release notes](docs/releases/v0.23-election-night.md) or inspect the [v0.23 verification record](docs/review/v0.23a-visible-replay/VERIFICATION.md).
+v0.23B reuses decoded state foundations while Election Night remains open, makes chronology restarts substantially cheaper, and adds a current-only local return tape that explains exactly how each published precinct, VTD, or ward moved its state margin.
+
+[Read the v0.23B release notes](docs/releases/v0.23b-election-night-refinement.md) or inspect the [v0.23B verification record](docs/review/v0.23b-election-night-refinement/VERIFICATION.md). The original integration record remains in [v0.23A](docs/review/v0.23a-visible-replay/VERIFICATION.md).
 
 ## What you can do
 
@@ -51,7 +53,8 @@ The other 48 jurisdictions stay inert during Election Night. The application doe
 - Add county-specific activation and count-length overrides.
 - Preview state reporting windows before restarting the count.
 - Save and reuse custom chronology profiles in browser-local storage.
-- Inspect reported vote and the latest local return without leaving the map.
+- Follow a compact local return tape that names the county, ballots, timestamp, and exact two-party margin movement.
+- See published-unit progress and the newest reporting state without leaving the map.
 
 Chronology controls change when votes arrive, never how many votes exist. Schedules are deterministic for the same scenario, profile, and seed. State color represents the current reported-vote leader, not a projection or race call.
 
@@ -113,7 +116,7 @@ tests/                               Model, replay, and browser verification
 docs/                                Decisions, methodology, reviews, and releases
 ```
 
-The detailed foundations are decoded and modeled in Web Workers. Scenario requests use monotonically increasing identifiers, queued slider changes are coalesced, stale responses are rejected, and inactive state summaries remain compact. County geometry is loaded lazily and kept in a bounded cache.
+The detailed foundations are decoded and modeled in Web Workers. Scenario requests use monotonically increasing identifiers, queued slider changes are coalesced, stale responses are rejected, and inactive state summaries remain compact. County geometry is loaded lazily and kept in a bounded cache. During Election Night, chronology restarts reuse one active worker with three bounded scenario entries; leaving the mode releases that cache.
 
 ## Run locally
 
@@ -145,7 +148,7 @@ npm run build:pages
 
 ## Verification
 
-The v0.23 release passed:
+The v0.23B release passed:
 
 - 161 of 161 model and replay tests
 - 6 of 6 focused three-state scheduler tests

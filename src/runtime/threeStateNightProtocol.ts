@@ -58,6 +58,13 @@ export interface NightCurrentReturn {
   unitId: string;
   geometryId: string | null;
   totalVotes: number;
+  harrisVotes: number;
+  trumpVotes: number;
+  netHarrisMarginVotes: number;
+  stateMarginBeforeVotes: number;
+  stateMarginAfterVotes: number;
+  countyMarginBeforeVotes: number | null;
+  countyMarginAfterVotes: number | null;
 }
 
 export interface NightStateInitialization {
@@ -100,6 +107,7 @@ export type ThreeStateNightWorkerResponse =
       reportedCounties: readonly NightReportedCounty[];
       publishedUnits: readonly NightPublishedUnit[];
       currentReturn: NightCurrentReturn | null;
+      recentReturns: readonly NightCurrentReturn[];
       replaceLocalState: boolean;
       timelineProgressMillionths: number;
     }

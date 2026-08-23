@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 const screenshotDirectory = resolve(
   import.meta.dirname,
-  "../../docs/review/v0.23a-visible-replay/screenshots",
+  "../../docs/review/v0.23b-election-night-refinement/screenshots",
 );
 
 test("Election Night runs the Swingometer result on the persistent atlas map", async ({ page }) => {
@@ -52,6 +52,7 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
 
   await page.getByRole("button", { name: "Next return", exact: true }).click();
   await expect(page.locator(".night-dock-clock small")).not.toContainText(/^0 returns/);
+  await expect(page.locator(".night-return-tape li").first()).toContainText(/Net|takes the|exact tie|No two-party/);
 
   await page.getByLabel("Election night timeline").fill("250000");
   await expect(page.locator(".night-dock-clock small")).not.toContainText("0 ballots", { timeout: 30_000 });
@@ -59,6 +60,11 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   const pennsylvaniaMarginAtQuarter = await page.locator(".night-state-ledger .night-state-row").first().locator("b").textContent();
   await page.getByLabel("Election night timeline").fill("420000");
   await expect(page.locator(".night-state-ledger .night-state-row").first().locator("b")).not.toHaveText(pennsylvaniaMarginAtQuarter ?? "", { timeout: 30_000 });
+  mkdirSync(screenshotDirectory, { recursive: true });
+  await page.screenshot({
+    path: resolve(screenshotDirectory, "election-night-local-return-tape.png"),
+    fullPage: true,
+  });
 
   await page.getByRole("tab", { name: "Direct the count", exact: true }).click();
   await expect(page.getByRole("region", { name: "Election night behavior editor" })).toBeVisible();
@@ -82,8 +88,10 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
     path: resolve(screenshotDirectory, "election-night-director-desktop.png"),
     fullPage: true,
   });
+  const restartStartedAt = Date.now();
   await page.getByRole("button", { name: "Apply and restart count", exact: true }).click();
   await expect(play).toBeEnabled({ timeout: 100_000 });
+  expect(Date.now() - restartStartedAt).toBeLessThan(30_000);
   await expect(page.getByRole("region", { name: "Chronology preview" })).toContainText("Running chronology");
   await page.getByRole("tab", { name: "Live", exact: true }).click();
 
@@ -94,7 +102,6 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   await page.getByRole("button", { name: "collapsed", exact: true }).click();
   await expect(consoleRegion).toHaveAttribute("data-snap", "collapsed");
 
-  mkdirSync(screenshotDirectory, { recursive: true });
   await page.screenshot({
     path: resolve(screenshotDirectory, "integrated-election-night-desktop.png"),
     fullPage: true,

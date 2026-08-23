@@ -67,6 +67,7 @@ import {
 } from "./data/scenarioPortfolio.ts";
 import { useScenarioPortfolio } from "./runtime/useScenarioPortfolio.ts";
 import { useReplayExperience } from "./runtime/useReplayExperience.ts";
+import type { NightCurrentReturn } from "./runtime/threeStateNightProtocol.ts";
 import {
   buildElectionNightChronologyPreview,
   DEFAULT_ELECTION_NIGHT_BEHAVIOR,
@@ -160,6 +161,20 @@ function replayCandidateVotes(
   candidateId: string,
 ) {
   return value?.candidateVotes.find((candidate) => candidate.candidateId === candidateId)?.votes ?? 0;
+}
+
+function describeReturnMovement(value: NightCurrentReturn) {
+  const movement = value.netHarrisMarginVotes;
+  if (movement === 0) return "No two-party margin change";
+  const candidate = movement > 0 ? "Harris" : "Trump";
+  const amount = formatCompact(Math.abs(movement));
+  const before = value.stateMarginBeforeVotes;
+  const after = value.stateMarginAfterVotes;
+  if (before !== 0 && Math.sign(before) !== Math.sign(after)) {
+    return `${candidate} takes the ${value.jurisdictionId} lead by ${formatCompact(Math.abs(after))}`;
+  }
+  if (after === 0) return `${value.jurisdictionId} moves to an exact tie`;
+  return `Net ${amount} toward ${candidate}`;
 }
 
 function formatMargin(value: number) {
@@ -964,6 +979,11 @@ function ScenarioApp() {
   const replayNationalHarrisVotes = replayCandidateVotes(replayNational, "harris");
   const replayNationalTrumpVotes = replayCandidateVotes(replayNational, "trump");
   const replayNationalMarginVotes = replayNationalHarrisVotes - replayNationalTrumpVotes;
+  const replayCountyNames = useMemo(() => new Map(
+    (["PA", "MI", "WI"] as const).flatMap((stateCode) => (
+      getDetailedStateCounties(stateCode).map((county) => [`${stateCode}:${county.fips}`, county.name] as const)
+    )),
+  ), []);
   const selectedInspector = useMemo(() => {
     if (!demographicFoundation || !behaviorScenario) return null;
     if (selectedVtd) {
@@ -1418,7 +1438,7 @@ function ScenarioApp() {
           </>}
         </nav>
 
-        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · reporting-unit-first" : "Three-state swingometer · v0.23"}</div>
+        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · reporting-unit-first · v0.23B" : "Three-state swingometer · v0.23"}</div>
       </header>
 
       <div className="workbench" id="top">
@@ -1572,7 +1592,7 @@ function ScenarioApp() {
                     : replay.phase === "loading-data"
                       ? "Locking your Swingometer scenario"
                       : "Compiling precinct-level returns off-thread"}</strong>
-                  <p>{replay.error ?? "The same map stays mounted while the deterministic return timeline is prepared. First load can take about half a minute."}</p>
+                  <p>{replay.error ?? "The same map stays mounted while three detailed state endpoints are prepared. Unchanged states use the direct certified path, and chronology restarts reuse the active worker cache."}</p>
                 </div>
                 {replay.phase === "error" && <button onClick={returnToSwingometer} type="button">Back to Swingometer</button>}
               </div>
@@ -2047,16 +2067,24 @@ function ScenarioApp() {
                       const harris = replayCandidateVotes(state, "harris");
                       const trump = replayCandidateVotes(state, "trump");
                       const reportedMargin = state?.totalReportedVotes ? (harris - trump) / state.totalReportedVotes * 100 : null;
-                      return <button key={stateCode} onClick={() => selectState(stateCode)} type="button">
+                      const unitProgress = state?.expectedReturns
+                        ? Math.round((state.returnsPublished / state.expectedReturns) * 100)
+                        : 0;
+                      return <button data-fresh={replay.currentReturn?.jurisdictionId === stateCode} key={stateCode} onClick={() => selectState(stateCode)} type="button">
                         <span><b>{stateCode}</b><small>{state?.returnsPublished ?? 0} / {state?.expectedReturns ?? 0} units</small></span>
                         <strong>{reportedMargin == null ? "No returns" : formatMargin(reportedMargin)}</strong>
+                        <em aria-label={`${unitProgress}% of ${stateCode} reporting units published`}><i style={{ width: `${unitProgress}%` }} /></em>
                       </button>;
                     })}
                   </div>
-                  <article className="night-latest-return">
-                    <span className="overline">Latest return</span>
-                    <strong>{replay.currentReturn ? `${replay.currentReturn.jurisdictionId} · ${replay.currentReturn.unitId}` : "Waiting for the first unit"}</strong>
-                    <p>{replay.currentReturn ? `${formatNumber(replay.currentReturn.totalVotes)} ballots published into the live county and state totals.` : "Press Play or Next return when the scenario is ready."}</p>
+                  <article className="night-latest-return night-return-tape">
+                    <span className="overline">Local return tape</span>
+                    {replay.recentReturns.length ? <ol>
+                      {replay.recentReturns.slice(0, 4).map((returnEvent) => <li key={returnEvent.eventId}>
+                        <span><b>{returnEvent.jurisdictionId}</b><small>{returnEvent.countyId ? replayCountyNames.get(`${returnEvent.jurisdictionId}:${returnEvent.countyId}`) ?? returnEvent.countyId : "Off-map return"}</small></span>
+                        <span><strong>{describeReturnMovement(returnEvent)}</strong><small>{formatNumber(returnEvent.totalVotes)} ballots · {replayTimeShortFormat.format(new Date(returnEvent.atMs))}</small></span>
+                      </li>)}
+                    </ol> : <div className="night-tape-empty"><strong>Waiting for the first unit</strong><p>Press Play or Next return when the scenario is ready.</p></div>}
                   </article>
                 </section>
               </div>
