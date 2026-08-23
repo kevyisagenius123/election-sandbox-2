@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.23.1`, v0.23B Election Night Refinement candidate
+- Release: `0.24.0`, v0.24 Explicit Swingometer Model Semantics candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -773,6 +773,16 @@ v0.17 additionally adds or changes:
 - `tests/browser/replay-experience.spec.ts` verifies the return tape and a less-than-30-second active-session chronology restart.
 - 161 model/replay tests, build, lint, and 2 focused browser journeys pass. Evidence and regenerated screenshots are in `docs/review/v0.23b-election-night-refinement/`; decision 0040 records the cache and observation boundary.
 
+### v0.24 explicit Swingometer model semantics
+
+- `src/data/modelSemantics.ts` centralizes state-specific population bases plus the changes, invariants, arithmetic, and feasible boundary of Turnout, Preference, and Third Party operations.
+- The Behavior panel displays that contract before each slider and labels every operation as a scenario assumption rather than a forecast.
+- Preference and third-party controls show exact calculated directional endpoints. Turnout, preference, and third-party explainers distinguish requested from realized ballot movement.
+- Pennsylvania retains direct 2020 Census VAP language, Michigan discloses its 2020-to-2024 precinct bridge, and Wisconsin discloses the LTSB 2020 VAP estimate on 2025 ward terrain.
+- The scenario engine, recipe schema, URLs, and election arithmetic are unchanged.
+- Evidence is in `docs/review/v0.24-swingometer-semantics/`; decision 0041 and `docs/methodology/SWINGOMETER_MODEL_CONTRACT.md` define the product law.
+- Verification passes 164 of 164 aggregate model/replay tests, 3 of 3 dedicated contract tests, 8 of 8 scenario-replay browser regressions, and 1 of 1 focused model-semantics browser journey. Production build and lint pass.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -879,7 +889,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.23B is implemented and verified. The exact next action is supervisor review of `docs/review/v0.23b-election-night-refinement/VERIFICATION.md`, followed by a bounded v0.24 return to the Swingometer roadmap: audit demographic inputs and slider semantics before population editing, uncertainty, or additional states.
+v0.24 is implemented and verified. The exact next action is supervisor review of `docs/review/v0.24-swingometer-semantics/VERIFICATION.md`. After approval, select a bounded next Swingometer milestone between demographic behavior calibration and the first population-editor foundation; do not combine both into one release.
 
 Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
 

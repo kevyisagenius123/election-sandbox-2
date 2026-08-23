@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.23B Election Night Refinement implemented and verified for supervisor review
+**Status:** v0.24 Explicit Swingometer Model Semantics implemented and verified for supervisor review
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -30,7 +30,9 @@ Version 0.19.1 implements that correction scope without adding model features. T
 
 The unchanged eight-persona synthetic rerun is recorded in `SYNTHETIC_ALPHA_RERUN_REPORT.md`. All five target concepts moved from 6–7 of 8 correct interpretations to 8 of 8 in the walkthrough. This is predicted-failure verification, not statistical human evidence; v0.19B remains required.
 
-Version 0.23B is the current implementation. Election Night is integrated into the Swingometer on the same mounted 3D map and publishes only detailed PA, MI, and WI local returns. Its active worker now reuses bounded decoded foundations and scenario endpoints for chronology restarts, while the bottom dock explains the exact current-only margin movement of each recent reporting-unit return. Decision Desk inference, projections, calls, backend services, and additional states remain deferred.
+Version 0.23B established the current Election Night foundation. Election Night is integrated into the Swingometer on the same mounted 3D map and publishes only detailed PA, MI, and WI local returns. Its active worker reuses bounded decoded foundations and scenario endpoints for chronology restarts, while the bottom dock explains the exact current-only margin movement of each recent reporting-unit return. Decision Desk inference, projections, calls, backend services, and additional states remain deferred.
+
+Version 0.24 returns to the Swingometer roadmap. Each existing operation now exposes its exact arithmetic, preserved quantities, calculated bounds, and population basis in the editor. State-specific demographic contracts are centralized without changing scenario calculations. This is a semantics and trust release, not a demographic preference model or population editor.
 
 The product is now frozen as `v0.19.1-supervisor-review`. `SUPERVISOR_REVIEW.md` defines the exact review tasks, evidence, limitations, redistribution hold, and three permitted verdicts. A fresh-context blind pass was attempted on 2026-08-20, but three isolated contexts failed at the evaluator browser boundary before navigation. The owner then designated Codex as AI supervisor. The exact-tag technical walkthrough completed all seven tasks and three adversarial questions with no P0-P3 product finding. It is AI evidence, not human or genuinely unfamiliar evidence. The candidate's own 48 model checks, 34 bounded browser checks, lint, build, screenshots, and PA profile remain green.
 

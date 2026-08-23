@@ -2528,6 +2528,105 @@ input:focus-visible {
   background: rgba(224, 128, 94, 0.08);
 }
 
+.model-contract {
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 87, 105, 0.14);
+  border-radius: 9px;
+  background: rgba(248, 247, 240, 0.7);
+}
+
+.model-contract-heading {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 9px;
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(25, 58, 73, 0.09);
+}
+
+.model-contract-heading strong {
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.model-contract-heading > b {
+  color: #8b6c2b;
+  font-family: "DM Mono", monospace;
+  font-size: 6px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.model-contract-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.model-contract-grid > span {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 9px 10px;
+  border-right: 1px solid rgba(25, 58, 73, 0.09);
+}
+
+.model-contract-grid > span:last-child {
+  border-right: 0;
+}
+
+.model-contract-grid small {
+  color: #7d8f96;
+  font-family: "DM Mono", monospace;
+  font-size: 6px;
+  text-transform: uppercase;
+}
+
+.model-contract-grid strong {
+  color: #486773;
+  font-size: 8px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.model-contract > p {
+  margin: 0;
+  padding: 8px 10px;
+  border-top: 1px solid rgba(25, 58, 73, 0.09);
+  color: #70858d;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.model-contract > p b {
+  color: #466875;
+}
+
+@media (max-width: 800px) {
+  .model-contract-heading {
+    grid-template-columns: 1fr auto;
+  }
+
+  .model-contract-heading .overline {
+    grid-column: 1 / -1;
+  }
+
+  .model-contract-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .model-contract-grid > span {
+    border-right: 0;
+    border-bottom: 1px solid rgba(25, 58, 73, 0.09);
+  }
+
+  .model-contract-grid > span:last-child {
+    border-bottom: 0;
+  }
+}
+
 .slider-header {
   margin-top: 20px;
   color: #667d87;

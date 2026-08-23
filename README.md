@@ -2,7 +2,7 @@
 
 An interactive 3D laboratory for building United States presidential-election counterfactuals and watching those scenarios unfold through detailed local returns.
 
-![Sandbox 2.0 Election Night](docs/review/v0.23b-election-night-refinement/screenshots/election-night-local-return-tape.png)
+![Sandbox 2.0 Swingometer model contract](docs/review/v0.24-swingometer-semantics/screenshots/pennsylvania-turnout-contract.png)
 
 Sandbox 2.0 combines two connected experiences on one persistent deck.gl map:
 
@@ -13,9 +13,15 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.23B: Refined three-state Election Night
+### v0.24: Explicit Swingometer model semantics
 
-Election Night now lives directly inside the main laboratory at `/app/`. It shares the Swingometer's scenario, mounted 3D map, camera, and geographic selection instead of opening a separate replay product.
+Every Turnout, Preference, and Third Party control now carries a visible model contract explaining its population basis, exact operation, preserved quantities, and feasible limits. Directional controls display their calculated endpoints, while requested and realized ballot effects remain separate.
+
+Pennsylvania, Michigan, and Wisconsin retain distinct demographic evidence language. The interface does not flatten Census VTDs, bridged Michigan precinct demographics, and LTSB Wisconsin ward estimates into one generic claim.
+
+[Read the v0.24 release notes](docs/releases/v0.24-swingometer-semantics.md), the [complete model contract](docs/methodology/SWINGOMETER_MODEL_CONTRACT.md), or the [v0.24 verification record](docs/review/v0.24-swingometer-semantics/VERIFICATION.md).
+
+The integrated v0.23B Election Night remains directly inside `/app/`. It shares the Swingometer's scenario, mounted 3D map, camera, and geographic selection instead of opening a separate replay product.
 
 The visible count currently includes only the three states with admitted detailed foundations:
 
@@ -27,9 +33,7 @@ The visible count currently includes only the three states with admitted detaile
 
 The other 48 jurisdictions stay inert during Election Night. The application does not invent statewide or county fallback returns where detailed local data are unavailable.
 
-v0.23B reuses decoded state foundations while Election Night remains open, makes chronology restarts substantially cheaper, and adds a current-only local return tape that explains exactly how each published precinct, VTD, or ward moved its state margin.
-
-[Read the v0.23B release notes](docs/releases/v0.23b-election-night-refinement.md) or inspect the [v0.23B verification record](docs/review/v0.23b-election-night-refinement/VERIFICATION.md). The original integration record remains in [v0.23A](docs/review/v0.23a-visible-replay/VERIFICATION.md).
+v0.23B reuses decoded state foundations while Election Night remains open, makes chronology restarts substantially cheaper, and adds a current-only local return tape that explains exactly how each published precinct, VTD, or ward moved its state margin. Its [release notes](docs/releases/v0.23b-election-night-refinement.md) and [verification record](docs/review/v0.23b-election-night-refinement/VERIFICATION.md) remain available.
 
 ## What you can do
 
@@ -38,6 +42,7 @@ v0.23B reuses decoded state foundations while Election Night remains open, makes
 - Adjust turnout using available local voting-age-population capacity.
 - Transfer existing ballots between Harris and Trump without an arbitrary slider ceiling.
 - Exchange Stein, Oliver, or residual Other/write-in ballots with a user-selected major-party split.
+- Read the exact calculation, invariant, and feasible boundary beside every control.
 - Keep separate Pennsylvania, Michigan, and Wisconsin recipes active at the same time.
 - Compare certified, modeled, and shifted results at state, county, and reporting-unit level.
 - Rank the counties and local units responsible for the change in margin.
@@ -148,9 +153,11 @@ npm run build:pages
 
 ## Verification
 
-The v0.23B release passed:
+The v0.24 release passed:
 
-- 161 of 161 model and replay tests
+- 164 of 164 model and replay tests
+- 3 of 3 model-semantics contract tests
+- 1 of 1 focused model-semantics browser journeys
 - 6 of 6 focused three-state scheduler tests
 - 2 of 2 focused Election Night browser journeys
 - TypeScript production build

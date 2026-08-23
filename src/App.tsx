@@ -93,6 +93,7 @@ import {
   type RouteMetric,
 } from "./data/pathTo270.ts";
 import { getStateEvidenceLedger, nationalCoverageRows } from "./data/provenance.ts";
+import { getStateModelSemantics } from "./data/modelSemantics.ts";
 import { installRuntimeDiagnosticsHook } from "./runtime/runtimeDiagnostics.ts";
 
 installRuntimeDiagnosticsHook();
@@ -979,6 +980,11 @@ function ScenarioApp() {
   const replayNationalHarrisVotes = replayCandidateVotes(replayNational, "harris");
   const replayNationalTrumpVotes = replayCandidateVotes(replayNational, "trump");
   const replayNationalMarginVotes = replayNationalHarrisVotes - replayNationalTrumpVotes;
+  const activeModelSemantics = useMemo(
+    () => getStateModelSemantics(activeDetailedStateCode),
+    [activeDetailedStateCode],
+  );
+  const activeOperationSemantics = activeModelSemantics.operations[behaviorEditorMode];
   const replayCountyNames = useMemo(() => new Map(
     (["PA", "MI", "WI"] as const).flatMap((stateCode) => (
       getDetailedStateCounties(stateCode).map((county) => [`${stateCode}:${county.fips}`, county.name] as const)
@@ -1438,7 +1444,7 @@ function ScenarioApp() {
           </>}
         </nav>
 
-        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · reporting-unit-first · v0.23B" : "Three-state swingometer · v0.23"}</div>
+        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · reporting-unit-first · v0.23B" : "Three-state swingometer · v0.24"}</div>
       </header>
 
       <div className="workbench" id="top">
@@ -2285,7 +2291,7 @@ function ScenarioApp() {
               </div>
               <div className="field-label">
                 <span>Population</span>
-                <strong>{behaviorEditorMode === "turnout" ? "2020 voting-age population" : "2024 counted ballots"}</strong>
+                <strong>{activeOperationSemantics.populationBasis}</strong>
               </div>
 
               <div className={`coverage-strip ${demographicError ? "error" : ""}`}>
@@ -2310,6 +2316,20 @@ function ScenarioApp() {
                       : "Stein · Oliver · residual Other"
                   : "…"}</strong>
               </div>
+
+              <section aria-label="Current slider contract" className="model-contract">
+                <div className="model-contract-heading">
+                  <span className="overline">Model contract</span>
+                  <strong>{behaviorEditorMode === "turnout" ? "Participation" : behaviorEditorMode === "preference" ? "Two-party choice" : "Third-party exchange"}</strong>
+                  <b>Scenario assumption, not a forecast</b>
+                </div>
+                <div className="model-contract-grid">
+                  <span><small>Changes</small><strong>{activeOperationSemantics.changes}</strong></span>
+                  <span><small>Stays fixed</small><strong>{activeOperationSemantics.preserves}</strong></span>
+                  <span><small>Feasible boundary</small><strong>{activeOperationSemantics.boundary}</strong></span>
+                </div>
+                {behaviorEditorMode === "turnout" && <p><b>Denominator:</b> {activeModelSemantics.denominatorDisclosure}</p>}
+              </section>
 
               {behaviorEditorMode === "turnout" ? (
                 <>
@@ -2342,7 +2362,7 @@ function ScenarioApp() {
                     type="range"
                     value={turnoutIncreasePoints}
                   />
-                  <div className="range-labels"><span>Actual</span><span>+0.8</span><span>+1.5</span></div>
+                  <div className="range-labels"><span>Actual</span><span>+0.8 pts</span><span>+1.5 pts model window</span></div>
 
                   <div className="slider-header secondary-slider">
                     <label htmlFor="pa-new-voter-share">Harris share of added ballots</label>
@@ -2377,9 +2397,10 @@ function ScenarioApp() {
 
                   <div className="effect-grid">
                     <div><span>Added ballots</span><strong>{formatCompact(behaviorScenario?.turnout.addedVotes ?? 0)}</strong></div>
-                    <div><span>Available capacity</span><strong>{formatCompact(behaviorScenario?.turnout.capacity ?? 0)}</strong></div>
+                    <div><span>Added vote split</span><strong>H {formatCompact(behaviorScenario?.turnout.harrisVotes ?? 0)} · T {formatCompact(behaviorScenario?.turnout.trumpVotes ?? 0)}</strong></div>
                     <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
+                  <p className="transfer-explainer"><strong>{formatNumber(behaviorScenario?.turnout.addedVotes ?? 0)} of {formatNumber(behaviorScenario?.turnout.requestedVotes ?? 0)} requested ballots added.</strong>{" "}{formatNumber(behaviorScenario?.turnout.capacity ?? 0)} ballots of documented local capacity are available before this operation.</p>
                 </>
               ) : behaviorEditorMode === "preference" ? (
                 <>
@@ -2434,7 +2455,7 @@ function ScenarioApp() {
                     />
                     <span className="zero-tick" aria-hidden="true" />
                   </div>
-                  <div className="range-labels preference-labels"><span>Harris → Trump</span><span>Actual</span><span>Trump → Harris</span></div>
+                  <div className="range-labels preference-labels"><span>Harris → Trump {Math.abs(preferenceBounds.towardTrumpPoints).toFixed(1)} pts</span><span>Actual</span><span>Trump → Harris {preferenceBounds.towardHarrisPoints.toFixed(1)} pts</span></div>
 
                   <div className="effect-grid">
                     <div><span>Ballots transferred</span><strong>{formatCompact(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))}</strong></div>
@@ -2442,7 +2463,7 @@ function ScenarioApp() {
                     <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
                   <p className="transfer-explainer">
-                    <strong>{formatNumber(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))} ballots transferred → {formatNumber(Math.abs(contributionSummary.statewideMarginDelta))} votes of {effectivePreferenceShiftPoints >= 0 ? "Harris−Trump" : "Trump−Harris"} margin movement.</strong>{" "}
+                    <strong>{formatNumber(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))} of {formatNumber(Math.abs(behaviorScenario?.preference.requestedTransfer ?? 0))} requested ballots transferred → {formatNumber(Math.abs(contributionSummary.statewideMarginDelta))} votes of {effectivePreferenceShiftPoints >= 0 ? "Harris−Trump" : "Trump−Harris"} margin movement.</strong>{" "}
                     Each direct Harris↔Trump transfer changes the two-candidate margin by 2 votes.
                   </p>
                 </>
@@ -2512,7 +2533,7 @@ function ScenarioApp() {
                     />
                     <span className="zero-tick" aria-hidden="true" />
                   </div>
-                  <div className="range-labels third-party-labels"><span>Remove candidate vote</span><span>Actual</span><span>Exchange capacity</span></div>
+                  <div className="range-labels third-party-labels"><span>−{Math.abs(thirdPartyMinimumPoints).toFixed(1)} pts {thirdPartyLabels[thirdPartyCandidate]}</span><span>Actual</span><span>+{thirdPartyMaximumPoints.toFixed(1)} pts capacity</span></div>
 
                   <div className="slider-header secondary-slider">
                     <label htmlFor="pa-third-party-source">Harris share of exchanged ballots</label>
@@ -2550,6 +2571,7 @@ function ScenarioApp() {
                     <div><span>Ballots exchanged</span><strong>{formatCompact(Math.abs(behaviorScenario?.thirdParty.realizedCandidateDelta ?? 0))}</strong></div>
                     <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
+                  <p className="transfer-explainer"><strong>{formatNumber(Math.abs(behaviorScenario?.thirdParty.realizedCandidateDelta ?? 0))} of {formatNumber(Math.abs(behaviorScenario?.thirdParty.requestedCandidateDelta ?? 0))} requested ballots exchanged.</strong>{" "}The operation changes Harris by {formatNumber(behaviorScenario?.thirdParty.harrisVoteDelta ?? 0)} and Trump by {formatNumber(behaviorScenario?.thirdParty.trumpVoteDelta ?? 0)} while preserving the statewide ballot total.</p>
                 </>
               )}
 
