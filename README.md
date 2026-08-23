@@ -13,13 +13,15 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.26C: ECharts GL research gate
+### v0.27A: Scenario explanation hierarchy
 
-The planned renderer comparison is complete. An isolated research harness compiled all 20,499 detailed PA, MI, and WI returns into one exact 144-mark dataset, then compared a regular ECharts 2D return pulse matrix with an ECharts GL count landscape. The GL view was slower, owned more canvases, added a large research-only chunk, and made the same marks harder to compare through perspective and occlusion.
+The Swingometer now connects every detailed-state scenario into one compact causal chain: the operation responsible for most of the movement, the strongest county and mapped local-unit contribution, and the exact Electoral College consequence. The chain is derived from the same accepted certified-to-scenario ledger as the detailed rankings, so it adds no second calculation path.
 
-ECharts GL is rejected for production and remains a development-only research dependency. No production entry point imports it, and deck.gl remains the sole WebGL and map renderer. The existing Election Night workspace is unchanged: Margin and Velocity mount one regular ECharts canvas at a time, while Compare states mounts none.
+The canonical Pennsylvania review scenario now explains that Preference is the main driver, Allegheny County is the strongest county contribution, and Pennsylvania flips from Trump to Harris with 19 electoral votes changing hands. Desktop uses a three-step row; mobile uses one readable column with no horizontal overflow.
 
-[Read the v0.26C release notes](docs/releases/v0.26c-echarts-gl-research-gate.md), the [renderer decision](docs/decisions/0049-reject-echarts-gl-count-landscape.md), the [v0.26 plan](docs/plans/v0.26-analytical-lenses.md), or the [v0.26C verification record](docs/review/v0.26c-count-landscape/VERIFICATION.md).
+[Read the v0.27A release notes](docs/releases/v0.27a-scenario-explanation.md), the [explanation decision](docs/decisions/0050-causal-scenario-explanation.md), the [v0.27 plan](docs/plans/v0.27-swingometer-explanation.md), the [analytics inventory](docs/research/SWINGOMETER_ANALYTICS_INVENTORY.md), or the [v0.27A verification record](docs/review/v0.27a-scenario-explanation/VERIFICATION.md).
+
+The prior ECharts GL research gate remains complete. GL was rejected for production, stays development-only, and deck.gl remains the sole WebGL and map renderer. The [v0.26C evidence](docs/review/v0.26c-count-landscape/VERIFICATION.md) records that decision.
 
 Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
 
@@ -127,6 +129,7 @@ src/data/electoralConsequences.ts   Electoral College consequence ledger
 src/data/pathTo270.ts               Deterministic route calculation
 packages/election-model/            Counterfactual allocation engine
 packages/election-replay/           Headless replay contracts and reducers
+packages/election-analytics/        Exact scenario and replay explanation contracts
 public/data/{pa,mi,wi}/              Detailed runtime artifacts
 scripts/                             Reproducible data pipelines and benchmarks
 tests/                               Model, replay, and browser verification
@@ -166,15 +169,11 @@ npm run build:pages
 
 ## Verification
 
-The v0.26C release passed:
+The v0.27A release passed:
 
-- 212 of 212 aggregate model, replay, and analytics tests
-- 4 of 4 dedicated visible-timeline tests
-- 5 of 5 dedicated reporting-pace tests
-- 6 of 6 dedicated count-landscape and production-isolation tests
-- 14 of 14 focused chronology and current-prefix tests
-- 1 of 1 focused integrated browser journey
-- 2 of 2 isolated renderer-comparison browser journeys
+- 215 of 215 aggregate model, replay, and analytics tests
+- 3 of 3 focused scenario-explanation contract tests
+- 2 of 2 focused desktop and mobile explanation browser journeys
 - TypeScript production build
 - ESLint
 - staged-file integrity checks

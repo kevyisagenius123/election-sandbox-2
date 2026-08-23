@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.26.2`, v0.26C ECharts GL Research Gate candidate
+- Release: `0.27.0`, v0.27A Scenario Explanation Hierarchy candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -881,6 +881,17 @@ v0.17 additionally adds or changes:
 - The full aggregate passes 212 of 212 tests in 857.679 seconds. The focused research suite, ESLint, isolated research build, and production TypeScript/Vite build pass. Only the accepted chunk-size warning remains.
 - Decision 0049, `docs/releases/v0.26c-echarts-gl-research-gate.md`, and `docs/review/v0.26c-count-landscape/VERIFICATION.md` define the verdict.
 
+### v0.27A scenario explanation hierarchy
+
+- `packages/election-analytics/src/scenarioExplanation.ts` derives one frozen deterministic explanation from the accepted scenario delta ledger.
+- The contract identifies statewide direction, dominant operation, gross operation share, strongest supporting county, strongest opposing county, strongest mapped local unit, actual and scenario winners, and exact EV consequence.
+- Dominant-operation ties use fixed turnout, preference, then third-party order. Geography uses the existing deterministic contribution ranking.
+- The Contributors drawer presents a three-step chain: main driver, strongest geography, and Electoral College consequence. The existing operation waterfall and ranked proof remain below it.
+- The canonical PA review scenario reads Preference, Allegheny County, and Pennsylvania flips to Harris with 19 EV changing hands.
+- Mobile converts the chain to one column at 390 px with no body-level overflow.
+- Three headless contract tests and two focused browser journeys pass. The aggregate passes 215 of 215 tests in 760.945 seconds.
+- Decision 0050, `docs/plans/v0.27-swingometer-explanation.md`, `docs/releases/v0.27a-scenario-explanation.md`, and `docs/review/v0.27a-scenario-explanation/VERIFICATION.md` define the release boundary.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -987,7 +998,11 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.26 is complete and verified. The exact next work is a separately scoped v0.27 Swingometer analytical review, beginning with a written inventory and information hierarchy rather than another renderer. It should determine which accepted scenario, contribution, county/VTD, and Electoral College explanations deserve persistent space and which belong behind selection. Do not add a new chart merely because the old Sandbox had one.
+v0.27A is complete and verified. The Swingometer now derives one deterministic explanation from the accepted scenario delta ledger and presents main operation, strongest honest geography, and exact Electoral College consequence in the Contributors drawer.
+
+The exact next work is v0.27B, Geographic Third-Party Behavior. Replace the current statewide proportional third-party allocation with an explicit deterministic reporting-unit allocation contract, then allow Stein or Oliver to receive honest county and local plurality colors when that named candidate genuinely exceeds both major candidates. Residual Other/write-in is an aggregate category, not one candidate; if it exceeds both major candidates it may receive a distinct aggregate marker but must never be described as a candidate winner. Preserve exact five-bucket conservation, keep the certified statewide-only residual off-map, and do not alter the existing Harris-versus-Trump Shift view. Add adversarial model and browser coverage before any visual polish.
+
+After v0.27B, complete v0.27C comparison and interaction polish. Demographic sliders begin in v0.28A with an evidence contract, followed by turnout behavior, preference behavior, and contribution/sensitivity explanation. Do not treat aggregate demographic categories as observed individual vote choice.
 
 ECharts GL is rejected for production. Do not let it become a second map engine. Do not add projections, calls, Decision Desk inference, demographic calibration, backend, memberships, rooms, public restricted-data delivery, or video without later authorization.
 

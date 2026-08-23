@@ -5,3 +5,4 @@ export * from "./replayDescriptiveContracts.ts";
 export * from "./replayDescriptiveAnalytics.ts";
 export * from "./scenarioDeltaContracts.ts";
 export * from "./scenarioDeltaLedger.ts";
+export * from "./scenarioExplanation.ts";

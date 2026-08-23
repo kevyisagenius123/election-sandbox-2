@@ -99,6 +99,7 @@ import {
   createScenarioDeltaLedger,
   rankScenarioDeltaRows,
 } from "../packages/election-analytics/src/scenarioDeltaLedger.ts";
+import { buildScenarioExplanation } from "../packages/election-analytics/src/scenarioExplanation.ts";
 import type { ScenarioDeltaOperationId } from "../packages/election-analytics/src/scenarioDeltaContracts.ts";
 
 installRuntimeDiagnosticsHook();
@@ -224,6 +225,12 @@ const routeMetricLabels: Record<RouteMetric, string> = {
   "fewest-states": "Fewest states",
   "margin-movement": "Margin movement",
   "margin-votes": "Net margin votes",
+};
+
+const scenarioOperationLabels: Record<ScenarioDeltaOperationId, string> = {
+  turnout: "Turnout",
+  preference: "Preference",
+  "third-party": "Third party",
 };
 
 function formatThirdPartyMovement(value: number, candidate: ThirdPartyCandidate) {
@@ -910,6 +917,18 @@ function ScenarioApp() {
     detailedScenario,
     targetCandidate,
   ]);
+  const scenarioExplanation = useMemo(() => {
+    if (!scenarioDeltaLedger) return null;
+    return buildScenarioExplanation({
+      ledger: scenarioDeltaLedger,
+      countyNames: Object.fromEntries(
+        detailedCounties.map((county) => [county.fips, county.name]),
+      ),
+      unitNames: Object.fromEntries(
+        detailedGeographies.map((geography) => [geography.id, geography.name]),
+      ),
+    });
+  }, [detailedCounties, detailedGeographies, scenarioDeltaLedger]);
   const contributionSummary = useMemo(() => {
     const empty = {
       counties: [] as ContributionRow[],
@@ -1523,7 +1542,7 @@ function ScenarioApp() {
           </>}
         </nav>
 
-        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · analytical workspace · v0.26B" : "Three-state swingometer · scenario ledger · v0.26B"}</div>
+        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · analytical workspace · v0.27A" : "Three-state swingometer · causal explanation · v0.27A"}</div>
       </header>
 
       <div className="workbench" id="top">
@@ -2846,6 +2865,45 @@ function ScenarioApp() {
               <span><small>Scenario</small><strong>{formatMargin(margin(detailedScenario))}</strong><em>Modeled</em></span>
               <span data-direction={(scenarioDeltaLedger?.delta.harrisTrumpMarginVotes ?? 0) < 0 ? "republican" : "democratic"}><small>Delta</small><strong>{formatMarginVotes(scenarioDeltaLedger?.delta.harrisTrumpMarginVotes ?? 0)}</strong><em>Harris − Trump</em></span>
             </div>
+            {scenarioExplanation && <div className="analytics-causal-chain" aria-label="Scenario causal explanation">
+              <article data-direction={scenarioExplanation.dominantOperation?.marginVotes === undefined
+                ? "none"
+                : scenarioExplanation.dominantOperation.marginVotes < 0 ? "republican" : "democratic"}>
+                <span>01 · Main driver</span>
+                <strong>{scenarioExplanation.dominantOperation
+                  ? scenarioOperationLabels[scenarioExplanation.dominantOperation.operationId]
+                  : "Certified baseline"}</strong>
+                <p>{scenarioExplanation.dominantOperation
+                  ? `${formatMarginVotes(scenarioExplanation.dominantOperation.marginVotes)} · ${Math.round(scenarioExplanation.dominantOperation.grossShareMillionths / 10_000)}% of gross operation movement`
+                  : "No modeled operation changes the Harris minus Trump margin."}</p>
+              </article>
+              <article data-direction={scenarioExplanation.largestSupportingCounty?.marginVotes === undefined
+                ? "none"
+                : scenarioExplanation.largestSupportingCounty.marginVotes < 0 ? "republican" : "democratic"}>
+                <span>02 · Strongest geography</span>
+                <strong>{scenarioExplanation.largestSupportingCounty
+                  ? scenarioExplanation.largestSupportingCounty.name
+                  : "No geographic movement"}</strong>
+                <p>{scenarioExplanation.largestSupportingCounty
+                  ? `${formatMarginVotes(scenarioExplanation.largestSupportingCounty.marginVotes)}${scenarioExplanation.largestSupportingUnit
+                    ? ` · top ${activeDetailedStateManifest.geography.unitLabel}: ${scenarioExplanation.largestSupportingUnit.name}${scenarioExplanation.largestSupportingUnit.context
+                      ? `, ${scenarioExplanation.largestSupportingUnit.context}`
+                      : ""}`
+                    : ""}`
+                  : "The certified and scenario geography are identical."}</p>
+              </article>
+              <article data-direction={scenarioExplanation.electoral.winnerChanged
+                ? scenarioExplanation.electoral.scenarioWinner === "harris" ? "democratic" : "republican"
+                : "none"}>
+                <span>03 · Electoral consequence</span>
+                <strong>{scenarioExplanation.electoral.winnerChanged
+                  ? `${activeDetailedStateManifest.name} flips to ${candidateNames[scenarioExplanation.electoral.scenarioWinner]}`
+                  : `${candidateNames[scenarioExplanation.electoral.actualWinner]} retains ${activeDetailedStateManifest.name}`}</strong>
+                <p>{scenarioExplanation.electoral.winnerChanged
+                  ? `${candidateNames[scenarioExplanation.electoral.actualWinner]} → ${candidateNames[scenarioExplanation.electoral.scenarioWinner]} · ${scenarioExplanation.electoral.electoralVotes} EV change hands`
+                  : `No electoral votes change · ${scenarioExplanation.electoral.electoralVotes} EV remain with ${candidateNames[scenarioExplanation.electoral.actualWinner]}`}</p>
+              </article>
+            </div>}
             <div className="analytics-waterfall" aria-label="Signed operation waterfall">
               {(scenarioDeltaLedger?.operations ?? []).map((operation, index) => {
                 const value = operation.delta.harrisTrumpMarginVotes;
