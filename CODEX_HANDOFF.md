@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.25.0`, v0.25B Scenario Delta Ledger candidate
+- Release: `0.25.0`, v0.25C Replay Descriptive Analytics candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -812,6 +812,19 @@ v0.17 additionally adds or changes:
 - The ledger embeds a compact v0.25A state analytic collection and references the registered contribution definition for its local rows instead of duplicating thousands of full envelopes. It rejects noncanonical internal arithmetic even when content is rehashed.
 - Nine dedicated tests cover the frozen golden, tamper rejection, rankings, zero change, invalid inputs, and complex PA/MI/WI foundations. Decision 0044 and `docs/review/v0.25b-scenario-delta-ledger/` define the accepted evidence.
 
+### v0.25C replay descriptive analytics
+
+- `packages/election-analytics/src/replayDescriptiveContracts.ts` defines current-prefix windows, movement, progress, chronology, mathematical openness, local rankings, and fingerprinted output.
+- `packages/election-analytics/src/replayDescriptiveAnalytics.ts` consumes only the observed canonical event prefix, matching reducer state, explicit logical time, explicit progress denominators, a user-selected stall threshold, and source identities. It cannot receive the complete replay stream or hidden endpoint candidate totals.
+- Prefix validation reconciles national, jurisdiction, mapped, off-map, county, and reporting-unit state while enforcing canonical sequence, unique identities, timestamp bounds, and lifecycle order.
+- Exact five-, fifteen-, and thirty-minute windows are start-exclusive and end-inclusive. Rates use deterministic integer milli-units rather than wall-clock sampling.
+- Return-count and represented-ballot progress remain separate. Missing denominators remain unavailable.
+- Mathematical openness reports whether the current margin can be overtaken by the explicitly modeled outstanding ballot count. It is not a probability, projection, or race call.
+- Chronology status distinguishes not open, awaiting first return, counting, complete, and explicit threshold stalls.
+- Ten dedicated tests freeze `sha256:5e4c698ded29820ec7fc971e4d1a5031881d610afdde55ea1317295bee7d0819` and cover future isolation, tampering, deterministic ordering, exact windows, zero-return behavior, and headless source boundaries.
+- The complete aggregate passes 193 of 193 tests in 618.353 seconds. Lint and production build pass with only the existing deck.gl chunk-size warning.
+- Decision 0045, `docs/releases/v0.25c-replay-descriptive-analytics.md`, and `docs/review/v0.25c-replay-descriptive-analytics/VERIFICATION.md` define the accepted evidence.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -918,7 +931,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.25A and v0.25B are implemented and verified. The exact next implementation is v0.25C, headless replay descriptive analytics derived only from canonical current-prefix events and explicit logical time windows. It should cover newest-return movement, five-, fifteen-, and thirty-minute windows, publication rates, separate return and represented-ballot progress, largest current local margins, recent movers, mathematical openness, and explicit chronology stalls. Do not add the editorial UI, endpoint leakage, probability, demographic calibration, or Decision Desk logic in the same slice.
+v0.25A, v0.25B, and v0.25C are implemented and verified. The exact next implementation is v0.25D, the editorial analytics workspace. It should present the accepted scenario ledger and replay descriptive diagnostics through one dominant summary, a signed margin waterfall, ranked county and reporting-unit contributors, operation filters, Actual/Scenario/Delta columns, a compact methodology drawer, and a responsive Election Night bottom-dock form. React must consume the headless contracts rather than reimplement arithmetic. Do not add endpoint leakage, probability, demographic calibration, Decision Desk logic, backend, or deployment work in the same slice.
 
 Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
 
