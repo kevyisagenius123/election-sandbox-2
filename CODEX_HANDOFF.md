@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.25.0`, v0.25A Headless Analytics Contract candidate
+- Release: `0.25.0`, v0.25B Scenario Delta Ledger candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -801,6 +801,17 @@ v0.17 additionally adds or changes:
 - The package imports no React, deck.gl, map, backend, or random-number implementation.
 - Decision 0043 defines the accepted contract. Release and verification records are in `docs/releases/v0.25a-headless-analytics-contract.md` and `docs/review/v0.25a-headless-analytics-contract/`.
 
+### v0.25B scenario delta ledger
+
+- `packages/election-analytics/src/scenarioDeltaLedger.ts` derives one exact certified-to-scenario ledger from the detailed baseline units and accepted behavior scenario.
+- State operation rows preserve requested and realized turnout, preference, and third-party volumes plus exact candidate and Harris-minus-Trump margin deltas.
+- Every reporting unit contains certified, scenario, total delta, and three operation vectors. Those units deterministically rebuild county rows, mapped/off-map partitions, and any statewide residual.
+- County map status is explicit: mapped, mixed, or off-map. No residual is assigned to a polygon.
+- Overall and operation-filtered rankings support absolute, Harris, and Trump direction without a composite importance score.
+- The target candidate's EV consequence reconciles to the accepted actual and scenario allocations.
+- The ledger embeds a compact v0.25A state analytic collection and references the registered contribution definition for its local rows instead of duplicating thousands of full envelopes. It rejects noncanonical internal arithmetic even when content is rehashed.
+- Nine dedicated tests cover the frozen golden, tamper rejection, rankings, zero change, invalid inputs, and complex PA/MI/WI foundations. Decision 0044 and `docs/review/v0.25b-scenario-delta-ledger/` define the accepted evidence.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -907,7 +918,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.25A is implemented and verified. The exact next implementation is v0.25B, a headless scenario delta ledger that attributes endpoint movement by operation, county, reporting unit, residual geography, and Electoral College consequence. It must consume the accepted analytic contract rather than creating UI-owned arithmetic. Do not add charts, replay-window diagnostics, probability, demographic calibration, or Decision Desk logic in the same slice.
+v0.25A and v0.25B are implemented and verified. The exact next implementation is v0.25C, headless replay descriptive analytics derived only from canonical current-prefix events and explicit logical time windows. It should cover newest-return movement, five-, fifteen-, and thirty-minute windows, publication rates, separate return and represented-ballot progress, largest current local margins, recent movers, mathematical openness, and explicit chronology stalls. Do not add the editorial UI, endpoint leakage, probability, demographic calibration, or Decision Desk logic in the same slice.
 
 Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
 

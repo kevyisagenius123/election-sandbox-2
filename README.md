@@ -13,13 +13,13 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.25A: Headless analytics contract
+### v0.25B: Scenario delta ledger
 
-The first analytics-foundation slice creates a separate deterministic package for values the Sandbox already trusts. Certified endpoints, scenario endpoints and operations, signed geographic contributions, Electoral College consequences, current replay-prefix totals, and explicit progress ratios now share one evidence-graded contract.
+The analytics foundation can now explain exactly where a detailed-state scenario came from. One deterministic ledger reconciles the certified and scenario endpoints through turnout, preference, and third-party operations, then traces the same movement through counties, reporting units, mapped terrain, off-map units, statewide residuals, and Electoral College consequence.
 
-Every analytic carries its class, integer unit, candidate scope, geography, time scope, source identities, transform version, availability, and any required ratio operands. Missing stays unavailable instead of becoming zero. No visible interface, model arithmetic, replay behavior, probability, projection, or race call changed in this headless release.
+Rankings can identify the largest overall or operation-specific Democratic and Republican contributors without inventing an importance score. The ledger remains headless in this release, so no visible interface, model arithmetic, replay behavior, probability, projection, or race call changed.
 
-[Read the v0.25A release notes](docs/releases/v0.25a-headless-analytics-contract.md), the [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md), or the [v0.25A verification record](docs/review/v0.25a-headless-analytics-contract/VERIFICATION.md).
+[Read the v0.25B release notes](docs/releases/v0.25b-scenario-delta-ledger.md), the [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md), or the [v0.25B verification record](docs/review/v0.25b-scenario-delta-ledger/VERIFICATION.md).
 
 Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
 
@@ -155,10 +155,10 @@ npm run build:pages
 
 ## Verification
 
-The v0.25A release passed:
+The v0.25B release passed:
 
-- 174 of 174 aggregate model, replay, and analytics tests
-- 10 of 10 dedicated analytics-contract tests
+- 183 of 183 aggregate model, replay, and analytics tests
+- 9 of 9 dedicated scenario-ledger tests
 - TypeScript production build
 - ESLint
 - staged-file integrity checks
