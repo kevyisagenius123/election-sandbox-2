@@ -1,6 +1,6 @@
 {
   "name": "election-sandbox-2",
-  "version": "0.26.1",
+  "version": "0.26.2",
   "private": true,
   "type": "module",
   "engines": {
@@ -24,6 +24,10 @@
     "benchmark:playback": "node --experimental-strip-types scripts/benchmark-playback-cursor.mjs",
     "benchmark:observation": "node --experimental-strip-types scripts/benchmark-playback-observation.mjs",
     "benchmark:worker": "node --experimental-strip-types scripts/benchmark-replay-worker-runtime.mjs",
+    "research:v026c:fixture": "node --experimental-strip-types scripts/build-v026c-count-landscape.mjs",
+    "research:v026c:dev": "vite --config research/v0.26c/vite.config.mjs",
+    "research:v026c:build": "vite build --config research/v0.26c/vite.config.mjs",
+    "research:v026c:test": "node scripts/run-v026c-research-tests.mjs",
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:browser": "playwright test",
@@ -51,6 +55,7 @@
     "@types/topojson-client": "^3.1.5",
     "@vitejs/plugin-react": "6.0.2",
     "d3-geo": "^3.1.1",
+    "echarts-gl": "^2.1.0",
     "eslint": "9.39.4",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.5",

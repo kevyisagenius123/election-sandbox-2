@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>v0.26C Count Landscape Research</title>
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <main>
+      <header class="masthead">
+        <div>
+          <p class="overline"><i></i> American Electorate Laboratory</p>
+          <h1>Count landscape<br />research gate</h1>
+        </div>
+        <div class="research-status">
+          <span>v0.26C</span>
+          <strong>Not a production feature</strong>
+          <p>Same data. Two visual forms. One admission decision.</p>
+        </div>
+      </header>
+
+      <section class="contract" aria-label="Research contract">
+        <p><strong>Question:</strong> does height reveal the structure of the count faster than a clear 2D matrix?</p>
+        <p>Each mark is one state and one fixed replay-time bin. Size or height is ballots published. Color is Harris minus Trump movement within that bin. Empty bins expose stalls.</p>
+      </section>
+
+      <nav class="mode-switcher" aria-label="Visualization mode">
+        <button data-mode="2d" aria-pressed="true">2D control</button>
+        <button data-mode="3d" aria-pressed="false">GL candidate</button>
+        <button data-mode="split" aria-pressed="false">Side by side</button>
+        <button id="run-cycles">Run lifecycle test</button>
+      </nav>
+
+      <section class="visual-grid" data-mode="2d" id="visual-grid">
+        <article class="visual-card" id="card-2d">
+          <header><div><span>CONTROL</span><strong>Return pulse matrix</strong></div><p>Bubble area = ballots</p></header>
+          <div class="chart" id="chart-2d" role="img" aria-label="Two-dimensional election return pulse matrix"></div>
+        </article>
+        <article class="visual-card" id="card-3d">
+          <header><div><span>CANDIDATE</span><strong>Three-dimensional count landscape</strong></div><p>Height = ballots</p></header>
+          <div class="chart" id="chart-3d" role="img" aria-label="Three-dimensional election count landscape"></div>
+        </article>
+      </section>
+
+      <section class="evidence-grid">
+        <article>
+          <span>DATA CONTRACT</span>
+          <strong id="data-summary">Loading detailed returns…</strong>
+          <p id="fingerprint"></p>
+        </article>
+        <article>
+          <span>COMPREHENSION TASKS</span>
+          <strong>Find the largest wave, strongest D and R movement, and a reporting stall.</strong>
+          <p>The admitted form must answer all four without camera manipulation.</p>
+        </article>
+        <article>
+          <span>LIVE LIFECYCLE</span>
+          <strong id="lifecycle-summary">Waiting for chart initialization</strong>
+          <p id="lifecycle-detail">Only the selected chart should own a canvas.</p>
+        </article>
+      </section>
+
+      <footer>
+        <span>PA · MI · WI detailed reporting units only</span>
+        <span>deck.gl remains the sole production map renderer</span>
+      </footer>
+    </main>
+    <div aria-hidden="true" id="benchmark-host"></div>
+  </body>
+</html>

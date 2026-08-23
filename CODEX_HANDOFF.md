@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.26.1`, v0.26B Reporting Velocity and State Comparison candidate
+- Release: `0.26.2`, v0.26C ECharts GL Research Gate candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -839,7 +839,7 @@ v0.17 additionally adds or changes:
 
 ### v0.26A reported margin timeline
 
-- Regular ECharts 6.1 is installed. ECharts GL is not installed and deck.gl remains the sole geographic renderer. The production dependency audit reports zero vulnerabilities.
+- Regular ECharts 6.1 was installed for v0.26A. v0.26C later added ECharts GL as a research-only development dependency; deck.gl remains the sole production geographic renderer. The production dependency audit reports zero vulnerabilities.
 - `src/replay/visibleReplayTimeline.ts` builds an immutable cumulative margin index inside the replay worker and derives only the observed prefix for delivery.
 - The visible timeline carries national, PA, MI, and WI reported margins, return identity, local geography, ballot volume, replay time, and progress. It contains no future event.
 - Output is bounded to 320 deterministic display points and retains the latest return plus lead changes before neutral sampling.
@@ -865,6 +865,21 @@ v0.17 additionally adds or changes:
 - The focused integrated browser journey covers analytical lens switching, metric switching, chart seeking, canvas lifecycle, state comparison, and desktop/mobile layout.
 - The aggregate passes 206 of 206 tests in 532.238 seconds. Lint, production build, and the focused browser journey pass. The accepted ECharts and deck.gl lazy chunk warning remains.
 - Decision 0048, `docs/releases/v0.26b-reporting-velocity.md`, and `docs/review/v0.26b-reporting-velocity/VERIFICATION.md` define the release boundary.
+
+### v0.26C ECharts GL research gate
+
+- `src/replay/countLandscapeResearch.ts` bins any visible three-state return prefix into exact fixed-time PA, MI, and WI marks. Each point preserves ballots, returns, Harris, Trump, other, signed two-party movement, and the latest visible event identity.
+- `scripts/build-v026c-count-landscape.mjs` compiles the admitted PA, MI, and WI detailed foundations with the accepted default chronology into a 48-bin, 144-mark research fixture.
+- The fixture contains 20,499 returns and 16,145,836 ballots. Its fingerprint is `sha256:468ce7ca3cfb4bb3665b3c4cb5468ef9f7bc20223309ee0c3188dc3e9150b5a6`.
+- `research/v0.26c/` is a standalone Vite harness comparing one regular-ECharts return pulse matrix with one ECharts GL count landscape. It is not a production Vite input and is not imported by `src/`.
+- The 2D form uses time, state row, bubble area, and signed color. The GL form uses the same marks and substitutes height for bubble area, adding no new variable.
+- One 2D chart owns one canvas. One GL chart owns two canvases. Ten repeated lifecycle cycles retained zero benchmark canvases, but a representative run averaged 43.8 ms for 2D versus 175.1 ms for GL.
+- The isolated GL chunk is 603.46 kB minified and 166.47 kB compressed, in addition to ECharts support. The production build contains no GL chunk and retains the accepted renderer sizes.
+- Desktop/mobile visual review found the 2D matrix immediately comparable without camera manipulation. GL perspective compressed state rows and occluded marks.
+- ECharts GL is rejected for production. It remains a development-only research dependency; deck.gl remains the sole geographic and WebGL production renderer.
+- Six dedicated headless tests and two isolated browser journeys cover exact prefix conservation, future isolation, dependency isolation, canvas ownership, repeated disposal, comparative lifecycle cost, and narrow-screen overflow.
+- The full aggregate passes 212 of 212 tests in 857.679 seconds. The focused research suite, ESLint, isolated research build, and production TypeScript/Vite build pass. Only the accepted chunk-size warning remains.
+- Decision 0049, `docs/releases/v0.26c-echarts-gl-research-gate.md`, and `docs/review/v0.26c-count-landscape/VERIFICATION.md` define the verdict.
 
 ## 8. Verification state
 
@@ -972,9 +987,9 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.26B is implemented and verified. The exact next work is the bounded v0.26C ECharts GL research gate. Prototype one count-landscape view and compare it directly against a two-dimensional heatmap on comprehension, bundle size, GPU cost, retained memory, mobile behavior, and disposal. The GL prototype must remain outside production unless the third dimension materially improves understanding.
+v0.26 is complete and verified. The exact next work is a separately scoped v0.27 Swingometer analytical review, beginning with a written inventory and information hierarchy rather than another renderer. It should determine which accepted scenario, contribution, county/VTD, and Electoral College explanations deserve persistent space and which belong behind selection. Do not add a new chart merely because the old Sandbox had one.
 
-Do not let ECharts GL become a second map engine. Do not add projections, calls, Decision Desk inference, demographic calibration, backend, memberships, rooms, public restricted-data delivery, or video without later authorization.
+ECharts GL is rejected for production. Do not let it become a second map engine. Do not add projections, calls, Decision Desk inference, demographic calibration, backend, memberships, rooms, public restricted-data delivery, or video without later authorization.
 
 Uncertainty in the final election result remains deferred. Reporting variation is deterministic from explicit profiles and named seeds, must be evidence-labeled, and may never become decorative noise.
 
@@ -986,6 +1001,9 @@ npm run test:browser:install
 npm run dev
 npm test
 npm run test:browser
+npm run research:v026c:fixture
+npm run research:v026c:build
+npm run research:v026c:test
 npm run profile:pa
 npm run profile:runtime
 npm run lint

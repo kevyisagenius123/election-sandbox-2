@@ -6,7 +6,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default [
-  { ignores: ["dist/**", "node_modules/**"] },
+  { ignores: ["dist/**", "node_modules/**", "research/v0.26c/dist/**"] },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   react.configs.flat.recommended,

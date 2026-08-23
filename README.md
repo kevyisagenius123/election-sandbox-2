@@ -13,13 +13,13 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.26B: Reporting velocity and state comparison
+### v0.26C: ECharts GL research gate
 
-Election Night now includes a compact analytical workspace with Margin, Velocity, and Compare states lenses. Regular ECharts timelines show reported margin or ballots and returns published per logical minute. The semantic comparison view keeps PA, MI, and WI ballot progress, reporting-unit progress, activation, pace, and stalls separate. Clicking either chart seeks the existing replay worker and updates the same deck.gl map.
+The planned renderer comparison is complete. An isolated research harness compiled all 20,499 detailed PA, MI, and WI returns into one exact 144-mark dataset, then compared a regular ECharts 2D return pulse matrix with an ECharts GL count landscape. The GL view was slower, owned more canvases, added a large research-only chunk, and made the same marks harder to compare through perspective and occlusion.
 
-The worker sends a maximum of 320 deterministic display points, drawn only from published local returns, and only while the Timeline tab is open. Margin and Velocity mount one chart canvas at a time; switching to Compare states or leaving the tab disposes it. ECharts GL is not installed; deck.gl remains the sole map renderer.
+ECharts GL is rejected for production and remains a development-only research dependency. No production entry point imports it, and deck.gl remains the sole WebGL and map renderer. The existing Election Night workspace is unchanged: Margin and Velocity mount one regular ECharts canvas at a time, while Compare states mounts none.
 
-[Read the v0.26B release notes](docs/releases/v0.26b-reporting-velocity.md), the [v0.26 plan](docs/plans/v0.26-analytical-lenses.md), or the [v0.26B verification record](docs/review/v0.26b-reporting-velocity/VERIFICATION.md).
+[Read the v0.26C release notes](docs/releases/v0.26c-echarts-gl-research-gate.md), the [renderer decision](docs/decisions/0049-reject-echarts-gl-count-landscape.md), the [v0.26 plan](docs/plans/v0.26-analytical-lenses.md), or the [v0.26C verification record](docs/review/v0.26c-count-landscape/VERIFICATION.md).
 
 Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
 
@@ -116,6 +116,8 @@ src/replay/threeStateElectionNight.ts
                                     PA/MI/WI visible replay scheduling
 src/replay/visibleReplayTimeline.ts Bounded current-prefix timeline contract
 src/replay/visibleReportingPace.ts  Candidate-blind pace and state comparison
+src/replay/countLandscapeResearch.ts
+                                    Bounded shared 2D/GL research dataset
 src/runtime/threeStateNight.worker.ts
                                     Dedicated Election Night worker
 src/runtime/useReplayExperience.ts  Playback and React integration
@@ -129,6 +131,7 @@ public/data/{pa,mi,wi}/              Detailed runtime artifacts
 scripts/                             Reproducible data pipelines and benchmarks
 tests/                               Model, replay, and browser verification
 docs/                                Decisions, methodology, reviews, and releases
+research/v0.26c/                     Isolated renderer-comparison harness
 ```
 
 The detailed foundations are decoded and modeled in Web Workers. Scenario requests use monotonically increasing identifiers, queued slider changes are coalesced, stale responses are rejected, and inactive state summaries remain compact. County geometry is loaded lazily and kept in a bounded cache. During Election Night, chronology restarts reuse one active worker with three bounded scenario entries; leaving the mode releases that cache.
@@ -163,13 +166,15 @@ npm run build:pages
 
 ## Verification
 
-The v0.26B release passed:
+The v0.26C release passed:
 
-- 206 of 206 aggregate model, replay, and analytics tests
+- 212 of 212 aggregate model, replay, and analytics tests
 - 4 of 4 dedicated visible-timeline tests
 - 5 of 5 dedicated reporting-pace tests
+- 6 of 6 dedicated count-landscape and production-isolation tests
 - 14 of 14 focused chronology and current-prefix tests
 - 1 of 1 focused integrated browser journey
+- 2 of 2 isolated renderer-comparison browser journeys
 - TypeScript production build
 - ESLint
 - staged-file integrity checks
@@ -179,6 +184,9 @@ Run the principal gates locally:
 ```bash
 npm test
 npm run test:browser
+npm run research:v026c:fixture
+npm run research:v026c:build
+npm run research:v026c:test
 npm run lint
 npm run build
 ```

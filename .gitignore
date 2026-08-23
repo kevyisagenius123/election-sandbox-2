@@ -18,6 +18,7 @@ debug.log
 
 # build output
 /dist/
+/research/v0.26c/dist/
 
 # misc
 .DS_Store
