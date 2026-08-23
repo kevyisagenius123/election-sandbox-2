@@ -2,7 +2,7 @@
 
 ## Product and Engineering Plan
 
-**Status:** v0.24 Explicit Swingometer Model Semantics implemented and verified for supervisor review
+**Status:** v0.24 implemented and verified; pre-v0.25 legacy analytics audit and constitution complete
 
 **Product type:** Standalone precinct-level counterfactual election simulator
 
@@ -33,6 +33,8 @@ The unchanged eight-persona synthetic rerun is recorded in `SYNTHETIC_ALPHA_RERU
 Version 0.23B established the current Election Night foundation. Election Night is integrated into the Swingometer on the same mounted 3D map and publishes only detailed PA, MI, and WI local returns. Its active worker reuses bounded decoded foundations and scenario endpoints for chronology restarts, while the bottom dock explains the exact current-only margin movement of each recent reporting-unit return. Decision Desk inference, projections, calls, backend services, and additional states remain deferred.
 
 Version 0.24 returns to the Swingometer roadmap. Each existing operation now exposes its exact arithmetic, preserved quantities, calculated bounds, and population basis in the editor. State-specific demographic contracts are centralized without changing scenario calculations. This is a semantics and trust release, not a demographic preference model or population editor.
+
+Before v0.25, the legacy Sandbox analytics were audited. Exact vote arithmetic, current returns, contribution ranking, timelines, and data-quality diagnostics remain valuable. Unsupported win-probability formulas, race-call heuristics, invented turnout trajectories, arbitrary outstanding-vote uncertainty, and composite county-importance scores are prohibited from migration. `docs/methodology/ANALYTICS_CONSTITUTION.md` now defines certified, reported, scenario, derived, modeled, and decision classes. `docs/plans/v0.25-analytics-foundation.md` sequences the next work, beginning with a headless analytic contract and registry.
 
 The product is now frozen as `v0.19.1-supervisor-review`. `SUPERVISOR_REVIEW.md` defines the exact review tasks, evidence, limitations, redistribution hold, and three permitted verdicts. A fresh-context blind pass was attempted on 2026-08-20, but three isolated contexts failed at the evaluator browser boundary before navigation. The owner then designated Codex as AI supervisor. The exact-tag technical walkthrough completed all seven tasks and three adversarial questions with no P0-P3 product finding. It is AI evidence, not human or genuinely unfamiliar evidence. The candidate's own 48 model checks, 34 bounded browser checks, lint, build, screenshots, and PA profile remain green.
 

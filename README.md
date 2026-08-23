@@ -21,6 +21,8 @@ Pennsylvania, Michigan, and Wisconsin retain distinct demographic evidence langu
 
 [Read the v0.24 release notes](docs/releases/v0.24-swingometer-semantics.md), the [complete model contract](docs/methodology/SWINGOMETER_MODEL_CONTRACT.md), or the [v0.24 verification record](docs/review/v0.24-swingometer-semantics/VERIFICATION.md).
 
+Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
+
 The integrated v0.23B Election Night remains directly inside `/app/`. It shares the Swingometer's scenario, mounted 3D map, camera, and geographic selection instead of opening a separate replay product.
 
 The visible count currently includes only the three states with admitted detailed foundations:

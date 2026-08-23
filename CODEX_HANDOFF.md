@@ -783,6 +783,14 @@ v0.17 additionally adds or changes:
 - Evidence is in `docs/review/v0.24-swingometer-semantics/`; decision 0041 and `docs/methodology/SWINGOMETER_MODEL_CONTRACT.md` define the product law.
 - Verification passes 164 of 164 aggregate model/replay tests, 3 of 3 dedicated contract tests, 8 of 8 scenario-replay browser regressions, and 1 of 1 focused model-semantics browser journey. Production build and lint pass.
 
+### Pre-v0.25 legacy analytics audit
+
+- `docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md` traces the old Sandbox's results summaries, analytics workstation, Java services, and Python prediction modules.
+- The audit retains exact descriptive arithmetic and the workstation concept, but identifies incompatible win-probability formulas, invented fallback trajectories, heuristic outstanding-vote uncertainty, unsupported race-call rules, and composite county-importance scores.
+- `docs/methodology/ANALYTICS_CONSTITUTION.md` classifies every future analytic as certified, reported, scenario, derived, modeled, or decision and prohibits future leakage, silent denominators, and uncalibrated probability language.
+- Decision 0042 makes the old analytics design input rather than code to port.
+- `docs/plans/v0.25-analytics-foundation.md` defines four bounded slices. The exact next implementation is v0.25A, a headless analytic contract and registry with no UI redesign.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -889,7 +897,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.24 is implemented and verified. The exact next action is supervisor review of `docs/review/v0.24-swingometer-semantics/VERIFICATION.md`. After approval, select a bounded next Swingometer milestone between demographic behavior calibration and the first population-editor foundation; do not combine both into one release.
+v0.24 is implemented and verified. The legacy analytics audit and constitution are complete. The exact next implementation is v0.25A, a headless analytic contract and registry for already-trusted Sandbox 2.0 values. Do not add charts, probability, demographic calibration, or Decision Desk logic in the same slice.
 
 Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
 
