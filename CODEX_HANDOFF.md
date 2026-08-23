@@ -1,6 +1,6 @@
 # Codex handoff: Sandbox 2.0
 
-Last updated: 2026-08-22
+Last updated: 2026-08-23
 
 ## 1. Product boundary
 
@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.24.0`, v0.24 Explicit Swingometer Model Semantics candidate
+- Release: `0.25.0`, v0.25A Headless Analytics Contract candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -789,7 +789,17 @@ v0.17 additionally adds or changes:
 - The audit retains exact descriptive arithmetic and the workstation concept, but identifies incompatible win-probability formulas, invented fallback trajectories, heuristic outstanding-vote uncertainty, unsupported race-call rules, and composite county-importance scores.
 - `docs/methodology/ANALYTICS_CONSTITUTION.md` classifies every future analytic as certified, reported, scenario, derived, modeled, or decision and prohibits future leakage, silent denominators, and uncalibrated probability language.
 - Decision 0042 makes the old analytics design input rather than code to port.
-- `docs/plans/v0.25-analytics-foundation.md` defines four bounded slices. The exact next implementation is v0.25A, a headless analytic contract and registry with no UI redesign.
+- `docs/plans/v0.25-analytics-foundation.md` defines four bounded slices.
+
+### v0.25A headless analytics contract
+
+- `packages/election-analytics/src/registry.ts` registers twenty explicit definitions spanning certified, scenario, derived, and reported values. Modeled and decision classes exist in the constitution but have no admitted metrics.
+- `packages/election-analytics/src/contracts.ts` owns typed envelopes, availability, integer-only units, explicit ratio operands, canonical serialization, deterministic collection ordering, SHA-256 fingerprints, tamper detection, and fail-closed validation.
+- `packages/election-analytics/src/builders.ts` adapts trusted state endpoints, behavior-operation audit values, signed local contributions, Electoral College consequences, current replay-prefix totals, and progress ratios.
+- Missing values remain `unavailable` with null values; exact zero remains available. Residual contributions remain explicitly off-map.
+- Current-prefix analytics carry no unreported candidate outcome, endpoint result, probability, or call.
+- The package imports no React, deck.gl, map, backend, or random-number implementation.
+- Decision 0043 defines the accepted contract. Release and verification records are in `docs/releases/v0.25a-headless-analytics-contract.md` and `docs/review/v0.25a-headless-analytics-contract/`.
 
 ## 8. Verification state
 
@@ -897,7 +907,7 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.24 is implemented and verified. The legacy analytics audit and constitution are complete. The exact next implementation is v0.25A, a headless analytic contract and registry for already-trusted Sandbox 2.0 values. Do not add charts, probability, demographic calibration, or Decision Desk logic in the same slice.
+v0.25A is implemented and verified. The exact next implementation is v0.25B, a headless scenario delta ledger that attributes endpoint movement by operation, county, reporting unit, residual geography, and Electoral College consequence. It must consume the accepted analytic contract rather than creating UI-owned arithmetic. Do not add charts, replay-window diagnostics, probability, demographic calibration, or Decision Desk logic in the same slice.
 
 Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
 

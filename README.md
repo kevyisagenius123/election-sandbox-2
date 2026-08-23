@@ -13,13 +13,13 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.24: Explicit Swingometer model semantics
+### v0.25A: Headless analytics contract
 
-Every Turnout, Preference, and Third Party control now carries a visible model contract explaining its population basis, exact operation, preserved quantities, and feasible limits. Directional controls display their calculated endpoints, while requested and realized ballot effects remain separate.
+The first analytics-foundation slice creates a separate deterministic package for values the Sandbox already trusts. Certified endpoints, scenario endpoints and operations, signed geographic contributions, Electoral College consequences, current replay-prefix totals, and explicit progress ratios now share one evidence-graded contract.
 
-Pennsylvania, Michigan, and Wisconsin retain distinct demographic evidence language. The interface does not flatten Census VTDs, bridged Michigan precinct demographics, and LTSB Wisconsin ward estimates into one generic claim.
+Every analytic carries its class, integer unit, candidate scope, geography, time scope, source identities, transform version, availability, and any required ratio operands. Missing stays unavailable instead of becoming zero. No visible interface, model arithmetic, replay behavior, probability, projection, or race call changed in this headless release.
 
-[Read the v0.24 release notes](docs/releases/v0.24-swingometer-semantics.md), the [complete model contract](docs/methodology/SWINGOMETER_MODEL_CONTRACT.md), or the [v0.24 verification record](docs/review/v0.24-swingometer-semantics/VERIFICATION.md).
+[Read the v0.25A release notes](docs/releases/v0.25a-headless-analytics-contract.md), the [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md), or the [v0.25A verification record](docs/review/v0.25a-headless-analytics-contract/VERIFICATION.md).
 
 Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
 
@@ -155,13 +155,10 @@ npm run build:pages
 
 ## Verification
 
-The v0.24 release passed:
+The v0.25A release passed:
 
-- 164 of 164 model and replay tests
-- 3 of 3 model-semantics contract tests
-- 1 of 1 focused model-semantics browser journeys
-- 6 of 6 focused three-state scheduler tests
-- 2 of 2 focused Election Night browser journeys
+- 174 of 174 aggregate model, replay, and analytics tests
+- 10 of 10 dedicated analytics-contract tests
 - TypeScript production build
 - ESLint
 - staged-file integrity checks
