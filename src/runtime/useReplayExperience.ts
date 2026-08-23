@@ -6,6 +6,7 @@ import {
 } from "../data/detailedStateManifest.ts";
 import type { StateBehaviorRecipeSettings } from "../data/scenarioPortfolio.ts";
 import type { ElectionNightBehavior } from "../replay/threeStateElectionNight.ts";
+import type { ReplayDescriptiveAnalytics } from "../../packages/election-analytics/src/index.ts";
 import {
   THREE_STATE_NIGHT_PROTOCOL,
   type NightCurrentReturn,
@@ -32,6 +33,7 @@ interface ReplayExperienceState {
   reportedCounties: readonly NightReportedCounty[];
   publishedUnits: readonly NightPublishedUnit[];
   timelineProgressMillionths: number;
+  analytics: ReplayDescriptiveAnalytics | null;
 }
 
 const INITIAL_STATE: ReplayExperienceState = {
@@ -43,6 +45,7 @@ const INITIAL_STATE: ReplayExperienceState = {
   reportedCounties: [],
   publishedUnits: [],
   timelineProgressMillionths: 0,
+  analytics: null,
 };
 
 function localKey(jurisdictionId: string, localId: string) {
@@ -123,6 +126,7 @@ export function useReplayExperience() {
             reportedCounties: [...countyMapRef.current.values()],
             publishedUnits: [...unitMapRef.current.values()],
             timelineProgressMillionths: response.timelineProgressMillionths,
+            analytics: response.analytics,
           };
         });
       };

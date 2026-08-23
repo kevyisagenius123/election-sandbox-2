@@ -4,6 +4,7 @@ import type {
   DetailedStateRuntimeLoader,
 } from "../data/detailedStateManifest.ts";
 import type { ElectionNightBehavior } from "../replay/threeStateElectionNight.ts";
+import type { ReplayDescriptiveAnalytics } from "../../packages/election-analytics/src/index.ts";
 
 export const THREE_STATE_NIGHT_PROTOCOL = "three-state-night-worker-v1" as const;
 export const NIGHT_PROGRESS_MAX = 1_000_000 as const;
@@ -110,5 +111,6 @@ export type ThreeStateNightWorkerResponse =
       recentReturns: readonly NightCurrentReturn[];
       replaceLocalState: boolean;
       timelineProgressMillionths: number;
+      analytics: ReplayDescriptiveAnalytics;
     }
   | ResponseEnvelope & { type: "ERROR"; message: string };

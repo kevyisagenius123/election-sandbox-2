@@ -19,6 +19,12 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   await page.goto("/app/");
   await page.getByRole("button", { name: "Pennsylvania", exact: true }).first().click();
   await expect(page.getByRole("region", { name: "Laboratory desk" })).toBeVisible();
+  await page.getByRole("button", { name: "working", exact: true }).click();
+  await page.getByRole("tab", { name: "Contributors", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Scenario change summary" })).toContainText("What changed?");
+  await expect(page.getByRole("group", { name: "Actual scenario and delta" })).toContainText("Scenario");
+  await expect(page.getByRole("button", { name: "All operations", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "collapsed", exact: true }).click();
 
   const canvas = page.locator(".atlas-map-scene canvas").first();
   await expect(canvas).toBeVisible();
@@ -53,10 +59,16 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   await page.getByRole("button", { name: "Next return", exact: true }).click();
   await expect(page.locator(".night-dock-clock small")).not.toContainText(/^0 returns/);
   await expect(page.locator(".night-return-tape li").first()).toContainText(/Net|takes the|exact tie|No two-party/);
+  await expect(page.locator(".night-live-lead")).toContainText("What is happening?");
+  await expect(page.locator(".night-window-headlines")).toContainText("5 minute pace");
 
   await page.getByLabel("Election night timeline").fill("250000");
   await expect(page.locator(".night-dock-clock small")).not.toContainText("0 ballots", { timeout: 30_000 });
   await expect(page.locator(".night-live-lead")).toContainText("published local units");
+  await page.getByRole("tab", { name: "Returns", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Logical return windows" })).toContainText("15 min");
+  await expect(page.getByRole("region", { name: "Recent geographic movers" })).toContainText("County movers");
+  await page.getByRole("tab", { name: "Live", exact: true }).click();
   const pennsylvaniaMarginAtQuarter = await page.locator(".night-state-ledger .night-state-row").first().locator("b").textContent();
   await page.getByLabel("Election night timeline").fill("420000");
   await expect(page.locator(".night-state-ledger .night-state-row").first().locator("b")).not.toHaveText(pennsylvaniaMarginAtQuarter ?? "", { timeout: 30_000 });
@@ -71,6 +83,7 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   await expect(page.getByRole("region", { name: "Chronology preview" })).toContainText("Planned reporting windows");
   await page.getByLabel("Reporting profile").selectOption("volatile-waves");
   await expect(page.getByLabel(/Count duration/)).toHaveValue("18");
+  await expect(page.getByLabel(/Stall alert/)).toHaveValue("15");
   await page.getByLabel("County override state").selectOption("PA");
   await page.getByLabel("County override county").selectOption("42003");
   await page.getByRole("button", { name: "Add override", exact: true }).click();

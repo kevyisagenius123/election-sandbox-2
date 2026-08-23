@@ -17,6 +17,7 @@ export interface ElectionNightBehavior {
   reportingOrder: ReportingOrder;
   volatility: number;
   stallIntensity: number;
+  stallThresholdMinutes: number;
   seed: number;
   stateDelayMinutes: Readonly<Record<DetailedStateCode, number>>;
   countyOverrides: readonly ElectionNightCountyOverride[];
@@ -27,6 +28,7 @@ export const DEFAULT_ELECTION_NIGHT_BEHAVIOR: ElectionNightBehavior = Object.fre
   reportingOrder: "mixed",
   volatility: 68,
   stallIntensity: 54,
+  stallThresholdMinutes: 25,
   seed: 2024,
   stateDelayMinutes: Object.freeze({ PA: 8, MI: 12, WI: 6 }),
   countyOverrides: Object.freeze([]),
@@ -55,6 +57,7 @@ export const ELECTION_NIGHT_PROFILES: readonly ElectionNightProfile[] = Object.f
       reportingOrder: "rural-first",
       volatility: 62,
       stallIntensity: 58,
+      stallThresholdMinutes: 30,
       seed: 20241,
       stateDelayMinutes: Object.freeze({ PA: 6, MI: 10, WI: 4 }),
       countyOverrides: Object.freeze([]),
@@ -69,6 +72,7 @@ export const ELECTION_NIGHT_PROFILES: readonly ElectionNightProfile[] = Object.f
       reportingOrder: "urban-first",
       volatility: 56,
       stallIntensity: 44,
+      stallThresholdMinutes: 20,
       seed: 20242,
       stateDelayMinutes: Object.freeze({ PA: 10, MI: 14, WI: 8 }),
       countyOverrides: Object.freeze([]),
@@ -83,6 +87,7 @@ export const ELECTION_NIGHT_PROFILES: readonly ElectionNightProfile[] = Object.f
       reportingOrder: "mixed",
       volatility: 94,
       stallIntensity: 88,
+      stallThresholdMinutes: 15,
       seed: 20243,
       stateDelayMinutes: Object.freeze({ PA: 12, MI: 18, WI: 9 }),
       countyOverrides: Object.freeze([]),
@@ -134,7 +139,7 @@ export interface CompiledThreeStateNight {
   stateReturnTotals: Readonly<Record<DetailedStateCode, number>>;
 }
 
-const POLL_CLOSE_MS: Readonly<Record<DetailedStateCode, number>> = Object.freeze({
+export const ELECTION_NIGHT_POLL_CLOSE_MS: Readonly<Record<DetailedStateCode, number>> = Object.freeze({
   PA: Date.parse("2024-11-06T01:00:00.000Z"),
   MI: Date.parse("2024-11-06T01:00:00.000Z"),
   WI: Date.parse("2024-11-06T02:00:00.000Z"),
@@ -156,6 +161,13 @@ export function validateElectionNightBehavior(value: ElectionNightBehavior): Ele
   }
   if (!Number.isFinite(value.stallIntensity) || value.stallIntensity < 0 || value.stallIntensity > 100) {
     throw new Error("Election-night stall intensity must be between 0 and 100");
+  }
+  const stallThresholdMinutes = value.stallThresholdMinutes
+    ?? DEFAULT_ELECTION_NIGHT_BEHAVIOR.stallThresholdMinutes;
+  if (!Number.isFinite(stallThresholdMinutes)
+    || stallThresholdMinutes < 5
+    || stallThresholdMinutes > 120) {
+    throw new Error("Election-night stall threshold must be between 5 and 120 minutes");
   }
   if (!Number.isSafeInteger(value.seed)) throw new Error("Election-night seed must be an integer");
   const stateDelayMinutes = { ...value.stateDelayMinutes };
@@ -191,6 +203,7 @@ export function validateElectionNightBehavior(value: ElectionNightBehavior): Ele
     reportingOrder: value.reportingOrder,
     volatility: value.volatility,
     stallIntensity: value.stallIntensity,
+    stallThresholdMinutes,
     seed: value.seed,
     stateDelayMinutes,
     countyOverrides,
@@ -203,10 +216,10 @@ export function buildElectionNightChronologyPreview(
   const behavior = validateElectionNightBehavior(behaviorValue);
   const durationMs = behavior.durationHours * 3_600_000;
   const states = (["PA", "MI", "WI"] as const).map((stateCode) => {
-    const activationMs = POLL_CLOSE_MS[stateCode] + Math.round(behavior.stateDelayMinutes[stateCode] * 60_000);
+    const activationMs = ELECTION_NIGHT_POLL_CLOSE_MS[stateCode] + Math.round(behavior.stateDelayMinutes[stateCode] * 60_000);
     return Object.freeze({
       stateCode,
-      pollCloseMs: POLL_CLOSE_MS[stateCode],
+      pollCloseMs: ELECTION_NIGHT_POLL_CLOSE_MS[stateCode],
       activationMs,
       plannedFinishMs: activationMs + durationMs,
       overrideCount: behavior.countyOverrides.filter((override) => override.stateCode === stateCode).length,
@@ -274,7 +287,7 @@ function compileState(
   behavior: ElectionNightBehavior,
 ): ThreeStateReturnEvent[] {
   const stateCode = input.stateCode;
-  const start = POLL_CLOSE_MS[stateCode] + Math.round(behavior.stateDelayMinutes[stateCode] * 60_000);
+  const start = ELECTION_NIGHT_POLL_CLOSE_MS[stateCode] + Math.round(behavior.stateDelayMinutes[stateCode] * 60_000);
   const durationMs = behavior.durationHours * 3_600_000;
   const countyGroups = new Map<string, BehaviorScenarioUnit[]>();
   for (const unit of input.units) {
@@ -303,7 +316,7 @@ function compileState(
     const countyOverride = countyOverrides.get(county.countyId);
     const baseCountyStart = start + durationMs * (0.015 + countyScore * 0.39);
     const countyStart = Math.max(
-      POLL_CLOSE_MS[stateCode],
+      ELECTION_NIGHT_POLL_CLOSE_MS[stateCode],
       baseCountyStart + (countyOverride?.startOffsetMinutes ?? 0) * 60_000,
     );
     const tailRandom = randomUnit(behavior.seed, `tail/${stateCode}/${county.countyId}`);
@@ -386,7 +399,7 @@ export function compileThreeStateElectionNight(
   return Object.freeze({
     version: THREE_STATE_NIGHT_VERSION,
     behavior,
-    startsAtMs: Math.min(...Object.values(POLL_CLOSE_MS)),
+    startsAtMs: Math.min(...Object.values(ELECTION_NIGHT_POLL_CLOSE_MS)),
     endsAtMs: Math.max(...events.map((event) => event.atMs)),
     events: Object.freeze(events),
     stateReturnTotals: Object.freeze(stateReturnTotals),

@@ -13,13 +13,13 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.25C: Replay descriptive analytics
+### v0.25D: Editorial analytics workspace
 
-Election Night now has a headless, current-only explanation layer. It derives exact five-, fifteen-, and thirty-minute movement windows, publication rates, separate return and represented-ballot progress, newest-return detail, local margin rankings, recent movers, mathematical openness, and explicit chronology stalls from the canonical observed prefix.
+The accepted analytics are now visible in the shared-map product. Swingometer leads with a `What changed?` explanation, Actual/Scenario/Delta values, a signed operation waterfall, and ledger-backed county and reporting-unit contributors. Election Night now shows exact five-, fifteen-, and thirty-minute movement windows, separate return and represented-ballot progress, mathematical openness, chronology stalls, and recent local movers inside its bottom dock.
 
-The contract cannot read future events or hidden endpoint candidate totals. It reconciles the observed prefix through national, state, mapped, off-map, county, and reporting-unit state before producing analytics. Mathematical openness is arithmetic under an explicit ballot denominator, not a forecast or race call. The layer remains headless in this release, so no visible interface or replay behavior changed.
+The visible replay adapter runs inside the existing worker and passes only the observed PA, MI, and WI event prefix into the descriptive contract. Future candidate returns cannot influence the current display. Mathematical openness remains arithmetic under an explicit ballot denominator, not a forecast or race call.
 
-[Read the v0.25C release notes](docs/releases/v0.25c-replay-descriptive-analytics.md), the [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md), or the [v0.25C verification record](docs/review/v0.25c-replay-descriptive-analytics/VERIFICATION.md).
+[Read the v0.25D release notes](docs/releases/v0.25d-editorial-analytics-workspace.md), the [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md), or the [v0.25D verification record](docs/review/v0.25d-editorial-analytics-workspace/VERIFICATION.md).
 
 Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
 
@@ -155,10 +155,12 @@ npm run build:pages
 
 ## Verification
 
-The v0.25C release passed:
+The v0.25D release passed:
 
-- 193 of 193 aggregate model, replay, and analytics tests
-- 10 of 10 dedicated replay-descriptive tests
+- 197 of 197 aggregate model, replay, and analytics tests
+- 4 of 4 visible-replay adapter tests
+- 6 of 6 focused three-state scheduling tests
+- 1 of 1 focused integrated browser journey
 - TypeScript production build
 - ESLint
 - staged-file integrity checks

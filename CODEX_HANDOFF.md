@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.25.0`, v0.25C Replay Descriptive Analytics candidate
+- Release: `0.25.0`, v0.25D Editorial Analytics Workspace candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -825,6 +825,18 @@ v0.17 additionally adds or changes:
 - The complete aggregate passes 193 of 193 tests in 618.353 seconds. Lint and production build pass with only the existing deck.gl chunk-size warning.
 - Decision 0045, `docs/releases/v0.25c-replay-descriptive-analytics.md`, and `docs/review/v0.25c-replay-descriptive-analytics/VERIFICATION.md` define the accepted evidence.
 
+### v0.25D editorial analytics workspace
+
+- `src/replay/visibleReplayAnalytics.ts` adapts the visible PA, MI, and WI event prefix into the accepted v0.25C diagnostic contract while preserving VTD, precinct, ward, mapped, and off-map semantics.
+- The three-state Election Night worker owns the adapter and returns the descriptive analytics with each compact playback update. React does not derive those values.
+- Swingometer now consumes the v0.25B scenario-delta ledger for its dominant summary, Actual/Scenario/Delta values, signed operation waterfall, county and reporting-unit rankings, residual geography, and operation filters.
+- Election Night now presents exact five-, fifteen-, and thirty-minute windows, separate progress measures, mathematical openness, state stalls, recent movers, and exact return ledgers in the responsive bottom dock.
+- Direct Count includes a user-selected stall-alert threshold. It changes analytics only and cannot change votes or scheduling.
+- Desktop 1440 by 900 and mobile 390 by 844 inspections have no horizontal overflow. The focused integrated browser journey passes.
+- Four visible-adapter tests prove poll-close/no-return behavior, exact geography reconciliation, exact completion without calls, and hidden-future isolation.
+- The aggregate passes 197 of 197 tests in 586.307 seconds. Lint and production build pass with only the existing lazy deck.gl chunk warning.
+- Decision 0046, `docs/releases/v0.25d-editorial-analytics-workspace.md`, and `docs/review/v0.25d-editorial-analytics-workspace/VERIFICATION.md` define the accepted evidence.
+
 ## 8. Verification state
 
 ### v0.22A replay reducer
@@ -931,9 +943,9 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.25A, v0.25B, and v0.25C are implemented and verified. The exact next implementation is v0.25D, the editorial analytics workspace. It should present the accepted scenario ledger and replay descriptive diagnostics through one dominant summary, a signed margin waterfall, ranked county and reporting-unit contributors, operation filters, Actual/Scenario/Delta columns, a compact methodology drawer, and a responsive Election Night bottom-dock form. React must consume the headless contracts rather than reimplement arithmetic. Do not add endpoint leakage, probability, demographic calibration, Decision Desk logic, backend, or deployment work in the same slice.
+v0.25A through v0.25D are implemented and verified. v0.25 is complete. The next step is supervisor review of the visible editorial workspace and a separately scoped roadmap decision. There is no authorized v0.26 implementation yet.
 
-Do not add projections, calls, Decision Desk inference, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. A likely product discussion is whether v0.23B deepens the state/county replay experience or first reduces the approximately 32-second initialization cost without weakening determinism.
+Do not add projections, calls, Decision Desk inference, demographic calibration, cinematic map behavior, backend, memberships, rooms, public restricted-data delivery, or video without later authorization. The strongest bounded candidates are performance hardening for the visible analytics path, a fresh full browser and runtime profile, or a separately researched next product capability.
 
 Uncertainty in the final election result remains deferred. Reporting variation is deterministic from explicit profiles and named seeds, must be evidence-labeled, and may never become decorative noise.
 
