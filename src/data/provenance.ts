@@ -54,7 +54,7 @@ const ledgers: Record<DetailedStateCode, StateEvidenceLedger> = {
     },
     treatment: "Unmatched reporting units and non-geographic residual ballots remain in electoral totals but are never assigned to invented map polygons.",
     denominator: "2020 population age 18 and over (VAP), not CVAP or a 2024 eligibility estimate.",
-    methodologyUrl: "https://github.com/kevyisagenius123/election-sandbox-2/blob/main/docs/decisions/0006-pennsylvania-vtd-crosswalk.md",
+    methodologyUrl: "https://github.com/Electaris/election-sandbox-2/blob/main/docs/decisions/0006-pennsylvania-vtd-crosswalk.md",
   },
   MI: {
     stateCode: "MI",
@@ -81,7 +81,7 @@ const ledgers: Record<DetailedStateCode, StateEvidenceLedger> = {
     },
     treatment: "Central-count votes, statistical adjustments, and unmatched returns remain in aggregate totals and outside precinct terrain.",
     denominator: "2020 VAP bridged to 2024 precincts; weighted splits are documented allocations, not official precinct demographics.",
-    methodologyUrl: "https://github.com/kevyisagenius123/election-sandbox-2/blob/main/docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md",
+    methodologyUrl: "https://github.com/Electaris/election-sandbox-2/blob/main/docs/decisions/0015-michigan-source-geometry-and-demographic-audit.md",
   },
   WI: {
     stateCode: "WI",
@@ -108,7 +108,7 @@ const ledgers: Record<DetailedStateCode, StateEvidenceLedger> = {
     },
     treatment: "All certified statewide and county votes are carried by LTSB's reconstructed ward layer. The 140 geometry-only wards have no election row, remain neutral, and receive no modeled turnout capacity.",
     denominator: "LTSB estimate of 2020 population age 18 and over aggregated to 2025 wards; not CVAP or a 2024 eligibility estimate.",
-    methodologyUrl: "https://github.com/kevyisagenius123/election-sandbox-2/blob/main/docs/decisions/0026-wisconsin-ltsb-admission.md",
+    methodologyUrl: "https://github.com/Electaris/election-sandbox-2/blob/main/docs/decisions/0026-wisconsin-ltsb-admission.md",
   },
 };
 

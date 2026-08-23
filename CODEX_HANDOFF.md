@@ -24,7 +24,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 - Release: `0.27.0`, v0.27A Scenario Explanation Hierarchy candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
-- Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
+- Remote: `https://github.com/Electaris/election-sandbox-2.git`
 - Frontend: React 19, TypeScript, Vite 8
 - Renderer: deck.gl 9 with `OrbitView` and `GeoJsonLayer`
 - Backend: none
@@ -33,7 +33,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 - Required Node: 22.12 or newer
 - Hosting metadata: none; there is no `.openai/hosting.json`
 
-The full repository is private and the former full-product Pages URL returns 404. The separate `election-sandbox-demo` repository is a national-only public preview with no detailed PA/MI artifacts. The 2026-08-20 supervisor candidate has a fresh green verification record and six release screenshots under `docs/review/v0.19.1-supervisor-review/`. Its same-eight regression pass is complete. Its fresh blind-agent pass is not complete: three isolated contexts failed before navigation because the installed evaluator-browser integration rejected its own trusted path. Do not classify that infrastructure failure as a Sandbox P0 or as completed cognitive evidence. The owner later designated Codex as AI supervisor; that technical exact-tag review completed all tasks, captured seven additional screenshots, and found no P0-P3 product issue. It is not human or genuinely unfamiliar evidence.
+The full repository is currently public. The former full-product Pages URL returns 404, while the separate `election-sandbox-demo` repository remains a national-only public preview with no detailed PA/MI artifacts. The 2026-08-20 supervisor candidate has a fresh green verification record and six release screenshots under `docs/review/v0.19.1-supervisor-review/`. Its same-eight regression pass is complete. Its fresh blind-agent pass is not complete: three isolated contexts failed before navigation because the installed evaluator-browser integration rejected its own trusted path. Do not classify that infrastructure failure as a Sandbox P0 or as completed cognitive evidence. The owner later designated Codex as AI supervisor; that technical exact-tag review completed all tasks, captured seven additional screenshots, and found no P0-P3 product issue. It is not human or genuinely unfamiliar evidence.
 
 The supervisor's formal v0.19.1 verdict is **HOLD**, recorded in `docs/review/v0.19.1-supervisor-review/SUPERVISOR_VERDICT.md`. Gate B passed as an AI technical-supervisor walkthrough; Gate A remains unresolved for PA/MI participant delivery. The owner subsequently deferred human alpha and authorized private state expansion in decision 0027. Do not move the frozen tag or represent human validation as complete. Public or paid delivery of the detailed-state product remains blocked.
 
@@ -601,8 +601,8 @@ v0.17 additionally adds or changes:
 - `docs/operations/ALPHA_DELIVERY_DECISION_TRACKER.md` records the exact derivative checksums, response requirements, follow-up cadence, and fail-closed replacement choices. Silence and automated acknowledgments are not approval.
 - Permission emails are postponed. Do not send the prepared drafts without a new explicit owner instruction.
 - `docs/data/PUBLIC_EXPOSURE_INVENTORY.md` records 156 Pages-delivered PA/MI runtime files totaling 29,194,099 bytes, plus both county summaries bundled into application JavaScript and repository-only source-dependent registries. Candidate totals are embedded in every geometry shard and the compact demographic artifacts, so removing only `reporting-units.json` is insufficient.
-- Containment completed on 2026-08-20: the full repository is private, its former Pages URL returns 404, the automatic Pages workflow was removed from the current branch, and anonymous access checks return 404 for both repository and Pages.
-- A fresh-history public replacement is live at `https://kevyisagenius123.github.io/election-sandbox-demo/`. It contains only FEC statewide totals, national state geometry, and original public-demo code; it contains no PA/MI local-result derivatives.
+- Containment completed on 2026-08-20, but repository visibility was later changed back to public. As verified on 2026-08-23, the repository is public and the full-product Pages URL still returns 404. Treat the PA/MI public-distribution exposure as active until the redistribution basis or delivery boundary is resolved.
+- A fresh-history public replacement is live at `https://electaris.github.io/election-sandbox-demo/`. It contains only FEC statewide totals, national state geometry, and original public-demo code; it contains no PA/MI local-result derivatives.
 - Do not delete research artifacts or rewrite history unless separately authorized after an evidence-backed purge decision.
 
 ### v0.20 Wisconsin detailed-state foundation

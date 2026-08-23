@@ -231,7 +231,7 @@ The current release deliberately excludes:
 - server-rendered video and export
 - unsupported-state local return simulations
 
-A separate national-only sanitized preview is available at [Sandbox 2.0 public demo](https://kevyisagenius123.github.io/election-sandbox-demo/). It excludes detailed state, county, precinct, VTD, demographic, crosswalk, and local scenario artifacts.
+A separate national-only sanitized preview is available at [Sandbox 2.0 public demo](https://electaris.github.io/election-sandbox-demo/). It excludes detailed state, county, precinct, VTD, demographic, crosswalk, and local scenario artifacts.
 
 ## Key documents
 

@@ -6,7 +6,7 @@
 
 **Status:** Ready to schedule after the delivery and redistribution gate is cleared
 
-**Canonical public entry:** `https://kevyisagenius123.github.io/election-sandbox-2/app/`
+**Canonical public entry:** `https://electaris.github.io/election-sandbox-2/app/`
 
 ## Purpose
 

@@ -60,8 +60,8 @@ Thank you,
 [YOUR FULL NAME]
 [ROLE OR ORGANIZATION, IF ANY; "Independent developer" is acceptable]
 [REPLY EMAIL]
-https://github.com/kevyisagenius123/election-sandbox-2
-https://kevyisagenius123.github.io/election-sandbox-2/
+https://github.com/Electaris/election-sandbox-2
+https://electaris.github.io/election-sandbox-2/
 ```
 
 ## Michigan request
@@ -114,8 +114,8 @@ Thank you,
 [YOUR FULL NAME]
 [ROLE OR ORGANIZATION, IF ANY; "Independent developer" is acceptable]
 [REPLY EMAIL]
-https://github.com/kevyisagenius123/election-sandbox-2
-https://kevyisagenius123.github.io/election-sandbox-2/
+https://github.com/Electaris/election-sandbox-2
+https://electaris.github.io/election-sandbox-2/
 ```
 
 ## Submission procedure

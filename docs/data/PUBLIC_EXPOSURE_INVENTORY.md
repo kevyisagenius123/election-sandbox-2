@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-08-12
 
-**Repository:** `kevyisagenius123/election-sandbox-2`
+**Repository:** `Electaris/election-sandbox-2`
 
 **Audit commit before containment:** `c6aeb0e`
 
@@ -10,7 +10,7 @@
 
 **Containment completed:** 2026-08-20
 
-**Current state:** Full repository private; former Pages URL returns 404; sanitized public demo live at `https://kevyisagenius123.github.io/election-sandbox-demo/`
+**Current state:** Full repository public again as verified 2026-08-23; former Pages URL returns 404; sanitized public demo live at `https://electaris.github.io/election-sandbox-demo/`
 
 ## Finding
 
@@ -104,11 +104,13 @@ Containment is complete only when:
 - [x] The full repository reports `private` through the authenticated GitHub API and returns HTTP 404 anonymously.
 - [x] The automatic Pages deployment workflow was removed from the current private branch before the containment commit.
 - [x] The resulting visibility and deployment state were verified from an anonymous HTTP client.
-- [x] A fresh-history public demo was deployed separately and verified at `https://kevyisagenius123.github.io/election-sandbox-demo/`.
+- [x] A fresh-history public demo was deployed separately and verified at `https://electaris.github.io/election-sandbox-demo/`.
 - [ ] Historical Git objects are handled as a separate decision if later evidence requires purging them.
 
 The public demo contains only FEC statewide totals, national `us-atlas` state geometry, and original demo interface/model code. A repository scan confirmed that it contains no county, precinct, VTD, reporting-unit, local demographic, crosswalk, or detailed-state scenario artifacts. Its initial Pages workflow completed successfully, and the page plus both production assets returned HTTP 200.
 
 No Git history rewrite, object purge, or research-artifact deletion was performed or is authorized by this inventory.
+
+The checklist above records the completed 2026-08-20 containment event. Repository visibility was subsequently changed back to public. The repository-only exposure described in this inventory is therefore active again, although the full-product Pages deployment remains disabled.
 
 This is a conservative engineering containment record, not a determination that prior redistribution was unlawful and not legal advice.

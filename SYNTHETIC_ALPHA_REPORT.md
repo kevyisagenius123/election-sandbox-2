@@ -39,7 +39,7 @@ Each persona received the same five tasks and only the visible application. The 
 The deployed URL was checked first:
 
 ```text
-https://kevyisagenius123.github.io/election-sandbox-2/app/
+https://electaris.github.io/election-sandbox-2/app/
 ```
 
 It returned GitHub Pages' “Site not found” page. The cognitive walkthroughs therefore used the identical v0.18.2 application through the local build at `http://127.0.0.1:4173/app/`. Public availability is reported as a separate infrastructure finding and was not misclassified as persona confusion.
