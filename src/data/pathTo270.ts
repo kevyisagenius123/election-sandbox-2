@@ -139,7 +139,10 @@ function targetSignedMargin(state: StatewidePresidentialResult, target: MajorCan
 }
 
 function routeKey(route: PartialRoute) {
-  return route.states.map((state) => state.stateCode).sort().join("+");
+  return route.states
+    .map((state) => state.stateCode)
+    .sort((left, right) => left.localeCompare(right))
+    .join("+");
 }
 
 function dominates(left: PartialRoute, right: PartialRoute) {
@@ -313,7 +316,9 @@ export function buildPathTo270Model(
     targetElectoralVotes: targetCurrentElectoralVotes,
     electoralVotesNeeded,
     routes,
-    excludedSplitAllocationStates: excludedSplitAllocationStates.sort(),
+    excludedSplitAllocationStates: excludedSplitAllocationStates.sort(
+      (left, right) => left.localeCompare(right),
+    ),
   };
 }
 
@@ -325,7 +330,9 @@ export function buildRouteConstructionPlan(
   selectedRouteStateCodes: readonly string[],
   targetCandidate: MajorCandidate,
 ): RouteConstructionPlan | null {
-  const selectedCodes = [...new Set(selectedRouteStateCodes)].sort();
+  const selectedCodes = [...new Set(selectedRouteStateCodes)].sort(
+    (left, right) => left.localeCompare(right),
+  );
   if (selectedCodes.length === 0) return null;
   const actualByCode = new Map(actualStates.map((state) => [state.code, state]));
   const scenarioByCode = new Map(scenarioStates.map((state) => [state.code, state]));

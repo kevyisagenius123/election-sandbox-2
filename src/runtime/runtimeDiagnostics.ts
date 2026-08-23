@@ -50,7 +50,11 @@ function immutableSnapshot(): RuntimeDiagnosticsSnapshot {
     activeAnimationHandles: [...mapAnimations.values()].reduce((sum, handles) => sum + handles.size, 0),
     mapMountCount: mapMounts.size,
     webglContextCount: webglContexts.size,
-    activeDeckLayerIds: Object.freeze([...new Set([...mapLayerIds.values()].flat())].sort()),
+    activeDeckLayerIds: Object.freeze(
+      [...new Set([...mapLayerIds.values()].flat())].sort(
+        (left, right) => left.localeCompare(right),
+      ),
+    ),
     activeMapView: mapViews.size === 1 ? Object.freeze([...mapViews.values()][0]) : null,
   });
 }

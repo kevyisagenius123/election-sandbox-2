@@ -122,7 +122,7 @@ function parseSelectedRouteStateCodes(params: URLSearchParams) {
   if (codes.some((code) => !stateCodes.has(code) || code === "ME" || code === "NE")) {
     throw new InvalidScenarioUrlError("route plan contains an unsupported allocation");
   }
-  return [...codes].sort();
+  return [...codes].sort((left, right) => left.localeCompare(right));
 }
 
 function canonicalNumber(value: number) {
@@ -454,7 +454,10 @@ function setScenarioParameters(
     params.set("target", state.targetCandidate);
     params.set("route", state.routeMetric);
     if (state.selectedRouteStateCodes.length > 0) {
-      params.set("plan", [...state.selectedRouteStateCodes].sort().join(","));
+      params.set(
+        "plan",
+        [...state.selectedRouteStateCodes].sort((left, right) => left.localeCompare(right)).join(","),
+      );
     }
     for (const recipe of [...state.portfolioRecipes!].sort((left, right) => left.stateCode.localeCompare(right.stateCode))) {
       params.append("recipe", encodePortfolioRecipe(recipe));

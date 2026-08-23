@@ -26,7 +26,10 @@ interface PublishedPortfolio {
 export function useScenarioPortfolio(recipes: readonly StateScenarioRecipe[]) {
   const sequenceRef = useRef(0);
   const signature = useMemo(
-    () => recipes.map(stateScenarioRecipeFingerprint).sort().join("||"),
+    () => recipes
+      .map(stateScenarioRecipeFingerprint)
+      .sort((left, right) => left.localeCompare(right))
+      .join("||"),
     [recipes],
   );
   const [published, setPublished] = useState<PublishedPortfolio>({

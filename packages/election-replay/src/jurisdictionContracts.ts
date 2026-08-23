@@ -344,7 +344,7 @@ function normalizeCompiledStream(value: unknown): CompiledJurisdictionReplay {
     endpointContentFingerprint,
     definition: record.definition,
     profile: record.profile,
-    events: record.events.map(normalizeCompiledEvent),
+    events: record.events.map((event, index) => normalizeCompiledEvent(event, index)),
     eventStreamFingerprint,
   };
 }

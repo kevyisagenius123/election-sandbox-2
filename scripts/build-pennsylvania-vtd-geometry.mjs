@@ -40,17 +40,28 @@ function percentage(numerator, denominator) {
   return denominator === 0 ? 0 : Number(((numerator / denominator) * 100).toFixed(4));
 }
 
+function normalizeNumericToken(token) {
+  for (const character of token) {
+    if (character < "0" || character > "9") return token;
+  }
+  let firstSignificantDigit = 0;
+  while (firstSignificantDigit < token.length - 1 && token[firstSignificantDigit] === "0") {
+    firstSignificantDigit += 1;
+  }
+  return token.slice(firstSignificantDigit);
+}
+
 function normalizedVtdName(value) {
-  return String(value ?? "")
+  const normalized = String(value ?? "")
     .toUpperCase()
     .replace(/\bVOTING DISTRICT\b/g, "")
     .replace(/\bW\b/g, "WARD")
     .replace(/\bP\b/g, "PRECINCT")
     .replace(/\bD\b/g, "DISTRICT")
     .replace(/\bX\b/g, "DISTRICT")
-    .replace(/\b0+(\d+)\b/g, "$1")
     .replace(/[^A-Z0-9]+/g, " ")
     .trim();
+  return normalized.split(" ").map(normalizeNumericToken).join(" ");
 }
 
 function visitCoordinates(value, callback) {

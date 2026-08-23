@@ -50,21 +50,35 @@ function percentage(numerator, denominator) {
   return denominator === 0 ? 0 : Number(((numerator / denominator) * 100).toFixed(4));
 }
 
+function rewriteJurisdictionPrefix(text, prefix, resultPrefix, resultSuffix) {
+  if (!text.startsWith(prefix)) return null;
+  const separator = text[prefix.length];
+  if (separator == null || separator.trim() !== "") return null;
+  const name = text.slice(prefix.length).trim();
+  return name ? `${resultPrefix}${name}${resultSuffix}` : null;
+}
+
 function normalizeJurisdiction(value) {
   let text = String(value ?? "").toUpperCase().replace(/[’']/g, "").trim();
-  text = text.replace(/^CITY OF THE VILLAGE OF\s+(.+)$/, "VILLAGE OF $1 CITY");
-  text = text.replace(/^CITY OF\s+(.+)$/, "$1 CITY");
-  text = text.replace(/^CHARTER TOWNSHIP OF\s+(.+)$/, "$1 TOWNSHIP");
-  text = text.replace(/^TOWNSHIP OF\s+(.+)$/, "$1 TOWNSHIP");
+  text = rewriteJurisdictionPrefix(text, "CITY OF THE VILLAGE OF", "VILLAGE OF ", " CITY")
+    ?? rewriteJurisdictionPrefix(text, "CITY OF", "", " CITY")
+    ?? rewriteJurisdictionPrefix(text, "CHARTER TOWNSHIP OF", "", " TOWNSHIP")
+    ?? rewriteJurisdictionPrefix(text, "TOWNSHIP OF", "", " TOWNSHIP")
+    ?? text;
   text = text.replace(/\bCHARTER TWP\b/g, "TOWNSHIP");
   text = text.replace(/\bCHARTER TOWNSHIP\b/g, "TOWNSHIP");
   return text.replace(/[^A-Z0-9]+/g, " ").trim();
 }
 
 function normalizePrecinct(precinct, label = "") {
-  const match = String(precinct).trim().toUpperCase().match(/^0*(\d+)(.*)$/);
-  if (!match) return `${String(precinct).trim().toUpperCase()}${String(label).trim().toUpperCase()}`;
-  return `${Number(match[1])}${match[2]}${String(label).trim().toUpperCase()}`;
+  const text = String(precinct).trim().toUpperCase();
+  const normalizedLabel = String(label).trim().toUpperCase();
+  let digitEnd = 0;
+  while (digitEnd < text.length && text[digitEnd] >= "0" && text[digitEnd] <= "9") {
+    digitEnd += 1;
+  }
+  if (digitEnd === 0) return `${text}${normalizedLabel}`;
+  return `${Number(text.slice(0, digitEnd))}${text.slice(digitEnd)}${normalizedLabel}`;
 }
 
 function geometryJurisdiction(properties) {

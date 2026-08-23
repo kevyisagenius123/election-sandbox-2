@@ -406,13 +406,17 @@ export function decodeMichiganDemographicFoundation(
   if (document.precinctRows.length !== geometryFeatureCount) {
     throw new Error("Michigan precinct row count does not match geometry coverage");
   }
-  const precincts = document.precinctRows.map(decodePrecinctRow);
+  const precincts = document.precinctRows.map(
+    (row, index) => decodePrecinctRow(row, index),
+  );
   for (let index = 1; index < precincts.length; index += 1) {
     if (precincts[index - 1].geometryId >= precincts[index].geometryId) {
       throw new Error("Michigan precinct rows must have unique sorted geometry IDs");
     }
   }
-  const residualUnits = document.residualUnits.map(decodeResidualUnit);
+  const residualUnits = document.residualUnits.map(
+    (unit, index) => decodeResidualUnit(unit, index),
+  );
   if (new Set(residualUnits.map((unit) => unit.id)).size !== residualUnits.length) {
     throw new Error("Michigan residual units contain duplicate identifiers");
   }

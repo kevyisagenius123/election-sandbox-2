@@ -466,7 +466,7 @@ export function decodePennsylvaniaDemographicFoundation(
       `Pennsylvania demographic artifact contains ${document.vtdRows.length} VTD rows; expected ${expectedVtdCount}`,
     );
   }
-  const vtds = document.vtdRows.map(decodeVtdRow);
+  const vtds = document.vtdRows.map((row, index) => decodeVtdRow(row, index));
   for (let index = 1; index < vtds.length; index += 1) {
     if (vtds[index - 1].geoid >= vtds[index].geoid) {
       throw new Error("Pennsylvania demographic VTD rows must have unique sorted GEOIDs");
@@ -487,8 +487,12 @@ export function decodePennsylvaniaDemographicFoundation(
   if (!Array.isArray(document.counties) || !Array.isArray(document.residualUnits)) {
     throw new Error("Pennsylvania demographic county or residual summaries are missing");
   }
-  const counties = document.counties.map(decodeCountySummary);
-  const residualUnits = document.residualUnits.map(decodeResidualUnit);
+  const counties = document.counties.map(
+    (county, index) => decodeCountySummary(county, index),
+  );
+  const residualUnits = document.residualUnits.map(
+    (unit, index) => decodeResidualUnit(unit, index),
+  );
   if (new Set(counties.map((county) => county.countyFips)).size !== counties.length) {
     throw new Error("Pennsylvania demographic county summaries contain duplicate FIPS codes");
   }

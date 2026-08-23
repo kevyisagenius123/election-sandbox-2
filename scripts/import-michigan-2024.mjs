@@ -295,7 +295,9 @@ const sourceManifest = {
   sourceStatisticalAdjustmentUnitCount: 22,
   normalizedStatisticalAdjustmentUnitCount: 1,
   statewideStatisticalAdjustment,
-  statisticalAdjustmentsByCounty: Object.fromEntries([...statisticalAdjustmentsByCounty].sort()),
+  statisticalAdjustmentsByCounty: Object.fromEntries(
+    [...statisticalAdjustmentsByCounty].sort(([left], [right]) => left.localeCompare(right)),
+  ),
   stateTotals,
   outputs: [countyOutputPath, reportingUnitOutputPath]
     .map((path) => relative(process.cwd(), path).replaceAll("\\", "/")),

@@ -402,8 +402,8 @@ test("checkpoints validate, reject tampering and foreign streams, and round-trip
   assert.equal(serializeReplayCheckpoint(roundTrip), serialized);
   const tampered = structuredClone(checkpoint);
   tampered.state.observable.national.candidateVotes[0].votes += 1;
-  assert.rejects(validateReplayCheckpoint(certified.context, tampered), /fingerprint/);
-  assert.rejects(validateReplayCheckpoint(complex.context, checkpoint), /different replay stream/);
+  await assert.rejects(validateReplayCheckpoint(certified.context, tampered), /fingerprint/);
+  await assert.rejects(validateReplayCheckpoint(complex.context, checkpoint), /different replay stream/);
 });
 
 test("checkpoint reseek, backward reconstruction, and repeated movement are byte-equivalent", async () => {

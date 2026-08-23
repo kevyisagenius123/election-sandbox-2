@@ -83,8 +83,23 @@ function addVotes(target, source) {
   ]) target[key] += source[key];
 }
 
+function replaceHtmlTags(value) {
+  const text = String(value ?? "");
+  let result = "";
+  let cursor = 0;
+  while (cursor < text.length) {
+    const tagStart = text.indexOf("<", cursor);
+    if (tagStart === -1) return result + text.slice(cursor);
+    const tagEnd = text.indexOf(">", tagStart + 1);
+    if (tagEnd === -1) return result + text.slice(cursor);
+    result += `${text.slice(cursor, tagStart)} `;
+    cursor = tagEnd + 1;
+  }
+  return result;
+}
+
 function stripHtml(value) {
-  return String(value ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return replaceHtmlTags(value).replace(/\s+/g, " ").trim();
 }
 
 function visitCoordinates(value, callback) {

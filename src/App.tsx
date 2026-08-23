@@ -1088,7 +1088,9 @@ function ScenarioApp() {
   }
 
   function selectRoute(route: PathTo270Route, stateCode?: string) {
-    setSelectedRouteStateCodes(route.states.map((state) => state.stateCode).sort());
+    setSelectedRouteStateCodes(
+      route.states.map((state) => state.stateCode).sort((left, right) => left.localeCompare(right)),
+    );
     if (stateCode) selectState(stateCode);
   }
 
@@ -2412,7 +2414,7 @@ function ScenarioApp() {
                     <div><span>{activeDetailedStateCode} result</span><strong>{formatMargin(margin(detailedScenario))}</strong></div>
                   </div>
                   <p className="transfer-explainer">
-                    <strong>{formatNumber(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))} ballots transferred → {formatNumber(Math.abs(contributionSummary.statewideMarginDelta))} votes of {effectivePreferenceShiftPoints >= 0 ? "Harris−Trump" : "Trump−Harris"} margin movement.</strong>
+                    <strong>{formatNumber(Math.abs(behaviorScenario?.preference.realizedTransfer ?? 0))} ballots transferred → {formatNumber(Math.abs(contributionSummary.statewideMarginDelta))} votes of {effectivePreferenceShiftPoints >= 0 ? "Harris−Trump" : "Trump−Harris"} margin movement.</strong>{" "}
                     Each direct Harris↔Trump transfer changes the two-candidate margin by 2 votes.
                   </p>
                 </>
