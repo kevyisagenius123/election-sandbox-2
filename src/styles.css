@@ -4911,6 +4911,39 @@ input[type="range"]:disabled {
   margin-top: 12px;
 }
 
+.night-analytical-lens-tabs {
+  display: inline-flex;
+  gap: 3px;
+  margin-top: 12px;
+  padding: 3px;
+  border: 1px solid rgba(54, 88, 99, 0.13);
+  border-radius: 999px;
+  background: rgba(238, 241, 235, 0.7);
+}
+
+.night-analytical-lens-tabs button,
+.night-velocity-toolbar button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #687d85;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.night-analytical-lens-tabs button {
+  padding: 7px 12px;
+}
+
+.night-analytical-lens-tabs button[aria-selected="true"],
+.night-velocity-toolbar button[aria-pressed="true"] {
+  background: #315e70;
+  color: #f8f7f0;
+  box-shadow: 0 4px 10px rgba(28, 57, 70, 0.16);
+}
+
 .night-timeline-chart-card,
 .night-timeline-readout {
   min-width: 0;
@@ -4924,6 +4957,7 @@ input[type="range"]:disabled {
 }
 
 .night-margin-timeline-chart,
+.night-reporting-velocity-chart,
 .night-timeline-loading {
   width: 100%;
   height: 190px;
@@ -4933,8 +4967,40 @@ input[type="range"]:disabled {
   margin: 0;
 }
 
-.night-margin-timeline-chart {
+.night-margin-timeline-chart,
+.night-reporting-velocity-chart {
   cursor: crosshair;
+}
+
+.night-velocity-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 5px 2px;
+}
+
+.night-velocity-toolbar > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.night-velocity-toolbar > div:first-child strong {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.night-velocity-toolbar > div:last-child {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid rgba(54, 88, 99, 0.13);
+  border-radius: 999px;
+}
+
+.night-velocity-toolbar button {
+  padding: 5px 8px;
 }
 
 .night-timeline-loading {
@@ -5021,8 +5087,142 @@ input[type="range"]:disabled {
 }
 
 .night-command-dock[data-snap="expanded"] .night-margin-timeline-chart,
+.night-command-dock[data-snap="expanded"] .night-reporting-velocity-chart,
 .night-command-dock[data-snap="expanded"] .night-timeline-loading {
   height: min(38dvh, 360px);
+}
+
+.night-state-comparison {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.night-state-comparison > button {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(54, 88, 99, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.28);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.night-state-comparison > button[data-status="stalled"] {
+  border-color: rgba(190, 145, 39, 0.55);
+  background: rgba(245, 236, 210, 0.36);
+}
+
+.night-state-comparison > button[data-status="complete"] {
+  border-color: rgba(67, 130, 107, 0.4);
+}
+
+.night-state-comparison header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.night-state-comparison header > span {
+  display: grid;
+  gap: 2px;
+}
+
+.night-state-comparison header b,
+.night-state-comparison header strong {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.night-state-comparison header small,
+.night-state-comparison dt,
+.night-comparison-progress small,
+.night-comparison-progress em {
+  color: #788a90;
+  font-family: "DM Mono", monospace;
+  font-size: 6px;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.night-state-comparison header small {
+  color: #9b8244;
+}
+
+.night-comparison-progress {
+  display: grid;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.night-comparison-progress > span {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 8px;
+}
+
+.night-comparison-progress i {
+  grid-column: 1 / -1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(65, 96, 106, 0.1);
+}
+
+.night-comparison-progress i b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3d88a5, #d5a73b);
+}
+
+.night-state-comparison dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(54, 88, 99, 0.12);
+}
+
+.night-state-comparison dl > div {
+  min-width: 0;
+  padding: 0 7px;
+}
+
+.night-state-comparison dl > div:first-child {
+  padding-left: 0;
+}
+
+.night-state-comparison dl > div + div {
+  border-left: 1px solid rgba(54, 88, 99, 0.12);
+}
+
+.night-state-comparison dt,
+.night-state-comparison dd {
+  margin: 0;
+}
+
+.night-state-comparison dd {
+  overflow: hidden;
+  margin-top: 4px;
+  color: #345d6d;
+  font-family: "DM Mono", monospace;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.night-state-comparison > p {
+  grid-column: 1 / -1;
+  margin: 1px 2px 0;
+  color: #71858d;
+  font-size: 7px;
+  line-height: 1.45;
 }
 
 .night-profile-bar {
@@ -5510,15 +5710,43 @@ input[type="range"]:disabled {
   .night-live-states,
   .night-method-grid,
   .night-return-metrics,
-  .night-timeline-layout {
+  .night-timeline-layout,
+  .night-state-comparison {
     grid-template-columns: 1fr;
   }
 
   .night-margin-timeline-chart,
+  .night-reporting-velocity-chart,
   .night-timeline-loading,
   .night-command-dock[data-snap="expanded"] .night-margin-timeline-chart,
+  .night-command-dock[data-snap="expanded"] .night-reporting-velocity-chart,
   .night-command-dock[data-snap="expanded"] .night-timeline-loading {
     height: 215px;
+  }
+
+  .night-analytical-lens-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+
+  .night-velocity-toolbar {
+    align-items: flex-start;
+  }
+
+  .night-state-comparison dl {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .night-state-comparison dl > div {
+    padding: 0;
+  }
+
+  .night-state-comparison dl > div + div {
+    padding-top: 8px;
+    border-top: 1px solid rgba(54, 88, 99, 0.12);
+    border-left: 0;
   }
 
   .night-timeline-axis-note {

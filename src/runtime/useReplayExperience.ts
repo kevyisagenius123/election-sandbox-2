@@ -7,6 +7,7 @@ import {
 import type { StateBehaviorRecipeSettings } from "../data/scenarioPortfolio.ts";
 import type { ElectionNightBehavior } from "../replay/threeStateElectionNight.ts";
 import type { NightMarginTimeline } from "../replay/visibleReplayTimeline.ts";
+import type { NightReportingPace } from "../replay/visibleReportingPace.ts";
 import type { ReplayDescriptiveAnalytics } from "../../packages/election-analytics/src/index.ts";
 import {
   THREE_STATE_NIGHT_PROTOCOL,
@@ -35,6 +36,7 @@ interface ReplayExperienceState {
   publishedUnits: readonly NightPublishedUnit[];
   timelineProgressMillionths: number;
   marginTimeline: NightMarginTimeline | null;
+  reportingPace: NightReportingPace | null;
   analytics: ReplayDescriptiveAnalytics | null;
 }
 
@@ -48,6 +50,7 @@ const INITIAL_STATE: ReplayExperienceState = {
   publishedUnits: [],
   timelineProgressMillionths: 0,
   marginTimeline: null,
+  reportingPace: null,
   analytics: null,
 };
 
@@ -74,8 +77,8 @@ export function useReplayExperience() {
       command,
     } satisfies ThreeStateNightWorkerRequest);
   }, []);
-  const setMarginTimelineVisible = useCallback((visible: boolean) => {
-    postCommand({ type: "SET_MARGIN_TIMELINE_VISIBILITY", visible });
+  const setAnalyticalLensVisible = useCallback((visible: boolean) => {
+    postCommand({ type: "SET_ANALYTICAL_LENS_VISIBILITY", visible });
   }, [postCommand]);
 
   const stop = useCallback(() => {
@@ -133,6 +136,7 @@ export function useReplayExperience() {
             publishedUnits: [...unitMapRef.current.values()],
             timelineProgressMillionths: response.timelineProgressMillionths,
             marginTimeline: response.marginTimeline,
+            reportingPace: response.reportingPace,
             analytics: response.analytics,
           };
         });
@@ -191,7 +195,7 @@ export function useReplayExperience() {
     pause: () => postCommand({ type: "PAUSE" }),
     reset: () => postCommand({ type: "RESET" }),
     step: () => postCommand({ type: "STEP_NEXT_EVENT_TIME" }),
-    setMarginTimelineVisible,
+    setAnalyticalLensVisible,
     seek: (progressMillionths: number) => postCommand({ type: "SEEK_PROGRESS", progressMillionths }),
   };
 }

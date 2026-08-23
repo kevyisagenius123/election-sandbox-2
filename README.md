@@ -13,13 +13,13 @@ The product is local-first, deterministic, and designed to explain why an electi
 
 ## Current release
 
-### v0.26A: Reported margin timeline
+### v0.26B: Reporting velocity and state comparison
 
-Election Night now includes its first interactive analytical lens. A regular ECharts timeline shows how the reported national, Pennsylvania, Michigan, and Wisconsin margins moved across logical replay time. Clicking the chart seeks the existing replay worker and updates the same deck.gl map.
+Election Night now includes a compact analytical workspace with Margin, Velocity, and Compare states lenses. Regular ECharts timelines show reported margin or ballots and returns published per logical minute. The semantic comparison view keeps PA, MI, and WI ballot progress, reporting-unit progress, activation, pace, and stalls separate. Clicking either chart seeks the existing replay worker and updates the same deck.gl map.
 
-The worker sends a maximum of 320 deterministic display points, drawn only from published local returns, and only while the Timeline tab is open. Leaving the tab disposes the single chart canvas and stops timeline payloads. ECharts GL is not installed; deck.gl remains the sole map renderer.
+The worker sends a maximum of 320 deterministic display points, drawn only from published local returns, and only while the Timeline tab is open. Margin and Velocity mount one chart canvas at a time; switching to Compare states or leaving the tab disposes it. ECharts GL is not installed; deck.gl remains the sole map renderer.
 
-[Read the v0.26A release notes](docs/releases/v0.26a-reported-margin-timeline.md), the [v0.26 plan](docs/plans/v0.26-analytical-lenses.md), or the [v0.26A verification record](docs/review/v0.26a-election-night-analytical-lenses/VERIFICATION.md).
+[Read the v0.26B release notes](docs/releases/v0.26b-reporting-velocity.md), the [v0.26 plan](docs/plans/v0.26-analytical-lenses.md), or the [v0.26B verification record](docs/review/v0.26b-reporting-velocity/VERIFICATION.md).
 
 Before expanding the analytics, the project completed an [audit of the old Sandbox](docs/research/OLD_SANDBOX_ANALYTICS_AUDIT.md) and adopted an [Analytics Constitution](docs/methodology/ANALYTICS_CONSTITUTION.md). The resulting [v0.25 plan](docs/plans/v0.25-analytics-foundation.md) restores descriptive depth without importing unsupported probability or decision claims.
 
@@ -62,6 +62,8 @@ v0.23B reuses decoded state foundations while Election Night remains open, makes
 - Save and reuse custom chronology profiles in browser-local storage.
 - Follow a compact local return tape that names the county, ballots, timestamp, and exact two-party margin movement.
 - See published-unit progress and the newest reporting state without leaving the map.
+- Switch between reported-margin and trailing reporting-velocity timelines.
+- Compare ballot progress, reporting-unit progress, activation, current pace, and stalls across PA, MI, and WI.
 
 Chronology controls change when votes arrive, never how many votes exist. Schedules are deterministic for the same scenario, profile, and seed. State color represents the current reported-vote leader, not a projection or race call.
 
@@ -108,9 +110,12 @@ src/App.tsx                         Product shell and scenario orchestration
 src/map/AtlasMapScene.tsx           Persistent national and detailed 3D renderer
 src/components/ElectionNightMarginTimeline.tsx
                                     Lazy regular-ECharts reported-margin lens
+src/components/ElectionNightReportingVelocity.tsx
+                                    Lazy regular-ECharts reporting-pace lens
 src/replay/threeStateElectionNight.ts
                                     PA/MI/WI visible replay scheduling
 src/replay/visibleReplayTimeline.ts Bounded current-prefix timeline contract
+src/replay/visibleReportingPace.ts  Candidate-blind pace and state comparison
 src/runtime/threeStateNight.worker.ts
                                     Dedicated Election Night worker
 src/runtime/useReplayExperience.ts  Playback and React integration
@@ -158,10 +163,11 @@ npm run build:pages
 
 ## Verification
 
-The v0.26A release passed:
+The v0.26B release passed:
 
-- 201 of 201 aggregate model, replay, and analytics tests
+- 206 of 206 aggregate model, replay, and analytics tests
 - 4 of 4 dedicated visible-timeline tests
+- 5 of 5 dedicated reporting-pace tests
 - 14 of 14 focused chronology and current-prefix tests
 - 1 of 1 focused integrated browser journey
 - TypeScript production build

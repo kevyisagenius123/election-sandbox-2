@@ -67,6 +67,7 @@ import {
 import { useScenarioPortfolio } from "./runtime/useScenarioPortfolio.ts";
 import { useReplayExperience } from "./runtime/useReplayExperience.ts";
 import type { NightCurrentReturn } from "./runtime/threeStateNightProtocol.ts";
+import type { ReportingVelocityMetric } from "./components/ElectionNightReportingVelocity.tsx";
 import {
   buildElectionNightChronologyPreview,
   DEFAULT_ELECTION_NIGHT_BEHAVIOR,
@@ -110,6 +111,7 @@ type ExperienceMode = "swingometer" | "election-night";
 type LaboratoryDrawerSnap = "collapsed" | "working" | "expanded";
 type LaboratoryDrawerTab = "behavior" | "contributors" | "inspector" | "assumptions" | "data";
 type NightDockTab = "live" | "timeline" | "direct" | "returns" | "method";
+type NightAnalyticalLens = "margin" | "velocity" | "compare";
 type ContributionOperation = "all" | ScenarioDeltaOperationId;
 
 const laboratoryDrawerTabs: LaboratoryDrawerTab[] = ["behavior", "contributors", "inspector", "assumptions", "data"];
@@ -130,6 +132,10 @@ const AtlasMapScene = lazy(() => import("./map/AtlasMapScene.tsx").then((module)
 
 const ElectionNightMarginTimeline = lazy(() => import(
   "./components/ElectionNightMarginTimeline.tsx"
+));
+
+const ElectionNightReportingVelocity = lazy(() => import(
+  "./components/ElectionNightReportingVelocity.tsx"
 ));
 
 const numberFormat = new Intl.NumberFormat("en-US");
@@ -406,8 +412,10 @@ function ScenarioApp() {
   const [nightOverrideState, setNightOverrideState] = useState<DetailedStateCode>("PA");
   const [nightOverrideCountyId, setNightOverrideCountyId] = useState("");
   const [nightDockTab, setNightDockTab] = useState<NightDockTab>("live");
+  const [nightAnalyticalLens, setNightAnalyticalLens] = useState<NightAnalyticalLens>("margin");
+  const [nightVelocityMetric, setNightVelocityMetric] = useState<ReportingVelocityMetric>("ballots");
   const replay = useReplayExperience();
-  const setReplayMarginTimelineVisible = replay.setMarginTimelineVisible;
+  const setReplayAnalyticalLensVisible = replay.setAnalyticalLensVisible;
   const nightChronologyPreview = useMemo(
     () => buildElectionNightChronologyPreview(nightBehavior),
     [nightBehavior],
@@ -561,10 +569,10 @@ function ScenarioApp() {
   }, [replay.timelineProgressMillionths]);
 
   useEffect(() => {
-    setReplayMarginTimelineVisible(
+    setReplayAnalyticalLensVisible(
       experienceMode === "election-night" && nightDockTab === "timeline",
     );
-  }, [experienceMode, nightDockTab, setReplayMarginTimelineVisible]);
+  }, [experienceMode, nightDockTab, setReplayAnalyticalLensVisible]);
 
   const detailedActual = states2024.find(
     (state) => state.code === activeDetailedStateCode,
@@ -1515,7 +1523,7 @@ function ScenarioApp() {
           </>}
         </nav>
 
-        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · analytical timeline · v0.26A" : "Three-state swingometer · scenario ledger · v0.26A"}</div>
+        <div className="build-status"><span />{experienceMode === "election-night" ? "Scenario replay · analytical workspace · v0.26B" : "Three-state swingometer · scenario ledger · v0.26B"}</div>
       </header>
 
       <div className="workbench" id="top">
@@ -2188,39 +2196,113 @@ function ScenarioApp() {
               <div aria-labelledby="night-dock-tab-timeline" className="drawer-panel" data-active={nightDockTab === "timeline"} id="night-dock-panel-timeline" role="tabpanel">
                 <section className="night-timeline-panel">
                   <div className="night-dock-section-heading">
-                    <div><span className="overline">Analytical lens</span><strong>How the reported margin moved</strong></div>
-                    <p>Only published PA, MI, and WI returns appear. Click the chart to seek the same map and count.</p>
+                    <div><span className="overline">Analytical workspace</span><strong>How the count moved</strong></div>
+                    <p>Compare margin, reporting pace, and state progress using only the returns visible at this moment.</p>
                   </div>
-                  {nightDockTab === "timeline" && replay.marginTimeline ? <div className="night-timeline-layout">
-                    <article className="night-timeline-chart-card">
-                      <Suspense fallback={<div className="night-timeline-loading" role="status">Loading timeline lens</div>}>
-                        <ElectionNightMarginTimeline
-                          focusStateCode={selectedStateCode && isDetailedStateCode(selectedStateCode)
-                            ? selectedStateCode
-                            : null}
-                          onSeek={replay.seek}
-                          timeline={replay.marginTimeline}
-                        />
-                      </Suspense>
-                      <div className="night-timeline-axis-note"><span>Republican lead</span><b>Reported margin</b><span>Democratic lead</span></div>
-                    </article>
-                    <aside className="night-timeline-readout">
-                      <span className="overline">Visible prefix</span>
-                      <strong>{formatNumber(replay.marginTimeline.observedReturnCount)} returns</strong>
-                      <p>{replay.marginTimeline.sampled
-                        ? `${formatNumber(replay.marginTimeline.points.length)} deterministic display points preserve the latest return and lead changes.`
-                        : "Every published return is represented in the displayed line."}</p>
-                      <dl>
-                        {(["PA", "MI", "WI"] as const).map((stateCode) => {
-                          const latest = replay.marginTimeline?.points.at(-1);
-                          const marginParts = latest?.jurisdictionMarginPartsPerMillion[stateCode] ?? null;
-                          const state = replay.current?.election.jurisdictions.find((row) => row.jurisdictionId === stateCode);
-                          return <div key={stateCode}><dt>{stateCode}</dt><dd>{marginParts === null ? "No return" : formatMargin(marginParts / 10_000)}</dd><small>{formatNumber(state?.returnsPublished ?? 0)} units</small></div>;
-                        })}
-                      </dl>
-                      <small>Above zero is a Democratic reported-vote lead. Below zero is Republican. This is observation, not projection.</small>
-                    </aside>
-                  </div> : <div className="night-timeline-loading" role="status">Timeline becomes available when the three-state replay is ready.</div>}
+                  <div aria-label="Election night analytical lenses" className="night-analytical-lens-tabs" role="tablist">
+                    {(["margin", "velocity", "compare"] as const).map((lens) => <button
+                      aria-selected={nightAnalyticalLens === lens}
+                      key={lens}
+                      onClick={() => setNightAnalyticalLens(lens)}
+                      role="tab"
+                      type="button"
+                    >{lens === "compare" ? "Compare states" : lens[0].toUpperCase() + lens.slice(1)}</button>)}
+                  </div>
+                  {nightDockTab === "timeline" && replay.marginTimeline && replay.reportingPace ? <>
+                    {nightAnalyticalLens === "margin" && <div className="night-timeline-layout">
+                      <article className="night-timeline-chart-card">
+                        <Suspense fallback={<div className="night-timeline-loading" role="status">Loading margin lens</div>}>
+                          <ElectionNightMarginTimeline
+                            focusStateCode={selectedStateCode && isDetailedStateCode(selectedStateCode)
+                              ? selectedStateCode
+                              : null}
+                            onSeek={replay.seek}
+                            timeline={replay.marginTimeline}
+                          />
+                        </Suspense>
+                        <div className="night-timeline-axis-note"><span>Republican lead</span><b>Reported margin</b><span>Democratic lead</span></div>
+                      </article>
+                      <aside className="night-timeline-readout">
+                        <span className="overline">Visible prefix</span>
+                        <strong>{formatNumber(replay.marginTimeline.observedReturnCount)} returns</strong>
+                        <p>{replay.marginTimeline.sampled
+                          ? `${formatNumber(replay.marginTimeline.points.length)} deterministic display points preserve the latest return and lead changes.`
+                          : "Every published return is represented in the displayed line."}</p>
+                        <dl>
+                          {(["PA", "MI", "WI"] as const).map((stateCode) => {
+                            const latest = replay.marginTimeline?.points.at(-1);
+                            const marginParts = latest?.jurisdictionMarginPartsPerMillion[stateCode] ?? null;
+                            const state = replay.current?.election.jurisdictions.find((row) => row.jurisdictionId === stateCode);
+                            return <div key={stateCode}><dt>{stateCode}</dt><dd>{marginParts === null ? "No return" : formatMargin(marginParts / 10_000)}</dd><small>{formatNumber(state?.returnsPublished ?? 0)} units</small></div>;
+                          })}
+                        </dl>
+                        <small>Above zero is a Democratic reported-vote lead. Below zero is Republican. This is observation, not projection.</small>
+                      </aside>
+                    </div>}
+                    {nightAnalyticalLens === "velocity" && <div className="night-timeline-layout">
+                      <article className="night-timeline-chart-card">
+                        <div className="night-velocity-toolbar">
+                          <div><span className="overline">Trailing {replay.reportingPace.windowMinutes} minutes</span><strong>Reporting velocity</strong></div>
+                          <div aria-label="Reporting velocity measure" role="group">
+                            {(["ballots", "returns"] as const).map((metric) => <button
+                              aria-pressed={nightVelocityMetric === metric}
+                              key={metric}
+                              onClick={() => setNightVelocityMetric(metric)}
+                              type="button"
+                            >{metric}</button>)}
+                          </div>
+                        </div>
+                        <Suspense fallback={<div className="night-timeline-loading" role="status">Loading velocity lens</div>}>
+                          <ElectionNightReportingVelocity
+                            focusStateCode={selectedStateCode && isDetailedStateCode(selectedStateCode)
+                              ? selectedStateCode
+                              : null}
+                            metric={nightVelocityMetric}
+                            onSeek={replay.seek}
+                            pace={replay.reportingPace}
+                          />
+                        </Suspense>
+                        <div className="night-timeline-axis-note"><span>Quieter count</span><b>Published per logical minute</b><span>Faster count</span></div>
+                      </article>
+                      <aside className="night-timeline-readout night-velocity-readout">
+                        <span className="overline">Current pace</span>
+                        <strong>{nightVelocityMetric === "ballots"
+                          ? `${formatCompact((replay.reportingPace.points.at(-1)?.national.ballotsPerMinuteMilli ?? 0) / 1_000)} ballots/min`
+                          : `${((replay.reportingPace.points.at(-1)?.national.returnsPerMinuteMilli ?? 0) / 1_000).toFixed(1)} returns/min`}</strong>
+                        <p>A trailing window reveals bursts and stalls without inventing a single excitement score.</p>
+                        <dl>
+                          {replay.reportingPace.comparisons.map((state) => <div key={state.jurisdictionId}>
+                            <dt>{state.jurisdictionId}</dt>
+                            <dd>{nightVelocityMetric === "ballots"
+                              ? formatCompact(state.currentPace.ballotsPerMinuteMilli / 1_000)
+                              : (state.currentPace.returnsPerMinuteMilli / 1_000).toFixed(1)}</dd>
+                            <small>{nightVelocityMetric}/min</small>
+                          </div>)}
+                        </dl>
+                        <small>Zero means no local return arrived inside the visible trailing window. Click the chart to seek the same map.</small>
+                      </aside>
+                    </div>}
+                    {nightAnalyticalLens === "compare" && <div className="night-state-comparison" role="region" aria-label="Three-state reporting comparison">
+                      {replay.reportingPace.comparisons.map((state) => <button
+                        data-status={state.status}
+                        key={state.jurisdictionId}
+                        onClick={() => selectState(state.jurisdictionId)}
+                        type="button"
+                      >
+                        <header><span><b>{state.jurisdictionId}</b><small>{state.status}</small></span><strong>{(state.ballotProgressMillionths / 10_000).toFixed(1)}% ballots</strong></header>
+                        <div className="night-comparison-progress">
+                          <span><small>Ballot progress</small><i><b style={{ width: `${state.ballotProgressMillionths / 10_000}%` }} /></i><em>{formatNumber(state.ballotsPublished)} / {formatNumber(state.modeledBallots)}</em></span>
+                          <span><small>Unit progress</small><i><b style={{ width: `${state.returnProgressMillionths / 10_000}%` }} /></i><em>{formatNumber(state.returnsPublished)} / {formatNumber(state.expectedReturns)}</em></span>
+                        </div>
+                        <dl>
+                          <div><dt>First return</dt><dd>{state.firstReturnAtMs === null ? "Waiting" : replayTimeShortFormat.format(new Date(state.firstReturnAtMs))}</dd></div>
+                          <div><dt>Latest activity</dt><dd>{state.latestReturnAtMs === null ? "None" : replayTimeShortFormat.format(new Date(state.latestReturnAtMs))}</dd></div>
+                          <div><dt>{replay.reportingPace?.windowMinutes ?? 15}m ballot pace</dt><dd>{formatCompact(state.currentPace.ballotsPerMinuteMilli / 1_000)}/min</dd></div>
+                        </dl>
+                      </button>)}
+                      <p>Ballot progress and unit progress remain separate because reporting units differ greatly in size. Status is descriptive, not a projection or race call.</p>
+                    </div>}
+                  </> : <div className="night-timeline-loading" role="status">Analytical lenses become available when the three-state replay is ready.</div>}
                 </section>
               </div>
 

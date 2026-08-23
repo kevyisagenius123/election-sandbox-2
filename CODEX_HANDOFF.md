@@ -21,7 +21,7 @@ The unchanged scenario must always reproduce the official baseline exactly.
 
 - Root: `C:\Users\kilom\OneDrive\Desktop\Sandbox\election-sandbox-2`
 - Branch: `main`
-- Release: `0.26.0`, v0.26A Reported Margin Timeline candidate
+- Release: `0.26.1`, v0.26B Reporting Velocity and State Comparison candidate
 - Frozen candidate: `v0.19.1-supervisor-review`
 - Review entry: `SUPERVISOR_REVIEW.md`
 - Remote: `https://github.com/kevyisagenius123/election-sandbox-2.git`
@@ -843,13 +843,28 @@ v0.17 additionally adds or changes:
 - `src/replay/visibleReplayTimeline.ts` builds an immutable cumulative margin index inside the replay worker and derives only the observed prefix for delivery.
 - The visible timeline carries national, PA, MI, and WI reported margins, return identity, local geography, ballot volume, replay time, and progress. It contains no future event.
 - Output is bounded to 320 deterministic display points and retains the latest return plus lead changes before neutral sampling.
-- `SET_MARGIN_TIMELINE_VISIBILITY` subscribes the browser only while the Timeline tab is open. Hidden tabs receive null timeline payloads.
+- `SET_ANALYTICAL_LENS_VISIBILITY` subscribes the browser only while the Timeline tab is open. Hidden tabs receive null margin and pace payloads.
 - `src/components/ElectionNightMarginTimeline.tsx` is dynamically imported, uses one regular ECharts canvas, coalesces updates through ECharts, observes its container, and disposes the observer and chart on unmount.
 - Chart clicks seek the existing three-state worker and therefore update the same deck.gl map, state desk, returns, and descriptive analytics.
 - Desktop and mobile timeline references are stored in `docs/review/v0.26a-election-night-analytical-lenses/screenshots/`.
 - Four dedicated timeline tests cover empty-prefix honesty, exact reconstruction, deterministic bounds, and hidden-future isolation. The focused integrated browser journey covers seek, one-canvas disposal, remount, restart, and mobile layout.
 - The aggregate passes 201 of 201 tests in 467.518 seconds. Lint, production build, and the zero-vulnerability production dependency audit pass. Regular ECharts is isolated in a 536.18 kB minified, 181.02 kB compressed lazy chunk.
 - Decision 0047, `docs/plans/v0.26-analytical-lenses.md`, `docs/releases/v0.26a-reported-margin-timeline.md`, and the v0.26A verification record define the accepted boundary.
+
+### v0.26B reporting velocity and state comparison
+
+- The Timeline tab is now one analytical workspace with Margin, Velocity, and Compare states internal lenses.
+- `src/replay/visibleReportingPace.ts` precomputes candidate-blind trailing 15-minute pace points in the worker and derives only the visible prefix.
+- Velocity can display ballots or returns published per logical minute. It never combines them into an excitement or competitiveness score.
+- State comparison preserves separate PA, MI, and WI activation, latest activity, stall status, ballot progress, reporting-unit progress, and current pace.
+- Final scenario ballot and unit denominators are used transparently for progress. Unreported candidate shares do not enter the pace payload.
+- Output is bounded to 320 deterministic points and retains current activity plus national and state ballot and return-rate peaks.
+- `src/components/ElectionNightReportingVelocity.tsx` is dynamically imported. Margin and Velocity mount one regular ECharts canvas at a time; Compare states mounts none.
+- Both charts seek the existing replay worker and persistent deck.gl map. State comparison cards select the existing map state.
+- Five dedicated reporting-pace tests cover no-return honesty, visible-prefix reconciliation, timing-only seed changes, hidden-future candidate isolation, deterministic bounds, and completion.
+- The focused integrated browser journey covers analytical lens switching, metric switching, chart seeking, canvas lifecycle, state comparison, and desktop/mobile layout.
+- The aggregate passes 206 of 206 tests in 532.238 seconds. Lint, production build, and the focused browser journey pass. The accepted ECharts and deck.gl lazy chunk warning remains.
+- Decision 0048, `docs/releases/v0.26b-reporting-velocity.md`, and `docs/review/v0.26b-reporting-velocity/VERIFICATION.md` define the release boundary.
 
 ## 8. Verification state
 
@@ -957,9 +972,9 @@ Re-run the commands before publishing if any model, data, or renderer file chang
 
 ## 10. Exact next phase
 
-v0.26A is implemented and verified. The exact next implementation, after supervisor review, is v0.26B Reporting Velocity and State Comparison. It should add ballots-per-logical-minute and returns-per-logical-minute views plus separate PA, MI, and WI activation, pace, stall, and progress comparisons through the same visible-tab subscription and disposal contract.
+v0.26B is implemented and verified. The exact next work is the bounded v0.26C ECharts GL research gate. Prototype one count-landscape view and compare it directly against a two-dimensional heatmap on comprehension, bundle size, GPU cost, retained memory, mobile behavior, and disposal. The GL prototype must remain outside production unless the third dimension materially improves understanding.
 
-Do not add ECharts GL in v0.26B. Its one-view count-landscape prototype is deferred to the v0.26C research gate and must beat a two-dimensional alternative on comprehension and runtime evidence. Do not add projections, calls, Decision Desk inference, demographic calibration, backend, memberships, rooms, public restricted-data delivery, or video without later authorization.
+Do not let ECharts GL become a second map engine. Do not add projections, calls, Decision Desk inference, demographic calibration, backend, memberships, rooms, public restricted-data delivery, or video without later authorization.
 
 Uncertainty in the final election result remains deferred. Reporting variation is deterministic from explicit profiles and named seeds, must be evidence-labeled, and may never become decorative noise.
 

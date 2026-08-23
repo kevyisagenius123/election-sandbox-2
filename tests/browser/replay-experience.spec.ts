@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 const screenshotDirectory = resolve(
   import.meta.dirname,
-  "../../docs/review/v0.26a-election-night-analytical-lenses/screenshots",
+  "../../docs/review/v0.26b-reporting-velocity/screenshots",
 );
 
 test("Election Night runs the Swingometer result on the persistent atlas map", async ({ page }) => {
@@ -73,7 +73,7 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   await page.getByLabel("Election night timeline").fill("420000");
   await expect(page.locator(".night-state-ledger .night-state-row").first().locator("b")).not.toHaveText(pennsylvaniaMarginAtQuarter ?? "", { timeout: 30_000 });
   await page.getByRole("tab", { name: "Timeline", exact: true }).click();
-  await expect(page.getByText("How the reported margin moved", { exact: true })).toBeVisible();
+  await expect(page.getByText("How the count moved", { exact: true })).toBeVisible();
   const marginTimeline = page.getByRole("img", { name: "Reported margin timeline. Click to seek the count." });
   await expect(marginTimeline).toBeVisible();
   await expect(marginTimeline.locator("canvas")).toHaveCount(1);
@@ -92,6 +92,37 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
     path: resolve(screenshotDirectory, "margin-timeline-desktop.png"),
     fullPage: true,
   });
+  await page.getByRole("tab", { name: "Velocity", exact: true }).click();
+  const velocityTimeline = page.getByRole("img", { name: /Reporting velocity timeline showing ballots/ });
+  await expect(velocityTimeline).toBeVisible();
+  await expect(velocityTimeline.locator("canvas")).toHaveCount(1);
+  await expect(page.locator(".night-margin-timeline-chart canvas")).toHaveCount(0);
+  await expect(page.getByText("Reporting velocity", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "returns", exact: true }).click();
+  await expect(page.getByRole("button", { name: "returns", exact: true })).toHaveAttribute("aria-pressed", "true");
+  const returnsVelocityTimeline = page.getByRole("img", { name: /Reporting velocity timeline showing returns/ });
+  await expect(returnsVelocityTimeline).toBeVisible();
+  const velocityProgressBeforeClick = await page.getByLabel("Election night timeline").inputValue();
+  const velocityBox = await returnsVelocityTimeline.boundingBox();
+  expect(velocityBox).not.toBeNull();
+  await page.mouse.click(velocityBox!.x + velocityBox!.width * 0.61, velocityBox!.y + velocityBox!.height * 0.48);
+  await expect(page.getByLabel("Election night timeline")).not.toHaveValue(velocityProgressBeforeClick, { timeout: 30_000 });
+  await page.screenshot({
+    path: resolve(screenshotDirectory, "reporting-velocity-desktop.png"),
+    fullPage: true,
+  });
+  await page.getByRole("tab", { name: "Compare states", exact: true }).click();
+  const stateComparison = page.getByRole("region", { name: "Three-state reporting comparison" });
+  await expect(stateComparison).toBeVisible();
+  await expect(stateComparison).toContainText("Ballot progress");
+  await expect(stateComparison).toContainText("Unit progress");
+  await expect(page.locator(".night-reporting-velocity-chart canvas")).toHaveCount(0);
+  await page.screenshot({
+    path: resolve(screenshotDirectory, "state-reporting-comparison-desktop.png"),
+    fullPage: true,
+  });
+  await page.getByRole("tab", { name: "Margin", exact: true }).click();
+  await expect(page.locator(".night-margin-timeline-chart canvas")).toHaveCount(1);
   await page.getByRole("tab", { name: "Live", exact: true }).click();
   await expect(page.locator(".night-return-tape")).toContainText("Local return tape");
   await page.screenshot({
@@ -163,6 +194,15 @@ test("Election Night runs the Swingometer result on the persistent atlas map", a
   await page.screenshot({
     path: resolve(screenshotDirectory, "margin-timeline-mobile.png"),
   });
+  await page.getByRole("tab", { name: "Velocity", exact: true }).click();
+  await expect(page.locator(".night-reporting-velocity-chart canvas")).toHaveCount(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({
+    path: resolve(screenshotDirectory, "reporting-velocity-mobile.png"),
+  });
+  await page.getByRole("tab", { name: "Compare states", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Three-state reporting comparison" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
   await page.getByRole("button", { name: "Edit Swingometer", exact: true }).click();
   await expect(page.getByRole("region", { name: "Laboratory desk" })).toBeVisible();

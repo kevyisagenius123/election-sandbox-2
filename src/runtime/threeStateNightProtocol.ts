@@ -5,6 +5,7 @@ import type {
 } from "../data/detailedStateManifest.ts";
 import type { ElectionNightBehavior } from "../replay/threeStateElectionNight.ts";
 import type { NightMarginTimeline } from "../replay/visibleReplayTimeline.ts";
+import type { NightReportingPace } from "../replay/visibleReportingPace.ts";
 import type { ReplayDescriptiveAnalytics } from "../../packages/election-analytics/src/index.ts";
 
 export const THREE_STATE_NIGHT_PROTOCOL = "three-state-night-worker-v1" as const;
@@ -94,7 +95,7 @@ export type ThreeStateNightWorkerRequest =
         | { type: "RESET" }
         | { type: "STEP_NEXT_EVENT_TIME" }
         | { type: "ADVANCE_LOGICAL_TIME"; deltaMs: number }
-        | { type: "SET_MARGIN_TIMELINE_VISIBILITY"; visible: boolean }
+        | { type: "SET_ANALYTICAL_LENS_VISIBILITY"; visible: boolean }
         | { type: "SEEK_PROGRESS"; progressMillionths: number };
     };
 
@@ -114,6 +115,7 @@ export type ThreeStateNightWorkerResponse =
       replaceLocalState: boolean;
       timelineProgressMillionths: number;
       marginTimeline: NightMarginTimeline | null;
+      reportingPace: NightReportingPace | null;
       analytics: ReplayDescriptiveAnalytics;
     }
   | ResponseEnvelope & { type: "ERROR"; message: string };
